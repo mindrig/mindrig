@@ -25,11 +25,11 @@ export class ReactWebviewProvider implements vscode.WebviewViewProvider {
 
   private _getHtmlForWebview(webview: vscode.Webview) {
     const reactAppUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "dist", "webview.js"),
+      vscode.Uri.joinPath(this._extensionUri, "dist", "webview", "webview.js"),
     );
 
     const stylesUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "dist", "index.css"),
+      vscode.Uri.joinPath(this._extensionUri, "dist", "webview", "index.css"),
     );
 
     return `<!DOCTYPE html>

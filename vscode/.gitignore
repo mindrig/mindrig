@@ -1,1 +1,4 @@
+# Dist
 /dist/
+# VS Code
+.vscode-test/

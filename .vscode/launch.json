@@ -1,8 +1,11 @@
 {
   "version": "0.2.0",
   "configurations": [
+    //#region Extension
+
+    // Watch
     {
-      "name": "Run Extension",
+      "name": "Extension Watch",
       "type": "extensionHost",
       "request": "launch",
       "args": [
@@ -10,7 +13,22 @@
         "${workspaceFolder}/vscode/demo"
       ],
       "outFiles": ["${workspaceFolder}/vscode/dist/**/*.js"],
-      "preLaunchTask": "${defaultBuildTask}"
+      "preLaunchTask": "watch:extension"
+    },
+
+    // Run
+    {
+      "name": "Extension Run",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode",
+        "${workspaceFolder}/vscode/demo"
+      ],
+      "outFiles": ["${workspaceFolder}/vscode/dist/**/*.js"],
+      "preLaunchTask": "build:extension"
     }
+
+    //#ednregion
   ]
 }

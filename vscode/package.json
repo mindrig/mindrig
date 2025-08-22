@@ -10,7 +10,7 @@
     "AI"
   ],
   "activationEvents": [],
-  "main": "./dist/extension.js",
+  "main": "./dist/extension/extension.js",
   "contributes": {
     "commands": [
       {
@@ -23,19 +23,20 @@
       }
     ],
     "views": {
-      "explorer": [
+      "mindcontrol-code-sidebar": [
         {
           "id": "mindcontrol-code.reactView",
           "name": "Mind Control React",
           "when": "true",
-          "type": "webview"
+          "type": "webview",
+          "icon": "$(extensions)"
         }
       ]
     },
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "mindcontrol-code-react",
+          "id": "mindcontrol-code-sidebar",
           "title": "Mind Control Code",
           "icon": "$(extensions)"
         }
@@ -44,20 +45,20 @@
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
-    "compile": "pnpm run build:extension && pnpm run build:webview && pnpm run copy:assets",
-    "watch": "pnpm run build:extension --watch",
-    "package": "pnpm run build:extension --mode production && pnpm run build:webview --mode production && pnpm run copy:assets",
+    "package": "pnpm run package:extension & pnpm run package:webview",
+    "package:extension": "vite build --mode production",
+    "package:webview": "BUILD_TARGET=webview vite build --mode production",
+    "build": "pnpm run build:extension & pnpm run build:webview",
     "build:extension": "vite build",
     "build:webview": "BUILD_TARGET=webview vite build",
-    "copy:assets": "cp -r dist/webview/* dist/",
+    "build:tests": "tsc -p . --outDir out",
+    "watch": "pnpm run watch:extension & pnpm run watch:webview",
     "watch:extension": "vite build --watch",
     "watch:webview": "BUILD_TARGET=webview vite build --watch",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
-    "lint": "eslint src",
+    "watch:tests": "tsc -p . -w --outDir out",
+    "pretest": "pnpm run build:tests & pnpm run build",
     "test": "vscode-test",
-    "dev": "pnpm run watch:extension"
+    "lint": "eslint src"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -79,7 +80,6 @@
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
     "postcss": "^8.4.49",
-    "prettier": "^3.6.2",
     "tailwindcss": "^3.4.16",
     "typescript": "^5.9.2",
     "vite": "^6.0.3"

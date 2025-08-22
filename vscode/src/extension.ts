@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
     "mindcontrol-code.showReactView",
     () => {
       vscode.commands.executeCommand(
-        "workbench.view.extension.mindcontrol-code-react",
+        "workbench.view.extension.mindcontrol-code-sidebar",
       );
     },
   );

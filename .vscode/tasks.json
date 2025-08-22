@@ -1,13 +1,85 @@
 {
   "version": "2.0.0",
   "tasks": [
+    //#region Build
+
+    // Extension
     {
       "type": "shell",
-      "label": "pnpm: dev",
+      "label": "build:extension",
+      "dependsOn": ["build:webview"],
+      "dependsOrder": "parallel",
       "command": "pnpm",
-      "args": ["run", "dev"],
+      "args": ["run", "build:extension"],
       "options": {
         "cwd": "${workspaceFolder}/vscode"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ]
+      }
+    },
+
+    // Webview
+    {
+      "type": "shell",
+      "label": "build:webview",
+      "command": "pnpm",
+      "args": ["run", "build:webview"],
+      "options": {
+        "cwd": "${workspaceFolder}/vscode"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ]
+      }
+    },
+
+    //#endregion
+
+    //#region Watch
+
+    // Extension
+    {
+      "type": "shell",
+      "label": "watch:extension",
+      "dependsOn": ["watch:webview"],
+      "dependsOrder": "parallel",
+      "command": "pnpm",
+      "args": ["run", "watch:extension"],
+      "options": {
+        "cwd": "${workspaceFolder}/vscode"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "group": "watchers"
       },
       "problemMatcher": {
         "pattern": [
@@ -23,39 +95,46 @@
         "background": {
           "activeOnStart": true,
           "beginsPattern": "^vite.*building",
-          "endsPattern": ".*built in.*"
+          "endsPattern": ".*built in.*ms\\."
         }
-      },
-      "isBackground": true,
-      "presentation": {
-        "reveal": "never",
-        "group": "watchers"
-      },
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
-    },
-    {
-      "type": "shell",
-      "label": "pnpm: watch-tests",
-      "command": "pnpm",
-      "args": ["run", "watch-tests"],
-      "options": {
-        "cwd": "${workspaceFolder}/vscode"
-      },
-      "problemMatcher": "$tsc-watch",
-      "isBackground": true,
-      "presentation": {
-        "reveal": "never",
-        "group": "watchers"
       },
       "group": "build"
     },
+
+    // Webview
     {
-      "label": "tasks: watch-tests",
-      "dependsOn": ["pnpm: dev", "pnpm: watch-tests"],
-      "problemMatcher": []
+      "type": "shell",
+      "label": "watch:webview",
+      "command": "pnpm",
+      "args": ["run", "watch:webview"],
+      "options": {
+        "cwd": "${workspaceFolder}/vscode"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "group": "watchers"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^vite.*building",
+          "endsPattern": ".*built in.*ms\\."
+        }
+      },
+      "group": "build"
     }
+
+    //#endregion
   ]
 }
