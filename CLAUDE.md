@@ -1,3 +1,31 @@
+# Mind Control Code
+
+Mind Control Code is an editor companion that helps to work on, test (in a playground and using evals) defined in source code. Right now it's in progress, so now all features planned are implemented.
+
+## Project Structure
+
+This is a monorepo with the following packages:
+
+### [`vscode`](./vscode/)
+
+VS Code extension that adds Mind Control Code panel with AI playground.
+
+**Stack:**
+
+- TypeScript
+- React 18
+- Vite (build tool)
+- Tailwind CSS
+- VS Code Extension API
+- Vitest (unit testing)
+- vscode-test (extension integration tests)
+
+## Development Plan
+
+- [ ] MVP with playground for prompts defined in source code
+- [ ] Prompts explorer that allows to find all prompts and quickly navigate
+- [ ] Prompt evals to automatically test project prompts
+
 # Claude Code Instructions
 
 ## React Component Code Style
@@ -55,6 +83,11 @@ This approach provides:
 - Use links for file references instead of plain text
 - Example: [`package.json`](./package.json) instead of `package.json`
 - This makes files clickable and easier to navigate in IDEs
+
+### Task Lists
+
+- Use checkbox syntax for tasks and future plans: `- [ ]` for incomplete, `- [x]` for completed
+- This provides clear visual status and allows for easy tracking of progress
 
 ### Content Guidelines
 
