@@ -2,6 +2,9 @@
 ## Stack
 node = { version = "lts", postinstall = "corepack enable" }
 
+## Tools
+"npm:@anthropic-ai/claude-code" = "latest"
+
 [settings]
 # Enable extra features
 experimental = true

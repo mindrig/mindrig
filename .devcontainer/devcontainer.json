@@ -21,7 +21,8 @@
         "hverlin.mise-vscode",
         "tekumara.typos-vscode",
         "davidlday.languagetool-linter",
-        "ms-vscode.extension-test-runner"
+        "ms-vscode.extension-test-runner",
+        "Anthropic.claude-code"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",
