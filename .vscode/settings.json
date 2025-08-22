@@ -1,0 +1,9 @@
+{
+  "files.exclude": {
+    "vscode/dist": false
+  },
+  "search.exclude": {
+    "vscode/dist": true
+  },
+  "typescript.tsc.autoDetect": "off"
+}
