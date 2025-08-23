@@ -27,8 +27,24 @@
       ],
       "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
       "preLaunchTask": "build:extension"
+    },
+
+    // Serve
+    {
+      "name": "Extension Serve",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
+        "${workspaceFolder}/vscode/extension/demo"
+      ],
+      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
+      "preLaunchTask": "serve:extension",
+      "env": {
+        "VSCODE_DEV_SERVER": "true"
+      }
     }
 
-    //#ednregion
+    //#endregion
   ]
 }
