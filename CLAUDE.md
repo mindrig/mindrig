@@ -69,6 +69,12 @@ This approach provides:
 - Explicit function component definition
 - Minimal boilerplate for simple cases
 
+## Package Manager
+
+- Use **pnpm** as the package manager for this project
+- Always use `pnpm` commands instead of `npm` or `npx`
+- Example: `pnpm run watch`, `pnpm install`, `pnpm run build`
+
 ## Code Formatting
 
 - Use Prettier with default settings (configured in [`.prettierrc`](./.prettierrc))

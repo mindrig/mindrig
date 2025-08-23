@@ -133,6 +133,43 @@
         }
       },
       "group": "build"
+    },
+
+    //#endregion
+
+    //#region Serve
+
+    // Webview
+    {
+      "type": "shell",
+      "label": "serve:webview",
+      "command": "pnpm",
+      "args": ["run", "serve:webview"],
+      "options": {
+        "cwd": "${workspaceFolder}/vscode"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "group": "watchers"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE",
+          "endsPattern": ".*ready in.*"
+        }
+      }
     }
 
     //#endregion

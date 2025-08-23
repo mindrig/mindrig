@@ -1,6 +1,13 @@
 {
   "permissions": {
-    "allow": [],
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:vite.dev)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm exec tsc:*)",
+      "mcp__ide__getDiagnostics"
+    ],
     "deny": [],
     "ask": []
   }

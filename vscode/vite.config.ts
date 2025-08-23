@@ -4,8 +4,18 @@ import { resolve } from "path";
 
 const isWebview = process.env.BUILD_TARGET === "webview";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
+  server: isWebview
+    ? {
+        port: 5173,
+        host: "localhost",
+        hmr: {
+          port: 5173,
+          host: "localhost",
+        },
+      }
+    : undefined,
   build: isWebview
     ? {
         // Webview
@@ -20,7 +30,7 @@ export default defineConfig({
         outDir: "dist/webview",
         target: "es2020",
         sourcemap: true,
-        minify: false,
+        minify: mode === "production",
       }
     : {
         // Extension
@@ -35,16 +45,14 @@ export default defineConfig({
         outDir: "dist/extension",
         target: "node16",
         sourcemap: true,
-        minify: false,
+        minify: mode === "production",
       },
   define: {
-    "process.env.NODE_ENV": JSON.stringify(
-      process.env.NODE_ENV || "development",
-    ),
+    "process.env.NODE_ENV": JSON.stringify(mode),
   },
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
     },
   },
-});
+}));

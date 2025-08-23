@@ -53,9 +53,10 @@
     "build:webview": "BUILD_TARGET=webview vite build",
     "build:tests": "tsc -p . --outDir out",
     "watch": "pnpm run watch:extension & pnpm run watch:webview",
-    "watch:extension": "vite build --watch",
-    "watch:webview": "BUILD_TARGET=webview vite build --watch",
+    "watch:extension": "vite build --watch --mode development",
+    "watch:webview": "BUILD_TARGET=webview vite build --watch --mode development",
     "watch:tests": "tsc -p . -w --outDir out",
+    "serve:webview": "BUILD_TARGET=webview vite --host localhost --port 5173",
     "pretest": "pnpm run build:tests & pnpm run build",
     "test": "vscode-test",
     "lint": "eslint src"
