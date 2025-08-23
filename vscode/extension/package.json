@@ -1,5 +1,6 @@
 {
-  "name": "@mindcontrol/vscode",
+  "name": "vscode",
+  "publisher": "mindcontrol",
   "displayName": "Mind Control Code",
   "description": "Mind Control Code extension for VS Code",
   "version": "0.1.0",
@@ -51,7 +52,7 @@
     "build:tests": "tsc -p . --outDir out --noEmit false",
     "watch:tests": "tsc -p . -w --outDir out --noEmit false",
     "pretest": "pnpm run build:tests",
-    "test": "xvfb-run -a pnpm exec vscode-test",
+    "test": "./scripts/test.sh",
     "lint": "eslint src"
   },
   "devDependencies": {
