@@ -10,6 +10,7 @@
   "onCreateCommand": ".devcontainer/scripts/on-create.sh",
   "postCreateCommand": ".devcontainer/scripts/post-create.sh",
   "updateContentCommand": ".devcontainer/scripts/on-update.sh",
+  "postStartCommand": ".devcontainer/scripts/post-start.sh",
 
   "customizations": {
     "vscode": {

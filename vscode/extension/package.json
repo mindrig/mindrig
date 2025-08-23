@@ -48,10 +48,10 @@
     "package": "pnpm run build --mode production",
     "build": "vite build",
     "watch": "vite build --watch --mode development",
-    "build:tests": "tsc -p . --outDir out",
-    "watch:tests": "tsc -p . -w --outDir out",
+    "build:tests": "tsc -p . --outDir out --noEmit false",
+    "watch:tests": "tsc -p . -w --outDir out --noEmit false",
     "pretest": "pnpm run build:tests",
-    "test": "vscode-test",
+    "test": "xvfb-run -a pnpm exec vscode-test",
     "lint": "eslint src"
   },
   "devDependencies": {
