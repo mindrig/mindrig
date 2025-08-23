@@ -10,9 +10,9 @@
       "dependsOn": ["build:webview"],
       "dependsOrder": "parallel",
       "command": "pnpm",
-      "args": ["run", "build:extension"],
+      "args": ["run", "build"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode"
+        "cwd": "${workspaceFolder}/vscode/extension"
       },
       "group": "build",
       "presentation": {
@@ -38,9 +38,9 @@
       "type": "shell",
       "label": "build:webview",
       "command": "pnpm",
-      "args": ["run", "build:webview"],
+      "args": ["run", "build"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode"
+        "cwd": "${workspaceFolder}/vscode/webview"
       },
       "group": "build",
       "presentation": {
@@ -72,9 +72,9 @@
       "dependsOn": ["watch:webview"],
       "dependsOrder": "parallel",
       "command": "pnpm",
-      "args": ["run", "watch:extension"],
+      "args": ["run", "watch"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode"
+        "cwd": "${workspaceFolder}/vscode/extension"
       },
       "isBackground": true,
       "presentation": {
@@ -106,9 +106,9 @@
       "type": "shell",
       "label": "watch:webview",
       "command": "pnpm",
-      "args": ["run", "watch:webview"],
+      "args": ["run", "watch"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode"
+        "cwd": "${workspaceFolder}/vscode/webview"
       },
       "isBackground": true,
       "presentation": {
@@ -144,9 +144,9 @@
       "type": "shell",
       "label": "serve:webview",
       "command": "pnpm",
-      "args": ["run", "serve:webview"],
+      "args": ["run", "serve"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode"
+        "cwd": "${workspaceFolder}/vscode/webview"
       },
       "isBackground": true,
       "presentation": {

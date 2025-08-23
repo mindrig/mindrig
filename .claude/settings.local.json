@@ -6,7 +6,9 @@
       "WebFetch(domain:vite.dev)",
       "Bash(pnpm run:*)",
       "Bash(pnpm exec tsc:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm -w run format)"
     ],
     "deny": [],
     "ask": []

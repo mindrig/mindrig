@@ -9,10 +9,10 @@
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/vscode",
-        "${workspaceFolder}/vscode/demo"
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
+        "${workspaceFolder}/vscode/extension/demo"
       ],
-      "outFiles": ["${workspaceFolder}/vscode/dist/**/*.js"],
+      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
       "preLaunchTask": "watch:extension"
     },
 
@@ -22,10 +22,10 @@
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/vscode",
-        "${workspaceFolder}/vscode/demo"
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
+        "${workspaceFolder}/vscode/extension/demo"
       ],
-      "outFiles": ["${workspaceFolder}/vscode/dist/**/*.js"],
+      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
       "preLaunchTask": "build:extension"
     }
 

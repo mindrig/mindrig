@@ -13,10 +13,14 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   // Check if we're in development mode
-  const isDevelopment = context.extensionMode === vscode.ExtensionMode.Development;
-  
+  const isDevelopment =
+    context.extensionMode === vscode.ExtensionMode.Development;
+
   // Register the React webview provider
-  const webviewProvider = new ReactWebviewProvider(context.extensionUri, isDevelopment);
+  const webviewProvider = new ReactWebviewProvider(
+    context.extensionUri,
+    isDevelopment,
+  );
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       ReactWebviewProvider.viewType,

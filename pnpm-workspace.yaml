@@ -1,0 +1,6 @@
+packages:
+  - vscode/extension
+  - vscode/webview
+
+onlyBuiltDependencies:
+  - esbuild

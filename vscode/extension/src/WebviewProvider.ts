@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
+import { getWebviewHtml } from "./html";
 
 export class ReactWebviewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "mindcontrol-code.reactView";
@@ -35,18 +36,6 @@ export class ReactWebviewProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extensionUri, "dist", "webview", "index.css"),
     );
 
-    return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="${stylesUri}" rel="stylesheet">
-        <title>Mind Control Code</title>
-    </head>
-    <body>
-        <div id="root"></div>
-        <script src="${reactAppUri}"></script>
-    </body>
-    </html>`;
+    return getWebviewHtml(stylesUri.toString(), reactAppUri.toString());
   }
 }

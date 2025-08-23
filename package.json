@@ -1,9 +1,13 @@
 {
-  "name": "@mindcontrol/code-root",
+  "name": "@mindcontrol/code-workspace",
   "private": true,
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
+  "workspaces": [
+    "vscode/extension",
+    "vscode/webview"
+  ],
   "scripts": {
     "format": "prettier --write ."
   },

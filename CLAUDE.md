@@ -6,19 +6,51 @@ Mind Control Code is an editor companion that helps to work on, test (in a playg
 
 This is a monorepo with the following packages:
 
-### [`vscode`](./vscode/)
+### [`vscode/extension`](./vscode/extension/)
 
-VS Code extension that adds Mind Control Code panel with AI playground.
+VS Code extension package containing the main extension logic and webview provider.
+
+**Stack:**
+
+- TypeScript
+- VS Code Extension API
+- Vite as the bundler
+- vscode-test (extension integration tests)
+
+### [`vscode/webview`](./vscode/webview/)
+
+React webview application that provides the UI for the Mind Control Code panel.
 
 **Stack:**
 
 - TypeScript
 - React 18
-- Vite (build tool)
+- Vite as the bundler
 - Tailwind CSS
-- VS Code Extension API
-- Vitest (unit testing)
-- vscode-test (extension integration tests)
+- PostCSS
+
+## Build Architecture
+
+The project uses a two-package architecture with isolated dependencies:
+
+- **Extension package**: Builds Node.js/CommonJS code for VS Code extension host
+- **Webview package**: Builds React app as ES modules for webview display
+- **Build output**: Webview builds into `extension/dist/webview/`, extension builds into `extension/dist/extension/`
+- **Distribution**: Extension package contains both outputs for VS Code marketplace
+
+### Build Commands
+
+From the root directory:
+
+- Build extension: `pnpm --filter @mindcontrol/code-vscode run build`
+- Build webview: `pnpm --filter @mindcontrol/code-webview run build`
+- Watch extension: `pnpm --filter @mindcontrol/code-vscode run watch`
+- Watch webview: `pnpm --filter @mindcontrol/code-webview run watch`
+
+Or use VS Code tasks:
+
+- `Ctrl+Shift+P` → `Tasks: Run Task` → `build:extension` or `build:webview`
+- `Ctrl+Shift+P` → `Tasks: Run Task` → `watch:extension` or `watch:webview`
 
 ## Development Plan
 
