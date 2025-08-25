@@ -7,7 +7,7 @@
   "scripts": {
     "build": "vite build",
     "watch": "vite build --watch --mode development",
-    "serve": "vite --host localhost --port 5173",
+    "serve": "vite",
     "lint": "eslint src"
   },
   "dependencies": {

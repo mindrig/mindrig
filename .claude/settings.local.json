@@ -1,14 +1,18 @@
 {
   "permissions": {
     "allow": [
+      "mcp__ide__getDiagnostics",
       "WebSearch",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:vite.dev)",
       "WebFetch(domain:code.visualstudio.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(pnpm install:*)",
       "Bash(pnpm run:*)",
       "Bash(pnpm exec tsc:*)",
-      "mcp__ide__getDiagnostics"
+      "Bash(pnpm -F vscode test)",
+      "Bash(pnpm -F \"*\" build)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

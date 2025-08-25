@@ -6,11 +6,24 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   server: {
     port: 5173,
-    host: "localhost",
+    // NOTE: When developing inside a dev container, the default `localhost`
+    // prevents the host to access the dev server.
+    host: "127.0.0.1",
     hmr: {
       port: 5173,
-      host: "localhost",
+      host: "127.0.0.1",
     },
+    cors: {
+      origin: [
+        // Browser
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        // VS Code Webviews
+        /^vscode-webview:\/\//,
+      ],
+      credentials: true,
+    },
+    allowedHosts: ["127.0.0.1", "localhost"],
   },
   build: {
     rollupOptions: {

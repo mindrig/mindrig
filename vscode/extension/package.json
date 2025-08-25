@@ -49,7 +49,8 @@
     "watch:tests": "tsc -p . -w --outDir out --noEmit false",
     "pretest": "pnpm run build:tests",
     "test": "./test/run.sh",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "generate:webview:html": "tsx ./scripts/generateWebviewHtml.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
@@ -62,6 +63,7 @@
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.32.0",
     "playwright-core": "^1.55.0",
+    "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "vite": "^6.0.3"
   }
