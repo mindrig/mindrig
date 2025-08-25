@@ -5,6 +5,7 @@
   "description": "Mind Control Code webview React application",
   "type": "module",
   "scripts": {
+    "package": "vite build --mode production",
     "build": "vite build",
     "watch": "vite build --watch --mode development",
     "serve": "vite",

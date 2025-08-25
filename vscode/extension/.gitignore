@@ -3,5 +3,6 @@
 /out/
 # VS Code
 .vscode-test/
+*.vsix
 # Playwright
 /test/results/

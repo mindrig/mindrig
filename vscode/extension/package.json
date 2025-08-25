@@ -4,6 +4,10 @@
   "displayName": "Mind Control Code",
   "description": "Mind Control Code extension for VS Code",
   "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mindcontrol/code.git"
+  },
   "engines": {
     "vscode": "^1.103.0"
   },
@@ -41,8 +45,10 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "pnpm run package",
-    "package": "pnpm run build --mode production",
+    "pack": "vsce pack --no-dependencies",
+    "publish": "vsce publish --no-dependencies",
+    "vscode:prepublish": "pnpm -F @mindcontrol/vscode-webview run package && pnpm run package",
+    "package": "vite build --mode production",
     "build": "vite build",
     "watch": "vite build --watch --mode development",
     "build:tests": "tsc -p . --outDir out --noEmit false",
@@ -61,6 +67,7 @@
     "@typescript-eslint/parser": "^8.39.0",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
     "eslint": "^9.32.0",
     "playwright-core": "^1.55.0",
     "tsx": "^4.20.5",
