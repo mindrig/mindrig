@@ -52,6 +52,16 @@ Or use VS Code tasks:
 - `Ctrl+Shift+P` → `Tasks: Run Task` → `build:extension` or `build:webview`
 - `Ctrl+Shift+P` → `Tasks: Run Task` → `watch:extension` or `watch:webview`
 
+### Testing Commands
+
+From the root directory:
+
+- Run extension e2e tests: `pnpm -F vscode test`
+
+The e2e tests use `@vscode/test-cli` and Playwright to test the extension in an actual VS Code instance. The tests connect to VS Code using Chromium DevTools protocol and use Playwright's `expect` API combined with Mocha test framework.
+
+**Note:** Run the e2e tests whenever the extension setup has changed. For now, webview tests should be skipped until explicitly requested.
+
 ## Development Plan
 
 - [ ] MVP with playground for prompts defined in source code

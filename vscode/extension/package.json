@@ -15,19 +15,15 @@
   "contributes": {
     "commands": [
       {
-        "command": "mindcontrol-code.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "mindcontrol-code.showReactView",
-        "title": "Show React View"
+        "command": "mindcontrol.showWorkbench",
+        "title": "Show Workbench"
       }
     ],
     "views": {
-      "mindcontrol-code-sidebar": [
+      "mindcontrol-workbench": [
         {
-          "id": "mindcontrol-code.reactView",
-          "name": "Mind Control React",
+          "id": "mindcontrol.workbench",
+          "name": "Mind Control Code",
           "when": "true",
           "type": "webview",
           "icon": "$(extensions)"
@@ -37,7 +33,7 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "mindcontrol-code-sidebar",
+          "id": "mindcontrol-workbench",
           "title": "Mind Control Code",
           "icon": "$(extensions)"
         }
@@ -52,10 +48,11 @@
     "build:tests": "tsc -p . --outDir out --noEmit false",
     "watch:tests": "tsc -p . -w --outDir out --noEmit false",
     "pretest": "pnpm run build:tests",
-    "test": "./scripts/test.sh",
+    "test": "./test/run.sh",
     "lint": "eslint src"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "@types/vscode": "^1.103.0",
@@ -64,6 +61,7 @@
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.32.0",
+    "playwright-core": "^1.55.0",
     "typescript": "^5.9.2",
     "vite": "^6.0.3"
   }

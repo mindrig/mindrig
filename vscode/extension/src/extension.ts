@@ -1,58 +1,40 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { ReactWebviewProvider } from "./WebviewProvider";
+import { WorkbenchViewProvider } from "./WorkbenchViewProvider";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  console.log(
-    'Congratulations, your extension "mindcontrol-code" is now active!',
-  );
+  console.log('Congratulations, your extension "mindcontrol" is now active!');
 
   // Check if we're in development mode
   const isDevelopment =
     context.extensionMode === vscode.ExtensionMode.Development;
 
-  // Register the React webview provider
-  const webviewProvider = new ReactWebviewProvider(
+  const webviewProvider = new WorkbenchViewProvider(
     context.extensionUri,
     isDevelopment,
   );
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
-      ReactWebviewProvider.viewType,
+      WorkbenchViewProvider.viewType,
       webviewProvider,
     ),
   );
 
-  // The original hello world command
-  const helloWorldDisposable = vscode.commands.registerCommand(
-    "mindcontrol-code.helloWorld",
-    () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      vscode.window.showInformationMessage(
-        "Hello World from Mind Control Code!",
-      );
-    },
-  );
-
-  // Command to show React webview
-  const showReactViewDisposable = vscode.commands.registerCommand(
-    "mindcontrol-code.showReactView",
+  const showWorkbenchDisposable = vscode.commands.registerCommand(
+    "mindcontrol.showWorkbench",
     () => {
       vscode.commands.executeCommand(
-        "workbench.view.extension.mindcontrol-code-sidebar",
+        "workbench.view.extension.mindcontrol-workbench",
       );
     },
   );
 
-  context.subscriptions.push(helloWorldDisposable);
-  context.subscriptions.push(showReactViewDisposable);
+  context.subscriptions.push(showWorkbenchDisposable);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}

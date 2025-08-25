@@ -4,11 +4,11 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:vite.dev)",
+      "WebFetch(domain:code.visualstudio.com)",
+      "Bash(pnpm install:*)",
       "Bash(pnpm run:*)",
       "Bash(pnpm exec tsc:*)",
-      "mcp__ide__getDiagnostics",
-      "Bash(pnpm install:*)",
-      "Bash(pnpm -w run format)"
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

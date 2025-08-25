@@ -13,7 +13,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "sourceMap": true,
-    "rootDir": "src",
+    "rootDir": ".",
     "types": ["node", "vscode", "mocha"],
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["node_modules", "dist", "out"]
 }
