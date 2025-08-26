@@ -14,8 +14,7 @@
       "outputs": ["./out/**/*.test.js", "./out/**/*.test.map"]
     },
     "test": {
-      "dependsOn": ["build", "build:tests"],
-      "inputs": ["./src/**/*.test.ts"]
+      "dependsOn": ["build", "build:tests"]
     }
   },
   "extends": ["//"]
