@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { WorkbenchWebviewHtmlUris, workbenchWebviewHtml } from "./html";
 import { FileManager } from "../FileManager";
+import { SecretManager } from "../SecretManager";
 import { SettingsManager } from "../SettingsManager";
 import { resolveDevServerUri } from "../devServer";
 
@@ -15,20 +16,25 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
   #isDevelopment: boolean;
   #extensionUri: vscode.Uri;
+  #context: vscode.ExtensionContext;
 
   constructor(
     readonly extensionUri: vscode.Uri,
     // NOTE: It is unused at the moment, but keep it for future use
     isDevelopment: boolean,
+    context: vscode.ExtensionContext,
   ) {
     this.#extensionUri = extensionUri;
     this.#isDevelopment = isDevelopment;
+    this.#context = context;
   }
 
   public dispose() {
     if (this.#fileManager) this.#fileManager.dispose();
 
     if (this.#settingsManager) this.#settingsManager.dispose();
+
+    if (this.#secretManager) this.#secretManager.dispose();
   }
 
   //#endregion
@@ -50,6 +56,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     this.#webview = webviewView.webview;
     this.#setupMessageHandling();
     this.#initializeSettingsManager();
+    this.#initializeSecretManager();
     this.#applyHtml(webviewView.webview);
   }
 
@@ -76,6 +83,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     }
 
     this.#sendSettings();
+    this.#sendSecret();
   }
 
   //#endregion
@@ -160,6 +168,15 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         case "unpinFile":
           this.#handleUnpinFile();
           break;
+        case "getSecret":
+          this.#sendSecret();
+          break;
+        case "setSecret":
+          this.#handleSetSecret(message.payload);
+          break;
+        case "clearSecret":
+          this.#handleClearSecret();
+          break;
       }
     });
   }
@@ -241,6 +258,42 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       type: "settingsChanged",
       payload: settings,
     });
+  }
+
+  //#endregion
+
+  //#region Secret manager
+
+  #secretManager: SecretManager | null = null;
+
+  #initializeSecretManager() {
+    this.#secretManager = new SecretManager(this.#context.secrets, {
+      onSecretChanged: (secret) => {
+        this.#sendMessage({
+          type: "secretChanged",
+          payload: { secret: secret || null },
+        });
+      },
+    });
+  }
+
+  async #sendSecret() {
+    if (!this.#secretManager) return;
+    const secret = await this.#secretManager.getSecret();
+    this.#sendMessage({
+      type: "secretChanged",
+      payload: { secret: secret || null },
+    });
+  }
+
+  async #handleSetSecret(secret: string) {
+    if (!this.#secretManager) return;
+    await this.#secretManager.setSecret(secret);
+  }
+
+  async #handleClearSecret() {
+    if (!this.#secretManager) return;
+    await this.#secretManager.clearSecret();
   }
 
   //#endregion

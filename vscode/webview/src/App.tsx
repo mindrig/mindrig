@@ -1,5 +1,5 @@
 import "@/styles.css";
-import { ActiveFile, SettingsPanel } from "@/components";
+import { ActiveFile, SecretPanel, SettingsPanel } from "@/components";
 import { useEffect, useState } from "react";
 
 declare global {
@@ -18,6 +18,7 @@ export function App() {
   const [activeFile, setActiveFile] = useState<any>(null);
   const [isPinned, setIsPinned] = useState<boolean>(false);
   const [settings, setSettings] = useState<any>(null);
+  const [secret, setSecret] = useState<string | null>(null);
   const [vscode] = useState(() => window.acquireVsCodeApi?.());
 
   useEffect(() => {
@@ -55,6 +56,9 @@ export function App() {
         case "settingsChanged":
           setSettings(message.payload);
           break;
+        case "secretChanged":
+          setSecret(message.payload.secret);
+          break;
       }
     };
 
@@ -79,6 +83,14 @@ export function App() {
     if (vscode) vscode.postMessage({ type: "unpinFile" });
   };
 
+  const handleSecretChange = (secret: string) => {
+    if (vscode) vscode.postMessage({ type: "setSecret", payload: secret });
+  };
+
+  const handleClearSecret = () => {
+    if (vscode) vscode.postMessage({ type: "clearSecret" });
+  };
+
   return (
     <div className="h-full bg-gradient-to-br from-purple-50 to-blue-50 p-4 space-y-4 overflow-y-auto">
       <div className="mb-4">
@@ -87,6 +99,12 @@ export function App() {
         </h1>
         <p className="text-gray-600 text-sm">File tracking and controls</p>
       </div>
+
+      <SecretPanel
+        secret={secret}
+        onSecretChange={handleSecretChange}
+        onClearSecret={handleClearSecret}
+      />
 
       <ActiveFile
         fileState={fileState}

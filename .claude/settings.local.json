@@ -17,7 +17,11 @@
       "Bash(curl:*)",
       "Bash(pnpm -F @mindcontrol/vscode-webview run lint)",
       "Bash(pnpm -F vscode run lint)",
-      "Bash(pnpm -F vscode run build:tests)"
+      "Bash(pnpm -F vscode run build:tests)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm -F @mindcontrol/vscode-webview run lint --fix)",
+      "Bash(pnpm -F vscode run lint --fix)",
+      "WebFetch(domain:docs.rs)"
     ],
     "deny": [],
     "ask": []

@@ -4,7 +4,7 @@ Mind Control Code is an editor companion that helps to work on, test (in a playg
 
 ## Project Structure
 
-This is a monorepo with the following packages:
+This is a monorepo managed by **Turborepo** and **pnpm** with the following packages:
 
 ### [`vscode/extension`](./vscode/extension/)
 
@@ -16,6 +16,16 @@ VS Code extension package containing the main extension logic and webview provid
 - VS Code Extension API
 - Vite as the bundler
 - vscode-test (extension integration tests)
+
+**Available commands:**
+
+- `pnpm turbo build --filter vscode` - Build the extension
+- `pnpm turbo watch --filter vscode` - Watch and rebuild on changes
+- `pnpm turbo package --filter vscode` - Package for production
+- `pnpm turbo test --filter vscode` - Run e2e tests
+- `pnpm turbo lint --filter vscode` - Lint TypeScript code
+- `pnpm turbo pack --filter vscode` - Create VSIX package
+- `pnpm turbo publish --filter vscode` - Publish to marketplace
 
 ### [`vscode/webview`](./vscode/webview/)
 
@@ -29,23 +39,57 @@ React webview application that provides the UI for the Mind Control Code panel.
 - Tailwind CSS
 - PostCSS
 
+**Available commands:**
+
+- `pnpm turbo build --filter @mindcontrol/vscode-webview` - Build the webview
+- `pnpm turbo watch --filter @mindcontrol/vscode-webview` - Watch and rebuild on changes
+- `pnpm turbo package --filter @mindcontrol/vscode-webview` - Package for production
+- `pnpm turbo serve --filter @mindcontrol/vscode-webview` - Development server
+- `pnpm turbo lint --filter @mindcontrol/vscode-webview` - Lint TypeScript/React code
+
+### [`parser`](./parser/)
+
+Rust-based parser crate that compiles to WebAssembly to power JS/TS code parsing in the extension.
+
+**Stack:**
+
+- Rust (edition 2024)
+- wasm-bindgen for JS interop
+- serde for serialization
+- Compiles to WebAssembly module consumed by the extension
+
+**Available commands:**
+
+- `pnpm turbo build --filter @mindcontrol/code-parser-crate` - Compile Rust to WebAssembly
+
 ## Build Architecture
 
-The project uses a two-package architecture with isolated dependencies:
+The project uses a **Turborepo**-orchestrated multi-package architecture with isolated dependencies:
 
 - **Extension package**: Builds Node.js/CommonJS code for VS Code extension host
 - **Webview package**: Builds React app as ES modules for webview display
+- **Parser package**: Rust crate compiled to WebAssembly, consumed by extension
 - **Build output**: Webview builds into `extension/dist/webview/`, extension builds into `extension/dist/extension/`
-- **Distribution**: Extension package contains both outputs for VS Code marketplace
+- **Distribution**: Extension package contains both webview and parser outputs for VS Code marketplace
+
+### Rust Toolchain
+
+The parser package requires:
+
+- Rust toolchain (defined in [`rust-toolchain.toml`](./rust-toolchain.toml))
+- wasm-pack for WebAssembly compilation
+- Build script at [`parser/scripts/build.sh`](./parser/scripts/build.sh)
 
 ### Build Commands
 
-From the root directory:
+From the root directory using **Turborepo**:
 
-- Build extension: `pnpm --filter @mindcontrol/code-vscode run build`
-- Build webview: `pnpm --filter @mindcontrol/code-webview run build`
-- Watch extension: `pnpm --filter @mindcontrol/code-vscode run watch`
-- Watch webview: `pnpm --filter @mindcontrol/code-webview run watch`
+- Build all packages: `pnpm turbo build`
+- Build specific package: `pnpm turbo build --filter @mindcontrol/code-vscode`
+- Build webview: `pnpm turbo build --filter @mindcontrol/code-webview`
+- Build parser: `pnpm turbo build --filter @mindcontrol/code-parser-crate`
+- Watch extension: `pnpm turbo watch --filter @mindcontrol/code-vscode`
+- Watch webview: `pnpm turbo watch --filter @mindcontrol/code-webview`
 
 Or use VS Code tasks:
 
@@ -56,7 +100,7 @@ Or use VS Code tasks:
 
 From the root directory:
 
-- Run extension e2e tests: `pnpm -F vscode test`
+- Run extension e2e tests: `pnpm turbo test --filter vscode`
 
 The e2e tests use `@vscode/test-cli` and Playwright to test the extension in an actual VS Code instance. The tests connect to VS Code using Chromium DevTools protocol and use Playwright's `expect` API combined with Mocha test framework.
 
@@ -161,7 +205,7 @@ export class ExampleClass {
 - Use Prettier with default settings (configured in [`.prettierrc`](./.prettierrc))
 - When executing multi-step plans, format code once after the entire plan is executed rather than on each individual step
 - This improves efficiency and reduces unnecessary intermediate formatting operations
-- Always run `pnpm run format` after completing a plan to ensure consistent code formatting across the entire codebase
+- Always run `pnpm turbo format` after completing a plan to ensure consistent code formatting across the entire codebase
 
 ## CLAUDE.md Style
 

@@ -12,6 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
   const webviewProvider = new WorkbenchViewProvider(
     context.extensionUri,
     isDevelopment,
+    context,
   );
 
   context.subscriptions.push(
