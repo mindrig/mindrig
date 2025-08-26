@@ -12,7 +12,12 @@
       "Bash(pnpm exec tsc:*)",
       "Bash(pnpm -F vscode test)",
       "Bash(pnpm -F \"*\" build)",
-      "Bash(curl:*)"
+      "Bash(pnpm -F @mindcontrol/vscode-webview run build)",
+      "Bash(pnpm -F vscode run build)",
+      "Bash(curl:*)",
+      "Bash(pnpm -F @mindcontrol/vscode-webview run lint)",
+      "Bash(pnpm -F vscode run lint)",
+      "Bash(pnpm -F vscode run build:tests)"
     ],
     "deny": [],
     "ask": []

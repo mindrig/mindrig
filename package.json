@@ -9,7 +9,7 @@
     "vscode/webview"
   ],
   "scripts": {
-    "format": "prettier --write ."
+    "format": "pnpm --filter \"*\" run lint --fix && prettier --write ."
   },
   "keywords": [],
   "author": "",

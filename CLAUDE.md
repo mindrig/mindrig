@@ -111,6 +111,45 @@ This approach provides:
 - Explicit function component definition
 - Minimal boilerplate for simple cases
 
+## TypeScript Class Code Style
+
+Use the following patterns for TypeScript classes:
+
+- Use **`#privateName`** instead of the `private` keyword when possible
+- **Don't add explicit `public` keyword** - methods and properties are public by default
+- **Exception**: Static members cannot use `#` syntax, so use `private static` for those
+
+```typescript
+export class ExampleClass {
+  static readonly CONSTANTS = ["value1", "value2"]; // public static (default)
+  private static hiddenValue = "secret"; // private static (can't use #)
+
+  #privateProperty: string;
+  regularProperty: number; // public by default
+
+  constructor(value: string) {
+    this.#privateProperty = value;
+    this.regularProperty = 42;
+  }
+
+  #privateMethod(): void {
+    // private method implementation
+  }
+
+  regularMethod(): string {
+    // public by default
+    return this.#privateProperty;
+  }
+}
+```
+
+**Benefits:**
+
+- Modern JavaScript/TypeScript syntax
+- True privacy (not just TypeScript compile-time)
+- Cleaner code without redundant `public` keywords
+- Consistent with current JavaScript standards
+
 ## Package Manager
 
 - Use **pnpm** as the package manager for this project

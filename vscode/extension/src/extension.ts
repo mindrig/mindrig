@@ -14,6 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.registerWebviewViewProvider(
       WorkbenchViewProvider.viewType,
       webviewProvider,
+      { webviewOptions: { retainContextWhenHidden: true } },
     ),
   );
 
@@ -26,7 +27,44 @@ export function activate(context: vscode.ExtensionContext) {
     },
   );
 
-  context.subscriptions.push(showWorkbenchDisposable);
+  const addItWorksDisposable = vscode.commands.registerCommand(
+    "mindcontrol.addItWorks",
+    withActiveEditor(async ({ document }) => {
+      const lastLineIdx = document.lineCount - 1;
+      const lastLine = document.lineAt(lastLineIdx);
+      const position = new vscode.Position(lastLineIdx, lastLine.text.length);
+
+      const edit = new vscode.WorkspaceEdit();
+      edit.insert(document.uri, position, "\n// It works!");
+
+      await vscode.workspace.applyEdit(edit);
+    }),
+  );
+
+  context.subscriptions.push(
+    showWorkbenchDisposable,
+    addItWorksDisposable,
+    webviewProvider,
+  );
 }
 
 export function deactivate() {}
+
+type WithActiveEditorCallback = (
+  editor: vscode.TextEditor,
+) => void | Promise<void>;
+
+type WithActiveEditorResult = () => Promise<void>;
+
+function withActiveEditor(
+  callback: WithActiveEditorCallback,
+): WithActiveEditorResult {
+  return async (): Promise<void> => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      return Promise.resolve();
+      console.debug("No active editor found");
+    }
+    return await callback(editor);
+  };
+}

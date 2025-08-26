@@ -21,8 +21,37 @@
       {
         "command": "mindcontrol.showWorkbench",
         "title": "Show Workbench"
+      },
+      {
+        "command": "mindcontrol.addItWorks",
+        "title": "Add 'It works!' comment"
       }
     ],
+    "configuration": {
+      "title": "Mind Control Code",
+      "properties": {
+        "mindcontrol.exampleSetting": {
+          "type": "string",
+          "default": "default value",
+          "description": "An example setting for demonstration"
+        },
+        "mindcontrol.enableFileTracking": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable tracking of active files"
+        },
+        "mindcontrol.showFileContent": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show file content in the webview"
+        },
+        "mindcontrol.autoSaveIndicator": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show auto-save indicator in the webview"
+        }
+      }
+    },
     "views": {
       "mindcontrol-workbench": [
         {

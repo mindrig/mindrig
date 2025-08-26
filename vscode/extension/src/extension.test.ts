@@ -1,6 +1,6 @@
 import * as assert from "assert";
-import * as vscode from "vscode";
 import * as playwright from "playwright-core";
+import * as vscode from "vscode";
 import { expect } from "@playwright/test";
 
 suite("Extension", () => {

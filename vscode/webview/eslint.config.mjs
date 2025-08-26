@@ -1,7 +1,7 @@
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
+import tsParser from "@typescript-eslint/parser";
+import typescriptEslint from "@typescript-eslint/eslint-plugin";
 
 export default [
   {
@@ -40,10 +40,11 @@ export default [
         },
       ],
 
-      curly: "warn",
+      curly: ["warn", "multi", "consistent"],
       eqeqeq: "warn",
       "no-throw-literal": "warn",
       semi: "warn",
+      "sort-imports": "warn",
 
       // React rules
       "react/react-in-jsx-scope": "off",

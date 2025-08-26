@@ -23,7 +23,8 @@
         "tekumara.typos-vscode",
         "davidlday.languagetool-linter",
         "ms-vscode.extension-test-runner",
-        "Anthropic.claude-code"
+        "Anthropic.claude-code",
+        "dbaeumer.vscode-eslint"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",
