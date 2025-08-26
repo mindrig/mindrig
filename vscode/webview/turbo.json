@@ -1,0 +1,10 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "build": {
+      "inputs": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.css"],
+      "outputs": ["../extension/dist/webview/**"]
+    }
+  },
+  "extends": ["//"]
+}

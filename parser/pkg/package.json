@@ -1,0 +1,13 @@
+{
+  "name": "@mindcontrol/code-parser",
+  "description": "Mind Control Code parser",
+  "version": "0.1.0",
+  "license": "UNLICENSED",
+  "files": [
+    "parser_bg.wasm",
+    "parser.js",
+    "parser.d.ts"
+  ],
+  "main": "parser.js",
+  "types": "parser.d.ts"
+}

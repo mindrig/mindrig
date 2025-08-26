@@ -80,12 +80,15 @@
     "package": "vite build --mode production",
     "build": "vite build",
     "watch": "vite build --watch --mode development",
-    "build:tests": "tsc -p . --outDir out --noEmit false",
-    "watch:tests": "tsc -p . -w --outDir out --noEmit false",
+    "build:tests": "tsc -p ./tsconfig.tests.json ",
+    "watch:tests": "tsc -p ./tsconfig.tests.json --watch",
     "pretest": "pnpm run build:tests",
     "test": "./test/run.sh",
     "lint": "eslint src",
     "generate:webview:html": "tsx ./scripts/generateWebviewHtml.ts"
+  },
+  "dependencies": {
+    "@mindcontrol/code-parser": "0.1.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",

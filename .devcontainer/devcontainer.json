@@ -24,7 +24,10 @@
         "davidlday.languagetool-linter",
         "ms-vscode.extension-test-runner",
         "Anthropic.claude-code",
-        "dbaeumer.vscode-eslint"
+        "dbaeumer.vscode-eslint",
+        "rust-lang.rust-analyzer",
+        "vadimcn.vscode-lldb",
+        "Vercel.turbo-vsc"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "@mindcontrol/code-parser-crate#build",
+        "@mindcontrol/vscode-webview#build"
+      ],
+      "inputs": ["./src/**/*.ts", "!./src/**/*.test.ts"],
+      "outputs": ["./dist/extension/**"]
+    },
+    "build:tests": {
+      "inputs": ["./src/**/*.test.ts", "tsconfig.json", "tsconfig.tests.json"],
+      "outputs": ["./out/**/*.test.js", "./out/**/*.test.map"]
+    },
+    "test": {
+      "dependsOn": ["build", "build:tests"],
+      "inputs": ["./src/**/*.test.ts"]
+    }
+  },
+  "extends": ["//"]
+}

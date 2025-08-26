@@ -2,7 +2,7 @@ import { defineConfig } from "@vscode/test-cli";
 
 export default defineConfig({
   version: "insiders",
-  files: "./out/test/*.test.js",
+  files: "./out/**/*.test.js",
   workspaceFolder: "./test/workspace",
   mocha: {
     timeout: 10_000,

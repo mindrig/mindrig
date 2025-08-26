@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
       fileName: "extension",
     },
     rollupOptions: {
-      external: ["vscode"],
+      external: ["vscode", "@mindcontrol/code-parser"],
     },
     outDir: "dist/extension",
     target: "node16",

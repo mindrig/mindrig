@@ -1,8 +1,5 @@
 {
-  "files.exclude": {
-    "vscode/extension/dist": true,
-    "vscode/extension/out": true
-  },
+  "files.exclude": {},
   "search.exclude": {
     "vscode/extension/dist": true,
     "vscode/extension/out": true

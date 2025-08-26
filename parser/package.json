@@ -1,0 +1,9 @@
+{
+  "name": "@mindcontrol/code-parser-crate",
+  "version": "0.1.0",
+  "description": "Mind Control Code parser crate",
+  "private": true,
+  "scripts": {
+    "build": "./scripts/build.sh"
+  }
+}

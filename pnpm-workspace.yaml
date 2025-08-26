@@ -1,6 +1,13 @@
 packages:
   - vscode/extension
   - vscode/webview
+  - parser
+  - parser/pkg
 
 onlyBuiltDependencies:
+  - "@vscode/vsce-sign"
   - esbuild
+  - keytar
+
+overrides:
+  "@mindcontrol/code-parser": "workspace:*"

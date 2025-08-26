@@ -1,12 +1,14 @@
 [tools]
 ## Stack
 node = { version = "lts", postinstall = "corepack enable" }
+rust = "stable"
 
 ## Tools
 "npm:@anthropic-ai/claude-code" = "latest"
+"cargo:wasm-pack" = "latest"
 
 [settings]
 # Enable extra features
 experimental = true
 # Consume Node.js version from .nvmrc, .tool-versions, etc.
-idiomatic_version_file_enable_tools = ["node"]
+idiomatic_version_file_enable_tools = ["rust"]

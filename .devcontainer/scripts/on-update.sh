@@ -29,3 +29,8 @@ elif [ -f ./yarn.lock ]; then
 elif [ -f ./package-lock.json ]; then
   yes | npm install
 fi
+
+# Install dependencies
+if [ -f ./Cargo.lock ]; then
+  cargo build || echo "🟡 Cargo build failed, but that's ok"
+fi
