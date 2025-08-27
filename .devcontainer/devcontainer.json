@@ -27,7 +27,8 @@
         "dbaeumer.vscode-eslint",
         "rust-lang.rust-analyzer",
         "vadimcn.vscode-lldb",
-        "Vercel.turbo-vsc"
+        "Vercel.turbo-vsc",
+        "mitsuhiko.insta"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",

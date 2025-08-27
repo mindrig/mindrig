@@ -10,5 +10,15 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 serde = "1.0.219"
+serde_json = "1.0"
 serde-wasm-bindgen = "0.6.5"
 wasm-bindgen = "0.2.100"
+oxc_allocator = "0.41"
+oxc_ast = "0.41"
+oxc_parser = "0.41"
+oxc_span = "0.41"
+mindcontrol_code_types = { path = "../types/pkg/rs" }
+
+[dev-dependencies]
+insta = { version = "1.43.1", features = ["yaml"] }
+pretty_assertions = "1.4"

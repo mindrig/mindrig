@@ -3,6 +3,7 @@ packages:
   - vscode/webview
   - parser
   - parser/pkg
+  - types/pkg/ts
 
 onlyBuiltDependencies:
   - "@vscode/vsce-sign"
@@ -11,3 +12,4 @@ onlyBuiltDependencies:
 
 overrides:
   "@mindcontrol/code-parser": "workspace:*"
+  "@mindcontrol/code-types": "workspace:*"

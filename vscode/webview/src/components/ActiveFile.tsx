@@ -1,3 +1,5 @@
+import type { Prompt } from "@mindcontrol/code-types";
+
 export namespace ActiveFile {
   export interface Props {
     fileState: {
@@ -38,6 +40,7 @@ export namespace ActiveFile {
     } | null;
     isPinned?: boolean;
     showContent?: boolean;
+    prompts?: Prompt[];
     onPin?: () => void;
     onUnpin?: () => void;
   }
@@ -50,6 +53,7 @@ export function ActiveFile(props: ActiveFile.Props) {
     activeFile,
     isPinned = false,
     showContent = true,
+    prompts = [],
     onPin,
     onUnpin,
   } = props;
@@ -191,6 +195,21 @@ export function ActiveFile(props: ActiveFile.Props) {
           <div className="p-4">
             <pre className="text-xs text-gray-700 bg-gray-50 p-3 rounded border overflow-x-auto max-h-64 overflow-y-auto">
               <code>{displayFile?.content || "// Empty file"}</code>
+            </pre>
+          </div>
+        </div>
+      )}
+
+      {(displayFile || activeFile) && (
+        <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+          <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
+            <h4 className="text-sm font-medium text-gray-700">
+              Detected Prompts ({prompts.length})
+            </h4>
+          </div>
+          <div className="p-4">
+            <pre className="text-xs text-gray-700 bg-gray-50 p-3 rounded border overflow-x-auto max-h-64 overflow-y-auto">
+              <code>{JSON.stringify(prompts, null, 2)}</code>
             </pre>
           </div>
         </div>

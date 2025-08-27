@@ -1,8 +1,10 @@
 import * as vscode from "vscode";
 import { WorkbenchWebviewHtmlUris, workbenchWebviewHtml } from "./html";
 import { FileManager } from "../FileManager";
+import type { Prompt } from "@mindcontrol/code-types";
 import { SecretManager } from "../SecretManager";
 import { SettingsManager } from "../SettingsManager";
+import { parsePrompts } from "@mindcontrol/code-parser";
 import { resolveDevServerUri } from "../devServer";
 
 export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
@@ -84,6 +86,14 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
     this.#sendSettings();
     this.#sendSecret();
+
+    // Send initial prompts if we have a current file
+    if (this.#fileManager) {
+      const currentFile = this.#fileManager.getCurrentFile();
+      const pinnedFile = this.#fileManager.getPinnedFile();
+      const targetFile = pinnedFile || currentFile;
+      if (targetFile) this.#parseAndSendPrompts(targetFile);
+    }
   }
 
   //#endregion
@@ -187,6 +197,48 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
   //#endregion
 
+  //#region Prompt Parsing
+
+  #parseAndSendPrompts(fileState: {
+    path: string;
+    content: string;
+    language: string;
+  }) {
+    // Only parse TypeScript and JavaScript files
+    if (
+      ![
+        "typescript",
+        "javascript",
+        "typescriptreact",
+        "javascriptreact",
+      ].includes(fileState.language)
+    ) {
+      this.#sendMessage({
+        type: "promptsChanged",
+        payload: { prompts: [] },
+      });
+      return;
+    }
+
+    try {
+      const promptsJson = parsePrompts(fileState.content, fileState.path);
+      const prompts: Prompt[] = JSON.parse(promptsJson);
+
+      this.#sendMessage({
+        type: "promptsChanged",
+        payload: { prompts },
+      });
+    } catch (error) {
+      console.error("Failed to parse prompts:", error);
+      this.#sendMessage({
+        type: "promptsChanged",
+        payload: { prompts: [] },
+      });
+    }
+  }
+
+  //#endregion
+
   //#region File manager
 
   #fileManager: FileManager | null = null;
@@ -198,12 +250,14 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
           type: "activeFileChanged",
           payload: fileState,
         });
+        if (fileState) this.#parseAndSendPrompts(fileState);
       },
       onFileContentChanged: (fileState) => {
         this.#sendMessage({
           type: "fileContentChanged",
           payload: fileState,
         });
+        this.#parseAndSendPrompts(fileState);
       },
       onFileSaved: (fileState) => {
         this.#sendMessage({
@@ -226,6 +280,8 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
             isPinned: pinnedFile !== null,
           },
         });
+        const targetFile = pinnedFile || activeFile;
+        if (targetFile) this.#parseAndSendPrompts(targetFile);
       },
     });
   }

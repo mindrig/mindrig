@@ -1,0 +1,11 @@
+PromptVar = {
+  exp: string
+  loc: ./span/Span
+}
+
+Prompt = {
+  file: string
+  loc: ./span/Span,
+  text: string,
+  vars: [PromptVar]
+}

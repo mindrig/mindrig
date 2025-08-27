@@ -4,6 +4,9 @@
   "description": "Mind Control Code parser crate",
   "private": true,
   "scripts": {
-    "build": "./scripts/build.sh"
+    "build": "./scripts/build.sh",
+    "test": "cargo nextest run",
+    "test:watch": "watchexec -c -e rs cargo nextest run --no-fail-fast",
+    "test:review": "cargo insta review"
   }
 }

@@ -19,6 +19,7 @@ export function App() {
   const [isPinned, setIsPinned] = useState<boolean>(false);
   const [settings, setSettings] = useState<any>(null);
   const [secret, setSecret] = useState<string | null>(null);
+  const [prompts, setPrompts] = useState<any[]>([]);
   const [vscode] = useState(() => window.acquireVsCodeApi?.());
 
   useEffect(() => {
@@ -58,6 +59,9 @@ export function App() {
           break;
         case "secretChanged":
           setSecret(message.payload.secret);
+          break;
+        case "promptsChanged":
+          setPrompts(message.payload.prompts);
           break;
       }
     };
@@ -112,6 +116,7 @@ export function App() {
         activeFile={activeFile}
         isPinned={isPinned}
         showContent={settings?.showFileContent !== false}
+        prompts={prompts}
         onPin={handlePin}
         onUnpin={handleUnpin}
       />

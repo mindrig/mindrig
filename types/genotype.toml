@@ -1,0 +1,27 @@
+name = "mindcontrol-code-types"
+root = ""
+out = "pkg"
+src = "src"
+entry = "**/*.type"
+
+[ts]
+enabled = true
+out = "ts"
+
+[ts.manifest]
+name = "@mindcontrol/code-types"
+version = "0.1.0"
+
+[ts.dependencies]
+
+[rs]
+derive = ["Debug", "Clone", "PartialEq"]
+enabled = true
+out = "rs"
+
+[rs.manifest]
+name = "mindcontrol_code_types"
+version = "0.1.0"
+edition = "2021"
+
+[rs.dependencies]

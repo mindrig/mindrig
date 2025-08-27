@@ -1,1 +1,3 @@
-export const prompt = `Say hi to {{name}}`;
+export const prompt = /* @prompt */ `Say hi to {{name}}`;
+
+const wut = /* @prompt */ `Hi!`;

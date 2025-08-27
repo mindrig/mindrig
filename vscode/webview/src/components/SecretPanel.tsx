@@ -99,7 +99,7 @@ export function SecretPanel(props: SecretPanel.Props) {
         <div>
           <h3 className="font-semibold text-green-800 mb-1">Secret Stored</h3>
           <p className="text-sm text-green-700">
-            Secret: {"*".repeat(Math.min(secret.length, 8))}
+            Secret: {"*".repeat(Math.min(secret?.length || 0, 8))}
           </p>
         </div>
         <div className="flex space-x-2">

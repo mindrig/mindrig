@@ -10,7 +10,10 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "format": "pnpm --filter \"*\" run lint --fix && prettier --write ."
+    "format": "pnpm --filter \"*\" run lint --fix && prettier --write .",
+    "test:rust": "cargo nextest run --no-fail-fast",
+    "test:rust:watch": "watchexec -c -e rs cargo nextest run --no-fail-fast",
+    "test:rust:review": "cargo insta review"
   },
   "keywords": [],
   "author": "",

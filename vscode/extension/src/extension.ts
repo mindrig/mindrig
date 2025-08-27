@@ -1,11 +1,7 @@
 import * as vscode from "vscode";
 import { WorkbenchViewProvider } from "./WorkbenchView/Provider";
-import { greet } from "@mindcontrol/code-parser";
 
 export function activate(context: vscode.ExtensionContext) {
-  // Wasm test
-  greet("Wasm");
-
   const isDevelopment =
     context.extensionMode === vscode.ExtensionMode.Development;
 
