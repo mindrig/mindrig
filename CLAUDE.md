@@ -48,6 +48,24 @@ React webview application that provides the UI for the Mind Control Code panel.
 - `pnpm turbo serve --filter @mindcontrol/vscode-webview` - Development server
 - `pnpm turbo lint --filter @mindcontrol/vscode-webview` - Lint TypeScript/React code
 
+### [`types`](./types/)
+
+Shared type definitions using the Genotype programming language for cross-language type safety between TypeScript and Rust packages.
+
+**Stack:**
+
+- [Genotype](https://github.com/kossnocorp/genotype) programming language for type definitions
+- Generates TypeScript types in [`types/pkg/ts`](./types/pkg/ts)
+- Generates Rust types in [`types/pkg/rs`](./types/pkg/rs)
+- Automatically included in both pnpm (pkg/ts) and Rust (pkg/rs) workspaces
+
+**Available commands:**
+
+- `gt build` - Generate TypeScript and Rust types from Genotype definitions
+- **IMPORTANT**: Never manually edit the generated `types/pkg/` directories
+
+**Language Guide**: Reference the [Genotype language guide](https://github.com/kossnocorp/genotype/blob/main/cli/examples/guide/guide.type) and [syntax examples](https://github.com/kossnocorp/genotype/tree/main/examples/02-syntax)
+
 ### [`parser`](./parser/)
 
 Rust-based parser crate that compiles to WebAssembly to power JS/TS code parsing in the extension.
@@ -240,6 +258,7 @@ export class ExampleClass {
 - **Keep `000-index.md` files updated** when adding or modifying specifications
 - Each monorepo package has its own specs directory: [`parser/specs`](./parser/specs), [`vscode/extension/specs`](./vscode/extension/specs), [`vscode/webview/specs`](./vscode/webview/specs)
 - Follow established naming conventions: `001-feature.md`, `002-component.md`, etc.
+- **ALWAYS update the corresponding `000-index.md` file** when creating new specifications to maintain consistency
 
 ## CLAUDE.md Style
 
