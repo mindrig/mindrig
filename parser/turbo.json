@@ -2,8 +2,20 @@
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
     "build": {
-      "inputs": ["./src/**/*.rs", "./scripts/build.sh"],
+      "inputs": ["./src/**/*.rs", "./scripts/build.sh", "Cargo.toml"],
       "outputs": ["./pkg/**"]
+    },
+    "test": {
+      "inputs": ["./src/**/*.rs", "Cargo.toml"]
+    },
+    "lint": {
+      "inputs": ["./src/**/*.rs", "Cargo.toml"]
+    },
+    "format": {
+      "inputs": ["./src/**/*.rs", "Cargo.toml"]
+    },
+    "fix": {
+      "inputs": ["./src/**/*.rs", "Cargo.toml"]
     }
   },
   "extends": ["//"]

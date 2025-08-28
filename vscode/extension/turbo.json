@@ -15,6 +15,9 @@
     },
     "test": {
       "dependsOn": ["build", "build:tests"]
+    },
+    "lint": {
+      "inputs": ["./src/**/*.ts", "./eslint.config.mjs"]
     }
   },
   "extends": ["//"]

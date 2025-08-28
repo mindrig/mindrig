@@ -92,6 +92,7 @@
   },
   "devDependencies": {
     "@mindcontrol/code-types": "0.1.0",
+    "@mindcontrol/vscode-types": "0.1.0",
     "@playwright/test": "^1.55.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",

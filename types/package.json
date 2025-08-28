@@ -1,0 +1,7 @@
+{
+  "name": "@mindcontrol/types",
+  "private": true,
+  "scripts": {
+    "build": "gt build"
+  }
+}

@@ -7,6 +7,9 @@
     "build": "./scripts/build.sh",
     "test": "cargo nextest run",
     "test:watch": "watchexec -c -e rs cargo nextest run --no-fail-fast",
-    "test:review": "cargo insta review"
+    "test:review": "cargo insta review",
+    "lint": "cargo clippy",
+    "format": "cargo fmt",
+    "fix": "cargo fix --allow-dirty --allow-staged"
   }
 }

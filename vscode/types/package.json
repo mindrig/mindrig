@@ -1,0 +1,13 @@
+{
+  "name": "@mindcontrol/vscode-types",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Mind Control Code VS Code extension types",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {}
+}

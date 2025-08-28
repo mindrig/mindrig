@@ -1,6 +1,7 @@
 packages:
   - vscode/extension
   - vscode/webview
+  - vscode/types
   - parser
   - parser/pkg
   - types/pkg/ts
@@ -13,3 +14,4 @@ onlyBuiltDependencies:
 overrides:
   "@mindcontrol/code-parser": "workspace:*"
   "@mindcontrol/code-types": "workspace:*"
+  "@mindcontrol/vscode-types": "workspace:*"

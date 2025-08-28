@@ -4,6 +4,9 @@
     "build": {
       "inputs": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.css"],
       "outputs": ["../extension/dist/webview/**"]
+    },
+    "lint": {
+      "inputs": ["./src/**/*.ts", "./src/**/*.tsx", "./eslint.config.mjs"]
     }
   },
   "extends": ["//"]
