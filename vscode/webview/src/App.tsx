@@ -1,5 +1,10 @@
-import { ActiveFile, SecretPanel, SettingsPanel } from "@/components";
-import { useEffect, useState } from "react";
+import {
+  ActiveFile,
+  CodeEditor,
+  SecretPanel,
+  SettingsPanel,
+} from "@/components";
+import { useCallback, useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -20,6 +25,9 @@ export function App() {
   const [secret, setSecret] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<any[]>([]);
   const [vscode] = useState(() => window.acquireVsCodeApi?.());
+  const [syncMessageHandler, setSyncMessageHandler] = useState<
+    ((message: any) => void) | null
+  >(null);
 
   useEffect(() => {
     if (!vscode) return;
@@ -62,6 +70,11 @@ export function App() {
         case "promptsChanged":
           setPrompts(message.payload.prompts);
           break;
+        case "sync-update":
+        case "sync-state-vector":
+          if (syncMessageHandler) syncMessageHandler(message);
+
+          break;
       }
     };
 
@@ -72,7 +85,7 @@ export function App() {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [vscode]);
+  }, [vscode, syncMessageHandler]);
 
   const handleAddItWorks = () => {
     if (vscode) vscode.postMessage({ type: "addItWorks" });
@@ -94,6 +107,13 @@ export function App() {
     if (vscode) vscode.postMessage({ type: "clearSecret" });
   };
 
+  const handleSyncMessageCallback = useCallback(
+    (handler: (message: any) => void) => {
+      setSyncMessageHandler(() => handler);
+    },
+    []
+  );
+
   return (
     <div className="h-full bg-gradient-to-br from-purple-50 to-blue-50 p-4 space-y-4 overflow-y-auto">
       <div className="mb-4">
@@ -108,6 +128,8 @@ export function App() {
         onSecretChange={handleSecretChange}
         onClearSecret={handleClearSecret}
       />
+
+      <CodeEditor vscode={vscode} onSyncMessage={handleSyncMessageCallback} />
 
       <ActiveFile
         fileState={fileState}

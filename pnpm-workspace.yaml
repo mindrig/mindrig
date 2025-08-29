@@ -2,17 +2,19 @@ packages:
   - vscode/extension
   - vscode/webview
   - vscode/types
+  - vscode/sync
   - parser
   - parser/pkg
   - types/pkg/ts
 
 onlyBuiltDependencies:
-  - '@tailwindcss/oxide'
-  - '@vscode/vsce-sign'
+  - "@tailwindcss/oxide"
+  - "@vscode/vsce-sign"
   - esbuild
   - keytar
 
 overrides:
-  '@mindcontrol/code-parser': workspace:*
-  '@mindcontrol/code-types': workspace:*
-  '@mindcontrol/vscode-types': workspace:*
+  "@mindcontrol/code-parser": workspace:*
+  "@mindcontrol/code-types": workspace:*
+  "@mindcontrol/vscode-types": workspace:*
+  "@mindcontrol/vscode-sync": workspace:*

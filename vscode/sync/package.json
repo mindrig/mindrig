@@ -1,0 +1,20 @@
+{
+  "name": "@mindcontrol/vscode-sync",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Mind Control Code VS Code extension synchronization logic",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "yjs": "^13.6.27"
+  }
+}

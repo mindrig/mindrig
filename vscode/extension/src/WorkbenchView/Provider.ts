@@ -1,11 +1,13 @@
-import * as vscode from "vscode";
-import { WorkbenchWebviewHtmlUris, workbenchWebviewHtml } from "./html";
-import { FileManager } from "../FileManager";
+import { parsePrompts } from "@mindcontrol/code-parser";
 import type { Prompt } from "@mindcontrol/code-types";
+import type { SyncMessage } from "@mindcontrol/vscode-sync";
+import * as vscode from "vscode";
+import { CodeSyncManager } from "../CodeSyncManager";
+import { FileManager } from "../FileManager";
 import { SecretManager } from "../SecretManager";
 import { SettingsManager } from "../SettingsManager";
-import { parsePrompts } from "@mindcontrol/code-parser";
 import { resolveDevServerUri } from "../devServer";
+import { WorkbenchWebviewHtmlUris, workbenchWebviewHtml } from "./html";
 
 export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   //#region Static
@@ -24,7 +26,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     readonly extensionUri: vscode.Uri,
     // NOTE: It is unused at the moment, but keep it for future use
     isDevelopment: boolean,
-    context: vscode.ExtensionContext,
+    context: vscode.ExtensionContext
   ) {
     this.#extensionUri = extensionUri;
     this.#isDevelopment = isDevelopment;
@@ -32,11 +34,10 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   }
 
   public dispose() {
-    if (this.#fileManager) this.#fileManager.dispose();
-
-    if (this.#settingsManager) this.#settingsManager.dispose();
-
-    if (this.#secretManager) this.#secretManager.dispose();
+    this.#fileManager?.dispose();
+    this.#settingsManager?.dispose();
+    this.#secretManager?.dispose();
+    this.#codeSyncManager?.dispose();
   }
 
   //#endregion
@@ -48,7 +49,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   public resolveWebviewView(
     webviewView: vscode.WebviewView,
     _context: vscode.WebviewViewResolveContext,
-    _token: vscode.CancellationToken,
+    _token: vscode.CancellationToken
   ) {
     webviewView.webview.options = {
       enableScripts: true,
@@ -129,11 +130,10 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     ].join(" ");
 
     const app = `${baseUri}/src/index.tsx`;
-    const styles = `${baseUri}/src/styles.css`;
     const reactRefresh = `${baseUri}/@react-refresh`;
     const viteClient = `${baseUri}/@vite/client`;
 
-    return { csp, app, styles, reactRefresh, viteClient };
+    return { csp, app, reactRefresh, viteClient };
   }
 
   #localPaths(webview: vscode.Webview): WorkbenchWebviewHtmlUris {
@@ -162,7 +162,8 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   #setupMessageHandling() {
     if (!this.#webview) return;
 
-    this.#webview.onDidReceiveMessage((message) => {
+    // TODO:
+    this.#webview.onDidReceiveMessage((message: SyncMessage | any) => {
       switch (message.type) {
         case "addItWorks":
           this.#handleAddItWorks();
@@ -183,10 +184,19 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
           this.#sendSecret();
           break;
         case "setSecret":
-          this.#handleSetSecret(message.payload);
+          this.#handleSetSecret((message as any).payload);
           break;
         case "clearSecret":
           this.#handleClearSecret();
+          break;
+        case "sync-update":
+          this.#handleSyncUpdate(message);
+          break;
+        case "sync-state-vector":
+          this.#handleSyncStateVector(message);
+          break;
+        case "sync-init":
+          this.#handleRequestSync();
           break;
       }
     });
@@ -251,7 +261,10 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
           type: "activeFileChanged",
           payload: fileState,
         });
-        if (fileState) this.#parseAndSendPrompts(fileState);
+        if (fileState) {
+          this.#parseAndSendPrompts(fileState);
+          this.#syncActiveFile(fileState);
+        }
       },
       onFileContentChanged: (fileState) => {
         this.#sendMessage({
@@ -259,6 +272,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
           payload: fileState,
         });
         this.#parseAndSendPrompts(fileState);
+        // Note: Don't sync here to avoid conflicts with ongoing edits
       },
       onFileSaved: (fileState) => {
         this.#sendMessage({
@@ -363,6 +377,89 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
   #handleUnpinFile() {
     this.#fileManager?.unpinFile();
+  }
+
+  //#endregion
+
+  //#region Code Sync Manager
+
+  #codeSyncManager: CodeSyncManager | null = null;
+
+  #initializeCodeSyncManager() {
+    this.#codeSyncManager = new CodeSyncManager({
+      onDocumentChanged: (content: string) => {
+        // Handle changes from VS Code that need to be reflected in webview
+        // Note: This should only fire for actual VS Code user edits, not webview sync
+      },
+      onRemoteChange: (update: Uint8Array) => {
+        // Send update to webview
+        const message: SyncMessage.Update = {
+          type: "sync-update",
+          payload: { update: Array.from(update) },
+        };
+        this.#sendMessage(message);
+      },
+    });
+  }
+
+  #handleSyncUpdate(message: SyncMessage.Update) {
+    if (!this.#codeSyncManager) return;
+
+    console.log(
+      "Extension received sync update from webview",
+      JSON.stringify({ updateSize: message.payload.update.length })
+    );
+    const update = new Uint8Array(message.payload.update);
+    // Apply to VS Code since this update is coming from webview
+    this.#codeSyncManager.applyRemoteUpdate(update, true);
+  }
+
+  #handleSyncStateVector(message: SyncMessage.StateVector) {
+    if (!this.#codeSyncManager) return;
+
+    const stateVector = new Uint8Array(message.payload.stateVector);
+    const update = this.#codeSyncManager.getUpdate(stateVector);
+
+    const responseMsg: SyncMessage.Update = {
+      type: "sync-update",
+      payload: { update: Array.from(update) },
+    };
+    this.#sendMessage(responseMsg);
+  }
+
+  #handleRequestSync() {
+    if (!this.#codeSyncManager) return;
+
+    const stateVector = this.#codeSyncManager.getStateVector();
+
+    const message: SyncMessage.StateVector = {
+      type: "sync-state-vector",
+      payload: { stateVector: Array.from(stateVector) },
+    };
+    this.#sendMessage(message);
+  }
+
+  #syncActiveFile(fileState: {
+    path: string;
+    content: string;
+    language: string;
+  }) {
+    // Only enable sync for supported file types to avoid issues
+    const supportedLanguages = [
+      "typescript",
+      "javascript",
+      "typescriptreact",
+      "javascriptreact",
+    ];
+    if (!supportedLanguages.includes(fileState.language)) return;
+
+    if (!this.#codeSyncManager) this.#initializeCodeSyncManager();
+
+    const uri = vscode.Uri.file(fileState.path);
+    this.#codeSyncManager!.setActiveDocument(uri, fileState.content);
+
+    // Send initial sync state to webview
+    this.#handleRequestSync();
   }
 
   //#endregion
