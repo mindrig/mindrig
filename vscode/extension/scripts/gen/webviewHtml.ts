@@ -7,7 +7,6 @@ import { workbenchWebviewHtml } from "../../src/WorkbenchView/html";
 const html = workbenchWebviewHtml({
   uris: {
     app: "/src/index.tsx",
-    styles: "/src/styles.css",
     reactRefresh: "/@react-refresh",
     viteClient: "/@vite/client",
   },

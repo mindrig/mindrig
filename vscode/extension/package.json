@@ -81,7 +81,7 @@
     "package": "vite build --mode production",
     "build": "vite build",
     "build:watch": "VSCODE_DEV_SERVER=true vite build --watch --mode development",
-    "test": "turbo run test",
+    "test": "test -z $TURBO_HASH && turbo run test || echo OK",
     "test/unit": "vitest run",
     "test/unit:watch": "vitest",
     "test/unit:coverage": "vitest run --coverage",

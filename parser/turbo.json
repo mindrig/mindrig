@@ -2,20 +2,30 @@
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
     "build": {
-      "inputs": ["./src/**/*.rs", "./scripts/build.sh", "Cargo.toml"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./Cargo.toml",
+        "./scripts/build.sh",
+        "./src/**/*.rs"
+      ],
       "outputs": ["./pkg/**"]
     },
+
     "test": {
-      "inputs": ["./src/**/*.rs", "Cargo.toml"]
+      "inputs": ["$TURBO_DEFAULT$", "./Cargo.toml", "./src/**/*.rs"]
     },
+
     "lint": {
-      "inputs": ["./src/**/*.rs", "Cargo.toml"]
+      "inputs": ["$TURBO_DEFAULT$", "./Cargo.toml", "./src/**/*.rs"]
     },
+
     "format": {
-      "inputs": ["./src/**/*.rs", "Cargo.toml"]
+      "inputs": ["$TURBO_DEFAULT$", "./Cargo.toml", "./src/**/*.rs"],
+      "outputs": ["./src/**/*.rs"]
     },
+
     "fix": {
-      "inputs": ["./src/**/*.rs", "Cargo.toml"]
+      "inputs": ["$TURBO_DEFAULT$", "./Cargo.toml", "./src/**/*.rs"]
     }
   },
   "extends": ["//"]

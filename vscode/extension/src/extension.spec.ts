@@ -1,7 +1,7 @@
+import { expect } from "@playwright/test";
 import * as assert from "assert";
 import * as playwright from "playwright-core";
 import * as vscode from "vscode";
-import { expect } from "@playwright/test";
 
 suite("Extension", () => {
   test("Extension exists", () => {
@@ -11,14 +11,14 @@ suite("Extension", () => {
   test("Extension commands", async function () {
     const allCommands = await vscode.commands.getCommands(true);
     const extCommands = allCommands.filter((cmd) =>
-      cmd.startsWith("mindcontrol"),
+      cmd.startsWith("mindcontrol")
     );
     assert.deepEqual(extCommands, [
       "mindcontrol.workbench.open",
       "mindcontrol.workbench.focus",
       "mindcontrol.workbench.resetViewLocation",
       "mindcontrol.workbench.toggleVisibility",
-      "mindcontrol.addItWorks",
+      "mindcontrol.workbench.removeView",
     ]);
   });
 
@@ -70,7 +70,7 @@ function ensureExtension(): vscode.Extension<unknown> {
 }
 
 function ensureMainPage(
-  contexts: playwright.BrowserContext[],
+  contexts: playwright.BrowserContext[]
 ): playwright.Page {
   for (const context of contexts) {
     const pages = context.pages();
