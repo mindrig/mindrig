@@ -1,48 +1,51 @@
 {
   "version": "0.2.0",
   "configurations": [
-    //#region Extension
+    //#region vscode
 
-    // Watch
+    // vscode#dev
     {
-      "name": "Extension Watch",
+      "name": "vscode#dev",
       "type": "extensionHost",
       "request": "launch",
       "args": [
+        "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
-        "${workspaceFolder}/vscode/extension/test/workspace"
+        "${workspaceFolder}/vscode/extension/tests/workspace"
       ],
       "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
-      "preLaunchTask": "watch:extension"
-    },
-
-    // Run
-    {
-      "name": "Extension Run",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
-        "${workspaceFolder}/vscode/extension/test/workspace"
-      ],
-      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
-      "preLaunchTask": "build:extension"
-    },
-
-    // Serve
-    {
-      "name": "Extension Serve",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
-        "${workspaceFolder}/vscode/extension/test/workspace"
-      ],
-      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
-      "preLaunchTask": "serve:extension",
+      "preLaunchTask": "vscode#dev",
       "env": {
         "VSCODE_DEV_SERVER": "true"
       }
+    },
+
+    // vscode#build
+    {
+      "name": "vscode#build",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
+        "${workspaceFolder}/vscode/extension/tests/workspace"
+      ],
+      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
+      "preLaunchTask": "vscode#build"
+    },
+
+    // vscode#build:watch
+    {
+      "name": "vscode#build:watch",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
+        "${workspaceFolder}/vscode/extension/tests/workspace"
+      ],
+      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
+      "preLaunchTask": "vscode#build:watch"
     }
 
     //#endregion

@@ -6,5 +6,5 @@ export default defineConfig({
   timeout: 10_000,
   workers: 1,
   expect: { timeout: 3_000 },
-  outputDir: "./test/results",
+  outputDir: "./tests/results",
 });

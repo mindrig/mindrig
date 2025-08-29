@@ -1,9 +1,10 @@
-import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
+import { defineConfig, Plugin } from "vite";
 
 export default defineConfig(({ mode }) => ({
-  plugins: [react()],
+  plugins: [react(), tailwindcss() as any as Plugin[]],
   server: {
     port: 5173,
     // NOTE: When developing inside a dev container, the default `localhost`

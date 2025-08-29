@@ -1,18 +1,19 @@
 #!/usr/bin/env tsx
 
-import { workbenchWebviewHtml } from "../src/WorkbenchView/html";
 import * as fs from "fs/promises";
 import * as path from "path";
+import { workbenchWebviewHtml } from "../../src/WorkbenchView/html";
 
 const html = workbenchWebviewHtml({
   uris: {
     app: "/src/index.tsx",
+    styles: "/src/styles.css",
     reactRefresh: "/@react-refresh",
     viteClient: "/@vite/client",
   },
   useDevServer: true,
 });
 
-const htmlPath = path.resolve(__dirname, "../../webview/index.html");
+const htmlPath = path.resolve(__dirname, "../../../webview/index.html");
 
 fs.writeFile(htmlPath, html);

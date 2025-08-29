@@ -2,7 +2,8 @@
   "files.exclude": {},
   "search.exclude": {
     "vscode/extension/dist": true,
-    "vscode/extension/out": true
+    "vscode/extension/out": true,
+    "vscode/extension/.vscode-test": true
   },
   "typescript.tsc.autoDetect": "off"
 }

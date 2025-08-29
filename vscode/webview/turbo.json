@@ -2,11 +2,69 @@
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
     "build": {
-      "inputs": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.css"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./vite.config.ts",
+        "./tailwind.config.ts",
+        "./postcss.config.ts",
+        "./src/**/*.ts",
+        "./src/**/*.tsx",
+        "./src/**/*.css",
+        "!./src/**/*.test.ts",
+        "!./src/**/*.test.tsx",
+        "!./src/**/__tests__/**"
+      ],
       "outputs": ["../extension/dist/webview/**"]
     },
+
+    "build:watch": {},
+
+    "dev": {},
+
+    "test": {
+      "with": ["test/unit"]
+    },
+
+    "test:watch": {
+      "with": ["test/unit:watch"]
+    },
+
+    "test/unit": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./vitest.config.ts",
+        "./tests/unit/setup.ts",
+        "./src/**/*.ts",
+        "./src/**/*.tsx"
+      ]
+    },
+
+    "test/unit:watch": {},
+
     "lint": {
-      "inputs": ["./src/**/*.ts", "./src/**/*.tsx", "./eslint.config.mjs"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./.oxlintrc.json",
+        "./src/**/*.ts",
+        "./src/**/*.tsx"
+      ]
+    },
+
+    "lint:fix": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./.oxlintrc.json",
+        "./src/**/*.ts",
+        "./src/**/*.tsx"
+      ],
+      "outputs": ["./src/**/*.ts", "./src/**/*.tsx"]
+    },
+
+    "format": {
+      "inputs": ["$TURBO_DEFAULT$", "./**/*"]
     }
   },
   "extends": ["//"]

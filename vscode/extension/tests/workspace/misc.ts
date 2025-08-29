@@ -1,7 +1,7 @@
 const userName = "Sasha";
 
 /** @prompt */
-const hello = `Hello, ${userName}!`;
+const hello = `Hello,${userName}!`;
 
 let hiPrompt = "Hi, world!";
 

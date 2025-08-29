@@ -5,5 +5,5 @@
     "outDir": "./out",
     "noEmit": false
   },
-  "include": ["src/**/*.test.ts"]
+  "include": ["./src/**/*.spec.ts"]
 }

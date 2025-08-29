@@ -27,13 +27,15 @@
       "Bash(cargo test:*)",
       "Bash(cargo nextest:*)",
       "Bash(cargo check:*)",
-      "Bash(pnpm -w run test:rust)",
+      "Bash(pnpm -w run test:rs)",
       "Bash(pnpm turbo lint:*)",
       "Bash(pnpm turbo:*)",
       "Bash(pnpm add:*)",
       "WebFetch(domain:automerge.org)",
       "Bash(pnpm remove:*)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(pnpm test:*)",
+      "WebFetch(domain:vitest.dev)"
     ],
     "deny": [],
     "ask": []

@@ -18,7 +18,7 @@ suite("Extension", () => {
       "mindcontrol.workbench.focus",
       "mindcontrol.workbench.resetViewLocation",
       "mindcontrol.workbench.toggleVisibility",
-      "mindcontrol.workbench.removeView",
+      "mindcontrol.addItWorks",
     ]);
   });
 

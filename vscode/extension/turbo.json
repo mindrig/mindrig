@@ -6,18 +6,70 @@
         "@mindcontrol/code-parser-crate#build",
         "@mindcontrol/vscode-webview#build"
       ],
-      "inputs": ["./src/**/*.ts", "!./src/**/*.test.ts"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./src/**/*.ts",
+        "!./src/**/*.spec.ts",
+        "!./src/**/*.test.ts"
+      ],
       "outputs": ["./dist/extension/**"]
     },
-    "build:tests": {
-      "inputs": ["./src/**/*.test.ts", "tsconfig.json", "tsconfig.tests.json"],
-      "outputs": ["./out/**/*.test.js", "./out/**/*.test.map"]
-    },
+
     "test": {
-      "dependsOn": ["build", "build:tests"]
+      "with": ["test/unit", "test/e2e"]
     },
+
+    "test/unit": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./vitest.config.ts",
+        "./src/**/*.ts"
+      ]
+    },
+
+    "test/unit:watch": {},
+
+    "test/e2e": {
+      "dependsOn": ["build", "test/e2e/build"],
+      "inputs": ["$TURBO_DEFAULT$", "./tests/e2e/run.sh", "./src/**/*.spec.ts"]
+    },
+
+    "test/e2e/build": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./tsconfig.e2e.json",
+        "./src/**/*.spec.ts"
+      ],
+      "outputs": ["./out/**/*.spec.js", "./out/**/*.spec.map"]
+    },
+
     "lint": {
-      "inputs": ["./src/**/*.ts", "./eslint.config.mjs"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./.oxlintrc.json",
+        "./src/**/*.ts",
+        "./tests/**/*.ts",
+        "./scripts/**/*.ts"
+      ]
+    },
+
+    "lint:fix": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./.oxlintrc.json",
+        "./src/**/*.ts",
+        "./tests/**/*.ts",
+        "./scripts/**/*.ts"
+      ],
+      "outputs": ["./src/**/*.ts", "./src/**/*.tsx"]
+    },
+
+    "format": {
+      "inputs": ["$TURBO_DEFAULT$", "./**/*"]
     }
   },
   "extends": ["//"]

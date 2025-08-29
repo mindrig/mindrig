@@ -129,10 +129,11 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     ].join(" ");
 
     const app = `${baseUri}/src/index.tsx`;
+    const styles = `${baseUri}/src/styles.css`;
     const reactRefresh = `${baseUri}/@react-refresh`;
     const viteClient = `${baseUri}/@vite/client`;
 
-    return { csp, app, reactRefresh, viteClient };
+    return { csp, app, styles, reactRefresh, viteClient };
   }
 
   #localPaths(webview: vscode.Webview): WorkbenchWebviewHtmlUris {

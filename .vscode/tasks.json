@@ -1,78 +1,63 @@
 {
   "version": "2.0.0",
   "tasks": [
-    //#region Build
+    //#region vscode
 
-    // Extension
+    // dev
     {
       "type": "shell",
-      "label": "build:extension",
-      "dependsOn": ["build:webview"],
+      "label": "vscode#dev",
+      "dependsOn": ["vscode-extension#dev", "vscode-webview#dev"],
       "dependsOrder": "parallel",
-      "command": "pnpm",
-      "args": ["run", "build"],
-      "options": {
-        "cwd": "${workspaceFolder}/vscode/extension"
-      },
-      "group": "build",
+      "command": "echo",
+      "args": ["OK"],
       "presentation": {
         "reveal": "silent",
-        "panel": "shared"
+        "close": true
       },
-      "problemMatcher": {
-        "pattern": [
-          {
-            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
-            "file": 1,
-            "location": 2,
-            "severity": 3,
-            "code": 4,
-            "message": 5
-          }
-        ]
-      }
+      "problemMatcher": []
     },
 
-    // Webview
+    // build
     {
       "type": "shell",
-      "label": "build:webview",
-      "command": "pnpm",
-      "args": ["run", "build"],
-      "options": {
-        "cwd": "${workspaceFolder}/vscode/webview"
-      },
-      "group": "build",
+      "label": "vscode#build",
+      "dependsOn": ["vscode-extension#build", "vscode-webview#build"],
+      "dependsOrder": "parallel",
+      "command": "echo",
+      "args": ["OK"],
       "presentation": {
         "reveal": "silent",
-        "panel": "shared"
+        "close": true
       },
-      "problemMatcher": {
-        "pattern": [
-          {
-            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
-            "file": 1,
-            "location": 2,
-            "severity": 3,
-            "code": 4,
-            "message": 5
-          }
-        ]
-      }
+      "problemMatcher": []
+    },
+
+    // build:watch
+    {
+      "type": "shell",
+      "label": "vscode#build:watch",
+      "dependsOn": ["vscode-extension#build", "vscode-webview#build"],
+      "dependsOrder": "parallel",
+      "command": "echo",
+      "args": ["OK"],
+      "presentation": {
+        "reveal": "silent",
+        "close": true
+      },
+      "problemMatcher": []
     },
 
     //#endregion
 
-    //#region Watch
+    //#region vscode-extension
 
-    // Extension
+    // dev
     {
       "type": "shell",
-      "label": "watch:extension",
-      "dependsOn": ["watch:webview"],
-      "dependsOrder": "parallel",
+      "label": "vscode-extension#dev",
       "command": "pnpm",
-      "args": ["run", "watch"],
+      "args": ["run", "dev"],
       "options": {
         "cwd": "${workspaceFolder}/vscode/extension"
       },
@@ -97,18 +82,45 @@
           "beginsPattern": "^vite.*building",
           "endsPattern": ".*built in.*ms\\."
         }
-      },
-      "group": "build"
+      }
     },
 
-    // Webview
+    // vscode-extension#build
     {
       "type": "shell",
-      "label": "watch:webview",
+      "group": "build",
+      "label": "vscode-extension#build",
       "command": "pnpm",
-      "args": ["run", "watch"],
+      "args": ["run", "build"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode/webview"
+        "cwd": "${workspaceFolder}/vscode/extension"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ]
+      }
+    },
+
+    // vscode-extension#build:watch
+    {
+      "type": "shell",
+      "label": "vscode-extension:build:watch",
+      "command": "pnpm",
+      "args": ["run", "build:watch"],
+      "options": {
+        "cwd": "${workspaceFolder}/vscode/extension"
       },
       "isBackground": true,
       "presentation": {
@@ -131,59 +143,19 @@
           "beginsPattern": "^vite.*building",
           "endsPattern": ".*built in.*ms\\."
         }
-      },
-      "group": "build"
+      }
     },
 
     //#endregion
 
-    //#region Serve
+    //#region vscode-webview
 
-    // Extension
+    // vscode-webview#dev
     {
       "type": "shell",
-      "label": "serve:extension",
-      "dependsOn": ["serve:webview"],
-      "dependsOrder": "parallel",
+      "label": "vscode-webview#dev",
       "command": "pnpm",
-      "args": ["run", "watch"],
-      "options": {
-        "cwd": "${workspaceFolder}/vscode/extension",
-        "env": {
-          "VSCODE_DEV_SERVER": "true"
-        }
-      },
-      "isBackground": true,
-      "presentation": {
-        "reveal": "never",
-        "group": "watchers"
-      },
-      "problemMatcher": {
-        "pattern": [
-          {
-            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
-            "file": 1,
-            "location": 2,
-            "severity": 3,
-            "code": 4,
-            "message": 5
-          }
-        ],
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^vite.*building",
-          "endsPattern": ".*built in.*ms\\."
-        }
-      },
-      "group": "build"
-    },
-
-    // Webview
-    {
-      "type": "shell",
-      "label": "serve:webview",
-      "command": "pnpm",
-      "args": ["run", "serve"],
+      "args": ["run", "dev"],
       "options": {
         "cwd": "${workspaceFolder}/vscode/webview"
       },
@@ -207,6 +179,67 @@
           "activeOnStart": true,
           "beginsPattern": "VITE",
           "endsPattern": ".*ready in.*"
+        }
+      }
+    },
+
+    // vscode-webview#build
+    {
+      "type": "shell",
+      "group": "build",
+      "label": "vscode-webview#build",
+      "command": "pnpm",
+      "args": ["run", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}/vscode/webview"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ]
+      }
+    },
+
+    // vscode-webview#build:watch
+    {
+      "type": "shell",
+      "label": "vscode-webview#build:watch",
+      "command": "pnpm",
+      "args": ["run", "build:watch"],
+      "options": {
+        "cwd": "${workspaceFolder}/vscode/webview"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "group": "watchers"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^vite.*building",
+          "endsPattern": ".*built in.*ms\\."
         }
       }
     }

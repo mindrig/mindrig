@@ -1,4 +1,3 @@
-import "@/styles.css";
 import { ActiveFile, SecretPanel, SettingsPanel } from "@/components";
 import { useEffect, useState } from "react";
 

@@ -15,7 +15,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "sourceMap": true,
-    "rootDir": "src",
+    "rootDir": ".",
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "baseUrl": ".",
@@ -23,6 +23,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["./*.ts", "./src/**/*.ts", "./src/**/*.tsx", "./tests/**/*.ts"]
 }
