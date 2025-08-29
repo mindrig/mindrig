@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
-import { applyCodeChanges, computeTextChanges } from "./code";
+import { applyCodeChanges, computeTextChanges } from "./text";
 
 describe(computeTextChanges, () => {
   it("returns empty array for identical strings", () => {
