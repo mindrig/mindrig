@@ -48,6 +48,14 @@ React webview application that provides the UI for the Mind Control Code panel.
 - `pnpm turbo serve --filter @mindcontrol/vscode-webview` - Development server
 - `pnpm turbo lint --filter @mindcontrol/vscode-webview` - Lint TypeScript/React code
 
+### [`vscode/sync`](./vscode/sync/)
+
+VS Code synchronization package for managing state and communication between the extension and webview. It includes common types and utilities.
+
+### [`vscode/types`](./vscode/types/)
+
+VS Code types package containing common type definitions for the extension and webview.
+
 ### [`types`](./types/)
 
 Shared type definitions using the Genotype programming language for cross-language type safety between TypeScript and Rust packages.
