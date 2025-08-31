@@ -94,7 +94,7 @@
     "gen/webview/html": "tsx ./scripts/gen/webviewHtml.ts"
   },
   "dependencies": {
-    "@mindcontrol/code-parser": "0.1.0",
+    "@mindcontrol/code-parser-wasm": "0.1.0",
     "yjs": "^13.6.27"
   },
   "devDependencies": {

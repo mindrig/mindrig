@@ -2,8 +2,12 @@
 
 set -e
 
-echo -e "⚡️ Building @mindcontrol/code-parser\n"
+echo -e "⚡️ Building @mindcontrol/code-parser-wasm\n"
 
 find ./pkg -type f ! -name 'package.json' -delete
 wasm-pack build --target nodejs --out-name parser
-sed -i 's/mindcontrol_code_parser/@mindcontrol\/code-parser/g' pkg/package.json
+echo -e "$(cat ./pkg/package.json | jaq '
+  .dependencies //= {} |
+  .dependencies["@mindcontrol/code-types"] = "workspace:*" |
+  .name = "@mindcontrol/code-parser-wasm"
+')" > pkg/package.json

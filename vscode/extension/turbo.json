@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": [
-        "@mindcontrol/code-parser-crate#build",
+        "@mindcontrol/code-parser#build",
         "@mindcontrol/vscode-webview#build"
       ],
       "inputs": [

@@ -12,7 +12,30 @@
     },
 
     "test": {
-      "inputs": ["$TURBO_DEFAULT$", "./Cargo.toml", "./src/**/*.rs"]
+      "with": ["test/lib", "test/wasm"]
+    },
+
+    "test/lib": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./Cargo.toml",
+        "./src/**/*.rs",
+        "./src/**/*.pending-snap"
+      ]
+    },
+
+    "test/lib:review": {
+      "interactive": true,
+      "cache": false
+    },
+
+    "test/wasm": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./Cargo.toml",
+        "./src/**/*.rs",
+        "./tests/wasm.rs"
+      ]
     },
 
     "lint": {

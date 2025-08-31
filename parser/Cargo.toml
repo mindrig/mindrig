@@ -22,3 +22,4 @@ mindcontrol_code_types = { path = "../types/pkg/rs" }
 [dev-dependencies]
 insta = { version = "1.43.1", features = ["yaml"] }
 pretty_assertions = "1.4"
+wasm-bindgen-test = "0.3.50"

@@ -1,5 +1,5 @@
 {
-  "name": "@mindcontrol/code-parser",
+  "name": "@mindcontrol/code-parser-wasm",
   "description": "Mind Control Code parser",
   "version": "0.1.0",
   "license": "UNLICENSED",
@@ -9,5 +9,8 @@
     "parser.d.ts"
   ],
   "main": "parser.js",
-  "types": "parser.d.ts"
+  "types": "parser.d.ts",
+  "dependencies": {
+    "@mindcontrol/code-types": "workspace:*"
+  }
 }

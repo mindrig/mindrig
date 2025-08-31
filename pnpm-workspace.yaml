@@ -5,6 +5,7 @@ packages:
   - vscode/sync
   - parser
   - parser/pkg
+  - types
   - types/pkg/ts
 
 onlyBuiltDependencies:
@@ -14,7 +15,7 @@ onlyBuiltDependencies:
   - keytar
 
 overrides:
-  "@mindcontrol/code-parser": workspace:*
+  "@mindcontrol/code-parser-wasm": workspace:*
   "@mindcontrol/code-types": workspace:*
   "@mindcontrol/vscode-types": workspace:*
   "@mindcontrol/vscode-sync": workspace:*

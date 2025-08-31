@@ -1,0 +1,16 @@
+use ./prompt/Prompt
+
+ParseResult = ParseResultError | ParseResultSuccess
+
+ParseResultError = {
+  state: "error"
+  error: string
+}
+
+ParseResultSuccess = {
+  state: "success"
+  prompts: [Prompt]
+  // TODO: Use this after the bug is fixed:
+  // https://github.com/kossnocorp/genotype/issues/49
+  // prompts: [./prompt/Prompt]
+}

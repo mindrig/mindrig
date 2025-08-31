@@ -1,5 +1,4 @@
-import { parsePrompts } from "@mindcontrol/code-parser";
-import type { Prompt } from "@mindcontrol/code-types";
+import { parsePrompts } from "@mindcontrol/code-parser-wasm";
 import type { SyncMessage } from "@mindcontrol/vscode-sync";
 import * as vscode from "vscode";
 import { CodeSyncManager } from "../CodeSyncManager";
@@ -232,14 +231,24 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     }
 
     try {
-      const promptsJson = parsePrompts(fileState.content, fileState.path);
-      const prompts: Prompt[] = JSON.parse(promptsJson);
+      const parseResult = parsePrompts(fileState.content, fileState.path);
 
-      this.#sendMessage({
-        type: "promptsChanged",
-        payload: { prompts },
-      });
+      if (parseResult.state === "success") {
+        this.#sendMessage({
+          type: "promptsChanged",
+          payload: { prompts: parseResult.prompts },
+        });
+      } else {
+        console.error("Parser returned error:", parseResult.error);
+        // TODO: Instead of sending [], we should keep the existing cached
+        // prompts but set the state to syntax error
+        this.#sendMessage({
+          type: "promptsChanged",
+          payload: { prompts: [] },
+        });
+      }
     } catch (error) {
+      // TODO: Same as above
       console.error("Failed to parse prompts:", error);
       this.#sendMessage({
         type: "promptsChanged",

@@ -2,8 +2,9 @@
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
     "build": {
-      "inputs": ["./src/**/*.type", "genotype.toml"],
+      "inputs": ["$TURBO_DEFAULT$", "./src/**/*.type", "./genotype.toml"],
       "outputs": ["./pkg/**"]
     }
-  }
+  },
+  "extends": ["//"]
 }

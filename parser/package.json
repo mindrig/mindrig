@@ -1,15 +1,18 @@
 {
-  "name": "@mindcontrol/code-parser-crate",
+  "name": "@mindcontrol/code-parser",
   "version": "0.1.0",
   "description": "Mind Control Code parser crate",
   "private": true,
   "scripts": {
     "build": "./scripts/build.sh",
-    "test": "cargo nextest run",
-    "test:watch": "watchexec -c -e rs cargo nextest run --no-fail-fast",
-    "test:review": "cargo insta review",
+    "test": "test -z $TURBO_HASH && turbo run test || echo OK",
+    "test/lib": "cargo nextest run --no-fail-fast",
+    "test/lib:watch": "watchexec -c -e rs cargo nextest run --no-fail-fast",
+    "test/lib:review": "cargo insta review",
+    "test/wasm": "wasm-pack test --node",
     "lint": "cargo clippy",
     "format": "cargo fmt",
     "fix": "cargo fix --allow-dirty --allow-staged"
-  }
+  },
+  "dependencies": {}
 }

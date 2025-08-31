@@ -1,5 +1,5 @@
 {
-  "name": "@mindcontrol/types",
+  "name": "@mindcontrol/code-types-src",
   "private": true,
   "scripts": {
     "build": "gt build"

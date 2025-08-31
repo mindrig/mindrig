@@ -1,5 +1,9 @@
 use std::collections::HashSet;
 
+use mindcontrol_code_types::{
+    ParseResult, ParseResultError, ParseResultErrorStateError, ParseResultSuccess,
+    ParseResultSuccessStateSuccess,
+};
 use mindcontrol_code_types::{Prompt, PromptVar, Span};
 use oxc_allocator::Allocator;
 use oxc_allocator::Vec as OxcVec;
@@ -196,8 +200,18 @@ impl<'a> Visit<'a> for PromptVisitor<'a> {
     }
 }
 
-#[wasm_bindgen(js_name = parsePrompts)]
-pub fn parse_prompts(source: &str, filename: &str) -> Result<String, String> {
+#[wasm_bindgen(typescript_custom_section)]
+const TYPES_IMPORTS: &'static str = r#"
+import type { ParseResult } from "@mindcontrol/code-types";
+"#;
+
+#[wasm_bindgen(js_name = parsePrompts, unchecked_return_type = "ParseResult")]
+pub fn parse_prompts_wasm(source: &str, filename: &str) -> Result<JsValue, JsValue> {
+    let result = parse_prompts(source, filename);
+    Ok(serde_wasm_bindgen::to_value(&result)?)
+}
+
+pub fn parse_prompts(source: &str, filename: &str) -> ParseResult {
     let allocator = Allocator::default();
 
     let source_type =
@@ -207,18 +221,32 @@ pub fn parse_prompts(source: &str, filename: &str) -> Result<String, String> {
         .with_options(ParseOptions::default())
         .parse();
 
-    if !parser_return.errors.is_empty() {
-        return Ok("[]".to_string());
-    }
+    let result = if !parser_return.errors.is_empty() {
+        let error_messages: Vec<String> = parser_return
+            .errors
+            .iter()
+            .map(|e| format!("{}", e))
+            .collect();
 
-    let mut visitor = PromptVisitor::new(
-        source,
-        filename.to_string(),
-        &parser_return.program.comments,
-    );
-    visitor.visit_program(&parser_return.program);
+        ParseResult::ParseResultError(ParseResultError {
+            state: ParseResultErrorStateError,
+            error: error_messages.join("; "),
+        })
+    } else {
+        let mut visitor = PromptVisitor::new(
+            source,
+            filename.to_string(),
+            &parser_return.program.comments,
+        );
+        visitor.visit_program(&parser_return.program);
 
-    serde_json::to_string(&visitor.prompts).map_err(|e| format!("Serialization error: {}", e))
+        ParseResult::ParseResultSuccess(ParseResultSuccess {
+            state: ParseResultSuccessStateSuccess,
+            prompts: visitor.prompts,
+        })
+    };
+
+    result
 }
 
 #[cfg(test)]
@@ -230,98 +258,123 @@ mod tests {
     #[test]
     fn detect_const_name() {
         let const_source = r#"const userPrompt = "You are a helpful assistant.";"#;
-        assert_debug_snapshot!(parse_test_code(const_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 19,
-                    end: 49,
-                },
-                text: "You are a helpful assistant.",
-                vars: [],
+        assert_debug_snapshot!(parse_prompts(const_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 19,
+                            end: 49,
+                        },
+                        text: "You are a helpful assistant.",
+                        vars: [],
+                    },
+                ],
             },
-        ]
+        )
         "#)
     }
 
     #[test]
     fn detect_let_name() {
         let var_source = r#"var userPrompt = "You are a helpful assistant.";"#;
-        assert_debug_snapshot!(parse_test_code(var_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 17,
-                    end: 47,
-                },
-                text: "You are a helpful assistant.",
-                vars: [],
+        assert_debug_snapshot!(parse_prompts(var_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 17,
+                            end: 47,
+                        },
+                        text: "You are a helpful assistant.",
+                        vars: [],
+                    },
+                ],
             },
-        ]
+        )
         "#)
     }
 
     #[test]
     fn detect_var_name() {
         let var_source = r#"var userPrompt = "You are a helpful assistant.";"#;
-        assert_debug_snapshot!(parse_test_code(var_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 17,
-                    end: 47,
-                },
-                text: "You are a helpful assistant.",
-                vars: [],
+        assert_debug_snapshot!(parse_prompts(var_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 17,
+                            end: 47,
+                        },
+                        text: "You are a helpful assistant.",
+                        vars: [],
+                    },
+                ],
             },
-        ]
+        )
         "#)
     }
 
     #[test]
     fn detect_inline_comment() {
         let inline_comment_source = r#"const greeting = /* @prompt */ `Welcome ${user}!`;"#;
-        assert_debug_snapshot!(parse_test_code(inline_comment_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 31,
-                    end: 49,
-                },
-                text: "Welcome ${user}!",
-                vars: [
-                    PromptVar {
-                        exp: "user",
+        assert_debug_snapshot!(parse_prompts(inline_comment_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
                         loc: Span {
-                            start: 42,
-                            end: 46,
+                            start: 31,
+                            end: 49,
                         },
+                        text: "Welcome ${user}!",
+                        vars: [
+                            PromptVar {
+                                exp: "user",
+                                loc: Span {
+                                    start: 42,
+                                    end: 46,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
     #[test]
     fn detect_inline_jsdoc() {
         let inline_jsdoc_source = r#"const msg = /** @prompt */ "Hello world";"#;
-        assert_debug_snapshot!(parse_test_code(inline_jsdoc_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 27,
-                    end: 40,
-                },
-                text: "Hello world",
-                vars: [],
+        assert_debug_snapshot!(parse_prompts(inline_jsdoc_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 27,
+                            end: 40,
+                        },
+                        text: "Hello world",
+                        vars: [],
+                    },
+                ],
             },
-        ]
+        )
         "#)
     }
 
@@ -329,34 +382,37 @@ mod tests {
     fn detect_inline_dirty() {
         let inline_comment_dirty_source =
             r#"const greeting = /* @prompt greeting */ `Welcome ${user}!`;"#;
-        let prompts = parse_test_code(inline_comment_dirty_source, "prompts.ts");
-        assert_eq!(prompts.len(), 1);
+        assert_prompts_size(parse_prompts(inline_comment_dirty_source, "prompts.ts"), 1)
     }
 
     #[test]
     fn detect_inline_none() {
         let inline_comment_none_source = r#"const greeting = /* @prompting */ `Welcome ${user}!`;
 const whatever = /* wrong@prompt */ "That's not it!";"#;
-        let prompts = parse_test_code(inline_comment_none_source, "prompts.ts");
-        assert_eq!(prompts.len(), 0);
+        assert_prompts_size(parse_prompts(inline_comment_none_source, "prompts.ts"), 0)
     }
 
     #[test]
     fn detect_var_comment() {
         let var_comment_source = r#"// @prompt
 const hello = `Hello, world!`;"#;
-        assert_debug_snapshot!(parse_test_code(var_comment_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 25,
-                    end: 40,
-                },
-                text: "Hello, world!",
-                vars: [],
+        assert_debug_snapshot!(parse_prompts(var_comment_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 25,
+                            end: 40,
+                        },
+                        text: "Hello, world!",
+                        vars: [],
+                    },
+                ],
             },
-        ]
+        )
         "#)
     }
 
@@ -364,18 +420,23 @@ const hello = `Hello, world!`;"#;
     fn detect_var_inline_comment() {
         let var_comment_source = r#"/* @prompt */
 const hello = `Hello, world!`;"#;
-        assert_debug_snapshot!(parse_test_code(var_comment_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 28,
-                    end: 43,
-                },
-                text: "Hello, world!",
-                vars: [],
+        assert_debug_snapshot!(parse_prompts(var_comment_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 28,
+                            end: 43,
+                        },
+                        text: "Hello, world!",
+                        vars: [],
+                    },
+                ],
             },
-        ]
+        )
         "#)
     }
 
@@ -383,18 +444,23 @@ const hello = `Hello, world!`;"#;
     fn detect_var_jsdoc() {
         let var_jsdoc_source = r#"/** @prompt */
 const hello = `Hello, world!`;"#;
-        assert_debug_snapshot!(parse_test_code(var_jsdoc_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 29,
-                    end: 44,
-                },
-                text: "Hello, world!",
-                vars: [],
+        assert_debug_snapshot!(parse_prompts(var_jsdoc_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 29,
+                            end: 44,
+                        },
+                        text: "Hello, world!",
+                        vars: [],
+                    },
+                ],
             },
-        ]
+        )
         "#)
     }
 
@@ -410,18 +476,23 @@ nope()
 
 const world = "Hello!";
 "#;
-        assert_debug_snapshot!(parse_test_code(var_comment_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 27,
-                    end: 42,
-                },
-                text: "Hello, world!",
-                vars: [],
+        assert_debug_snapshot!(parse_prompts(var_comment_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 27,
+                            end: 42,
+                        },
+                        text: "Hello, world!",
+                        vars: [],
+                    },
+                ],
             },
-        ]
+        )
         "#)
     }
 
@@ -429,8 +500,7 @@ const world = "Hello!";
     fn detect_var_comment_none() {
         let var_comment_none_source = r#"// @prompting
 const hello = `Hello, world!`;"#;
-        let prompts = parse_test_code(var_comment_none_source, "prompts.ts");
-        assert_eq!(prompts.len(), 0);
+        assert_prompts_size(parse_prompts(var_comment_none_source, "prompts.ts"), 0)
     }
 
     #[test]
@@ -444,71 +514,75 @@ const farewell = `Goodbye ${user.name}!`;
 const system = "You are an AI assistant";
 const regular = `Not a prompt ${value}`;
 "#;
-        let prompts = parse_test_code(source, "prompts.ts");
-        assert_eq!(prompts.len(), 4);
+        let prompts = parse_prompts(source, "prompts.ts");
         assert_debug_snapshot!(prompts, @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 20,
-                    end: 37,
-                },
-                text: "Hello, ${name}!",
-                vars: [
-                    PromptVar {
-                        exp: "name",
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
                         loc: Span {
-                            start: 30,
-                            end: 34,
+                            start: 20,
+                            end: 37,
                         },
+                        text: "Hello, ${name}!",
+                        vars: [
+                            PromptVar {
+                                exp: "name",
+                                loc: Span {
+                                    start: 30,
+                                    end: 34,
+                                },
+                            },
+                        ],
+                    },
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 70,
+                            end: 88,
+                        },
+                        text: "Welcome ${user}!",
+                        vars: [
+                            PromptVar {
+                                exp: "user",
+                                loc: Span {
+                                    start: 81,
+                                    end: 85,
+                                },
+                            },
+                        ],
+                    },
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 118,
+                            end: 141,
+                        },
+                        text: "Goodbye ${user.name}!",
+                        vars: [
+                            PromptVar {
+                                exp: "user.name",
+                                loc: Span {
+                                    start: 129,
+                                    end: 138,
+                                },
+                            },
+                        ],
+                    },
+                    Prompt {
+                        file: "prompts.ts",
+                        loc: Span {
+                            start: 173,
+                            end: 198,
+                        },
+                        text: "You are an AI assistant",
+                        vars: [],
                     },
                 ],
             },
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 70,
-                    end: 88,
-                },
-                text: "Welcome ${user}!",
-                vars: [
-                    PromptVar {
-                        exp: "user",
-                        loc: Span {
-                            start: 81,
-                            end: 85,
-                        },
-                    },
-                ],
-            },
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 118,
-                    end: 141,
-                },
-                text: "Goodbye ${user.name}!",
-                vars: [
-                    PromptVar {
-                        exp: "user.name",
-                        loc: Span {
-                            start: 129,
-                            end: 138,
-                        },
-                    },
-                ],
-            },
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 173,
-                    end: 198,
-                },
-                text: "You are an AI assistant",
-                vars: [],
-            },
-        ]
+        )
         "#)
     }
 
@@ -518,26 +592,31 @@ const regular = `Not a prompt ${value}`;
 let myPrompt;
 myPrompt = `Assigned ${value}`;
 "#;
-        assert_debug_snapshot!(parse_test_code(assign_var_name_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 26,
-                    end: 45,
-                },
-                text: "Assigned ${value}",
-                vars: [
-                    PromptVar {
-                        exp: "value",
+        assert_debug_snapshot!(parse_prompts(assign_var_name_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
                         loc: Span {
-                            start: 38,
-                            end: 43,
+                            start: 26,
+                            end: 45,
                         },
+                        text: "Assigned ${value}",
+                        vars: [
+                            PromptVar {
+                                exp: "value",
+                                loc: Span {
+                                    start: 38,
+                                    end: 43,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
@@ -548,26 +627,31 @@ myPrompt = `Assigned ${value}`;
 let hello;
 hello = `Assigned ${value}`;
 "#;
-        assert_debug_snapshot!(parse_test_code(assign_var_comment_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 31,
-                    end: 50,
-                },
-                text: "Assigned ${value}",
-                vars: [
-                    PromptVar {
-                        exp: "value",
+        assert_debug_snapshot!(parse_prompts(assign_var_comment_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
                         loc: Span {
-                            start: 43,
-                            end: 48,
+                            start: 31,
+                            end: 50,
                         },
+                        text: "Assigned ${value}",
+                        vars: [
+                            PromptVar {
+                                exp: "value",
+                                loc: Span {
+                                    start: 43,
+                                    end: 48,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
@@ -580,29 +664,34 @@ hello = 123;
 
 hello = `Assigned ${value}`;
 "#;
-        assert_debug_snapshot!(parse_test_code(
+        assert_debug_snapshot!(parse_prompts(
             reassign_var_comment,
             "prompts.ts"
         ), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 45,
-                    end: 64,
-                },
-                text: "Assigned ${value}",
-                vars: [
-                    PromptVar {
-                        exp: "value",
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
                         loc: Span {
-                            start: 57,
-                            end: 62,
+                            start: 45,
+                            end: 64,
                         },
+                        text: "Assigned ${value}",
+                        vars: [
+                            PromptVar {
+                                exp: "value",
+                                loc: Span {
+                                    start: 57,
+                                    end: 62,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#);
     }
 
@@ -616,35 +705,37 @@ const message = "Just a message";
 // @prompt
 const number = 1;
 "#;
-        let prompts = parse_test_code(no_prompts_source, "prompts.ts");
-        assert_eq!(prompts.len(), 0);
+        assert_prompts_size(parse_prompts(no_prompts_source, "prompts.ts"), 0);
     }
 
     #[test]
     fn single_var() {
         let single_var_source = r#"const userPrompt = `Hello, ${name}!`;"#;
-        let single_var_prompts = parse_test_code(single_var_source, "prompts.ts");
-        assert_eq!(single_var_prompts[0].vars.len(), 1);
-        assert_debug_snapshot!(single_var_prompts, @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 19,
-                    end: 36,
-                },
-                text: "Hello, ${name}!",
-                vars: [
-                    PromptVar {
-                        exp: "name",
+        assert_debug_snapshot!(parse_prompts(single_var_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
                         loc: Span {
-                            start: 29,
-                            end: 33,
+                            start: 19,
+                            end: 36,
                         },
+                        text: "Hello, ${name}!",
+                        vars: [
+                            PromptVar {
+                                exp: "name",
+                                loc: Span {
+                                    start: 29,
+                                    end: 33,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
@@ -652,68 +743,76 @@ const number = 1;
     fn multi_vars() {
         let multi_vars_source =
             r#"const userPrompt = `Hello, ${name}! How is the weather today in ${city}?`;"#;
-        let multi_vars_prompts = parse_test_code(multi_vars_source, "prompts.ts");
-        assert_eq!(multi_vars_prompts[0].vars.len(), 2);
-        assert_debug_snapshot!(multi_vars_prompts, @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 19,
-                    end: 73,
-                },
-                text: "Hello, ${name}! How is the weather today in ${city}?",
-                vars: [
-                    PromptVar {
-                        exp: "name",
+        assert_debug_snapshot!(parse_prompts(multi_vars_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
                         loc: Span {
-                            start: 29,
-                            end: 33,
+                            start: 19,
+                            end: 73,
                         },
-                    },
-                    PromptVar {
-                        exp: "city",
-                        loc: Span {
-                            start: 66,
-                            end: 70,
-                        },
+                        text: "Hello, ${name}! How is the weather today in ${city}?",
+                        vars: [
+                            PromptVar {
+                                exp: "name",
+                                loc: Span {
+                                    start: 29,
+                                    end: 33,
+                                },
+                            },
+                            PromptVar {
+                                exp: "city",
+                                loc: Span {
+                                    start: 66,
+                                    end: 70,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
     #[test]
     fn exp_vars() {
         let exp_vars_source = r#"const userPrompt = `Hello, ${user.name}! How is the weather today in ${user.location.city}?`;"#;
-        assert_debug_snapshot!(parse_test_code(exp_vars_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 19,
-                    end: 92,
-                },
-                text: "Hello, ${user.name}! How is the weather today in ${user.location.city}?",
-                vars: [
-                    PromptVar {
-                        exp: "user.name",
+        assert_debug_snapshot!(parse_prompts(exp_vars_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
                         loc: Span {
-                            start: 29,
-                            end: 38,
+                            start: 19,
+                            end: 92,
                         },
-                    },
-                    PromptVar {
-                        exp: "user.location.city",
-                        loc: Span {
-                            start: 71,
-                            end: 89,
-                        },
+                        text: "Hello, ${user.name}! How is the weather today in ${user.location.city}?",
+                        vars: [
+                            PromptVar {
+                                exp: "user.name",
+                                loc: Span {
+                                    start: 29,
+                                    end: 38,
+                                },
+                            },
+                            PromptVar {
+                                exp: "user.location.city",
+                                loc: Span {
+                                    start: 71,
+                                    end: 89,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
@@ -721,61 +820,75 @@ const number = 1;
     fn exp_vars_complex() {
         let exp_vars_source =
             r#"const userPrompt = `Hello, ${User.fullName({ ...user.name, last: null })}!`;"#;
-        assert_debug_snapshot!(parse_test_code(exp_vars_source, "prompts.ts"), @r#"
-        [
-            Prompt {
-                file: "prompts.ts",
-                loc: Span {
-                    start: 19,
-                    end: 75,
-                },
-                text: "Hello, ${User.fullName({ ...user.name, last: null })}!",
-                vars: [
-                    PromptVar {
-                        exp: "User.fullName({ ...user.name, last: null })",
+        assert_debug_snapshot!(parse_prompts(exp_vars_source, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
                         loc: Span {
-                            start: 29,
-                            end: 72,
+                            start: 19,
+                            end: 75,
                         },
+                        text: "Hello, ${User.fullName({ ...user.name, last: null })}!",
+                        vars: [
+                            PromptVar {
+                                exp: "User.fullName({ ...user.name, last: null })",
+                                loc: Span {
+                                    start: 29,
+                                    end: 72,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
     #[test]
     fn invalid_syntax() {
-        let source = r#"const invalid = `unclosed template"#;
-        let result = parse_prompts(source, "prompts.ts");
-        assert!(result.is_ok());
-        let prompts: Vec<Prompt> = serde_json::from_str(&result.unwrap()).unwrap();
-        assert_eq!(prompts.len(), 0);
+        let invalid_source = r#"const invalid = `unclosed template"#;
+        assert_debug_snapshot!(parse_prompts(invalid_source, "prompts.ts"), @r#"
+        ParseResultError(
+            ParseResultError {
+                state: "error",
+                error: "Unterminated string",
+            },
+        )
+        "#);
     }
 
     #[test]
     fn js_code() {
         let js_source = r#"const prompt = /* @prompt */ `Hello ${world}!`;"#;
-        assert_debug_snapshot!(parse_test_code(js_source, "test.js"), @r#"
-        [
-            Prompt {
-                file: "test.js",
-                loc: Span {
-                    start: 29,
-                    end: 46,
-                },
-                text: "Hello ${world}!",
-                vars: [
-                    PromptVar {
-                        exp: "world",
+        assert_debug_snapshot!(parse_prompts(js_source, "test.js"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "test.js",
                         loc: Span {
-                            start: 38,
-                            end: 43,
+                            start: 29,
+                            end: 46,
                         },
+                        text: "Hello ${world}!",
+                        vars: [
+                            PromptVar {
+                                exp: "world",
+                                loc: Span {
+                                    start: 38,
+                                    end: 43,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
@@ -784,52 +897,62 @@ const number = 1;
         let jsx_source = r#"const prompt = /* @prompt */ `Hello ${world}!`;
 const element = <div>{prompt}</div>;
 "#;
-        assert_debug_snapshot!(parse_test_code(jsx_source, "test.jsx"), @r#"
-        [
-            Prompt {
-                file: "test.jsx",
-                loc: Span {
-                    start: 29,
-                    end: 46,
-                },
-                text: "Hello ${world}!",
-                vars: [
-                    PromptVar {
-                        exp: "world",
+        assert_debug_snapshot!(parse_prompts(jsx_source, "test.jsx"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "test.jsx",
                         loc: Span {
-                            start: 38,
-                            end: 43,
+                            start: 29,
+                            end: 46,
                         },
+                        text: "Hello ${world}!",
+                        vars: [
+                            PromptVar {
+                                exp: "world",
+                                loc: Span {
+                                    start: 38,
+                                    end: 43,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
     #[test]
     fn ts_code() {
         let ts_source = r#"const prompt : string = /* @prompt */ `Hello ${world}!`;"#;
-        assert_debug_snapshot!(parse_test_code(ts_source, "test.ts"), @r#"
-        [
-            Prompt {
-                file: "test.ts",
-                loc: Span {
-                    start: 38,
-                    end: 55,
-                },
-                text: "Hello ${world}!",
-                vars: [
-                    PromptVar {
-                        exp: "world",
+        assert_debug_snapshot!(parse_prompts(ts_source, "test.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "test.ts",
                         loc: Span {
-                            start: 47,
-                            end: 52,
+                            start: 38,
+                            end: 55,
                         },
+                        text: "Hello ${world}!",
+                        vars: [
+                            PromptVar {
+                                exp: "world",
+                                loc: Span {
+                                    start: 47,
+                                    end: 52,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
@@ -838,31 +961,49 @@ const element = <div>{prompt}</div>;
         let tsx_source = r#"const prompt : string = /* @prompt */ `Hello ${world}!`;
 const element = <div>{prompt}</div>;
 "#;
-        assert_debug_snapshot!(parse_test_code(tsx_source, "test.tsx"), @r#"
-        [
-            Prompt {
-                file: "test.tsx",
-                loc: Span {
-                    start: 38,
-                    end: 55,
-                },
-                text: "Hello ${world}!",
-                vars: [
-                    PromptVar {
-                        exp: "world",
+        assert_debug_snapshot!(parse_prompts(tsx_source, "test.tsx"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "test.tsx",
                         loc: Span {
-                            start: 47,
-                            end: 52,
+                            start: 38,
+                            end: 55,
                         },
+                        text: "Hello ${world}!",
+                        vars: [
+                            PromptVar {
+                                exp: "world",
+                                loc: Span {
+                                    start: 47,
+                                    end: 52,
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-        ]
+        )
         "#)
     }
 
-    fn parse_test_code(source: &str, filename: &str) -> Vec<Prompt> {
-        let result = parse_prompts(source, filename).expect("Parsing should succeed");
-        serde_json::from_str(&result).expect("JSON deserialization should succeed")
+    fn assert_prompts_size(result: ParseResult, expected_size: usize) {
+        match result {
+            ParseResult::ParseResultSuccess(ParseResultSuccess { prompts, .. }) => {
+                assert_eq!(prompts.len(), expected_size);
+            }
+            ParseResult::ParseResultError(ParseResultError { error, .. }) => {
+                panic!("Parsing failed: {}", error)
+            }
+        }
+    }
+
+    fn parse_test_code_wasm(source: &str, filename: &str) -> ParseResult {
+        let result = parse_prompts_wasm(source, filename).expect("Parsing should succeed");
+        let parse_result: ParseResult =
+            serde_wasm_bindgen::from_value(result).expect("Deserialization should succeed");
+        parse_result
     }
 }

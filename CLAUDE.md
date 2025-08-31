@@ -81,7 +81,7 @@ Rust-based parser crate that compiles to WebAssembly to power JS/TS code parsing
 
 **Available commands:**
 
-- `pnpm turbo build --filter @mindcontrol/code-parser-crate` - Compile Rust to WebAssembly
+- `pnpm turbo build --filter @mindcontrol/code-parser` - Compile Rust to WebAssembly
 - `pnpm test:rs` - Run Rust tests (from workspace root)
 - `pnpm test:rs:watch` - Watch Rust tests with watchexec (from workspace root)
 - `pnpm test:rs:review` - Review insta snapshots (from workspace root)
@@ -125,7 +125,7 @@ From the root directory using **Turborepo**:
 - Build all packages: `pnpm turbo build`
 - Build specific package: `pnpm turbo build --filter @mindcontrol/code-vscode`
 - Build webview: `pnpm turbo build --filter @mindcontrol/code-webview`
-- Build parser: `pnpm turbo build --filter @mindcontrol/code-parser-crate`
+- Build parser: `pnpm turbo build --filter @mindcontrol/code-parser`
 - Watch extension: `pnpm turbo watch --filter @mindcontrol/code-vscode`
 - Watch webview: `pnpm turbo watch --filter @mindcontrol/code-webview`
 

@@ -1,5 +1,5 @@
-import { defineConfig } from "vite";
 import { resolve } from "path";
+import { defineConfig } from "vite";
 
 export default defineConfig(({ mode }) => ({
   build: {
@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
       fileName: "extension",
     },
     rollupOptions: {
-      external: ["vscode", "@mindcontrol/code-parser"],
+      external: ["vscode", "@mindcontrol/code-parser-wasm"],
     },
     outDir: "dist/extension",
     target: "node16",
