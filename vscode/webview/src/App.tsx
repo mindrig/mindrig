@@ -1,7 +1,9 @@
 import {
   ActiveFile,
-  VercelGatewayPanel,
   DebugSection,
+  PromptExecution,
+  PromptViewer,
+  VercelGatewayPanel,
 } from "@/components";
 import { useCallback, useEffect, useState } from "react";
 
@@ -15,6 +17,17 @@ declare global {
   }
 }
 
+function findPromptAtCursor(prompts: any[], cursorOffset?: number): any {
+  if (!cursorOffset || !prompts.length) return null;
+
+  return prompts.find(
+    (prompt) =>
+      prompt.span &&
+      cursorOffset >= prompt.span.start &&
+      cursorOffset <= prompt.span.end
+  );
+}
+
 export function App() {
   const [fileState, setFileState] = useState<any>(null);
   const [pinnedFile, setPinnedFile] = useState<any>(null);
@@ -23,6 +36,11 @@ export function App() {
   const [settings, setSettings] = useState<any>(null);
   const [vercelGatewayKey, setVercelGatewayKey] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<any[]>([]);
+  const [parseStatus, setParseStatus] = useState<"success" | "error">(
+    "success"
+  );
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [currentPrompt, setCurrentPrompt] = useState<any>(null);
   const [vscode] = useState(() => window.acquireVsCodeApi?.());
   const [syncMessageHandler, setSyncMessageHandler] = useState<
     ((message: any) => void) | null
@@ -68,6 +86,8 @@ export function App() {
           break;
         case "promptsChanged":
           setPrompts(message.payload.prompts);
+          setParseStatus(message.payload.parseStatus || "success");
+          setParseError(message.payload.parseError || null);
           break;
         case "sync-update":
         case "sync-state-vector":
@@ -94,7 +114,11 @@ export function App() {
   };
 
   const handleVercelGatewayKeyChange = (vercelGatewayKey: string) => {
-    if (vscode) vscode.postMessage({ type: "setVercelGatewayKey", payload: vercelGatewayKey });
+    if (vscode)
+      vscode.postMessage({
+        type: "setVercelGatewayKey",
+        payload: vercelGatewayKey,
+      });
   };
 
   const handleClearVercelGatewayKey = () => {
@@ -107,6 +131,14 @@ export function App() {
     },
     []
   );
+
+  // Update current prompt when cursor position or prompts change
+  useEffect(() => {
+    const targetFile = isPinned ? pinnedFile : activeFile;
+    const cursorOffset = targetFile?.cursorPosition?.offset;
+    const foundPrompt = findPromptAtCursor(prompts, cursorOffset);
+    setCurrentPrompt(foundPrompt);
+  }, [prompts, activeFile, pinnedFile, isPinned]);
 
   return (
     <div className="h-full bg-gradient-to-br from-purple-50 to-blue-50 p-4 space-y-4 overflow-y-auto">
@@ -121,9 +153,15 @@ export function App() {
         pinnedFile={pinnedFile}
         activeFile={activeFile}
         isPinned={isPinned}
+        parseStatus={parseStatus}
+        parseError={parseError}
         onPin={handlePin}
         onUnpin={handleUnpin}
       />
+
+      <PromptViewer prompt={currentPrompt} />
+
+      <PromptExecution prompt={currentPrompt} vscode={vscode} />
 
       <DebugSection
         vscode={vscode}

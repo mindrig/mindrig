@@ -94,13 +94,16 @@
     "gen/webview/html": "tsx ./scripts/gen/webviewHtml.ts"
   },
   "dependencies": {
+    "@ai-sdk/gateway": "^1.0.15",
+    "@ai-sdk/openai": "^2.0.23",
     "@mindcontrol/code-parser-wasm": "0.1.0",
+    "ai": "^5.0.28",
     "yjs": "^13.6.27"
   },
   "devDependencies": {
     "@mindcontrol/code-types": "0.1.0",
-    "@mindcontrol/vscode-types": "0.1.0",
     "@mindcontrol/vscode-sync": "0.1.0",
+    "@mindcontrol/vscode-types": "0.1.0",
     "@playwright/test": "^1.55.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",

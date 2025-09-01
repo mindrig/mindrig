@@ -13,7 +13,7 @@ fn parse_js_value() {
             state: ParseResultSuccessStateSuccess,
             prompts: vec![Prompt {
                 file: "prompts.ts".into(),
-                loc: Span { start: 27, end: 40 },
+                span: Span { start: 27, end: 40 },
                 text: "Hello world".into(),
                 vars: vec![],
             }]

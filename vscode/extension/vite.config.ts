@@ -9,7 +9,13 @@ export default defineConfig(({ mode }) => ({
       fileName: "extension",
     },
     rollupOptions: {
-      external: ["vscode", "@mindcontrol/code-parser-wasm"],
+      external: [
+        "vscode",
+        "@mindcontrol/code-parser-wasm",
+        "yjs",
+        "ai",
+        "@ai-sdk/gateway",
+      ],
     },
     outDir: "dist/extension",
     target: "node16",

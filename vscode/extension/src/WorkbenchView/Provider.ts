@@ -1,6 +1,7 @@
 import { parsePrompts } from "@mindcontrol/code-parser-wasm";
 import type { SyncMessage } from "@mindcontrol/vscode-sync";
 import * as vscode from "vscode";
+import { AIService } from "../AIService";
 import { CodeSyncManager } from "../CodeSyncManager";
 import { FileManager } from "../FileManager";
 import { SecretManager } from "../SecretManager";
@@ -37,6 +38,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     this.#settingsManager?.dispose();
     this.#secretManager?.dispose();
     this.#codeSyncManager?.dispose();
+    this.#aiService?.clearApiKey();
   }
 
   //#endregion
@@ -197,6 +199,9 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         case "sync-init":
           this.#handleRequestSync();
           break;
+        case "executePrompt":
+          this.#handleExecutePrompt((message as any).payload);
+          break;
       }
     });
   }
@@ -208,6 +213,8 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   //#endregion
 
   //#region Prompt Parsing
+
+  #cachedPrompts: any[] = [];
 
   #parseAndSendPrompts(fileState: {
     path: string;
@@ -234,25 +241,37 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       const parseResult = parsePrompts(fileState.content, fileState.path);
 
       if (parseResult.state === "success") {
+        // Cache successful prompts
+        this.#cachedPrompts = parseResult.prompts;
         this.#sendMessage({
           type: "promptsChanged",
-          payload: { prompts: parseResult.prompts },
+          payload: {
+            prompts: parseResult.prompts,
+            parseStatus: "success",
+          },
         });
       } else {
         console.error("Parser returned error:", parseResult.error);
-        // TODO: Instead of sending [], we should keep the existing cached
-        // prompts but set the state to syntax error
+        // Keep existing cached prompts but set status to error
         this.#sendMessage({
           type: "promptsChanged",
-          payload: { prompts: [] },
+          payload: {
+            prompts: this.#cachedPrompts,
+            parseStatus: "error",
+            parseError: parseResult.error,
+          },
         });
       }
     } catch (error) {
-      // TODO: Same as above
+      // Keep existing cached prompts but set status to error
       console.error("Failed to parse prompts:", error);
       this.#sendMessage({
         type: "promptsChanged",
-        payload: { prompts: [] },
+        payload: {
+          prompts: this.#cachedPrompts,
+          parseStatus: "error",
+          parseError: String(error),
+        },
       });
     }
   }
@@ -378,6 +397,84 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
   //#endregion
 
+  //#region AI Service
+
+  #initializeAIService() {
+    this.#aiService = new AIService();
+  }
+
+  async #handleExecutePrompt(payload: {
+    promptText: string;
+    substitutedPrompt: string;
+    variables: Record<string, string>;
+    promptId: string;
+  }) {
+    if (!this.#aiService) this.#initializeAIService();
+
+    // Get the current API key from secret manager
+    if (!this.#secretManager) {
+      this.#sendMessage({
+        type: "promptExecutionResult",
+        payload: {
+          success: false,
+          error: "Secret manager not initialized",
+          promptId: payload.promptId,
+          timestamp: Date.now(),
+        },
+      });
+      return;
+    }
+
+    const apiKey = await this.#secretManager.getSecret();
+    if (!apiKey) {
+      this.#sendMessage({
+        type: "promptExecutionResult",
+        payload: {
+          success: false,
+          error:
+            "No Vercel Gateway API key configured. Please set your API key in the panel above.",
+          promptId: payload.promptId,
+          timestamp: Date.now(),
+        },
+      });
+      return;
+    }
+
+    // Set the API key and execute the prompt
+    this.#aiService!.setApiKey(apiKey);
+
+    try {
+      const result = await this.#aiService!.executePrompt(
+        payload.substitutedPrompt
+      );
+
+      this.#sendMessage({
+        type: "promptExecutionResult",
+        payload: {
+          success: result.success,
+          request: result.success ? result.request : undefined,
+          response: result.success ? result.response : undefined,
+          error: result.success ? undefined : result.error,
+          promptId: payload.promptId,
+          timestamp: Date.now(),
+        },
+      });
+    } catch (error) {
+      console.error("Error executing prompt:", error);
+      this.#sendMessage({
+        type: "promptExecutionResult",
+        payload: {
+          success: false,
+          error: `Unexpected error: ${error instanceof Error ? error.message : String(error)}`,
+          promptId: payload.promptId,
+          timestamp: Date.now(),
+        },
+      });
+    }
+  }
+
+  //#endregion
+
   //#region Pinning
 
   #handlePinFile() {
@@ -393,6 +490,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   //#region Code Sync Manager
 
   #codeSyncManager: CodeSyncManager | null = null;
+  #aiService: AIService | null = null;
 
   #initializeCodeSyncManager() {
     this.#codeSyncManager = new CodeSyncManager({

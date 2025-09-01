@@ -101,7 +101,7 @@ impl<'a> PromptVisitor<'a> {
             let formatted = self.format_expression(expr);
             vars.push(PromptVar {
                 exp: formatted,
-                loc: self.span(&expr.span()),
+                span: self.span(&expr.span()),
             });
         }
 
@@ -124,7 +124,7 @@ impl<'a> PromptVisitor<'a> {
         if self.is_prompt(ident_name, prompt_comment) {
             let prompt = Prompt {
                 file: self.file.clone(),
-                loc: self.span(&template.span),
+                span: self.span(&template.span),
                 text: self.get_template_text(template),
                 vars: self.extract_template_vars(template),
             };
@@ -138,7 +138,7 @@ impl<'a> PromptVisitor<'a> {
         if self.is_prompt(ident_name, prompt_comment) {
             let prompt = Prompt {
                 file: self.file.clone(),
-                loc: self.span(&string.span),
+                span: self.span(&string.span),
                 text: string.value.to_string(),
                 vars: Vec::new(),
             };
@@ -265,7 +265,7 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 19,
                             end: 49,
                         },
@@ -288,7 +288,7 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 17,
                             end: 47,
                         },
@@ -311,7 +311,7 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 17,
                             end: 47,
                         },
@@ -334,7 +334,7 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 31,
                             end: 49,
                         },
@@ -342,7 +342,7 @@ mod tests {
                         vars: [
                             PromptVar {
                                 exp: "user",
-                                loc: Span {
+                                span: Span {
                                     start: 42,
                                     end: 46,
                                 },
@@ -365,7 +365,7 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 27,
                             end: 40,
                         },
@@ -403,7 +403,7 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 25,
                             end: 40,
                         },
@@ -427,7 +427,7 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 28,
                             end: 43,
                         },
@@ -451,7 +451,7 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 29,
                             end: 44,
                         },
@@ -483,7 +483,7 @@ const world = "Hello!";
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 27,
                             end: 42,
                         },
@@ -522,7 +522,7 @@ const regular = `Not a prompt ${value}`;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 20,
                             end: 37,
                         },
@@ -530,7 +530,7 @@ const regular = `Not a prompt ${value}`;
                         vars: [
                             PromptVar {
                                 exp: "name",
-                                loc: Span {
+                                span: Span {
                                     start: 30,
                                     end: 34,
                                 },
@@ -539,7 +539,7 @@ const regular = `Not a prompt ${value}`;
                     },
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 70,
                             end: 88,
                         },
@@ -547,7 +547,7 @@ const regular = `Not a prompt ${value}`;
                         vars: [
                             PromptVar {
                                 exp: "user",
-                                loc: Span {
+                                span: Span {
                                     start: 81,
                                     end: 85,
                                 },
@@ -556,7 +556,7 @@ const regular = `Not a prompt ${value}`;
                     },
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 118,
                             end: 141,
                         },
@@ -564,7 +564,7 @@ const regular = `Not a prompt ${value}`;
                         vars: [
                             PromptVar {
                                 exp: "user.name",
-                                loc: Span {
+                                span: Span {
                                     start: 129,
                                     end: 138,
                                 },
@@ -573,7 +573,7 @@ const regular = `Not a prompt ${value}`;
                     },
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 173,
                             end: 198,
                         },
@@ -599,7 +599,7 @@ myPrompt = `Assigned ${value}`;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 26,
                             end: 45,
                         },
@@ -607,7 +607,7 @@ myPrompt = `Assigned ${value}`;
                         vars: [
                             PromptVar {
                                 exp: "value",
-                                loc: Span {
+                                span: Span {
                                     start: 38,
                                     end: 43,
                                 },
@@ -634,7 +634,7 @@ hello = `Assigned ${value}`;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 31,
                             end: 50,
                         },
@@ -642,7 +642,7 @@ hello = `Assigned ${value}`;
                         vars: [
                             PromptVar {
                                 exp: "value",
-                                loc: Span {
+                                span: Span {
                                     start: 43,
                                     end: 48,
                                 },
@@ -674,7 +674,7 @@ hello = `Assigned ${value}`;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 45,
                             end: 64,
                         },
@@ -682,7 +682,7 @@ hello = `Assigned ${value}`;
                         vars: [
                             PromptVar {
                                 exp: "value",
-                                loc: Span {
+                                span: Span {
                                     start: 57,
                                     end: 62,
                                 },
@@ -718,7 +718,7 @@ const number = 1;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 19,
                             end: 36,
                         },
@@ -726,7 +726,7 @@ const number = 1;
                         vars: [
                             PromptVar {
                                 exp: "name",
-                                loc: Span {
+                                span: Span {
                                     start: 29,
                                     end: 33,
                                 },
@@ -750,7 +750,7 @@ const number = 1;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 19,
                             end: 73,
                         },
@@ -758,14 +758,14 @@ const number = 1;
                         vars: [
                             PromptVar {
                                 exp: "name",
-                                loc: Span {
+                                span: Span {
                                     start: 29,
                                     end: 33,
                                 },
                             },
                             PromptVar {
                                 exp: "city",
-                                loc: Span {
+                                span: Span {
                                     start: 66,
                                     end: 70,
                                 },
@@ -788,7 +788,7 @@ const number = 1;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 19,
                             end: 92,
                         },
@@ -796,14 +796,14 @@ const number = 1;
                         vars: [
                             PromptVar {
                                 exp: "user.name",
-                                loc: Span {
+                                span: Span {
                                     start: 29,
                                     end: 38,
                                 },
                             },
                             PromptVar {
                                 exp: "user.location.city",
-                                loc: Span {
+                                span: Span {
                                     start: 71,
                                     end: 89,
                                 },
@@ -827,7 +827,7 @@ const number = 1;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        loc: Span {
+                        span: Span {
                             start: 19,
                             end: 75,
                         },
@@ -835,7 +835,7 @@ const number = 1;
                         vars: [
                             PromptVar {
                                 exp: "User.fullName({ ...user.name, last: null })",
-                                loc: Span {
+                                span: Span {
                                     start: 29,
                                     end: 72,
                                 },
@@ -871,7 +871,7 @@ const number = 1;
                 prompts: [
                     Prompt {
                         file: "test.js",
-                        loc: Span {
+                        span: Span {
                             start: 29,
                             end: 46,
                         },
@@ -879,7 +879,7 @@ const number = 1;
                         vars: [
                             PromptVar {
                                 exp: "world",
-                                loc: Span {
+                                span: Span {
                                     start: 38,
                                     end: 43,
                                 },
@@ -904,7 +904,7 @@ const element = <div>{prompt}</div>;
                 prompts: [
                     Prompt {
                         file: "test.jsx",
-                        loc: Span {
+                        span: Span {
                             start: 29,
                             end: 46,
                         },
@@ -912,7 +912,7 @@ const element = <div>{prompt}</div>;
                         vars: [
                             PromptVar {
                                 exp: "world",
-                                loc: Span {
+                                span: Span {
                                     start: 38,
                                     end: 43,
                                 },
@@ -935,7 +935,7 @@ const element = <div>{prompt}</div>;
                 prompts: [
                     Prompt {
                         file: "test.ts",
-                        loc: Span {
+                        span: Span {
                             start: 38,
                             end: 55,
                         },
@@ -943,7 +943,7 @@ const element = <div>{prompt}</div>;
                         vars: [
                             PromptVar {
                                 exp: "world",
-                                loc: Span {
+                                span: Span {
                                     start: 47,
                                     end: 52,
                                 },
@@ -968,7 +968,7 @@ const element = <div>{prompt}</div>;
                 prompts: [
                     Prompt {
                         file: "test.tsx",
-                        loc: Span {
+                        span: Span {
                             start: 38,
                             end: 55,
                         },
@@ -976,7 +976,7 @@ const element = <div>{prompt}</div>;
                         vars: [
                             PromptVar {
                                 exp: "world",
-                                loc: Span {
+                                span: Span {
                                     start: 47,
                                     end: 52,
                                 },

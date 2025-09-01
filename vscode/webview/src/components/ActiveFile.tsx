@@ -38,6 +38,8 @@ export namespace ActiveFile {
       };
     } | null;
     isPinned?: boolean;
+    parseStatus?: "success" | "error";
+    parseError?: string | null;
     onPin?: () => void;
     onUnpin?: () => void;
   }
@@ -49,6 +51,8 @@ export function ActiveFile(props: ActiveFile.Props) {
     pinnedFile,
     activeFile,
     isPinned = false,
+    parseStatus = "success",
+    parseError,
     onPin,
     onUnpin,
   } = props;
@@ -75,14 +79,31 @@ export function ActiveFile(props: ActiveFile.Props) {
       ? file.path.split("/").slice(-2).join("/")
       : file.path;
 
+    const hasError = parseStatus === "error" && !isPinnedView;
+    const borderClass = isPinnedView 
+      ? "border-blue-600" 
+      : hasError 
+        ? "border-red-300" 
+        : "border-gray-100";
+
     return (
       <div
-        className={`bg-white rounded-lg p-4 border ${isPinnedView ? "border-blue-600" : "border-gray-100"}`}
+        className={`bg-white rounded-lg p-4 border ${borderClass}`}
       >
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-gray-800 truncate mr-2" title={file.path}>
-            {relativePath}
-          </h3>
+          <div className="flex items-center gap-2 mr-2 min-w-0 flex-1">
+            <h3 className="font-semibold text-gray-800 truncate" title={file.path}>
+              {relativePath}
+            </h3>
+            {hasError && (
+              <span 
+                className="text-red-500 text-sm flex-shrink-0" 
+                title={parseError || "Parse error"}
+              >
+                ⚠️
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {file.isDirty && (
               <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
