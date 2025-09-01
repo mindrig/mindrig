@@ -85,7 +85,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     }
 
     this.#sendSettings();
-    this.#sendSecret();
+    this.#sendVercelGatewayKey();
 
     // Send initial prompts if we have a current file
     if (this.#fileManager) {
@@ -179,14 +179,14 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         case "unpinFile":
           this.#handleUnpinFile();
           break;
-        case "getSecret":
-          this.#sendSecret();
+        case "getVercelGatewayKey":
+          this.#sendVercelGatewayKey();
           break;
-        case "setSecret":
-          this.#handleSetSecret((message as any).payload);
+        case "setVercelGatewayKey":
+          this.#handleSetVercelGatewayKey((message as any).payload);
           break;
-        case "clearSecret":
-          this.#handleClearSecret();
+        case "clearVercelGatewayKey":
+          this.#handleClearVercelGatewayKey();
           break;
         case "sync-update":
           this.#handleSyncUpdate(message);
@@ -350,28 +350,28 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     this.#secretManager = new SecretManager(this.#context.secrets, {
       onSecretChanged: (secret) => {
         this.#sendMessage({
-          type: "secretChanged",
-          payload: { secret: secret || null },
+          type: "vercelGatewayKeyChanged",
+          payload: { vercelGatewayKey: secret || null },
         });
       },
     });
   }
 
-  async #sendSecret() {
+  async #sendVercelGatewayKey() {
     if (!this.#secretManager) return;
     const secret = await this.#secretManager.getSecret();
     this.#sendMessage({
-      type: "secretChanged",
-      payload: { secret: secret || null },
+      type: "vercelGatewayKeyChanged",
+      payload: { vercelGatewayKey: secret || null },
     });
   }
 
-  async #handleSetSecret(secret: string) {
+  async #handleSetVercelGatewayKey(vercelGatewayKey: string) {
     if (!this.#secretManager) return;
-    await this.#secretManager.setSecret(secret);
+    await this.#secretManager.setSecret(vercelGatewayKey);
   }
 
-  async #handleClearSecret() {
+  async #handleClearVercelGatewayKey() {
     if (!this.#secretManager) return;
     await this.#secretManager.clearSecret();
   }

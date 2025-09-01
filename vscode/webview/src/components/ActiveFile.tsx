@@ -1,4 +1,3 @@
-import type { Prompt } from "@mindcontrol/code-types";
 
 export namespace ActiveFile {
   export interface Props {
@@ -39,8 +38,6 @@ export namespace ActiveFile {
       };
     } | null;
     isPinned?: boolean;
-    showContent?: boolean;
-    prompts?: Prompt[];
     onPin?: () => void;
     onUnpin?: () => void;
   }
@@ -52,8 +49,6 @@ export function ActiveFile(props: ActiveFile.Props) {
     pinnedFile,
     activeFile,
     isPinned = false,
-    showContent = true,
-    prompts = [],
     onPin,
     onUnpin,
   } = props;
@@ -76,54 +71,46 @@ export function ActiveFile(props: ActiveFile.Props) {
   const renderFileCard = (file: any, title: string, isPinnedView: boolean) => {
     if (!file) return null;
 
-    const fileName = file.path.split("/").pop() || file.path;
     const relativePath = file.path.includes("/")
       ? file.path.split("/").slice(-2).join("/")
       : file.path;
 
     return (
       <div
-        className={`bg-white rounded-lg p-4 shadow-sm border ${isPinnedView ? "border-yellow-200 bg-yellow-50" : "border-gray-100"}`}
+        className={`bg-white rounded-lg p-4 border ${isPinnedView ? "border-blue-600" : "border-gray-100"}`}
       >
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-            <span
-              className={isPinnedView ? "text-yellow-600" : "text-blue-600"}
-            >
-              {isPinnedView ? "📌" : "📄"}
-            </span>
-            {fileName}
+          <h3 className="font-semibold text-gray-800 truncate mr-2" title={file.path}>
+            {relativePath}
           </h3>
-          <div className="flex items-center gap-2">
-            {isPinnedView && (
-              <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full">
-                {title}
-              </span>
-            )}
+          <div className="flex items-center gap-2 flex-shrink-0">
             {file.isDirty && (
-              <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+              <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
                 Unsaved
               </span>
             )}
-            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
               {file.language}
             </span>
+            <button
+              onClick={isPinnedView ? onUnpin : onPin}
+              disabled={!file}
+              className="px-2 py-1 text-xs border border-gray-300 hover:border-gray-400 rounded transition-colors bg-transparent text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPinnedView ? "Unpin" : "Pin"}
+            </button>
           </div>
         </div>
-
-        <p className="text-sm text-gray-600 mb-2" title={file.path}>
-          {relativePath}
-        </p>
 
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>
             {file.content.split("\n").length} lines
             {file.cursorPosition && (
-              <span className="ml-2 px-2 py-1 bg-blue-50 text-blue-700 rounded">
+              <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-700 rounded">
                 Ln {file.cursorPosition.line}, Col{" "}
                 {file.cursorPosition.character}
                 {file.cursorPosition.offset !== undefined && (
-                  <span className="ml-1 text-blue-600">
+                  <span className="ml-1 text-gray-600">
                     (offset: {file.cursorPosition.offset})
                   </span>
                 )}
@@ -142,32 +129,18 @@ export function ActiveFile(props: ActiveFile.Props) {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
-        <button
-          onClick={isPinned ? onUnpin : onPin}
-          disabled={!fileState}
-          className={`px-3 py-1 text-xs rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-            isPinned
-              ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-              : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-          }`}
-        >
-          {isPinned ? "📌 Unpin" : "📌 Pin"}
-        </button>
-      </div>
-
       {/* Show active file info when pinned - ALWAYS ON TOP */}
       {isPinned && activeFile && (
-        <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-blue-600 text-xs">
-              🎯 Current Active File:
+            <span className="text-gray-600 text-xs">
+              Current Active File:
             </span>
-            <span className="text-xs font-medium text-blue-800">
+            <span className="text-xs font-medium text-gray-800">
               {activeFile.path.split("/").pop()}
             </span>
             {activeFile.cursorPosition && (
-              <span className="px-2 py-1 bg-blue-200 text-blue-700 text-xs rounded">
+              <span className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded">
                 Ln {activeFile.cursorPosition.line}, Col{" "}
                 {activeFile.cursorPosition.character}
               </span>
@@ -180,40 +153,6 @@ export function ActiveFile(props: ActiveFile.Props) {
 
       {!isPinned && displayFile && renderFileCard(displayFile, "Active", false)}
 
-      {showContent && (displayFile || activeFile) && (
-        <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-          <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-            <h4 className="text-sm font-medium text-gray-700">
-              {isPinned ? "Pinned File " : ""}Content Preview
-              {isPinned && pinnedFile && (
-                <span className="text-xs text-gray-500 ml-2">
-                  ({pinnedFile.path.split("/").pop()})
-                </span>
-              )}
-            </h4>
-          </div>
-          <div className="p-4">
-            <pre className="text-xs text-gray-700 bg-gray-50 p-3 rounded border overflow-x-auto max-h-64 overflow-y-auto">
-              <code>{displayFile?.content || "// Empty file"}</code>
-            </pre>
-          </div>
-        </div>
-      )}
-
-      {(displayFile || activeFile) && (
-        <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-          <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-            <h4 className="text-sm font-medium text-gray-700">
-              Detected Prompts ({prompts.length})
-            </h4>
-          </div>
-          <div className="p-4">
-            <pre className="text-xs text-gray-700 bg-gray-50 p-3 rounded border overflow-x-auto max-h-64 overflow-y-auto">
-              <code>{JSON.stringify(prompts, null, 2)}</code>
-            </pre>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -100,8 +100,8 @@ export function CodeEditor({ vscode, onSyncMessage }: CodeEditor.Props) {
   }, [content]);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-      <div className="flex items-center justify-between p-3 border-b border-gray-200">
+    <div className="bg-white rounded-lg border border-gray-100">
+      <div className="flex items-center justify-between p-3 border-b border-gray-100">
         <h3 className="font-medium text-gray-800">Code Editor</h3>
         <div className="flex items-center space-x-2">
           <div
@@ -118,7 +118,7 @@ export function CodeEditor({ vscode, onSyncMessage }: CodeEditor.Props) {
       <div className="p-3">
         <textarea
           ref={textareaRef}
-          className="w-full h-64 p-3 font-mono text-sm border border-gray-200 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="text-xs border border-gray-300 bg-gray-50 p-3 rounded max-h-64 overflow-y-auto w-full h-64 p-3 font-mono text-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Start typing to sync with VS Code..."
           defaultValue={content}
           onChange={handleCodeChange}

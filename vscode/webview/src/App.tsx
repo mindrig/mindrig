@@ -1,8 +1,7 @@
 import {
   ActiveFile,
-  CodeEditor,
-  SecretPanel,
-  SettingsPanel,
+  VercelGatewayPanel,
+  DebugSection,
 } from "@/components";
 import { useCallback, useEffect, useState } from "react";
 
@@ -22,7 +21,7 @@ export function App() {
   const [activeFile, setActiveFile] = useState<any>(null);
   const [isPinned, setIsPinned] = useState<boolean>(false);
   const [settings, setSettings] = useState<any>(null);
-  const [secret, setSecret] = useState<string | null>(null);
+  const [vercelGatewayKey, setVercelGatewayKey] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<any[]>([]);
   const [vscode] = useState(() => window.acquireVsCodeApi?.());
   const [syncMessageHandler, setSyncMessageHandler] = useState<
@@ -64,8 +63,8 @@ export function App() {
         case "settingsChanged":
           setSettings(message.payload);
           break;
-        case "secretChanged":
-          setSecret(message.payload.secret);
+        case "vercelGatewayKeyChanged":
+          setVercelGatewayKey(message.payload.vercelGatewayKey);
           break;
         case "promptsChanged":
           setPrompts(message.payload.prompts);
@@ -73,7 +72,6 @@ export function App() {
         case "sync-update":
         case "sync-state-vector":
           if (syncMessageHandler) syncMessageHandler(message);
-
           break;
       }
     };
@@ -87,10 +85,6 @@ export function App() {
     };
   }, [vscode, syncMessageHandler]);
 
-  const handleAddItWorks = () => {
-    if (vscode) vscode.postMessage({ type: "addItWorks" });
-  };
-
   const handlePin = () => {
     if (vscode) vscode.postMessage({ type: "pinFile" });
   };
@@ -99,12 +93,12 @@ export function App() {
     if (vscode) vscode.postMessage({ type: "unpinFile" });
   };
 
-  const handleSecretChange = (secret: string) => {
-    if (vscode) vscode.postMessage({ type: "setSecret", payload: secret });
+  const handleVercelGatewayKeyChange = (vercelGatewayKey: string) => {
+    if (vscode) vscode.postMessage({ type: "setVercelGatewayKey", payload: vercelGatewayKey });
   };
 
-  const handleClearSecret = () => {
-    if (vscode) vscode.postMessage({ type: "clearSecret" });
+  const handleClearVercelGatewayKey = () => {
+    if (vscode) vscode.postMessage({ type: "clearVercelGatewayKey" });
   };
 
   const handleSyncMessageCallback = useCallback(
@@ -116,57 +110,29 @@ export function App() {
 
   return (
     <div className="h-full bg-gradient-to-br from-purple-50 to-blue-50 p-4 space-y-4 overflow-y-auto">
-      <div className="mb-4">
-        <h1 className="text-xl font-bold text-gray-800 mb-1">
-          Mind Control Code
-        </h1>
-        <p className="text-gray-600 text-sm">File tracking and controls</p>
-      </div>
-
-      <SecretPanel
-        secret={secret}
-        onSecretChange={handleSecretChange}
-        onClearSecret={handleClearSecret}
+      <VercelGatewayPanel
+        vercelGatewayKey={vercelGatewayKey}
+        onVercelGatewayKeyChange={handleVercelGatewayKeyChange}
+        onClearVercelGatewayKey={handleClearVercelGatewayKey}
       />
-
-      <CodeEditor vscode={vscode} onSyncMessage={handleSyncMessageCallback} />
 
       <ActiveFile
         fileState={fileState}
         pinnedFile={pinnedFile}
         activeFile={activeFile}
         isPinned={isPinned}
-        showContent={settings?.showFileContent !== false}
-        prompts={prompts}
         onPin={handlePin}
         onUnpin={handleUnpin}
       />
 
-      <div className="space-y-3">
-        <button
-          onClick={handleAddItWorks}
-          className="w-full px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!fileState}
-        >
-          Add "It works!" Comment
-        </button>
-
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-800 mb-2">Status</h3>
-          <div className="flex items-center space-x-2">
-            <div
-              className={`w-2 h-2 rounded-full ${fileState ? "bg-green-400 animate-pulse" : "bg-gray-400"}`}
-            ></div>
-            <span className="text-sm text-gray-600">
-              {fileState
-                ? `Tracking ${fileState.language} file`
-                : "No supported file open"}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <SettingsPanel settings={settings} />
+      <DebugSection
+        vscode={vscode}
+        settings={settings}
+        prompts={prompts}
+        fileState={fileState}
+        activeFile={activeFile}
+        onSyncMessage={handleSyncMessageCallback}
+      />
     </div>
   );
 }

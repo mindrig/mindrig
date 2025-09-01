@@ -1,4 +1,5 @@
 export { ActiveFile } from "./ActiveFile";
 export { CodeEditor } from "./CodeEditor";
-export { SecretPanel } from "./SecretPanel";
+export { VercelGatewayPanel } from "./VercelGatewayPanel";
 export { SettingsPanel } from "./SettingsPanel";
+export { DebugSection } from "./DebugSection";
