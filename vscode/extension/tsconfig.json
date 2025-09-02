@@ -1,27 +1,35 @@
 {
+  "include": ["./src/**/*.ts", "./tests/**/*.ts", "./scripts/**/*.ts"],
   "compilerOptions": {
-    "module": "es2015",
-    "moduleResolution": "bundler",
-    "target": "ES2022",
-    "lib": ["ES2022"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "sourceMap": true,
+    // Resolve
     "rootDir": ".",
-    "types": ["node", "vscode", "mocha"],
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["./src/**/*.ts", "./tests/**/*.ts", "./scripts/**/*.ts"]
+      "@/*": ["./src/*"],
+      // We need it as VS Code extension can't resolve pnpm paths, so we lock
+      // `@mindcontrol/code-parser-wasm` to a specific version and override
+      // it to `workspace:*` in `pnpm-workspace.yaml`. So we need to tell
+      // TypeScript where to find the local package as well.
+      "@mindcontrol/code-parser-wasm": ["../../parser/pkg"]
+    },
+    // Output
+    "noEmit": true,
+    "target": "esnext",
+    // Modules
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    // Env
+    "lib": ["ES2022"],
+    "types": ["node", "vscode", "mocha"],
+    // Checks
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true
+  }
 }

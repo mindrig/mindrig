@@ -50,10 +50,10 @@ export function simulateVSCodeMessage(mockAPI: MockVSCodeAPI, message: any) {
 // Helper to verify messages sent to VS Code
 export function expectMessageSent(
   mockAPI: MockVSCodeAPI,
-  expectedMessage: any
+  expectedMessage: any,
 ) {
   expect(mockAPI.postMessage).toHaveBeenCalledWith(
-    expect.objectContaining(expectedMessage)
+    expect.objectContaining(expectedMessage),
   );
 }
 

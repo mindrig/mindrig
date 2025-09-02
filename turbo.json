@@ -1,11 +1,26 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "ui": "tui",
   "tasks": {
+    "all": {
+      "dependsOn": ["build", "types", "test", "lint"]
+    },
+
+    "build": {},
+
+    "test": {},
+
     "test/rs": {},
+
     "test/rs:watch": {},
+
     "test/rs:review": {},
+
+    "types": {},
+
+    "types:watch": {},
+
     "lint": {},
+
     "lint:fix": {}
   }
 }

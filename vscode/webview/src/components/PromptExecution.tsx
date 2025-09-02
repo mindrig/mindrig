@@ -95,7 +95,7 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
 
   const substituteVariables = (
     text: string,
-    vars: Record<string, string>
+    vars: Record<string, string>,
   ): string => {
     if (!prompt?.vars || prompt.vars.length === 0) {
       return text;
@@ -111,7 +111,7 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
         result.slice(
           0,
           // NOTE: works for ${ only, 2 for ${, one for the prompt's opening `
-          variable.span.start - prompt.span.start - 3
+          variable.span.start - prompt.span.start - 3,
         ) +
         value +
         result.slice(variable.span.end - prompt.span.start);

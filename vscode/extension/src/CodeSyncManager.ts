@@ -75,7 +75,7 @@ export class CodeSyncManager {
 
   #setupDocumentListener(uri: vscode.Uri) {
     const document = vscode.workspace.textDocuments.find(
-      (doc) => doc.uri.toString() === uri.toString()
+      (doc) => doc.uri.toString() === uri.toString(),
     );
 
     if (!document) return;
@@ -94,7 +94,7 @@ export class CodeSyncManager {
               isApplyingRemoteChanges: this.#isApplyingRemoteChanges,
               isApplyingToVSCode: this.#isApplyingToVSCode,
               pendingWorkspaceEdit: this.#pendingWorkspaceEdit,
-            })
+            }),
           );
           return;
         }
@@ -108,7 +108,7 @@ export class CodeSyncManager {
               delete: c.rangeLength,
               insert: c.text,
             })),
-          })
+          }),
         );
 
         // Apply VS Code changes to Yjs document
@@ -128,21 +128,21 @@ export class CodeSyncManager {
         } catch (error) {
           console.error("Failed to apply VS Code changes to Yjs:", error);
         }
-      }
+      },
     );
   }
 
   applyRemoteUpdate(update: Uint8Array, applyToVSCode: boolean = false) {
     console.log(
       "CodeSyncManager applyRemoteUpdate",
-      JSON.stringify({ updateSize: update.length, applyToVSCode })
+      JSON.stringify({ updateSize: update.length, applyToVSCode }),
     );
     console.log(
       "Flags before applying remote update",
       JSON.stringify({
         isApplyingRemoteChanges: this.#isApplyingRemoteChanges,
         isApplyingToVSCode: this.#isApplyingToVSCode,
-      })
+      }),
     );
     this.#isApplyingRemoteChanges = true;
 
@@ -182,7 +182,7 @@ export class CodeSyncManager {
     if (!this.#currentDocumentUri) return;
 
     const document = vscode.workspace.textDocuments.find(
-      (doc) => doc.uri.toString() === this.#currentDocumentUri!.toString()
+      (doc) => doc.uri.toString() === this.#currentDocumentUri!.toString(),
     );
 
     if (!document) return;
@@ -196,7 +196,7 @@ export class CodeSyncManager {
         newLength: newContent.length,
         currentLength: currentContent.length,
         same: newContent === currentContent,
-      })
+      }),
     );
 
     if (newContent === currentContent) return;
@@ -209,7 +209,7 @@ export class CodeSyncManager {
           isApplyingRemoteChanges: this.#isApplyingRemoteChanges,
           isApplyingToVSCode: this.#isApplyingToVSCode,
         },
-      })
+      }),
     );
     this.#isApplyingToVSCode = true;
     this.#isApplyingRemoteChanges = true;
@@ -222,13 +222,13 @@ export class CodeSyncManager {
           isApplyingToVSCode: this.#isApplyingToVSCode,
           pendingWorkspaceEdit: this.#pendingWorkspaceEdit,
         },
-      })
+      }),
     );
     try {
       const changes = computeTextChanges(currentContent, newContent);
       console.log(
         "Computed text changes for VS Code",
-        JSON.stringify({ changes })
+        JSON.stringify({ changes }),
       );
 
       if (changes.length === 0) {
@@ -258,7 +258,7 @@ export class CodeSyncManager {
             insertCharCodes: change.insert
               .split("")
               .map((c) => c.charCodeAt(0)),
-          })
+          }),
         );
 
         if (change.delete > 0 && change.insert.length > 0) {
@@ -290,14 +290,14 @@ export class CodeSyncManager {
         const edit = new vscode.WorkspaceEdit();
         const fullRange = new vscode.Range(
           document.positionAt(0),
-          document.positionAt(currentContent.length)
+          document.positionAt(currentContent.length),
         );
         edit.replace(this.#currentDocumentUri, fullRange, newContent);
         console.log("Applying fallback full document replacement...");
         const fallbackResult = await vscode.workspace.applyEdit(edit);
         console.log(
           "Fallback edit result",
-          JSON.stringify({ success: fallbackResult })
+          JSON.stringify({ success: fallbackResult }),
         );
       } catch (fallbackError) {
         console.error("Fallback edit also failed:", fallbackError);
@@ -311,7 +311,7 @@ export class CodeSyncManager {
             isApplyingToVSCode: this.#isApplyingToVSCode,
             pendingWorkspaceEdit: this.#pendingWorkspaceEdit,
           },
-        })
+        }),
       );
       this.#isApplyingToVSCode = false;
       this.#isApplyingRemoteChanges = false;
@@ -324,7 +324,7 @@ export class CodeSyncManager {
             isApplyingToVSCode: this.#isApplyingToVSCode,
             pendingWorkspaceEdit: this.#pendingWorkspaceEdit,
           },
-        })
+        }),
       );
     }
   }

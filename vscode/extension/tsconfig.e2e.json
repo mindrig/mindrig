@@ -1,9 +1,16 @@
 {
   "extends": ".",
+  "include": ["./src/**/*.spec.ts"],
   "compilerOptions": {
+    // Resolve
     "rootDir": "src",
+    // Output
     "outDir": "./out",
-    "noEmit": false
-  },
-  "include": ["./src/**/*.spec.ts"]
+    "noEmit": false,
+    "sourceMap": true,
+    "target": "es2024",
+    // Modules
+    "module": "node16",
+    "moduleResolution": "node16"
+  }
 }

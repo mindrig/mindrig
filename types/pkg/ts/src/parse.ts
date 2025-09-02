@@ -1,5 +1,3 @@
-import { Prompt } from "./prompt.ts";
-
 export type ParseResult = ParseResultError | ParseResultSuccess;
 
 export interface ParseResultError {
@@ -9,5 +7,5 @@ export interface ParseResultError {
 
 export interface ParseResultSuccess {
   state: "success";
-  prompts: Array<Prompt>;
+  prompts: Array<import("./prompt.js").Prompt>;
 }

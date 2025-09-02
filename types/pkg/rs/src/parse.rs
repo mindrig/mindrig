@@ -1,4 +1,3 @@
-use super::prompt::Prompt;
 use serde::{Deserialize, Serialize};
 use litty::literal;
 
@@ -21,7 +20,7 @@ pub struct ParseResultErrorStateError;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParseResultSuccess {
     pub state: ParseResultSuccessStateSuccess,
-    pub prompts: Vec<Prompt>,
+    pub prompts: Vec<super::prompt::Prompt>,
 }
 
 #[literal("success")]

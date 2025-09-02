@@ -1,3 +1,3 @@
-export * from "./parse.ts";
-export * from "./prompt.ts";
-export * from "./span.ts";
+export * from "./parse.js";
+export * from "./prompt.js";
+export * from "./span.js";

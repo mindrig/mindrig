@@ -43,14 +43,14 @@ export class Uri {
 export class Range {
   constructor(
     public start: any,
-    public end: any
+    public end: any,
   ) {}
 }
 
 export class Position {
   constructor(
     public line: number,
-    public character: number
+    public character: number,
   ) {}
 }
 

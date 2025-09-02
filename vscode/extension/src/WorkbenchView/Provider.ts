@@ -1,5 +1,5 @@
 import { parsePrompts } from "@mindcontrol/code-parser-wasm";
-import type { SyncMessage } from "@mindcontrol/vscode-sync";
+import type { SyncMessage, SyncResource } from "@mindcontrol/vscode-sync";
 import * as vscode from "vscode";
 import { AIService } from "../AIService";
 import { CodeSyncManager } from "../CodeSyncManager";
@@ -26,7 +26,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     readonly extensionUri: vscode.Uri,
     // NOTE: It is unused at the moment, but keep it for future use
     isDevelopment: boolean,
-    context: vscode.ExtensionContext
+    context: vscode.ExtensionContext,
   ) {
     this.#extensionUri = extensionUri;
     this.#isDevelopment = isDevelopment;
@@ -46,11 +46,12 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   //#region Webview
 
   #webview: vscode.Webview | null = null;
+  #currentResourcePath: string | null = null;
 
   public resolveWebviewView(
     webviewView: vscode.WebviewView,
     _context: vscode.WebviewViewResolveContext,
-    _token: vscode.CancellationToken
+    _token: vscode.CancellationToken,
   ) {
     webviewView.webview.options = {
       enableScripts: true,
@@ -114,7 +115,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       ? await this.#devServerUris()
       : this.#localPaths(webview);
 
-    return workbenchWebviewHtml({ useDevServer, uris });
+    return workbenchWebviewHtml({ devServer: useDevServer, uris });
   }
 
   async #devServerUris(): Promise<WorkbenchWebviewHtmlUris> {
@@ -445,7 +446,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
     try {
       const result = await this.#aiService!.executePrompt(
-        payload.substitutedPrompt
+        payload.substitutedPrompt,
       );
 
       this.#sendMessage({
@@ -502,6 +503,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         // Send update to webview
         const message: SyncMessage.Update = {
           type: "sync-update",
+          resource: this.#currentResource(),
           payload: { update: Array.from(update) },
         };
         this.#sendMessage(message);
@@ -514,7 +516,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
     console.log(
       "Extension received sync update from webview",
-      JSON.stringify({ updateSize: message.payload.update.length })
+      JSON.stringify({ updateSize: message.payload.update.length }),
     );
     const update = new Uint8Array(message.payload.update);
     // Apply to VS Code since this update is coming from webview
@@ -529,6 +531,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
     const responseMsg: SyncMessage.Update = {
       type: "sync-update",
+      resource: this.#currentResource(),
       payload: { update: Array.from(update) },
     };
     this.#sendMessage(responseMsg);
@@ -541,6 +544,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
     const message: SyncMessage.StateVector = {
       type: "sync-state-vector",
+      resource: this.#currentResource(),
       payload: { stateVector: Array.from(stateVector) },
     };
     this.#sendMessage(message);
@@ -564,9 +568,14 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
     const uri = vscode.Uri.file(fileState.path);
     this.#codeSyncManager!.setActiveDocument(uri, fileState.content);
+    this.#currentResourcePath = fileState.path;
 
     // Send initial sync state to webview
     this.#handleRequestSync();
+  }
+
+  #currentResource(): SyncResource.Code {
+    return { type: "code", path: this.#currentResourcePath ?? "" };
   }
 
   //#endregion

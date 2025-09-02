@@ -8,17 +8,23 @@ export namespace CodeEditor {
       getState: () => any;
       setState: (state: any) => void;
     } | null;
+    resourcePath: string;
     onSyncMessage?: (message: any) => void;
   }
 }
 
-export function CodeEditor({ vscode, onSyncMessage }: CodeEditor.Props) {
+export function CodeEditor({
+  vscode,
+  onSyncMessage,
+  resourcePath,
+}: CodeEditor.Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isProgrammaticUpdateRef = useRef(false);
   const isUpdatingDOMRef = useRef(false);
   const { content, isConnected, updateContent, handleSyncMessage } =
     useCodeSync({
       vscode,
+      resource: { type: "code", path: resourcePath },
       debounceMs: 50, // Reduced for better responsiveness
     });
   const [characterCount, setCharacterCount] = useState(content.length);
@@ -40,7 +46,7 @@ export function CodeEditor({ vscode, onSyncMessage }: CodeEditor.Props) {
     updateContent(newContent, selectionStart, selectionEnd);
   };
 
-  const handleKeyDown = (event: React.KeyEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Handle tab indentation
     if (event.key === "Tab") {
       event.preventDefault();

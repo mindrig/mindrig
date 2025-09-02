@@ -42,6 +42,17 @@
 
     "test/unit:watch": {},
 
+    "types": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./src/**/*.ts",
+        "./src/**/*.tsx"
+      ]
+    },
+
+    "types:watch": {},
+
     "lint": {
       "inputs": [
         "$TURBO_DEFAULT$",

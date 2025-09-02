@@ -21,7 +21,7 @@ export interface TextChange {
  */
 export function computeTextChanges(
   oldStr: string,
-  newStr: string
+  newStr: string,
 ): TextChange[] {
   if (oldStr === newStr) return [];
 

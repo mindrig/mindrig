@@ -23,7 +23,13 @@ describe("End-to-End Sync Flow", () => {
         handleSyncMessage = handler;
       });
 
-      render(<CodeEditor vscode={mockVSCode} onSyncMessage={onSyncMessage} />);
+      render(
+        <CodeEditor
+          vscode={mockVSCode}
+          resourcePath="/test.ts"
+          onSyncMessage={onSyncMessage}
+        />,
+      );
 
       const textarea: HTMLTextAreaElement = screen.getByRole("textbox");
 
@@ -38,13 +44,13 @@ describe("End-to-End Sync Flow", () => {
 
       expect(textarea).toHaveValue("Hello from webview");
       expect(
-        screen.getByText(/Content length: 18 characters/)
+        screen.getByText(/Content length: 18 characters/),
       ).toBeInTheDocument();
 
       // Step 2: Verify sync message was sent to VS Code
       await waitFor(() => {
         const syncCalls = mockVSCode.postMessage.mock.calls.filter(
-          (call) => call[0].type === "sync-update"
+          (call) => call[0].type === "sync-update",
         );
         expect(syncCalls.length).toBeGreaterThan(0);
       });
@@ -98,7 +104,13 @@ describe("End-to-End Sync Flow", () => {
         handleSyncMessage = handler;
       });
 
-      render(<CodeEditor vscode={mockVSCode} onSyncMessage={onSyncMessage} />);
+      render(
+        <CodeEditor
+          vscode={mockVSCode}
+          resourcePath="/test.ts"
+          onSyncMessage={onSyncMessage}
+        />,
+      );
 
       const textarea = screen.getByRole("textbox");
 
@@ -117,7 +129,7 @@ describe("End-to-End Sync Flow", () => {
       // Should have sent sync updates
       await waitFor(() => {
         const syncCalls = mockVSCode.postMessage.mock.calls.filter(
-          (call) => call[0].type === "sync-update"
+          (call) => call[0].type === "sync-update",
         );
         expect(syncCalls.length).toBeGreaterThan(0);
       });
@@ -130,7 +142,13 @@ describe("End-to-End Sync Flow", () => {
         handleSyncMessage = handler;
       });
 
-      render(<CodeEditor vscode={mockVSCode} onSyncMessage={onSyncMessage} />);
+      render(
+        <CodeEditor
+          vscode={mockVSCode}
+          resourcePath="/test.ts"
+          onSyncMessage={onSyncMessage}
+        />,
+      );
 
       // Initially disconnected
       expect(screen.getByText("Disconnected")).toBeInTheDocument();
@@ -172,7 +190,13 @@ describe("End-to-End Sync Flow", () => {
         handleSyncMessage = handler;
       });
 
-      render(<CodeEditor vscode={mockVSCode} onSyncMessage={onSyncMessage} />);
+      render(
+        <CodeEditor
+          vscode={mockVSCode}
+          resourcePath="/test.ts"
+          onSyncMessage={onSyncMessage}
+        />,
+      );
 
       const textarea: HTMLTextAreaElement = screen.getByRole("textbox");
 
@@ -195,7 +219,7 @@ describe("End-to-End Sync Flow", () => {
 
       expect(textarea).toHaveValue('const greeting = "Hello World";');
       expect(
-        screen.getByText(/Content length: 31 characters/)
+        screen.getByText(/Content length: 31 characters/),
       ).toBeInTheDocument();
 
       // Should maintain focus throughout
@@ -209,7 +233,13 @@ describe("End-to-End Sync Flow", () => {
         handleSyncMessage = handler;
       });
 
-      render(<CodeEditor vscode={mockVSCode} onSyncMessage={onSyncMessage} />);
+      render(
+        <CodeEditor
+          vscode={mockVSCode}
+          resourcePath="/test.ts"
+          onSyncMessage={onSyncMessage}
+        />,
+      );
 
       const textarea = screen.getByRole("textbox");
 
@@ -246,7 +276,13 @@ describe("End-to-End Sync Flow", () => {
         handleSyncMessage = handler;
       });
 
-      render(<CodeEditor vscode={mockVSCode} onSyncMessage={onSyncMessage} />);
+      render(
+        <CodeEditor
+          vscode={mockVSCode}
+          resourcePath="/test.ts"
+          onSyncMessage={onSyncMessage}
+        />,
+      );
 
       const textarea: HTMLTextAreaElement = screen.getByRole("textbox");
 
@@ -283,7 +319,7 @@ describe("End-to-End Sync Flow", () => {
 
       // Should show updated character count
       expect(
-        screen.getByText(/Content length: \d+ characters/)
+        screen.getByText(/Content length: \d+ characters/),
       ).toBeInTheDocument();
     });
 
@@ -294,7 +330,13 @@ describe("End-to-End Sync Flow", () => {
         handleSyncMessage = handler;
       });
 
-      render(<CodeEditor vscode={mockVSCode} onSyncMessage={onSyncMessage} />);
+      render(
+        <CodeEditor
+          vscode={mockVSCode}
+          resourcePath="/test.ts"
+          onSyncMessage={onSyncMessage}
+        />,
+      );
 
       await waitFor(() => {
         expect(handleSyncMessage).toBeTruthy();

@@ -7,12 +7,12 @@ export interface WorkbenchWebviewHtmlUris {
 }
 
 export interface WorkbenchWebviewHtmlProps {
-  useDevServer: boolean;
+  devServer?: boolean;
   uris: WorkbenchWebviewHtmlUris;
 }
 
 export function workbenchWebviewHtml(props: WorkbenchWebviewHtmlProps): string {
-  const { uris, useDevServer } = props;
+  const { uris, devServer: useDevServer } = props;
 
   const headInjects = [];
 
@@ -36,24 +36,24 @@ export function workbenchWebviewHtml(props: WorkbenchWebviewHtmlProps): string {
     );
 
   if (uris.styles)
-    headInjects.push(`<link href="${uris.styles}" rel="stylesheet">`);
+    headInjects.push(`<link href="${uris.styles}" rel="stylesheet" />`);
 
   const bodyInjects = [
-    `<script ${useDevServer ? 'type="module"' : ""} src="${uris.app}"></script>`,
+    `<script${useDevServer ? ' type="module"' : ""} src="${uris.app}"></script>`,
   ];
 
-  return `<!DOCTYPE html>
+  return `<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ${renderInjects(headInjects)}
-  <title>Mind Control Code</title>
-</head>
-<body class="bg-gray-100">
-  <div id="root" class="min-h-screen"></div>
+    <title>Mind Control Code</title>
+  </head>
+  <body class="bg-gray-100">
+    <div id="root" class="min-h-screen"></div>
 ${renderInjects(bodyInjects)}
-</body>
+  </body>
 </html>`;
 }
 
@@ -62,7 +62,7 @@ function renderInjects(injects: string[]) {
 }
 
 function indent(str: string) {
-  const levelStr = "  ";
+  const levelStr = "  ".repeat(2);
   return str
     .split("\n")
     .map((line) => `${levelStr}${line}`)

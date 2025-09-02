@@ -22,9 +22,7 @@ export function SettingsPanel(props: SettingsPanel.Props) {
 
   return (
     <div className="bg-white rounded-lg p-4 border border-gray-100">
-      <h3 className="font-semibold text-gray-800 mb-3">
-        Extension Settings
-      </h3>
+      <h3 className="font-semibold text-gray-800 mb-3">Extension Settings</h3>
 
       <div className="space-y-3">
         <div className="flex justify-between items-center py-2 border-b border-gray-100">

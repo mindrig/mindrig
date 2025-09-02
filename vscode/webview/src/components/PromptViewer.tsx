@@ -12,9 +12,7 @@ export function PromptViewer({ prompt }: PromptViewer.Props) {
   return (
     <div className="bg-white rounded-lg border border-gray-100">
       <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-        <h4 className="text-sm font-medium text-gray-700">
-          Current Prompt
-        </h4>
+        <h4 className="text-sm font-medium text-gray-700">Current Prompt</h4>
       </div>
       <div className="p-4">
         <textarea

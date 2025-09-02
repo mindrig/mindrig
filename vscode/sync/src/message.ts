@@ -1,6 +1,8 @@
 /**
  * Sync message.
  */
+import type { SyncResource } from "./resource.js";
+
 export type SyncMessage =
   | SyncMessage.Update
   | SyncMessage.StateVector
@@ -12,6 +14,8 @@ export namespace SyncMessage {
    */
   export interface Base<Type extends string> {
     type: Type;
+    /** Resource identifier for the message. */
+    resource: SyncResource;
   }
 
   /**

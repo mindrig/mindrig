@@ -1,5 +1,3 @@
-use ./prompt/Prompt
-
 ParseResult = ParseResultError | ParseResultSuccess
 
 ParseResultError = {
@@ -9,8 +7,5 @@ ParseResultError = {
 
 ParseResultSuccess = {
   state: "success"
-  prompts: [Prompt]
-  // TODO: Use this after the bug is fixed:
-  // https://github.com/kossnocorp/genotype/issues/49
-  // prompts: [./prompt/Prompt]
+  prompts: [./prompt/Prompt]
 }

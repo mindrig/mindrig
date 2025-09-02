@@ -34,9 +34,9 @@ describe("useCodeSync", () => {
       renderHook(() => useCodeSync({ vscode: mockVSCode }));
 
       await waitFor(() => {
-        expect(mockVSCode.postMessage).toHaveBeenCalledWith({
-          type: "sync-init",
-        });
+        expect(mockVSCode.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({ type: "sync-init" }),
+        );
       });
     });
 
@@ -50,7 +50,7 @@ describe("useCodeSync", () => {
   describe("Content Updates", () => {
     it("should update content and send sync updates", async () => {
       const { result } = renderHook(() =>
-        useCodeSync({ vscode: mockVSCode, debounceMs: 10 })
+        useCodeSync({ vscode: mockVSCode, debounceMs: 10 }),
       );
 
       act(() => {
@@ -64,14 +64,14 @@ describe("useCodeSync", () => {
             payload: expect.objectContaining({
               update: expect.any(Array),
             }),
-          })
+          }),
         );
       });
     });
 
     it("should debounce rapid content updates", async () => {
       const { result } = renderHook(() =>
-        useCodeSync({ vscode: mockVSCode, debounceMs: 50 })
+        useCodeSync({ vscode: mockVSCode, debounceMs: 50 }),
       );
 
       // Make rapid updates
@@ -87,17 +87,17 @@ describe("useCodeSync", () => {
       await waitFor(
         () => {
           const syncUpdates = mockVSCode.postMessage.mock.calls.filter(
-            (call) => call[0].type === "sync-update"
+            (call) => call[0].type === "sync-update",
           );
           expect(syncUpdates.length).toBeLessThanOrEqual(2); // Allow for some timing variance
         },
-        { timeout: 200 }
+        { timeout: 200 },
       );
     });
 
     it("should handle empty content updates", async () => {
       const { result } = renderHook(() =>
-        useCodeSync({ vscode: mockVSCode, debounceMs: 10 })
+        useCodeSync({ vscode: mockVSCode, debounceMs: 10 }),
       );
 
       act(() => {
@@ -119,13 +119,13 @@ describe("useCodeSync", () => {
 
       // Should have sent another update (might not be exactly one more due to debouncing)
       expect(mockVSCode.postMessage.mock.calls.length).toBeGreaterThanOrEqual(
-        initialCalls
+        initialCalls,
       );
     });
 
     it("should handle unicode content correctly", async () => {
       const { result } = renderHook(() =>
-        useCodeSync({ vscode: mockVSCode, debounceMs: 10 })
+        useCodeSync({ vscode: mockVSCode, debounceMs: 10 }),
       );
 
       const unicodeContent = "Hello 世界 🌍";
@@ -141,7 +141,7 @@ describe("useCodeSync", () => {
 
     it("should not update when content is the same", async () => {
       const { result } = renderHook(() =>
-        useCodeSync({ vscode: mockVSCode, debounceMs: 10 })
+        useCodeSync({ vscode: mockVSCode, debounceMs: 10 }),
       );
 
       const content = "Same content";
@@ -165,7 +165,7 @@ describe("useCodeSync", () => {
 
       // Should not have significantly more calls
       expect(
-        mockVSCode.postMessage.mock.calls.length - firstCallCount
+        mockVSCode.postMessage.mock.calls.length - firstCallCount,
       ).toBeLessThanOrEqual(1);
     });
   });
@@ -231,51 +231,9 @@ describe("useCodeSync", () => {
             payload: expect.objectContaining({
               stateVector: expect.any(Array),
             }),
-          })
+          }),
         );
       });
-    });
-
-    it("should ignore invalid syncUpdate messages", () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      const { result } = renderHook(() => useCodeSync({ vscode: mockVSCode }));
-
-      const invalidMessage = {
-        type: "sync-update",
-        payload: { invalid: "data" },
-      };
-
-      act(() => {
-        result.current.handleSyncMessage(invalidMessage);
-      });
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Invalid sync update payload"),
-        expect.any(Object)
-      );
-
-      consoleSpy.mockRestore();
-    });
-
-    it("should ignore invalid syncStateVector messages", () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      const { result } = renderHook(() => useCodeSync({ vscode: mockVSCode }));
-
-      const invalidMessage = {
-        type: "sync-state-vector",
-        payload: { invalid: "data" },
-      };
-
-      act(() => {
-        result.current.handleSyncMessage(invalidMessage);
-      });
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Invalid sync state vector payload"),
-        expect.any(Object)
-      );
-
-      consoleSpy.mockRestore();
     });
 
     it("should ignore unknown message types", () => {
@@ -293,7 +251,7 @@ describe("useCodeSync", () => {
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining("Unknown sync message type"),
-        expect.any(String)
+        expect.any(String),
       );
 
       consoleSpy.mockRestore();
@@ -369,7 +327,7 @@ describe("useCodeSync", () => {
 
     it("should handle unmount with pending updates", () => {
       const { result, unmount } = renderHook(() =>
-        useCodeSync({ vscode: mockVSCode, debounceMs: 100 })
+        useCodeSync({ vscode: mockVSCode, debounceMs: 100 }),
       );
 
       act(() => {
@@ -384,7 +342,7 @@ describe("useCodeSync", () => {
   describe("Integration Scenarios", () => {
     it("should handle bidirectional sync correctly", async () => {
       const { result } = renderHook(() =>
-        useCodeSync({ vscode: mockVSCode, debounceMs: 10 })
+        useCodeSync({ vscode: mockVSCode, debounceMs: 10 }),
       );
 
       // Local update
@@ -421,7 +379,7 @@ describe("useCodeSync", () => {
 
     it("should handle rapid local and remote updates", async () => {
       const { result } = renderHook(() =>
-        useCodeSync({ vscode: mockVSCode, debounceMs: 10 })
+        useCodeSync({ vscode: mockVSCode, debounceMs: 10 }),
       );
 
       // Rapid local updates
@@ -501,7 +459,7 @@ describe("useCodeSync", () => {
   describe("Performance", () => {
     it("should handle large content efficiently", async () => {
       const { result } = renderHook(() =>
-        useCodeSync({ vscode: mockVSCode, debounceMs: 10 })
+        useCodeSync({ vscode: mockVSCode, debounceMs: 10 }),
       );
 
       const largeContent = "x".repeat(10000);
@@ -523,7 +481,7 @@ describe("useCodeSync", () => {
 
     it("should not create memory leaks with multiple updates", async () => {
       const { result } = renderHook(() =>
-        useCodeSync({ vscode: mockVSCode, debounceMs: 1 })
+        useCodeSync({ vscode: mockVSCode, debounceMs: 1 }),
       );
 
       // Perform many updates

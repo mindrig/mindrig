@@ -1,4 +1,3 @@
-
 export namespace ActiveFile {
   export interface Props {
     fileState: {
@@ -80,24 +79,25 @@ export function ActiveFile(props: ActiveFile.Props) {
       : file.path;
 
     const hasError = parseStatus === "error" && !isPinnedView;
-    const borderClass = isPinnedView 
-      ? "border-blue-600" 
-      : hasError 
-        ? "border-red-300" 
+    const borderClass = isPinnedView
+      ? "border-blue-600"
+      : hasError
+        ? "border-red-300"
         : "border-gray-100";
 
     return (
-      <div
-        className={`bg-white rounded-lg p-4 border ${borderClass}`}
-      >
+      <div className={`bg-white rounded-lg p-4 border ${borderClass}`}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 mr-2 min-w-0 flex-1">
-            <h3 className="font-semibold text-gray-800 truncate" title={file.path}>
+            <h3
+              className="font-semibold text-gray-800 truncate"
+              title={file.path}
+            >
               {relativePath}
             </h3>
             {hasError && (
-              <span 
-                className="text-red-500 text-sm flex-shrink-0" 
+              <span
+                className="text-red-500 text-sm flex-shrink-0"
                 title={parseError || "Parse error"}
               >
                 ⚠️
@@ -154,9 +154,7 @@ export function ActiveFile(props: ActiveFile.Props) {
       {isPinned && activeFile && (
         <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-gray-600 text-xs">
-              Current Active File:
-            </span>
+            <span className="text-gray-600 text-xs">Current Active File:</span>
             <span className="text-xs font-medium text-gray-800">
               {activeFile.path.split("/").pop()}
             </span>
@@ -173,7 +171,6 @@ export function ActiveFile(props: ActiveFile.Props) {
       {isPinned && pinnedFile && renderFileCard(pinnedFile, "Pinned", true)}
 
       {!isPinned && displayFile && renderFileCard(displayFile, "Active", false)}
-
     </div>
   );
 }

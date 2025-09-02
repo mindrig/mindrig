@@ -10,7 +10,7 @@ const html = workbenchWebviewHtml({
     reactRefresh: "/@react-refresh",
     viteClient: "/@vite/client",
   },
-  useDevServer: true,
+  devServer: true,
 });
 
 const htmlPath = path.resolve(__dirname, "../../../webview/index.html");

@@ -39,7 +39,7 @@ export namespace DebugSection {
         offset?: number;
       };
     } | null;
-    onSyncMessage?: (handler: (message: any) => void) => void;
+    onSyncMessage: (handler: (message: any) => void) => void;
   }
 }
 
@@ -61,7 +61,13 @@ export function DebugSection(props: DebugSection.Props) {
 
       {isExpanded && (
         <div className="space-y-4 border-t border-gray-200 pt-4">
-          <CodeEditor vscode={vscode} onSyncMessage={onSyncMessage} />
+          {(activeFile?.path || fileState?.path) && (
+            <CodeEditor
+              vscode={vscode}
+              resourcePath={(activeFile?.path || fileState?.path)!}
+              onSyncMessage={onSyncMessage}
+            />
+          )}
 
           {(fileState || activeFile) && (
             <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">

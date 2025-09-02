@@ -36,7 +36,7 @@ export class AIService {
   }
 
   async executePrompt(
-    promptText: string
+    promptText: string,
   ): Promise<
     | { success: true; request: LlmRequest; response: LlmResponse }
     | { success: false; error: string }

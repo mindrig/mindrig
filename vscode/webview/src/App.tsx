@@ -24,7 +24,7 @@ function findPromptAtCursor(prompts: any[], cursorOffset?: number): any {
     (prompt) =>
       prompt.span &&
       cursorOffset >= prompt.span.start &&
-      cursorOffset <= prompt.span.end
+      cursorOffset <= prompt.span.end,
   );
 }
 
@@ -37,7 +37,7 @@ export function App() {
   const [vercelGatewayKey, setVercelGatewayKey] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<any[]>([]);
   const [parseStatus, setParseStatus] = useState<"success" | "error">(
-    "success"
+    "success",
   );
   const [parseError, setParseError] = useState<string | null>(null);
   const [currentPrompt, setCurrentPrompt] = useState<any>(null);
@@ -129,7 +129,7 @@ export function App() {
     (handler: (message: any) => void) => {
       setSyncMessageHandler(() => handler);
     },
-    []
+    [],
   );
 
   // Update current prompt when cursor position or prompts change

@@ -9,7 +9,11 @@ export namespace VercelGatewayPanel {
 }
 
 export function VercelGatewayPanel(props: VercelGatewayPanel.Props) {
-  const { vercelGatewayKey, onVercelGatewayKeyChange, onClearVercelGatewayKey } = props;
+  const {
+    vercelGatewayKey,
+    onVercelGatewayKeyChange,
+    onClearVercelGatewayKey,
+  } = props;
   const [inputValue, setInputValue] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasKey, setHasKey] = useState(false);
@@ -78,13 +82,24 @@ export function VercelGatewayPanel(props: VercelGatewayPanel.Props) {
       {isExpanded && (
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-800">Vercel Gateway API Key</h3>
+            <h3 className="font-semibold text-gray-800">
+              Vercel Gateway API Key
+            </h3>
             <button
               onClick={() => setIsExpanded(false)}
               className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
               title="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
