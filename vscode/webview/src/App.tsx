@@ -161,7 +161,11 @@ export function App() {
 
       <PromptViewer prompt={currentPrompt} />
 
-      <PromptExecution prompt={currentPrompt} vscode={vscode} />
+      <PromptExecution
+        prompt={currentPrompt}
+        vscode={vscode}
+        vercelGatewayKey={vercelGatewayKey}
+      />
 
       <DebugSection
         vscode={vscode}

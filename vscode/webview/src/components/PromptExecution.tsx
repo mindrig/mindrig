@@ -1,4 +1,5 @@
 import type { Prompt, PromptVar } from "@mindcontrol/code-types";
+import { createGateway } from "@ai-sdk/gateway";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { parseString as parseCsvString } from "smolcsv";
 
@@ -10,6 +11,7 @@ export namespace PromptExecution {
       getState: () => any;
       setState: (state: any) => void;
     } | null;
+    vercelGatewayKey: string | null;
   }
 }
 
@@ -21,12 +23,16 @@ interface ExecutionState {
   timestamp?: number;
 }
 
-export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
+export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExecution.Props) {
   const [variables, setVariables] = useState<Record<string, string>>({});
   const [csvPath, setCsvPath] = useState<string | null>(null);
   const [csvHeader, setCsvHeader] = useState<string[] | null>(null);
   const [csvRows, setCsvRows] = useState<string[][]>([]);
   const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
+  const [models, setModels] = useState<Array<{ id: string; name?: string; modelType?: string | null }>>([]);
+  const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [modelsError, setModelsError] = useState<string | null>(null);
   const [executionState, setExecutionState] = useState<ExecutionState>({
     isLoading: false,
     response: null,
@@ -87,6 +93,12 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
         error: null,
       });
     }
+
+    // restore globally selected model
+    try {
+      const s = vscode.getState?.();
+      if (s && s.__selectedModelId) setSelectedModelId(s.__selectedModelId);
+    } catch {}
   }, [promptId, vscode, prompt]);
 
   const saveState = useCallback(() => {
@@ -126,6 +138,37 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
     csvRows,
     selectedRowIdx,
   ]);
+
+  // Fetch available models when API key becomes available
+  const fetchModels = useCallback(async () => {
+    if (!vercelGatewayKey) return;
+    setModelsLoading(true);
+    setModelsError(null);
+    try {
+      const gateway = createGateway({ apiKey: vercelGatewayKey });
+      const res = await gateway.getAvailableModels();
+      const list = (res.models || []).filter(
+        (m: any) => (m.modelType ?? "language") === "language",
+      );
+      setModels(list);
+      if (!selectedModelId && list.length > 0) {
+        setSelectedModelId(list[0]!.id);
+        const state = vscode?.getState?.() || {};
+        vscode?.setState?.({ ...state, __selectedModelId: list[0]!.id });
+      }
+    } catch (e) {
+      console.error("Failed to load models", JSON.stringify({ error: String(e) }));
+      setModelsError(
+        e instanceof Error ? e.message : "Failed to load models from Gateway",
+      );
+    } finally {
+      setModelsLoading(false);
+    }
+  }, [vercelGatewayKey, selectedModelId, vscode]);
+
+  useEffect(() => {
+    if (vercelGatewayKey) fetchModels();
+  }, [vercelGatewayKey, fetchModels]);
 
   useEffect(() => {
     saveState();
@@ -283,6 +326,7 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
         substitutedPrompt,
         variables,
         promptId,
+        modelId: selectedModelId || undefined,
       },
     });
   };
@@ -326,8 +370,45 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
 
   return (
     <div className="bg-white rounded-lg border border-gray-100">
-      <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
+      <div className="px-3 py-2 bg-gray-50 border-b border-gray-100 flex items-center gap-2 justify-between">
         <h4 className="text-sm font-medium text-gray-700">Prompt Execution</h4>
+        <div className="flex items-center gap-2 min-w-0">
+          <select
+            className="px-2 py-1 border border-gray-300 rounded text-xs max-w-[24rem] truncate"
+            value={selectedModelId ?? ""}
+            onChange={(e) => {
+              const id = e.target.value;
+              setSelectedModelId(id);
+              const s = vscode?.getState?.() || {};
+              vscode?.setState?.({ ...s, __selectedModelId: id });
+            }}
+            disabled={!vercelGatewayKey || modelsLoading || models.length === 0}
+            title={
+              vercelGatewayKey
+                ? modelsLoading
+                  ? "Loading models…"
+                  : "Select model"
+                : "Set Vercel Gateway API key"
+            }
+          >
+            <option value="" disabled>
+              {modelsLoading ? "Loading…" : "Choose model"}
+            </option>
+            {models.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name || m.id}
+              </option>
+            ))}
+          </select>
+          <button
+            className="px-2 py-1 border border-gray-300 rounded text-xs disabled:opacity-50"
+            onClick={fetchModels}
+            disabled={!vercelGatewayKey || modelsLoading}
+            title={vercelGatewayKey ? "Refresh models" : "Set API key first"}
+          >
+            ↻
+          </button>
+        </div>
       </div>
 
       <div className="p-4 space-y-4">

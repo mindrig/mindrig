@@ -136,6 +136,9 @@ importers:
 
   vscode/webview:
     dependencies:
+      '@ai-sdk/gateway':
+        specifier: ^1.0.15
+        version: 1.0.15(zod@4.1.5)
       '@mindcontrol/code-types':
         specifier: workspace:*
         version: link:../../types/pkg/ts

@@ -128,7 +128,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       `script-src ${webviewSources} ${baseUri} 'unsafe-eval' 'unsafe-inline';`,
       `script-src-elem ${webviewSources} ${baseUri} 'unsafe-eval' 'unsafe-inline';`,
       `style-src ${webviewSources} ${baseUri} 'unsafe-inline';`,
-      `connect-src ${baseUri} ws://127.0.0.1:* ws://localhost:*;`,
+      `connect-src ${baseUri} ws://127.0.0.1:* ws://localhost:* https:;`,
     ].join(" ");
 
     const app = `${baseUri}/src/index.tsx`;
@@ -144,6 +144,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       `img-src ${webviewSources} https: data:;`,
       `script-src ${webviewSources} 'unsafe-inline';`,
       `style-src ${webviewSources} 'unsafe-inline';`,
+      `connect-src https:;`,
     ].join(" ");
 
     const baseUri = [this.#extensionUri, "dist", "webview"] as const;
@@ -507,6 +508,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     substitutedPrompt: string;
     variables: Record<string, string>;
     promptId: string;
+    modelId?: string;
   }) {
     if (!this.#aiService) this.#initializeAIService();
 
@@ -545,6 +547,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     try {
       const result = await this.#aiService!.executePrompt(
         payload.substitutedPrompt,
+        payload.modelId,
       );
 
       this.#sendMessage({

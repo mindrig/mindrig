@@ -37,6 +37,7 @@ export class AIService {
 
   async executePrompt(
     promptText: string,
+    modelId?: string,
   ): Promise<
     | { success: true; request: LlmRequest; response: LlmResponse }
     | { success: false; error: string }
@@ -55,7 +56,7 @@ export class AIService {
         request,
         response: { messages, ...response },
       } = await generateText({
-        model: gateway("openai/gpt-5-mini"),
+        model: gateway((modelId || "openai/gpt-5-mini") as any),
         prompt: promptText,
       });
 
