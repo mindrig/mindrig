@@ -116,7 +116,16 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
           : undefined,
     };
     vscode.setState(state);
-  }, [promptId, vscode, variables, executionState]);
+  }, [
+    promptId,
+    vscode,
+    variables,
+    executionState,
+    csvPath,
+    csvHeader,
+    csvRows,
+    selectedRowIdx,
+  ]);
 
   useEffect(() => {
     saveState();
@@ -129,6 +138,19 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
   const handleLoadCsv = () => {
     if (!vscode) return;
     vscode.postMessage({ type: "requestCsvPick" });
+  };
+
+  const handleClearCsv = () => {
+    setCsvPath(null);
+    setCsvHeader(null);
+    setCsvRows([]);
+    setSelectedRowIdx(null);
+    // Reset variables to empty so manual inputs show and are blank
+    const initialVars: Record<string, string> = {};
+    prompt?.vars?.forEach((v) => {
+      initialVars[v.exp] = "";
+    });
+    setVariables(initialVars);
   };
 
   useEffect(() => {
@@ -172,6 +194,12 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
     if (!usingCsv) return null;
     return csvHeader!;
   }, [usingCsv, csvHeader]);
+
+  const csvFileLabel = useMemo(() => {
+    if (!csvPath) return null;
+    const base = csvPath.split(/[/\\]/).pop() || csvPath;
+    return base;
+  }, [csvPath]);
 
   const computeVariablesFromRow = useCallback(
     (row: string[]) => {
@@ -303,17 +331,30 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
       </div>
 
       <div className="p-4 space-y-4">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleLoadCsv}
-            className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded hover:bg-emerald-700"
-          >
-            {usingCsv ? "Reload CSV" : "Load CSV"}
-          </button>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleLoadCsv}
+              className="inline-flex items-center px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded hover:bg-emerald-700 whitespace-nowrap"
+            >
+              {usingCsv ? "Reload CSV" : "Load CSV"}
+            </button>
+            {usingCsv && (
+              <button
+                onClick={handleClearCsv}
+                className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 bg-white text-gray-700 text-xs font-medium rounded hover:bg-gray-50 whitespace-nowrap"
+              >
+                Clear CSV
+              </button>
+            )}
+          </div>
+
           {usingCsv && (
-            <span className="text-xs text-gray-600 truncate">
-              {csvPath ? `Loaded: ${csvPath}` : "CSV loaded"}
-            </span>
+            <div className="min-w-0 flex-1 text-right">
+              <span className="text-xs text-gray-600 font-mono truncate block">
+                {csvFileLabel ? `Loaded: ${csvFileLabel}` : "CSV loaded"}
+              </span>
+            </div>
           )}
         </div>
 
@@ -404,7 +445,7 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
             </div>
 
             <div className="p-3 bg-gray-50 rounded border border-gray-300">
-              <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono">
+              <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono overflow-x-auto">
                 {JSON.stringify(executionState.request, null, 2)}
               </pre>
             </div>
@@ -418,7 +459,7 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
             </div>
 
             <div className="p-3 bg-gray-50 rounded border border-gray-300">
-              <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono">
+              <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono overflow-x-auto">
                 {JSON.stringify(executionState.response, null, 2)}
               </pre>
             </div>

@@ -362,7 +362,10 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   }
 
   async #selectCsvFileWithQuickPick(): Promise<vscode.Uri | undefined> {
-    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+    if (
+      !vscode.workspace.workspaceFolders ||
+      vscode.workspace.workspaceFolders.length === 0
+    ) {
       const picked = await vscode.window.showOpenDialog({
         canSelectMany: false,
         openLabel: "Select CSV",
@@ -379,11 +382,16 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     quickPick.ignoreFocusOut = true;
 
     quickPick.busy = true;
-    const excludeGlobs = "{**/node_modules/**,**/.git/**,**/dist/**,**/build/**,**/out/**}";
+    const excludeGlobs =
+      "{**/node_modules/**,**/.git/**,**/dist/**,**/build/**,**/out/**}";
     const maxResults = 2000;
     let uris: vscode.Uri[] = [];
     try {
-      uris = await vscode.workspace.findFiles("**/*.csv", excludeGlobs, maxResults);
+      uris = await vscode.workspace.findFiles(
+        "**/*.csv",
+        excludeGlobs,
+        maxResults,
+      );
     } catch {
       quickPick.dispose();
       const picked = await vscode.window.showOpenDialog({
@@ -397,13 +405,17 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     const items: CsvItem[] = uris.map((uri) => {
       const rel = vscode.workspace.asRelativePath(uri, false);
       const label = rel.split(/[/\\]/).pop() ?? rel;
-      const dir = rel.slice(0, Math.max(0, rel.length - label.length)).replace(/[/\\]$/, "");
+      const dir = rel
+        .slice(0, Math.max(0, rel.length - label.length))
+        .replace(/[/\\]$/, "");
       return { label, description: dir, detail: uri.fsPath, uri };
     });
 
     if (items.length === 0) {
       quickPick.dispose();
-      void vscode.window.showInformationMessage("No CSV files found in this workspace.");
+      void vscode.window.showInformationMessage(
+        "No CSV files found in this workspace.",
+      );
       return undefined;
     }
 
