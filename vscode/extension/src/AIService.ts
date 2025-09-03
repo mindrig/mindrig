@@ -38,8 +38,30 @@ export class AIService {
   async executePrompt(
     promptText: string,
     modelId?: string,
+    options?: {
+      maxOutputTokens?: number;
+      temperature?: number;
+      topP?: number;
+      topK?: number;
+      presencePenalty?: number;
+      frequencyPenalty?: number;
+      stopSequences?: string[];
+      seed?: number;
+    },
+    extras?: {
+      tools?: Record<string, any> | null;
+      toolChoice?: any;
+      providerOptions?: Record<string, any> | null;
+    },
+    attachments?: Array<{ name: string; mime: string; dataBase64: string }>,
   ): Promise<
-    | { success: true; request: LlmRequest; response: LlmResponse }
+    | {
+        success: true;
+        request: LlmRequest;
+        response: LlmResponse;
+        usage?: any;
+        totalUsage?: any;
+      }
     | { success: false; error: string }
   > {
     if (!this.#apiKey)
@@ -52,18 +74,109 @@ export class AIService {
     try {
       const gateway = createGateway({ apiKey: this.#apiKey });
 
-      const {
-        request,
-        response: { messages, ...response },
-      } = await generateText({
+      const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
+
+      const genArgs: any = {
         model: gateway((modelId || "openai/gpt-5-mini") as any),
-        prompt: promptText,
-      });
+        maxOutputTokens: options?.maxOutputTokens,
+        temperature: options?.temperature,
+        topP: options?.topP,
+        topK: options?.topK,
+        presencePenalty: options?.presencePenalty,
+        frequencyPenalty: options?.frequencyPenalty,
+        stopSequences: options?.stopSequences,
+        seed: options?.seed,
+        tools: extras?.tools ?? undefined,
+        toolChoice: extras?.toolChoice ?? undefined,
+        providerOptions: extras?.providerOptions ?? undefined,
+      };
+
+      if (hasAttachments) {
+        const parts: any[] = [{ type: "text", text: promptText }];
+        for (const att of attachments!) {
+          const buf = Buffer.from(att.dataBase64, "base64");
+          const mime = att.mime || "application/octet-stream";
+
+          // Prefer native image parts for images
+          if (mime.startsWith("image/")) {
+            parts.push({ type: "image", image: buf, mediaType: mime });
+            continue;
+          }
+
+          // For non-image attachments, the Vercel AI Gateway does not support
+          // generic `file` parts (notably application/octet-stream). To avoid
+          // gateway errors, inline text-like files as "text" content and
+          // gracefully omit binary files with a short note.
+          let isTextLike =
+            mime.startsWith("text/") ||
+            [
+              "application/json",
+              "application/javascript",
+              "application/typescript",
+              "application/xml",
+              "application/yaml",
+              "application/x-yaml",
+            ].includes(mime);
+
+          if (!isTextLike) {
+            const lower = att.name.toLowerCase();
+            const textExts = [
+              ".txt",
+              ".md",
+              ".json",
+              ".js",
+              ".ts",
+              ".tsx",
+              ".jsx",
+              ".css",
+              ".html",
+              ".xml",
+              ".yml",
+              ".yaml",
+              ".toml",
+              ".ini",
+              ".env",
+            ];
+            isTextLike = textExts.some((ext) => lower.endsWith(ext));
+          }
+
+          if (isTextLike) {
+            let text: string;
+            try {
+              text = buf.toString("utf8");
+            } catch {
+              text = "[Could not decode file as UTF-8]";
+            }
+            parts.push({
+              type: "text",
+              text: `Attached file: ${att.name} (${mime})\n\n${text}`,
+            });
+          } else {
+            parts.push({
+              type: "text",
+              text: `Attached file omitted (binary): ${att.name} (${mime})`,
+            });
+          }
+        }
+        genArgs.messages = [
+          {
+            role: "user",
+            content: parts,
+          },
+        ];
+      } else {
+        genArgs.prompt = promptText;
+      }
+
+      const { request, response: { messages, ...response }, usage, totalUsage } =
+        await generateText(genArgs);
 
       return {
         success: true,
         request,
         response,
+        usage,
+        totalUsage,
       };
     } catch (error) {
       console.error("AI Service error:", error);

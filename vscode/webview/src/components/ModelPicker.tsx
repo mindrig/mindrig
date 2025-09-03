@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
 import { createGateway } from "@ai-sdk/gateway";
+import { useEffect, useMemo, useState } from "react";
 
 export namespace ModelPicker {
   export interface Props {
@@ -31,11 +31,13 @@ export function ModelPicker(props: ModelPicker.Props) {
 
   const fetchModels = async () => {
     if (!vercelGatewayKey) return;
+    console.log("!!!LOADING");
     setIsLoading(true);
     setError(null);
     try {
       const gateway = createGateway({ apiKey: vercelGatewayKey });
       const res = await gateway.getAvailableModels();
+      console.log("####", { res });
       setModels(res.models || []);
       if (!selectedModelId && (res.models?.length || 0) > 0) {
         const first = (res.models || []).find(
@@ -44,7 +46,10 @@ export function ModelPicker(props: ModelPicker.Props) {
         if (first) onModelChange(first.id);
       }
     } catch (e) {
-      console.error("Failed to load models", JSON.stringify({ error: String(e) }));
+      console.error(
+        "Failed to load models",
+        JSON.stringify({ error: String(e) }),
+      );
       setError(
         e instanceof Error ? e.message : "Failed to load models from Gateway",
       );
@@ -81,9 +86,7 @@ export function ModelPicker(props: ModelPicker.Props) {
             Set your Vercel Gateway API key to load models.
           </p>
         )}
-        {error && (
-          <p className="text-xs text-red-600">Error: {error}</p>
-        )}
+        {error && <p className="text-xs text-red-600">Error: {error}</p>}
         <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700">
             Select Model
@@ -92,7 +95,9 @@ export function ModelPicker(props: ModelPicker.Props) {
             className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
             value={selectedModelId ?? ""}
             onChange={(e) => onModelChange(e.target.value)}
-            disabled={!vercelGatewayKey || isLoading || languageModels.length === 0}
+            disabled={
+              !vercelGatewayKey || isLoading || languageModels.length === 0
+            }
           >
             <option value="" disabled>
               {isLoading ? "Loading…" : "Choose a model"}
@@ -113,4 +118,3 @@ export function ModelPicker(props: ModelPicker.Props) {
     </div>
   );
 }
-

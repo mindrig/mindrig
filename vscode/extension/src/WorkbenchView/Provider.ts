@@ -174,6 +174,16 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         case "requestCsvPick":
           this.#handleRequestCsvPick();
           break;
+        case "requestAttachmentPick":
+          // remember filter preference for this pick operation
+          try {
+            (this as any).lastAttachmentPickImagesOnly = !!(message as any).payload?.imagesOnly;
+          } catch {}
+          this.#handleRequestAttachmentPick();
+          break;
+        case "getModelsDev":
+          this.#handleGetModelsDev();
+          break;
         case "getSettings":
           this.#sendSettings();
           break;
@@ -209,6 +219,26 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
           break;
       }
     });
+  }
+
+  // Cache for models.dev data
+  #modelsDevCache: any | null = null;
+
+  async #handleGetModelsDev() {
+    try {
+      if (!this.#modelsDevCache) {
+        const resp = await fetch("https://models.dev/api.json");
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        this.#modelsDevCache = await resp.json();
+      }
+      this.#sendMessage({ type: "modelsDev", payload: { data: this.#modelsDevCache } });
+    } catch (error) {
+      console.error("Failed to fetch models.dev data:", error);
+      this.#sendMessage({
+        type: "modelsDev",
+        payload: { error: error instanceof Error ? error.message : String(error) },
+      });
+    }
   }
 
   #sendMessage(message: any) {
@@ -433,6 +463,52 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     return selection?.uri;
   }
 
+  async #handleRequestAttachmentPick() {
+    try {
+      const imagesOnly = (this as any).lastAttachmentPickImagesOnly ?? false;
+      const uris = await vscode.window.showOpenDialog({
+        canSelectMany: true,
+        openLabel: "Attach",
+        title: "Attach files/images",
+        filters: {
+          ...(imagesOnly
+            ? { Images: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"] }
+            : { "All Files": ["*"], Images: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"] }),
+        },
+      });
+      if (!uris || uris.length === 0) return;
+      const items: Array<{ path: string; name: string; mime: string; dataBase64: string }> = [];
+      for (const uri of uris) {
+        const data = await vscode.workspace.fs.readFile(uri);
+        const base64 = Buffer.from(data).toString("base64");
+        const name = uri.path.split("/").pop() || uri.path;
+        const mime = this.#guessMimeFromName(name);
+        items.push({ path: uri.fsPath, name, mime, dataBase64: base64 });
+      }
+      this.#sendMessage({ type: "attachmentsLoaded", payload: { items } });
+    } catch (error) {
+      console.error("Attachment selection failed:", error);
+      this.#sendMessage({
+        type: "attachmentsLoaded",
+        payload: { error: error instanceof Error ? error.message : String(error) },
+      });
+    }
+  }
+
+  #guessMimeFromName(name: string): string {
+    const lower = name.toLowerCase();
+    if (lower.endsWith(".png")) return "image/png";
+    if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+    if (lower.endsWith(".gif")) return "image/gif";
+    if (lower.endsWith(".webp")) return "image/webp";
+    if (lower.endsWith(".bmp")) return "image/bmp";
+    if (lower.endsWith(".svg")) return "image/svg+xml";
+    if (lower.endsWith(".pdf")) return "application/pdf";
+    if (lower.endsWith(".txt")) return "text/plain";
+    if (lower.endsWith(".json")) return "application/json";
+    return "application/octet-stream";
+  }
+
   //#endregion
 
   //#region Settings manager
@@ -509,6 +585,20 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     variables: Record<string, string>;
     promptId: string;
     modelId?: string;
+    options?: {
+      maxOutputTokens?: number;
+      temperature?: number;
+      topP?: number;
+      topK?: number;
+      presencePenalty?: number;
+      frequencyPenalty?: number;
+      stopSequences?: string[];
+      seed?: number;
+    };
+    tools?: any | null;
+    toolChoice?: any;
+    providerOptions?: any | null;
+    attachments?: Array<{ name: string; mime: string; dataBase64: string }>;
   }) {
     if (!this.#aiService) this.#initializeAIService();
 
@@ -548,6 +638,13 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       const result = await this.#aiService!.executePrompt(
         payload.substitutedPrompt,
         payload.modelId,
+        payload.options,
+        {
+          tools: payload.tools ?? null,
+          toolChoice: payload.toolChoice,
+          providerOptions: payload.providerOptions ?? null,
+        },
+        payload.attachments ?? [],
       );
 
       this.#sendMessage({
@@ -556,6 +653,8 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
           success: result.success,
           request: result.success ? result.request : undefined,
           response: result.success ? result.response : undefined,
+          usage: (result as any).usage,
+          totalUsage: (result as any).totalUsage,
           error: result.success ? undefined : result.error,
           promptId: payload.promptId,
           timestamp: Date.now(),

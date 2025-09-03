@@ -1,5 +1,6 @@
-import type { Prompt, PromptVar } from "@mindcontrol/code-types";
 import { createGateway } from "@ai-sdk/gateway";
+import { getModelCapabilities, setModelsDevData } from "@/modelsDevCaps";
+import type { Prompt, PromptVar } from "@mindcontrol/code-types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { parseString as parseCsvString } from "smolcsv";
 
@@ -23,16 +24,46 @@ interface ExecutionState {
   timestamp?: number;
 }
 
-export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExecution.Props) {
+export function PromptExecution({
+  prompt,
+  vscode,
+  vercelGatewayKey,
+}: PromptExecution.Props) {
+  const [modelsDevTick, setModelsDevTick] = useState(0);
   const [variables, setVariables] = useState<Record<string, string>>({});
   const [csvPath, setCsvPath] = useState<string | null>(null);
   const [csvHeader, setCsvHeader] = useState<string[] | null>(null);
   const [csvRows, setCsvRows] = useState<string[][]>([]);
   const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
-  const [models, setModels] = useState<Array<{ id: string; name?: string; modelType?: string | null }>>([]);
+  const [models, setModels] = useState<
+    Array<{ id: string; name?: string; modelType?: string | null; specification?: { provider?: string } }>
+  >([]);
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
+  const [showOptions, setShowOptions] = useState(false);
+  const [generationOptions, setGenerationOptions] = useState<{
+    maxOutputTokens?: number;
+    temperature?: number;
+    topP?: number;
+    topK?: number;
+    presencePenalty?: number;
+    frequencyPenalty?: number;
+    stopSequences?: string; // CSV string in UI
+    seed?: number;
+  }>({});
+  const [reasoningEnabled, setReasoningEnabled] = useState(false);
+  const [reasoningEffort, setReasoningEffort] = useState<"low" | "medium" | "high">("medium");
+  const [reasoningBudget, setReasoningBudget] = useState<number | "">("");
+  const [toolsJson, setToolsJson] = useState<string>("null");
+  const [providerOptionsJson, setProviderOptionsJson] = useState<string>("{}");
+  const [toolsJsonError, setToolsJsonError] = useState<string | null>(null);
+  const [providerOptionsError, setProviderOptionsError] = useState<
+    string | null
+  >(null);
+  const [attachments, setAttachments] = useState<
+    Array<{ path: string; name: string; mime?: string; dataBase64?: string }>
+  >([]);
   const [executionState, setExecutionState] = useState<ExecutionState>({
     isLoading: false,
     response: null,
@@ -76,6 +107,18 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
         error: promptState.lastResponse?.error || null,
         timestamp: promptState.lastResponse?.timestamp,
       });
+      if (promptState.generationOptions) {
+        setGenerationOptions({
+          ...promptState.generationOptions,
+          stopSequences: Array.isArray(
+            promptState.generationOptions.stopSequences,
+          )
+            ? (promptState.generationOptions.stopSequences as string[]).join(
+                ", ",
+              )
+            : promptState.generationOptions.stopSequences || "",
+        });
+      }
     } else {
       const initialVars: Record<string, string> = {};
       prompt?.vars?.forEach((v) => {
@@ -92,6 +135,7 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
         request: null,
         error: null,
       });
+      setGenerationOptions({});
     }
 
     // restore globally selected model
@@ -116,6 +160,7 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
               selectedRowIdx,
             }
           : undefined,
+      generationOptions: generationOptions,
       lastResponse:
         executionState.response || executionState.error
           ? {
@@ -157,7 +202,10 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
         vscode?.setState?.({ ...state, __selectedModelId: list[0]!.id });
       }
     } catch (e) {
-      console.error("Failed to load models", JSON.stringify({ error: String(e) }));
+      console.error(
+        "Failed to load models",
+        JSON.stringify({ error: String(e) }),
+      );
       setModelsError(
         e instanceof Error ? e.message : "Failed to load models from Gateway",
       );
@@ -170,6 +218,22 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
     if (vercelGatewayKey) fetchModels();
   }, [vercelGatewayKey, fetchModels]);
 
+  // Request models.dev capabilities from the extension (avoids CORS)
+  useEffect(() => {
+    if (!vscode) return;
+    const onMessage = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.type !== "modelsDev") return;
+      if (message.payload?.data) {
+        setModelsDevData(message.payload.data);
+        setModelsDevTick((t) => t + 1);
+      }
+    };
+    window.addEventListener("message", onMessage);
+    vscode.postMessage({ type: "getModelsDev" });
+    return () => window.removeEventListener("message", onMessage);
+  }, [vscode]);
+
   useEffect(() => {
     saveState();
   }, [saveState]);
@@ -181,6 +245,28 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
   const handleLoadCsv = () => {
     if (!vscode) return;
     vscode.postMessage({ type: "requestCsvPick" });
+  };
+
+  const selectedModelEntry = useCallback(() => {
+    return models.find((m) => m.id === selectedModelId);
+  }, [models, selectedModelId]);
+
+  function selectedModelCapabilities() {
+    const entry = selectedModelEntry();
+    const id = entry?.id || "";
+    const provider = entry?.specification?.provider || id.split("/")[0] || "";
+    const caps = getModelCapabilities(provider, id);
+    return { ...caps, provider };
+  }
+
+  const handleAttachFiles = () => {
+    if (!vscode) return;
+    const caps = selectedModelCapabilities();
+    vscode.postMessage({ type: "requestAttachmentPick", payload: { imagesOnly: caps.supportsImages && !caps.supportsFiles } });
+  };
+
+  const handleClearAttachments = () => {
+    setAttachments([]);
   };
 
   const handleClearCsv = () => {
@@ -226,6 +312,32 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
     };
     window.addEventListener("message", handleCsv);
     return () => window.removeEventListener("message", handleCsv);
+  }, [vscode]);
+
+  // Attachments loader
+  useEffect(() => {
+    if (!vscode) return;
+    const handle = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.type !== "attachmentsLoaded") return;
+      if (message.payload?.error) {
+        console.error("Attachments load error", message.payload.error);
+        return;
+      }
+      const items: any[] = Array.isArray(message.payload?.items)
+        ? message.payload.items
+        : [];
+      setAttachments(
+        items.map((it) => ({
+          path: it.path,
+          name: it.name,
+          mime: it.mime,
+          dataBase64: it.dataBase64,
+        })),
+      );
+    };
+    window.addEventListener("message", handle);
+    return () => window.removeEventListener("message", handle);
   }, [vscode]);
 
   const usingCsv = useMemo(
@@ -310,6 +422,27 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
   const handleExecute = () => {
     if (!prompt || !vscode || !canExecute()) return;
 
+    // Parse JSON fields safely
+    let tools: any = null;
+    try {
+      tools = toolsJson.trim() ? JSON.parse(toolsJson) : null;
+      setToolsJsonError(null);
+    } catch (e) {
+      setToolsJsonError("Invalid JSON in tools");
+      return;
+    }
+
+    let providerOptions: any = null;
+    try {
+      providerOptions = providerOptionsJson.trim()
+        ? JSON.parse(providerOptionsJson)
+        : null;
+      setProviderOptionsError(null);
+    } catch (e) {
+      setProviderOptionsError("Invalid JSON in provider options");
+      return;
+    }
+
     const substitutedPrompt = substituteVariables(prompt.text, variables);
 
     setExecutionState({
@@ -327,6 +460,50 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
         variables,
         promptId,
         modelId: selectedModelId || undefined,
+        tools: selectedModelCapabilities().supportsTools ? tools ?? null : null,
+        providerOptions: (() => {
+          const merged = providerOptions ?? {};
+          if (selectedModelCapabilities().supportsReasoning && reasoningEnabled) {
+            (merged as any).reasoning = {
+              effort: reasoningEffort,
+              ...(reasoningBudget !== "" ? { budgetTokens: Number(reasoningBudget) } : {}),
+            };
+          }
+          return merged;
+        })(),
+        toolChoice: undefined,
+        attachments:
+          selectedModelCapabilities().supportsImages ||
+          selectedModelCapabilities().supportsFiles
+            ? attachments
+                .filter((a) => {
+                  const caps = selectedModelCapabilities();
+                  if (caps.supportsFiles) return true;
+                  return (a.mime || "").startsWith("image/");
+                })
+                .map((a) => ({
+                  name: a.name,
+                  mime: a.mime || "application/octet-stream",
+                  dataBase64: a.dataBase64 || "",
+                }))
+            : [],
+        options: {
+          maxOutputTokens: generationOptions.maxOutputTokens,
+          temperature: generationOptions.temperature,
+          topP: generationOptions.topP,
+          topK: generationOptions.topK,
+          presencePenalty: generationOptions.presencePenalty,
+          frequencyPenalty: generationOptions.frequencyPenalty,
+          stopSequences:
+            generationOptions.stopSequences &&
+            generationOptions.stopSequences.trim().length > 0
+              ? generationOptions.stopSequences
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+              : undefined,
+          seed: generationOptions.seed,
+        },
       },
     });
   };
@@ -356,6 +533,8 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
           request: message.payload.success ? message.payload.request : null,
           error: message.payload.success ? null : message.payload.error,
           timestamp: message.payload.timestamp || Date.now(),
+          // attach usage for pricing info if present
+          ...(message.payload.usage ? { usage: message.payload.usage } : {}),
         });
       }
     };
@@ -370,11 +549,14 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
 
   return (
     <div className="bg-white rounded-lg border border-gray-100">
-      <div className="px-3 py-2 bg-gray-50 border-b border-gray-100 flex items-center gap-2 justify-between">
+      <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
         <h4 className="text-sm font-medium text-gray-700">Prompt Execution</h4>
+      </div>
+
+      <div className="p-4 space-y-4">
         <div className="flex items-center gap-2 min-w-0">
           <select
-            className="px-2 py-1 border border-gray-300 rounded text-xs max-w-[24rem] truncate"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm max-w-[28rem] truncate"
             value={selectedModelId ?? ""}
             onChange={(e) => {
               const id = e.target.value;
@@ -400,6 +582,16 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
               </option>
             ))}
           </select>
+          {selectedModelEntry() && (
+            <img
+              src={`https://models.dev/logos/${(selectedModelCapabilities().provider || "").toLowerCase()}.svg`}
+              alt="provider"
+              width={16}
+              height={16}
+              title={selectedModelCapabilities().provider}
+              style={{ display: "inline-block" }}
+            />
+          )}
           <button
             className="px-2 py-1 border border-gray-300 rounded text-xs disabled:opacity-50"
             onClick={fetchModels}
@@ -408,10 +600,36 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
           >
             ↻
           </button>
+          <button
+            className="px-2 py-1 border border-gray-300 rounded text-xs"
+            onClick={() => setShowOptions((v) => !v)}
+            title="Show generation options"
+          >
+            options
+          </button>
         </div>
-      </div>
 
-      <div className="p-4 space-y-4">
+        {/* Capability badges */}
+        {selectedModelEntry() && (
+          <div className="flex items-center gap-2 text-[10px]">
+            {selectedModelCapabilities().supportsImages && (
+              <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">Images</span>
+            )}
+            {selectedModelCapabilities().supportsVideo && (
+              <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">Video</span>
+            )}
+            {selectedModelCapabilities().supportsFiles && (
+              <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">Files</span>
+            )}
+            {selectedModelCapabilities().supportsTools && (
+              <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Tools</span>
+            )}
+            {selectedModelCapabilities().supportsReasoning && (
+              <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">Reasoning</span>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <button
@@ -438,6 +656,64 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
             </div>
           )}
         </div>
+
+        {/* Attachments and advanced config */}
+        {(() => {
+          const caps = selectedModelCapabilities();
+          const canAttachAny = caps.supportsFiles || caps.supportsImages;
+          if (!canAttachAny && attachments.length === 0) return null;
+          return (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {caps.supportsFiles ? (
+                    <button
+                      onClick={handleAttachFiles}
+                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 bg-white text-gray-700 text-xs font-medium rounded hover:bg-gray-50 whitespace-nowrap"
+                      title="Attach files/images"
+                    >
+                      Attach Files
+                    </button>
+                  ) : caps.supportsImages ? (
+                    <button
+                      onClick={handleAttachFiles}
+                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 bg-white text-gray-700 text-xs font-medium rounded hover:bg-gray-50 whitespace-nowrap"
+                      title="Attach images"
+                    >
+                      Attach Images
+                    </button>
+                  ) : null}
+                  {attachments.length > 0 && (
+                    <button
+                      onClick={handleClearAttachments}
+                      className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 bg-white text-gray-700 text-xs font-medium rounded hover:bg-gray-50 whitespace-nowrap"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                {attachments.length > 0 && (
+                  <span className="text-xs text-gray-600">
+                    {attachments.length} attachment
+                    {attachments.length > 1 ? "s" : ""}
+                  </span>
+                )}
+              </div>
+              {attachments.length > 0 && (
+                <div className="p-2 bg-gray-50 border border-gray-200 rounded">
+                  <ul className="text-xs text-gray-700 space-y-1">
+                    {attachments.map((a, i) => (
+                      <li key={`${a.path}-${i}`} className="flex justify-between">
+                        <span className="truncate">{a.name}</span>
+                        <span className="text-gray-500 ml-2">{a.mime || ""}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {usingCsv && (
           <div className="space-y-2">
@@ -468,6 +744,230 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
               Selecting a row fills the variables below and overrides manual
               input.
             </p>
+          </div>
+        )}
+
+        {showOptions && (
+          <div className="border border-gray-100 rounded p-3 bg-gray-50">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <label className="text-xs text-gray-700">
+                Max tokens
+                <input
+                  type="number"
+                  className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                  value={generationOptions.maxOutputTokens ?? ""}
+                  onChange={(e) =>
+                    setGenerationOptions((o) => ({
+                      ...o,
+                      maxOutputTokens:
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value),
+                    }))
+                  }
+                  min={1}
+                />
+              </label>
+              <label className="text-xs text-gray-700">
+                Temperature
+                <input
+                  type="number"
+                  step="0.1"
+                  className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                  value={generationOptions.temperature ?? ""}
+                  onChange={(e) =>
+                    setGenerationOptions((o) => ({
+                      ...o,
+                      temperature:
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
+              <label className="text-xs text-gray-700">
+                Top P
+                <input
+                  type="number"
+                  step="0.05"
+                  min={0}
+                  max={1}
+                  className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                  value={generationOptions.topP ?? ""}
+                  onChange={(e) =>
+                    setGenerationOptions((o) => ({
+                      ...o,
+                      topP:
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
+              <label className="text-xs text-gray-700">
+                Top K
+                <input
+                  type="number"
+                  step="1"
+                  className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                  value={generationOptions.topK ?? ""}
+                  onChange={(e) =>
+                    setGenerationOptions((o) => ({
+                      ...o,
+                      topK:
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
+              <label className="text-xs text-gray-700">
+                Presence Penalty
+                <input
+                  type="number"
+                  step="0.1"
+                  min={-1}
+                  max={1}
+                  className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                  value={generationOptions.presencePenalty ?? ""}
+                  onChange={(e) =>
+                    setGenerationOptions((o) => ({
+                      ...o,
+                      presencePenalty:
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
+              <label className="text-xs text-gray-700">
+                Frequency Penalty
+                <input
+                  type="number"
+                  step="0.1"
+                  min={-1}
+                  max={1}
+                  className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                  value={generationOptions.frequencyPenalty ?? ""}
+                  onChange={(e) =>
+                    setGenerationOptions((o) => ({
+                      ...o,
+                      frequencyPenalty:
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
+              <label className="text-xs text-gray-700 col-span-2">
+                Stop Sequences (comma-separated)
+                <input
+                  type="text"
+                  className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                  value={generationOptions.stopSequences ?? ""}
+                  onChange={(e) =>
+                    setGenerationOptions((o) => ({
+                      ...o,
+                      stopSequences: e.target.value,
+                    }))
+                  }
+                  placeholder=","
+                />
+              </label>
+              <label className="text-xs text-gray-700">
+                Seed
+                <input
+                  type="number"
+                  step="1"
+                  className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                  value={generationOptions.seed ?? ""}
+                  onChange={(e) =>
+                    setGenerationOptions((o) => ({
+                      ...o,
+                      seed:
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
+            </div>
+            {selectedModelCapabilities().supportsReasoning && (
+              <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                <label className="text-xs text-gray-700 inline-flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={reasoningEnabled}
+                    onChange={(e) => setReasoningEnabled(e.target.checked)}
+                  />
+                  Enable reasoning
+                </label>
+                <label className="text-xs text-gray-700">
+                  Effort
+                  <select
+                    className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                    value={reasoningEffort}
+                    onChange={(e) => setReasoningEffort(e.target.value as any)}
+                    disabled={!reasoningEnabled}
+                  >
+                    <option value="low">low</option>
+                    <option value="medium">medium</option>
+                    <option value="high">high</option>
+                  </select>
+                </label>
+                <label className="text-xs text-gray-700">
+                  Budget tokens (optional)
+                  <input
+                    type="number"
+                    className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                    value={reasoningBudget}
+                    onChange={(e) =>
+                      setReasoningBudget(
+                        e.target.value === "" ? "" : Number(e.target.value),
+                      )
+                    }
+                    disabled={!reasoningEnabled}
+                    min={0}
+                  />
+                </label>
+              </div>
+            )}
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label className="text-xs text-gray-700">
+                Tools (JSON)
+                <textarea
+                  className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                  rows={3}
+                  value={toolsJson}
+                  onChange={(e) => setToolsJson(e.target.value)}
+                  placeholder="null"
+                />
+                {toolsJsonError && (
+                  <span className="text-xs text-red-600">{toolsJsonError}</span>
+                )}
+              </label>
+              <label className="text-xs text-gray-700">
+                Provider Options (JSON)
+                <textarea
+                  className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                  rows={3}
+                  value={providerOptionsJson}
+                  onChange={(e) => setProviderOptionsJson(e.target.value)}
+                  placeholder="{}"
+                />
+                {providerOptionsError && (
+                  <span className="text-xs text-red-600">
+                    {providerOptionsError}
+                  </span>
+                )}
+              </label>
+            </div>
           </div>
         )}
 
@@ -544,6 +1044,13 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
                 {JSON.stringify(executionState.response, null, 2)}
               </pre>
             </div>
+            {/* Pricing info: computed from usage + selected model pricing if available */}
+            <PricingInfo
+              usage={(executionState as any).usage}
+              selectedModel={
+                models.find((m) => m.id === selectedModelId) as any
+              }
+            />
           </div>
         )}
 
@@ -557,6 +1064,33 @@ export function PromptExecution({ prompt, vscode, vercelGatewayKey }: PromptExec
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// Simple pricing info renderer
+function PricingInfo(props: { usage: any; selectedModel: any }) {
+  const { usage, selectedModel } = props;
+  if (!usage || !selectedModel?.pricing) return null;
+  const inputPerTok = Number(selectedModel.pricing.input || 0);
+  const outputPerTok = Number((selectedModel.pricing as any).output || 0);
+  const inputTokens =
+    usage.inputTokens ?? usage.input ?? usage.promptTokens ?? 0;
+  const outputTokens =
+    usage.outputTokens ?? usage.output ?? usage.completionTokens ?? 0;
+  const inputCost = inputTokens * inputPerTok;
+  const outputCost = outputTokens * outputPerTok;
+  const total = inputCost + outputCost;
+  return (
+    <div className="text-xs text-gray-700">
+      <div className="inline-flex items-center gap-2 px-2 py-1 border border-gray-200 rounded bg-white">
+        <span className="font-medium">Estimated cost:</span>
+        <span>${total.toFixed(6)}</span>
+        <span className="text-gray-500">
+          (in: {inputTokens} • ${inputCost.toFixed(6)}, out: {outputTokens} • $
+          {outputCost.toFixed(6)})
+        </span>
       </div>
     </div>
   );
