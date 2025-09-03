@@ -1,5 +1,6 @@
 import type { Prompt, PromptVar } from "@mindcontrol/code-types";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { parseString as parseCsvString } from "smolcsv";
 
 export namespace PromptExecution {
   export interface Props {
@@ -22,6 +23,10 @@ interface ExecutionState {
 
 export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
   const [variables, setVariables] = useState<Record<string, string>>({});
+  const [csvPath, setCsvPath] = useState<string | null>(null);
+  const [csvHeader, setCsvHeader] = useState<string[] | null>(null);
+  const [csvRows, setCsvRows] = useState<string[][]>([]);
+  const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
   const [executionState, setExecutionState] = useState<ExecutionState>({
     isLoading: false,
     response: null,
@@ -43,6 +48,21 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
 
     if (promptState) {
       setVariables(promptState.variables || {});
+      if (promptState.csv) {
+        setCsvPath(promptState.csv.path || null);
+        setCsvHeader(promptState.csv.header || null);
+        setCsvRows(promptState.csv.rows || []);
+        setSelectedRowIdx(
+          typeof promptState.csv.selectedRowIdx === "number"
+            ? promptState.csv.selectedRowIdx
+            : null,
+        );
+      } else {
+        setCsvPath(null);
+        setCsvHeader(null);
+        setCsvRows([]);
+        setSelectedRowIdx(null);
+      }
       setExecutionState({
         isLoading: false,
         response: promptState.lastResponse?.response || null,
@@ -56,6 +76,10 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
         initialVars[v.exp] = "";
       });
       setVariables(initialVars);
+      setCsvPath(null);
+      setCsvHeader(null);
+      setCsvRows([]);
+      setSelectedRowIdx(null);
       setExecutionState({
         isLoading: false,
         response: null,
@@ -71,6 +95,15 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
     const state = vscode.getState() || {};
     state[promptId] = {
       variables,
+      csv:
+        csvHeader || csvRows.length
+          ? {
+              path: csvPath,
+              header: csvHeader,
+              rows: csvRows,
+              selectedRowIdx,
+            }
+          : undefined,
       lastResponse:
         executionState.response || executionState.error
           ? {
@@ -91,6 +124,84 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
 
   const handleVariableChange = (varName: string, value: string) => {
     setVariables((prev) => ({ ...prev, [varName]: value }));
+  };
+
+  const handleLoadCsv = () => {
+    if (!vscode) return;
+    vscode.postMessage({ type: "requestCsvPick" });
+  };
+
+  useEffect(() => {
+    if (!vscode) return;
+    const handleCsv = async (event: MessageEvent) => {
+      const message = event.data;
+      if (message.type !== "csvFileLoaded") return;
+      if (message.payload?.error) {
+        console.error("CSV load error", message.payload.error);
+        return;
+      }
+      const content: string = message.payload.content;
+      try {
+        const rows = await parseCsvString(content);
+        if (!rows || rows.length === 0) {
+          setCsvHeader(null);
+          setCsvRows([]);
+          setCsvPath(message.payload.path || null);
+          setSelectedRowIdx(null);
+          return;
+        }
+        const [header, ...data] = rows;
+        setCsvHeader(header!);
+        setCsvRows(data);
+        setCsvPath(message.payload.path || null);
+        setSelectedRowIdx(null);
+      } catch (e) {
+        console.error("Failed to parse CSV", e);
+      }
+    };
+    window.addEventListener("message", handleCsv);
+    return () => window.removeEventListener("message", handleCsv);
+  }, [vscode]);
+
+  const usingCsv = useMemo(
+    () => !!csvHeader && csvRows.length > 0,
+    [csvHeader, csvRows],
+  );
+
+  const headersToUse = useMemo(() => {
+    if (!usingCsv) return null;
+    return csvHeader!;
+  }, [usingCsv, csvHeader]);
+
+  const computeVariablesFromRow = useCallback(
+    (row: string[]) => {
+      if (!prompt?.vars || prompt.vars.length === 0)
+        return {} as Record<string, string>;
+      const next: Record<string, string> = {};
+      if (headersToUse) {
+        for (const variable of prompt.vars) {
+          const idx = headersToUse.indexOf(variable.exp);
+          if (idx !== -1) next[variable.exp] = row[idx] ?? "";
+        }
+      }
+      // Fallback by position if headers didn't cover all
+      if (Object.keys(next).length < (prompt.vars?.length ?? 0)) {
+        prompt.vars.forEach((v, i) => {
+          if (!next[v.exp]) next[v.exp] = row[i] ?? "";
+        });
+      }
+      return next;
+    },
+    [prompt, headersToUse],
+  );
+
+  const handleSelectRow = (idxStr: string) => {
+    const idx = Number(idxStr);
+    if (Number.isNaN(idx) || idx < 0 || idx >= csvRows.length) return;
+    setSelectedRowIdx(idx);
+    const row = csvRows[idx];
+    const mapped = computeVariablesFromRow(row!);
+    setVariables(mapped);
   };
 
   const substituteVariables = (
@@ -192,7 +303,53 @@ export function PromptExecution({ prompt, vscode }: PromptExecution.Props) {
       </div>
 
       <div className="p-4 space-y-4">
-        {hasVariables && (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleLoadCsv}
+            className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded hover:bg-emerald-700"
+          >
+            {usingCsv ? "Reload CSV" : "Load CSV"}
+          </button>
+          {usingCsv && (
+            <span className="text-xs text-gray-600 truncate">
+              {csvPath ? `Loaded: ${csvPath}` : "CSV loaded"}
+            </span>
+          )}
+        </div>
+
+        {usingCsv && (
+          <div className="space-y-2">
+            <h5 className="text-sm font-medium text-gray-700">Select Row</h5>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+              value={selectedRowIdx ?? ""}
+              onChange={(e) => handleSelectRow(e.target.value)}
+            >
+              <option value="" disabled>
+                Choose a row
+              </option>
+              {csvRows.map((row, idx) => {
+                const label = headersToUse
+                  ? headersToUse
+                      .slice(0, Math.min(headersToUse.length, 5))
+                      .map((h, i) => `${h}=${row[i] ?? ""}`)
+                      .join(", ")
+                  : row.slice(0, 5).join(", ");
+                return (
+                  <option key={idx} value={idx}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
+            <p className="text-xs text-gray-600">
+              Selecting a row fills the variables below and overrides manual
+              input.
+            </p>
+          </div>
+        )}
+
+        {hasVariables && !usingCsv && (
           <div className="space-y-3">
             <h5 className="text-sm font-medium text-gray-700">Variables</h5>
             {prompt.vars!.map((variable: PromptVar) => (

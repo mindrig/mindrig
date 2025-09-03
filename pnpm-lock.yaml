@@ -151,6 +151,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      smolcsv:
+        specifier: ^0.1.0
+        version: 0.1.0
       yjs:
         specifier: ^13.6.27
         version: 13.6.27
@@ -2588,6 +2591,9 @@ packages:
   slice-ansi@4.0.0:
     resolution: {integrity: sha512-qMCMfhY040cVHT43K9BFygqYbUPFZKHOg7K73mtTWJRb8pyP3fzf4Ixd5SzdEJQ6MRUg/WBnOLxghZtKKurENQ==}
     engines: {node: '>=10'}
+
+  smolcsv@0.1.0:
+    resolution: {integrity: sha512-ztpr0iTYGm6ZuMFTf+8RrTC8oocYeNhLQO+Izy09r0R7JhUVLyk+THCS2xQ+XK4kQyQJarT0ohss3SEiii5yhw==}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -5554,6 +5560,8 @@ snapshots:
       ansi-styles: 4.3.0
       astral-regex: 2.0.0
       is-fullwidth-code-point: 3.0.0
+
+  smolcsv@0.1.0: {}
 
   source-map-js@1.2.1: {}
 

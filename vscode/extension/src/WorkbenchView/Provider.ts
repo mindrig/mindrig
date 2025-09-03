@@ -170,6 +170,9 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         case "addItWorks":
           this.#handleAddItWorks();
           break;
+        case "requestCsvPick":
+          this.#handleRequestCsvPick();
+          break;
         case "getSettings":
           this.#sendSettings();
           break;
@@ -332,6 +335,89 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
   #handleAddItWorks() {
     this.#fileManager?.addCommentToActiveFile("// It works!");
+  }
+
+  async #handleRequestCsvPick() {
+    try {
+      const uri = await this.#selectCsvFileWithQuickPick();
+      if (!uri) return;
+      const data = await vscode.workspace.fs.readFile(uri);
+      const content = new TextDecoder("utf-8").decode(data);
+      this.#sendMessage({
+        type: "csvFileLoaded",
+        payload: {
+          path: uri.fsPath,
+          content,
+        },
+      });
+    } catch (error) {
+      console.error("CSV selection failed:", error);
+      this.#sendMessage({
+        type: "csvFileLoaded",
+        payload: {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+    }
+  }
+
+  async #selectCsvFileWithQuickPick(): Promise<vscode.Uri | undefined> {
+    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+      const picked = await vscode.window.showOpenDialog({
+        canSelectMany: false,
+        openLabel: "Select CSV",
+        filters: { "CSV files": ["csv"], "All files": ["*"] },
+      });
+      return picked?.[0];
+    }
+
+    type CsvItem = vscode.QuickPickItem & { uri: vscode.Uri };
+    const quickPick = vscode.window.createQuickPick<CsvItem>();
+    quickPick.placeholder = "Search CSV files by name or path";
+    quickPick.matchOnDescription = true;
+    quickPick.matchOnDetail = true;
+    quickPick.ignoreFocusOut = true;
+
+    quickPick.busy = true;
+    const excludeGlobs = "{**/node_modules/**,**/.git/**,**/dist/**,**/build/**,**/out/**}";
+    const maxResults = 2000;
+    let uris: vscode.Uri[] = [];
+    try {
+      uris = await vscode.workspace.findFiles("**/*.csv", excludeGlobs, maxResults);
+    } catch {
+      quickPick.dispose();
+      const picked = await vscode.window.showOpenDialog({
+        canSelectMany: false,
+        openLabel: "Select CSV",
+        filters: { "CSV files": ["csv"], "All files": ["*"] },
+      });
+      return picked?.[0];
+    }
+
+    const items: CsvItem[] = uris.map((uri) => {
+      const rel = vscode.workspace.asRelativePath(uri, false);
+      const label = rel.split(/[/\\]/).pop() ?? rel;
+      const dir = rel.slice(0, Math.max(0, rel.length - label.length)).replace(/[/\\]$/, "");
+      return { label, description: dir, detail: uri.fsPath, uri };
+    });
+
+    if (items.length === 0) {
+      quickPick.dispose();
+      void vscode.window.showInformationMessage("No CSV files found in this workspace.");
+      return undefined;
+    }
+
+    quickPick.items = items;
+    quickPick.busy = false;
+
+    const selection = await new Promise<CsvItem | undefined>((resolve) => {
+      quickPick.onDidAccept(() => resolve(quickPick.selectedItems[0]));
+      quickPick.onDidHide(() => resolve(undefined));
+      quickPick.show();
+    });
+
+    quickPick.dispose();
+    return selection?.uri;
   }
 
   //#endregion

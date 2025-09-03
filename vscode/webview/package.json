@@ -21,10 +21,11 @@
   },
   "dependencies": {
     "@mindcontrol/code-types": "workspace:*",
-    "@mindcontrol/vscode-types": "workspace:*",
     "@mindcontrol/vscode-sync": "workspace:*",
+    "@mindcontrol/vscode-types": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "smolcsv": "^0.1.0",
     "yjs": "^13.6.27"
   },
   "devDependencies": {
