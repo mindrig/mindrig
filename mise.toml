@@ -9,6 +9,7 @@ rust = "stable"
 
 ## Tools
 "npm:@anthropic-ai/claude-code" = "latest"
+"npm:@openai/codex" = "latest"
 "npm:opencode-ai" = "latest"
 "cargo:wasm-pack" = "latest"
 # TODO: Try it again (`bacon nextest --no-fail-fast`) when the scroll in VC Code
