@@ -615,6 +615,12 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     toolChoice?: any;
     providerOptions?: any | null;
     attachments?: Array<{ name: string; mime: string; dataBase64: string }>;
+    runSettings?: any;
+    runs?: Array<{
+      label?: string;
+      variables: Record<string, string>;
+      substitutedPrompt: string;
+    }>;
   }) {
     if (!this.#aiService) this.#initializeAIService();
 
@@ -627,6 +633,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
           error: "Secret manager not initialized",
           promptId: payload.promptId,
           timestamp: Date.now(),
+          results: [],
         },
       });
       return;
@@ -642,6 +649,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
             "No Vercel Gateway API key configured. Please set your API key in the panel above.",
           promptId: payload.promptId,
           timestamp: Date.now(),
+          results: [],
         },
       });
       return;
@@ -651,29 +659,56 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     this.#aiService!.setApiKey(apiKey);
 
     try {
-      const result = await this.#aiService!.executePrompt(
-        payload.substitutedPrompt,
-        payload.modelId,
-        payload.options,
-        {
-          tools: payload.tools ?? null,
-          toolChoice: payload.toolChoice,
-          providerOptions: payload.providerOptions ?? null,
-        },
-        payload.attachments ?? [],
+      const runs = Array.isArray(payload.runs) && payload.runs.length
+        ? payload.runs
+        : [
+            {
+              label: "Run 1",
+              variables: payload.variables || {},
+              substitutedPrompt: payload.substitutedPrompt,
+            },
+          ];
+
+      const results = await Promise.all(
+        runs.map(async (r) => {
+          const result = await this.#aiService!.executePrompt(
+            r.substitutedPrompt,
+            payload.modelId,
+            payload.options,
+            {
+              tools: payload.tools ?? null,
+              toolChoice: payload.toolChoice,
+              providerOptions: payload.providerOptions ?? null,
+            },
+            payload.attachments ?? [],
+          );
+          if (result.success) {
+            return {
+              success: true,
+              request: result.request,
+              response: result.response,
+              usage: (result as any).usage,
+              totalUsage: (result as any).totalUsage,
+              label: r.label,
+            } as const;
+          } else {
+            return {
+              success: false,
+              error: result.error,
+              label: r.label,
+            } as const;
+          }
+        }),
       );
 
       this.#sendMessage({
         type: "promptExecutionResult",
         payload: {
-          success: result.success,
-          request: result.success ? result.request : undefined,
-          response: result.success ? result.response : undefined,
-          usage: (result as any).usage,
-          totalUsage: (result as any).totalUsage,
-          error: result.success ? undefined : result.error,
+          success: results.every((r) => r.success),
+          results,
           promptId: payload.promptId,
           timestamp: Date.now(),
+          runSettings: payload.runSettings,
         },
       });
     } catch (error) {
@@ -685,6 +720,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
           error: `Unexpected error: ${error instanceof Error ? error.message : String(error)}`,
           promptId: payload.promptId,
           timestamp: Date.now(),
+          results: [],
         },
       });
     }

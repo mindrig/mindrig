@@ -17,10 +17,18 @@ export namespace PromptExecution {
   }
 }
 
+interface RunResult {
+  success: boolean;
+  request?: object | null;
+  response?: object | null;
+  usage?: any;
+  error?: string | null;
+  label?: string;
+}
+
 interface ExecutionState {
   isLoading: boolean;
-  response: object | null;
-  request: object | null;
+  results: RunResult[];
   error: string | null;
   timestamp?: number;
 }
@@ -75,10 +83,20 @@ export function PromptExecution({
   >([]);
   const [executionState, setExecutionState] = useState<ExecutionState>({
     isLoading: false,
-    response: null,
-    request: null,
+    results: [],
     error: null,
   });
+  const [inputSource, setInputSource] = useState<"manual" | "dataset">(
+    "manual",
+  );
+  const [datasetMode, setDatasetMode] = useState<"row" | "range" | "all">(
+    "row",
+  );
+  const [rangeStart, setRangeStart] = useState<string>("");
+  const [rangeEnd, setRangeEnd] = useState<string>("");
+  const [collapsedResults, setCollapsedResults] = useState<Record<number, boolean>>(
+    {},
+  );
 
   // Generate unique prompt ID for state persistence
   const promptId = prompt
@@ -109,13 +127,33 @@ export function PromptExecution({
         setCsvRows([]);
         setSelectedRowIdx(null);
       }
-      setExecutionState({
-        isLoading: false,
-        response: promptState.lastResponse?.response || null,
-        request: promptState.lastResponse?.request || null,
-        error: promptState.lastResponse?.error || null,
-        timestamp: promptState.lastResponse?.timestamp,
-      });
+      // Restore last results if present (new format), otherwise wrap legacy
+      if (Array.isArray(promptState.lastResponse?.results)) {
+        setExecutionState({
+          isLoading: false,
+          results: promptState.lastResponse.results,
+          error: promptState.lastResponse?.error || null,
+          timestamp: promptState.lastResponse?.timestamp,
+        });
+      } else {
+        const legacyResponse = promptState.lastResponse;
+        const results: RunResult[] = legacyResponse
+          ? [
+              {
+                success: !!legacyResponse.success,
+                request: legacyResponse.request || null,
+                response: legacyResponse.response || null,
+                error: legacyResponse.error || null,
+              },
+            ]
+          : [];
+        setExecutionState({
+          isLoading: false,
+          results,
+          error: null,
+          timestamp: legacyResponse?.timestamp,
+        });
+      }
       if (promptState.generationOptions) {
         setGenerationOptions({
           ...promptState.generationOptions,
@@ -140,8 +178,7 @@ export function PromptExecution({
       setSelectedRowIdx(null);
       setExecutionState({
         isLoading: false,
-        response: null,
-        request: null,
+        results: [],
         error: null,
       });
       setGenerationOptions({});
@@ -171,11 +208,12 @@ export function PromptExecution({
           : undefined,
       generationOptions: generationOptions,
       lastResponse:
-        executionState.response || executionState.error
+        (executionState.results?.length || executionState.error)
           ? {
-              success: !executionState.error,
-              response: executionState.response,
-              request: executionState.request,
+              success:
+                executionState.results.length > 0 &&
+                executionState.results.every((r) => r.success),
+              results: executionState.results,
               error: executionState.error,
               timestamp: executionState.timestamp || Date.now(),
             }
@@ -286,6 +324,10 @@ export function PromptExecution({
     setCsvHeader(null);
     setCsvRows([]);
     setSelectedRowIdx(null);
+    setInputSource("manual");
+    setDatasetMode("row");
+    setRangeStart("");
+    setRangeEnd("");
     // Reset variables to empty so manual inputs show and are blank
     const initialVars: Record<string, string> = {};
     prompt?.vars?.forEach((v) => {
@@ -421,7 +463,27 @@ export function PromptExecution({
 
   const canExecute = () => {
     if (!prompt?.vars) return true;
-    return prompt.vars.every((v) => variables[v.exp]?.trim());
+    if (inputSource === "manual") {
+      return prompt.vars.every((v) => variables[v.exp]?.trim());
+    }
+    // dataset
+    if (!usingCsv) return false;
+    if (datasetMode === "row") return selectedRowIdx !== null;
+    if (datasetMode === "all") return csvRows.length > 0;
+    // range
+    const start = Number(rangeStart);
+    const end = Number(rangeEnd);
+    if (
+      Number.isNaN(start) ||
+      Number.isNaN(end) ||
+      start < 1 ||
+      end < 1 ||
+      start > end ||
+      start > csvRows.length ||
+      end > csvRows.length
+    )
+      return false;
+    return true;
   };
 
   const handleExecute = () => {
@@ -462,10 +524,57 @@ export function PromptExecution({
 
     setExecutionState({
       isLoading: true,
-      response: null,
-      request: null,
+      results: [],
       error: null,
     });
+
+    // Build runs based on input source and dataset mode
+    const runs: Array<{
+      label: string;
+      variables: Record<string, string>;
+      substitutedPrompt: string;
+    }> = [];
+
+    if (inputSource === "manual") {
+      runs.push({
+        label: "Manual",
+        variables,
+        substitutedPrompt,
+      });
+    } else if (usingCsv) {
+      if (datasetMode === "row") {
+        const idx = selectedRowIdx ?? 0;
+        const row = csvRows[idx]!;
+        const vars = computeVariablesFromRow(row);
+        runs.push({
+          label: `Row ${idx + 1}`,
+          variables: vars,
+          substitutedPrompt: substituteVariables(promptText, vars),
+        });
+      } else if (datasetMode === "range") {
+        const start = Math.max(1, Number(rangeStart));
+        const end = Math.min(csvRows.length, Number(rangeEnd));
+        for (let i = start - 1; i <= end - 1; i++) {
+          const row = csvRows[i]!;
+          const vars = computeVariablesFromRow(row);
+          runs.push({
+            label: `Row ${i + 1}`,
+            variables: vars,
+            substitutedPrompt: substituteVariables(promptText, vars),
+          });
+        }
+      } else if (datasetMode === "all") {
+        for (let i = 0; i < csvRows.length; i++) {
+          const row = csvRows[i]!;
+          const vars = computeVariablesFromRow(row);
+          runs.push({
+            label: `Row ${i + 1}`,
+            variables: vars,
+            substitutedPrompt: substituteVariables(promptText, vars),
+          });
+        }
+      }
+    }
 
     vscode.postMessage({
       type: "executePrompt",
@@ -473,6 +582,20 @@ export function PromptExecution({
         promptText,
         substitutedPrompt,
         variables,
+        runSettings: {
+          source: inputSource,
+          datasetMode,
+          selectedRowIdx,
+          range:
+            datasetMode === "range"
+              ? {
+                  start: Number(rangeStart) || 1,
+                  end: Number(rangeEnd) || csvRows.length,
+                }
+              : undefined,
+          totalRows: csvRows.length,
+        },
+        runs,
         promptId,
         modelId: selectedModelId || undefined,
         tools: selectedModelCapabilities().supportsTools
@@ -533,8 +656,7 @@ export function PromptExecution({
   const handleClear = () => {
     setExecutionState({
       isLoading: false,
-      response: null,
-      request: null,
+      results: [],
       error: null,
     });
   };
@@ -549,15 +671,23 @@ export function PromptExecution({
         message.type === "promptExecutionResult" &&
         message.payload.promptId === promptId
       ) {
+        const results: RunResult[] = Array.isArray(message.payload.results)
+          ? message.payload.results
+          : [
+              {
+                success: !!message.payload.success,
+                request: message.payload.request || null,
+                response: message.payload.response || null,
+                error: message.payload.error || null,
+              },
+            ];
         setExecutionState({
           isLoading: false,
-          response: message.payload.success ? message.payload.response : null,
-          request: message.payload.success ? message.payload.request : null,
-          error: message.payload.success ? null : message.payload.error,
+          results,
+          error: null,
           timestamp: message.payload.timestamp || Date.now(),
-          // attach usage for pricing info if present
-          ...(message.payload.usage ? { usage: message.payload.usage } : {}),
         });
+        setCollapsedResults({});
       }
     };
 
@@ -662,32 +792,7 @@ export function PromptExecution({
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleLoadCsv}
-              className="inline-flex items-center px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded hover:bg-emerald-700 whitespace-nowrap"
-            >
-              {usingCsv ? "Reload CSV" : "Load CSV"}
-            </button>
-            {usingCsv && (
-              <button
-                onClick={handleClearCsv}
-                className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 bg-white text-gray-700 text-xs font-medium rounded hover:bg-gray-50 whitespace-nowrap"
-              >
-                Clear CSV
-              </button>
-            )}
-          </div>
-
-          {usingCsv && (
-            <div className="min-w-0 flex-1 text-right">
-              <span className="text-xs text-gray-600 font-mono truncate block">
-                {csvFileLabel ? `Loaded: ${csvFileLabel}` : "CSV loaded"}
-              </span>
-            </div>
-          )}
-        </div>
+        
 
         {/* Attachments and advanced config */}
         {(() => {
@@ -752,35 +857,177 @@ export function PromptExecution({
           );
         })()}
 
-        {usingCsv && (
-          <div className="space-y-2">
-            <h5 className="text-sm font-medium text-gray-700">Select Row</h5>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-              value={selectedRowIdx ?? ""}
-              onChange={(e) => handleSelectRow(e.target.value)}
-            >
-              <option value="" disabled>
-                Choose a row
-              </option>
-              {csvRows.map((row, idx) => {
-                const label = headersToUse
-                  ? headersToUse
-                      .slice(0, Math.min(headersToUse.length, 5))
-                      .map((h, i) => `${h}=${row[i] ?? ""}`)
-                      .join(", ")
-                  : row.slice(0, 5).join(", ");
-                return (
-                  <option key={idx} value={idx}>
-                    {label}
-                  </option>
-                );
-              })}
-            </select>
-            <p className="text-xs text-gray-600">
-              Selecting a row fills the variables below and overrides manual
-              input.
-            </p>
+        {/* Input source and dataset controls */}
+        <div className="space-y-2">
+          <h5 className="text-sm font-medium text-gray-700">Input Source</h5>
+          <div className="flex items-center gap-4 text-sm">
+            <label className="inline-flex items-center gap-1">
+              <input
+                type="radio"
+                name="input-source"
+                value="manual"
+                checked={inputSource === "manual"}
+                onChange={() => setInputSource("manual")}
+              />
+              Enter manually
+            </label>
+            <label className="inline-flex items-center gap-1">
+              <input
+                type="radio"
+                name="input-source"
+                value="dataset"
+                checked={inputSource === "dataset"}
+                onChange={() => setInputSource("dataset")}
+              />
+              Use dataset
+            </label>
+          </div>
+        </div>
+
+        {inputSource === "dataset" && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleLoadCsv}
+                  className="inline-flex items-center px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded hover:bg-emerald-700 whitespace-nowrap"
+                >
+                  {usingCsv ? "Reload CSV" : "Load CSV"}
+                </button>
+                {usingCsv && (
+                  <button
+                    onClick={handleClearCsv}
+                    className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 bg-white text-gray-700 text-xs font-medium rounded hover:bg-gray-50 whitespace-nowrap"
+                  >
+                    Clear CSV
+                  </button>
+                )}
+              </div>
+
+              {usingCsv && (
+                <div className="min-w-0 flex-1 text-right">
+                  <span className="text-xs text-gray-600 font-mono truncate block">
+                    {csvFileLabel ? `Loaded: ${csvFileLabel}` : "CSV loaded"}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {!usingCsv && (
+              <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
+                Load a CSV to enable dataset options.
+              </div>
+            )}
+
+            {usingCsv && (
+              <>
+                <div className="space-y-2">
+                  <h5 className="text-sm font-medium text-gray-700">Run Scope</h5>
+                  <div className="flex flex-wrap items-center gap-4 text-sm">
+                    <label className="inline-flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="dataset-mode"
+                        value="row"
+                        checked={datasetMode === "row"}
+                        onChange={() => setDatasetMode("row")}
+                      />
+                      Select row
+                    </label>
+                    <label className="inline-flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="dataset-mode"
+                        value="range"
+                        checked={datasetMode === "range"}
+                        onChange={() => setDatasetMode("range")}
+                      />
+                      Enter CSV range
+                    </label>
+                    <label className="inline-flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="dataset-mode"
+                        value="all"
+                        checked={datasetMode === "all"}
+                        onChange={() => setDatasetMode("all")}
+                      />
+                      All rows
+                    </label>
+                  </div>
+                </div>
+
+                {datasetMode === "row" && (
+                  <div className="space-y-2">
+                    <h5 className="text-sm font-medium text-gray-700">Select Row</h5>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      value={selectedRowIdx ?? ""}
+                      onChange={(e) => handleSelectRow(e.target.value)}
+                    >
+                      <option value="" disabled>
+                        Choose a row
+                      </option>
+                      {csvRows.map((row, idx) => {
+                        const label = headersToUse
+                          ? headersToUse
+                              .slice(0, Math.min(headersToUse.length, 5))
+                              .map((h, i) => `${h}=${row[i] ?? ""}`)
+                              .join(", ")
+                          : row.slice(0, 5).join(", ");
+                        return (
+                          <option key={idx} value={idx}>
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <p className="text-xs text-gray-600">
+                      Selecting a row fills the variables below and overrides
+                      manual input.
+                    </p>
+                  </div>
+                )}
+
+                {datasetMode === "range" && (
+                  <div className="space-y-2">
+                    <h5 className="text-sm font-medium text-gray-700">
+                      Enter CSV Range
+                    </h5>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={1}
+                        max={csvRows.length}
+                        value={rangeStart}
+                        onChange={(e) => setRangeStart(e.target.value)}
+                        placeholder="Start (1)"
+                        className="w-28 px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <span className="text-gray-500">to</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={csvRows.length}
+                        value={rangeEnd}
+                        onChange={(e) => setRangeEnd(e.target.value)}
+                        placeholder={`End (${csvRows.length})`}
+                        className="w-28 px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      Range is inclusive. 1 to {csvRows.length} available.
+                    </p>
+                  </div>
+                )}
+
+                {datasetMode === "all" && (
+                  <div className="text-xs text-gray-700">
+                    All rows will run ({csvRows.length}).
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
 
@@ -1008,7 +1255,7 @@ export function PromptExecution({
           </div>
         )}
 
-        {hasVariables && !usingCsv && (
+        {hasVariables && inputSource === "manual" && (
           <div className="space-y-3">
             <h5 className="text-sm font-medium text-gray-700">Variables</h5>
             {prompt.vars!.map((variable: PromptVar) => (
@@ -1040,7 +1287,7 @@ export function PromptExecution({
             {executionState.isLoading ? "Running..." : "Run Prompt"}
           </button>
 
-          {(executionState.response || executionState.error) && (
+          {(executionState.results.length > 0 || executionState.error) && (
             <button
               onClick={handleClear}
               className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded hover:bg-gray-700"
@@ -1050,44 +1297,88 @@ export function PromptExecution({
           )}
         </div>
 
-        {executionState.request && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h5 className="text-sm font-medium text-gray-700">Request</h5>
-
-              {executionState.timestamp && (
-                <span className="text-xs text-gray-500">
-                  {new Date(executionState.timestamp).toLocaleString()}
-                </span>
-              )}
-            </div>
-
-            <div className="p-3 bg-gray-50 rounded border border-gray-300">
-              <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono overflow-x-auto">
-                {JSON.stringify(executionState.request, null, 2)}
-              </pre>
-            </div>
-          </div>
-        )}
-
-        {executionState.response && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h5 className="text-sm font-medium text-gray-700">Response</h5>
-            </div>
-
-            <div className="p-3 bg-gray-50 rounded border border-gray-300">
-              <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono overflow-x-auto">
-                {JSON.stringify(executionState.response, null, 2)}
-              </pre>
-            </div>
-            {/* Pricing info: computed from usage + selected model pricing if available */}
-            <PricingInfo
-              usage={(executionState as any).usage}
-              selectedModel={
-                models.find((m) => m.id === selectedModelId) as any
-              }
-            />
+        {executionState.results.length > 0 && (
+          <div className="space-y-3">
+            {executionState.results.map((res, i) => {
+              const collapsed = !!collapsedResults[i];
+              return (
+                <div key={i} className="border border-gray-200 rounded">
+                  <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="px-2 py-1 border border-gray-300 rounded text-xs"
+                        onClick={() =>
+                          setCollapsedResults((prev) => ({
+                            ...prev,
+                            [i]: !collapsed,
+                          }))
+                        }
+                        title={collapsed ? "Expand" : "Collapse"}
+                      >
+                        {collapsed ? "+" : "–"}
+                      </button>
+                      <span className="text-sm font-medium text-gray-700">
+                        {res.label || `Result ${i + 1}`}
+                      </span>
+                      {!res.success && (
+                        <span className="text-xs text-red-600">Failed</span>
+                      )}
+                    </div>
+                    {executionState.timestamp && (
+                      <span className="text-xs text-gray-500">
+                        {new Date(executionState.timestamp).toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                  {!collapsed && (
+                    <div className="p-3 space-y-3">
+                      {res.error && (
+                        <div className="space-y-2">
+                          <h5 className="text-sm font-medium text-red-700">
+                            Error
+                          </h5>
+                          <div className="p-3 bg-red-50 rounded border border-red-300">
+                            <pre className="text-sm text-red-900 whitespace-pre-wrap">
+                              {res.error}
+                            </pre>
+                          </div>
+                        </div>
+                      )}
+                      {res.request && (
+                        <div className="space-y-2">
+                          <h5 className="text-sm font-medium text-gray-700">
+                            Request
+                          </h5>
+                          <div className="p-3 bg-gray-50 rounded border border-gray-300">
+                            <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono overflow-x-auto">
+                              {JSON.stringify(res.request, null, 2)}
+                            </pre>
+                          </div>
+                        </div>
+                      )}
+                      {res.response && (
+                        <div className="space-y-2">
+                          <h5 className="text-sm font-medium text-gray-700">
+                            Response
+                          </h5>
+                          <div className="p-3 bg-gray-50 rounded border border-gray-300">
+                            <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono overflow-x-auto">
+                              {JSON.stringify(res.response, null, 2)}
+                            </pre>
+                          </div>
+                          <PricingInfo
+                            usage={res.usage}
+                            selectedModel={
+                              models.find((m) => m.id === selectedModelId) as any
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 
