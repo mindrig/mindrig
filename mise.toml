@@ -3,6 +3,9 @@
 node = { version = "lts", postinstall = "corepack enable" }
 rust = "stable"
 "cargo:genotype_cli" = "latest"
+# Python
+uv = "0.8.15"
+
 # Cargo
 "cargo:cargo-nextest" = "latest"
 "cargo:cargo-insta" = "latest"
@@ -19,8 +22,13 @@ rust = "stable"
 # TODO: Will include with latest Mothership image, so can remove after updating
 "cargo:jaq" = "latest"
 
+[env]
+_.python.venv = { path = ".venv", create = true }
+
 [settings]
 # Enable extra features
 experimental = true
 # Consume Node.js version from .nvmrc, .tool-versions, etc.
 idiomatic_version_file_enable_tools = ["rust"]
+# Auto env with uv
+python.uv_venv_auto = true
