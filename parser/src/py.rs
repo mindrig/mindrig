@@ -66,6 +66,49 @@ impl<'a> PyPromptVisitor<'a> {
         }
     }
 
+    fn span_shape_string_like(&self, range: TextRange) -> SpanShape {
+        // Python strings may have prefixes like f, r, u, fr, etc., and
+        // single/double/triple quotes. Compute inner by finding opening quote
+        // and matching its length (1 or 3 characters).
+        let bytes = self.code.as_bytes();
+        let start = range.start().to_usize();
+        let end = range.end().to_usize();
+
+        // Find first quote character from start.
+        let mut i = start;
+        while i < end {
+            let c = bytes[i];
+            if c == b'\'' || c == b'\"' {
+                break;
+            }
+            i += 1;
+        }
+
+        let quote_pos = i;
+        let quote_char = if quote_pos < end {
+            bytes[quote_pos]
+        } else {
+            b'\''
+        };
+        let mut quote_len = 1u32;
+        if quote_pos + 2 < end
+            && bytes[quote_pos + 1] == quote_char
+            && bytes[quote_pos + 2] == quote_char
+        {
+            quote_len = 3;
+        }
+
+        let outer = self.span(range);
+        let inner_start = (quote_pos as u32).saturating_add(quote_len);
+        let inner_end = outer.end.saturating_sub(quote_len);
+        let inner = Span {
+            start: inner_start,
+            end: inner_end,
+        };
+
+        SpanShape { outer, inner }
+    }
+
     fn parse_fstr_vars(&self, fstr: &ast::ExprFString) -> Vec<PromptVar> {
         let mut vars: Vec<PromptVar> = Vec::new();
         for part in fstr.value.as_slice() {
@@ -75,7 +118,13 @@ impl<'a> PyPromptVisitor<'a> {
                         let range = interp.range();
                         vars.push(PromptVar {
                             exp: self.code[range].to_string(),
-                            span: self.span(range),
+                            span: SpanShape {
+                                outer: self.span(range),
+                                inner: Span {
+                                    start: self.span(range).start + 1,
+                                    end: self.span(range).end.saturating_sub(1),
+                                },
+                            },
                         });
                     }
                 }
@@ -91,7 +140,13 @@ impl<'a> PyPromptVisitor<'a> {
                 let r = interp.range();
                 vars.push(PromptVar {
                     exp: self.code[r].to_string(),
-                    span: self.span(r),
+                    span: SpanShape {
+                        outer: self.span(r),
+                        inner: Span {
+                            start: self.span(r).start + 1,
+                            end: self.span(r).end.saturating_sub(1),
+                        },
+                    },
                 });
             }
         }
@@ -185,7 +240,7 @@ impl<'a> PyPromptVisitor<'a> {
 
         let prompt = Prompt {
             file: self.file.clone(),
-            span: self.span(node_range),
+            span: self.span_shape_string_like(node_range),
             exp: self.code[node_range].to_string(),
             vars,
         };
@@ -293,9 +348,15 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 14,
-                            end: 44,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 14,
+                                end: 44,
+                            },
+                            inner: Span {
+                                start: 15,
+                                end: 43,
+                            },
                         },
                         exp: "\"You are a helpful assistant.\"",
                         vars: [],
@@ -316,17 +377,29 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 18,
-                            end: 36,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 18,
+                                end: 36,
+                            },
+                            inner: Span {
+                                start: 20,
+                                end: 35,
+                            },
                         },
                         exp: "f\"Welcome {user}!\"",
                         vars: [
                             PromptVar {
                                 exp: "{user}",
-                                span: Span {
-                                    start: 28,
-                                    end: 34,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 28,
+                                        end: 34,
+                                    },
+                                    inner: Span {
+                                        start: 29,
+                                        end: 33,
+                                    },
                                 },
                             },
                         ],
@@ -350,9 +423,15 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 19,
-                            end: 49,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 19,
+                                end: 49,
+                            },
+                            inner: Span {
+                                start: 20,
+                                end: 48,
+                            },
                         },
                         exp: "\"You are a helpful assistant.\"",
                         vars: [],
@@ -376,17 +455,29 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 21,
-                            end: 39,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 21,
+                                end: 39,
+                            },
+                            inner: Span {
+                                start: 23,
+                                end: 38,
+                            },
                         },
                         exp: "f\"Welcome {user}!\"",
                         vars: [
                             PromptVar {
                                 exp: "{user}",
-                                span: Span {
-                                    start: 31,
-                                    end: 37,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 31,
+                                        end: 37,
+                                    },
+                                    inner: Span {
+                                        start: 32,
+                                        end: 36,
+                                    },
                                 },
                             },
                         ],
@@ -410,9 +501,15 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 26,
-                            end: 56,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 26,
+                                end: 56,
+                            },
+                            inner: Span {
+                                start: 27,
+                                end: 55,
+                            },
                         },
                         exp: "\"You are a helpful assistant.\"",
                         vars: [],
@@ -436,17 +533,29 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 26,
-                            end: 44,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 26,
+                                end: 44,
+                            },
+                            inner: Span {
+                                start: 28,
+                                end: 43,
+                            },
                         },
                         exp: "f\"Welcome {user}!\"",
                         vars: [
                             PromptVar {
                                 exp: "{user}",
-                                span: Span {
-                                    start: 36,
-                                    end: 42,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 36,
+                                        end: 42,
+                                    },
+                                    inner: Span {
+                                        start: 37,
+                                        end: 41,
+                                    },
                                 },
                             },
                         ],
@@ -477,9 +586,15 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 20,
-                            end: 35,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 20,
+                                end: 35,
+                            },
+                            inner: Span {
+                                start: 21,
+                                end: 34,
+                            },
                         },
                         exp: "\"Hello, world!\"",
                         vars: [],
@@ -545,17 +660,29 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 30,
-                            end: 49,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 30,
+                                end: 49,
+                            },
+                            inner: Span {
+                                start: 32,
+                                end: 48,
+                            },
                         },
                         exp: "f\"Assigned {value}\"",
                         vars: [
                             PromptVar {
                                 exp: "{value}",
-                                span: Span {
-                                    start: 41,
-                                    end: 48,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 41,
+                                        end: 48,
+                                    },
+                                    inner: Span {
+                                        start: 42,
+                                        end: 47,
+                                    },
                                 },
                             },
                         ],
@@ -626,17 +753,29 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 55,
-                            end: 74,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 55,
+                                end: 74,
+                            },
+                            inner: Span {
+                                start: 57,
+                                end: 73,
+                            },
                         },
                         exp: "f\"Assigned {value}\"",
                         vars: [
                             PromptVar {
                                 exp: "{value}",
-                                span: Span {
-                                    start: 66,
-                                    end: 73,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 66,
+                                        end: 73,
+                                    },
+                                    inner: Span {
+                                        start: 67,
+                                        end: 72,
+                                    },
                                 },
                             },
                         ],
@@ -671,24 +810,42 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 14,
-                            end: 67,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 14,
+                                end: 67,
+                            },
+                            inner: Span {
+                                start: 16,
+                                end: 66,
+                            },
                         },
                         exp: "f\"Hello, {name}! How is the weather today in {city}?\"",
                         vars: [
                             PromptVar {
                                 exp: "{name}",
-                                span: Span {
-                                    start: 23,
-                                    end: 29,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 23,
+                                        end: 29,
+                                    },
+                                    inner: Span {
+                                        start: 24,
+                                        end: 28,
+                                    },
                                 },
                             },
                             PromptVar {
                                 exp: "{city}",
-                                span: Span {
-                                    start: 59,
-                                    end: 65,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 59,
+                                        end: 65,
+                                    },
+                                    inner: Span {
+                                        start: 60,
+                                        end: 64,
+                                    },
                                 },
                             },
                         ],
@@ -715,9 +872,15 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 19,
-                            end: 204,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 19,
+                                end: 204,
+                            },
+                            inner: Span {
+                                start: 22,
+                                end: 201,
+                            },
                         },
                         exp: "\"\"\"You are a helpful assistant.\nYou will answer the user's questions to the best of your ability.\nIf you don't know the answer, just say that you don't know, don't try to make it up.\"\"\"",
                         vars: [],
@@ -744,24 +907,42 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 17,
-                            end: 75,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 17,
+                                end: 75,
+                            },
+                            inner: Span {
+                                start: 21,
+                                end: 72,
+                            },
                         },
                         exp: "f\"\"\"Hello, {name}!\nHow is the weather today in {city}?\n\"\"\"",
                         vars: [
                             PromptVar {
                                 exp: "{name}",
-                                span: Span {
-                                    start: 28,
-                                    end: 34,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 28,
+                                        end: 34,
+                                    },
+                                    inner: Span {
+                                        start: 29,
+                                        end: 33,
+                                    },
                                 },
                             },
                             PromptVar {
                                 exp: "{city}",
-                                span: Span {
-                                    start: 64,
-                                    end: 70,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 64,
+                                        end: 70,
+                                    },
+                                    inner: Span {
+                                        start: 65,
+                                        end: 69,
+                                    },
                                 },
                             },
                         ],
@@ -785,17 +966,29 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 19,
-                            end: 72,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 19,
+                                end: 72,
+                            },
+                            inner: Span {
+                                start: 21,
+                                end: 71,
+                            },
                         },
                         exp: "f\"Given that price is {price + (price * tax):.2f}...\"",
                         vars: [
                             PromptVar {
                                 exp: "{price + (price * tax):.2f}",
-                                span: Span {
-                                    start: 41,
-                                    end: 68,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 41,
+                                        end: 68,
+                                    },
+                                    inner: Span {
+                                        start: 42,
+                                        end: 67,
+                                    },
                                 },
                             },
                         ],
@@ -819,17 +1012,29 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 19,
-                            end: 81,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 19,
+                                end: 81,
+                            },
+                            inner: Span {
+                                start: 21,
+                                end: 80,
+                            },
                         },
                         exp: "f\"This item is {('expensive' if price > 100 else 'cheap')}...\"",
                         vars: [
                             PromptVar {
                                 exp: "{('expensive' if price > 100 else 'cheap')}",
-                                span: Span {
-                                    start: 34,
-                                    end: 77,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 34,
+                                        end: 77,
+                                    },
+                                    inner: Span {
+                                        start: 35,
+                                        end: 76,
+                                    },
                                 },
                             },
                         ],
@@ -908,26 +1113,44 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 79,
-                            end: 96,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 79,
+                                end: 96,
+                            },
+                            inner: Span {
+                                start: 81,
+                                end: 95,
+                            },
                         },
                         exp: "f\"Hello, {name}!\"",
                         vars: [
                             PromptVar {
                                 exp: "{name}",
-                                span: Span {
-                                    start: 88,
-                                    end: 94,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 88,
+                                        end: 94,
+                                    },
+                                    inner: Span {
+                                        start: 89,
+                                        end: 93,
+                                    },
                                 },
                             },
                         ],
                     },
                     Prompt {
                         file: "prompts.py",
-                        span: Span {
-                            start: 145,
-                            end: 150,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 145,
+                                end: 150,
+                            },
+                            inner: Span {
+                                start: 146,
+                                end: 149,
+                            },
                         },
                         exp: "\"Hi!\"",
                         vars: [],

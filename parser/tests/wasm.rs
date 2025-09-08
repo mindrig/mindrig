@@ -17,7 +17,10 @@ fn parse_js_value() {
             state: ParseResultSuccessStateSuccess,
             prompts: vec![Prompt {
                 file: "prompts.js".into(),
-                span: Span { start: 27, end: 40 },
+                span: SpanShape {
+                    outer: Span { start: 27, end: 40 },
+                    inner: Span { start: 28, end: 39 },
+                },
                 exp: "\"Hello world\"".into(),
                 vars: vec![],
             }]
@@ -39,11 +42,17 @@ fn parse_py_value() {
             state: ParseResultSuccessStateSuccess,
             prompts: vec![Prompt {
                 file: "prompts.py".into(),
-                span: Span { start: 16, end: 32 },
+                span: SpanShape {
+                    outer: Span { start: 16, end: 32 },
+                    inner: Span { start: 18, end: 31 }
+                },
                 exp: "f\"Hello {name}!\"".into(),
                 vars: vec![PromptVar {
                     exp: "{name}".into(),
-                    span: Span { start: 24, end: 30 },
+                    span: SpanShape {
+                        outer: Span { start: 24, end: 30 },
+                        inner: Span { start: 25, end: 29 },
+                    }
                 }],
             }]
         })

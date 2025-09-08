@@ -1,5 +1,5 @@
-import { createGateway } from "@ai-sdk/gateway";
 import { getModelCapabilities, setModelsDevData } from "@/modelsDevCaps";
+import { createGateway } from "@ai-sdk/gateway";
 import type { Prompt, PromptVar } from "@mindcontrol/code-types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { parseString as parseCsvString } from "smolcsv";
@@ -13,6 +13,7 @@ export namespace PromptExecution {
       setState: (state: any) => void;
     } | null;
     vercelGatewayKey: string | null;
+    fileContent?: string | null;
   }
 }
 
@@ -28,6 +29,7 @@ export function PromptExecution({
   prompt,
   vscode,
   vercelGatewayKey,
+  fileContent,
 }: PromptExecution.Props) {
   const [modelsDevTick, setModelsDevTick] = useState(0);
   const [variables, setVariables] = useState<Record<string, string>>({});
@@ -80,7 +82,7 @@ export function PromptExecution({
 
   // Generate unique prompt ID for state persistence
   const promptId = prompt
-    ? `${prompt.file}:${prompt.span.start}-${prompt.span.end}`
+    ? `${prompt.file}:${prompt.span.outer.start}-${prompt.span.outer.end}`
     : null;
 
   // Load persistent state when prompt changes
@@ -398,29 +400,22 @@ export function PromptExecution({
   };
 
   const substituteVariables = (
-    text: string,
+    baseText: string,
     vars: Record<string, string>,
   ): string => {
-    if (!prompt?.vars || prompt.vars.length === 0) {
-      return text;
+    if (!prompt?.vars || prompt.vars.length === 0) return baseText;
+    const innerStart = prompt.span.inner.start;
+    // Replace from right to left to preserve indexes
+    const sorted = [...prompt.vars].sort(
+      (a, b) => (b.span.outer.start || 0) - (a.span.outer.start || 0),
+    );
+    let result = baseText;
+    for (const v of sorted) {
+      const value = vars[v.exp] || "";
+      const s = Math.max(0, (v.span.outer.start ?? 0) - innerStart);
+      const e = Math.max(s, (v.span.outer.end ?? 0) - innerStart);
+      result = result.slice(0, s) + value + result.slice(e);
     }
-
-    const sortedVars = [...prompt.vars].reverse();
-
-    let result = text;
-    console.log("!!!", { text, sortedVars });
-    for (const variable of sortedVars) {
-      const value = vars[variable.exp] || "";
-      result =
-        result.slice(
-          0,
-          // NOTE: works for ${ only, 2 for ${, one for the prompt's opening `
-          variable.span.start - prompt.span.start - 3,
-        ) +
-        value +
-        result.slice(variable.span.end - prompt.span.start);
-    }
-
     return result;
   };
 
@@ -453,7 +448,17 @@ export function PromptExecution({
       return;
     }
 
-    const substitutedPrompt = substituteVariables(prompt.text, variables);
+    const promptText = (() => {
+      if (!fileContent) return prompt.exp;
+      try {
+        const s = prompt.span.inner.start;
+        const e = prompt.span.inner.end;
+        if (e > s && e <= fileContent.length) return fileContent.slice(s, e);
+      } catch {}
+      return prompt.exp;
+    })();
+
+    const substitutedPrompt = substituteVariables(promptText, variables);
 
     setExecutionState({
       isLoading: true,
@@ -465,7 +470,7 @@ export function PromptExecution({
     vscode.postMessage({
       type: "executePrompt",
       payload: {
-        promptText: prompt.text,
+        promptText,
         substitutedPrompt,
         variables,
         promptId,

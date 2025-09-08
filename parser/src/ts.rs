@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use mindcontrol_code_types::{
     ParseResult, ParseResultError, ParseResultErrorStateError, ParseResultSuccess,
-    ParseResultSuccessStateSuccess, Prompt, PromptVar, Span,
+    ParseResultSuccessStateSuccess, Prompt, PromptVar, Span, SpanShape,
 };
 use oxc_allocator::Allocator;
 use oxc_allocator::Vec as OxcVec;
@@ -39,11 +39,22 @@ impl<'a> PromptVisitor<'a> {
         }
     }
 
-    fn span(&self, span: &oxc_span::Span) -> Span {
+    fn span_outer(&self, span: &oxc_span::Span) -> Span {
         Span {
             start: span.start,
             end: span.end,
         }
+    }
+
+    fn span_shape_literal(&self, span: &oxc_span::Span) -> SpanShape {
+        let outer = self.span_outer(span);
+        let inner_start = outer.start.saturating_add(1);
+        let inner_end = outer.end.saturating_sub(1);
+        let inner = Span {
+            start: inner_start,
+            end: inner_end,
+        };
+        SpanShape { outer, inner }
     }
 
     fn process_variable_declarator(
@@ -113,9 +124,14 @@ impl<'a> PromptVisitor<'a> {
             }
 
             let exp = &self.code[start as usize..end as usize];
+            let outer = Span { start, end };
+            let inner = Span {
+                start: expr_span.start,
+                end: expr_span.end,
+            };
             vars.push(PromptVar {
                 exp: exp.to_string(),
-                span: Span { start, end },
+                span: SpanShape { outer, inner },
             });
         }
 
@@ -132,7 +148,7 @@ impl<'a> PromptVisitor<'a> {
         if self.is_prompt(ident_name, prompt_comment) {
             let prompt = Prompt {
                 file: self.file.clone(),
-                span: self.span(&template.span),
+                span: self.span_shape_literal(&template.span),
                 exp: self.get_template_text(template),
                 vars: self.extract_template_vars(template),
             };
@@ -146,7 +162,7 @@ impl<'a> PromptVisitor<'a> {
         if self.is_prompt(ident_name, prompt_comment) {
             let prompt = Prompt {
                 file: self.file.clone(),
-                span: self.span(&string.span),
+                span: self.span_shape_literal(&string.span),
                 exp: string.span().source_text(self.code).to_string(),
                 vars: Vec::new(),
             };
@@ -282,9 +298,15 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 19,
-                            end: 49,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 19,
+                                end: 49,
+                            },
+                            inner: Span {
+                                start: 20,
+                                end: 48,
+                            },
                         },
                         exp: "\"You are a helpful assistant.\"",
                         vars: [],
@@ -305,9 +327,15 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 17,
-                            end: 47,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 17,
+                                end: 47,
+                            },
+                            inner: Span {
+                                start: 18,
+                                end: 46,
+                            },
                         },
                         exp: "\"You are a helpful assistant.\"",
                         vars: [],
@@ -328,9 +356,15 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 17,
-                            end: 47,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 17,
+                                end: 47,
+                            },
+                            inner: Span {
+                                start: 18,
+                                end: 46,
+                            },
                         },
                         exp: "\"You are a helpful assistant.\"",
                         vars: [],
@@ -351,17 +385,29 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 31,
-                            end: 49,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 31,
+                                end: 49,
+                            },
+                            inner: Span {
+                                start: 32,
+                                end: 48,
+                            },
                         },
                         exp: "`Welcome ${user}!`",
                         vars: [
                             PromptVar {
                                 exp: "${user}",
-                                span: Span {
-                                    start: 40,
-                                    end: 47,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 40,
+                                        end: 47,
+                                    },
+                                    inner: Span {
+                                        start: 42,
+                                        end: 46,
+                                    },
                                 },
                             },
                         ],
@@ -382,9 +428,15 @@ mod tests {
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 27,
-                            end: 40,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 27,
+                                end: 40,
+                            },
+                            inner: Span {
+                                start: 28,
+                                end: 39,
+                            },
                         },
                         exp: "\"Hello world\"",
                         vars: [],
@@ -421,9 +473,15 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 25,
-                            end: 40,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 25,
+                                end: 40,
+                            },
+                            inner: Span {
+                                start: 26,
+                                end: 39,
+                            },
                         },
                         exp: "`Hello, world!`",
                         vars: [],
@@ -447,9 +505,15 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 28,
-                            end: 43,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 28,
+                                end: 43,
+                            },
+                            inner: Span {
+                                start: 29,
+                                end: 42,
+                            },
                         },
                         exp: "`Hello, world!`",
                         vars: [],
@@ -473,9 +537,15 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 29,
-                            end: 44,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 29,
+                                end: 44,
+                            },
+                            inner: Span {
+                                start: 30,
+                                end: 43,
+                            },
                         },
                         exp: "`Hello, world!`",
                         vars: [],
@@ -506,9 +576,15 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 27,
-                            end: 42,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 27,
+                                end: 42,
+                            },
+                            inner: Span {
+                                start: 28,
+                                end: 41,
+                            },
                         },
                         exp: "`Hello, world!`",
                         vars: [],
@@ -578,60 +654,102 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 19,
-                            end: 36,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 19,
+                                end: 36,
+                            },
+                            inner: Span {
+                                start: 20,
+                                end: 35,
+                            },
                         },
                         exp: "`Hello, ${name}!`",
                         vars: [
                             PromptVar {
                                 exp: "${name}",
-                                span: Span {
-                                    start: 27,
-                                    end: 34,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 27,
+                                        end: 34,
+                                    },
+                                    inner: Span {
+                                        start: 29,
+                                        end: 33,
+                                    },
                                 },
                             },
                         ],
                     },
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 69,
-                            end: 87,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 69,
+                                end: 87,
+                            },
+                            inner: Span {
+                                start: 70,
+                                end: 86,
+                            },
                         },
                         exp: "`Welcome ${user}!`",
                         vars: [
                             PromptVar {
                                 exp: "${user}",
-                                span: Span {
-                                    start: 78,
-                                    end: 85,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 78,
+                                        end: 85,
+                                    },
+                                    inner: Span {
+                                        start: 80,
+                                        end: 84,
+                                    },
                                 },
                             },
                         ],
                     },
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 117,
-                            end: 140,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 117,
+                                end: 140,
+                            },
+                            inner: Span {
+                                start: 118,
+                                end: 139,
+                            },
                         },
                         exp: "`Goodbye ${user.name}!`",
                         vars: [
                             PromptVar {
                                 exp: "${user.name}",
-                                span: Span {
-                                    start: 126,
-                                    end: 138,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 126,
+                                        end: 138,
+                                    },
+                                    inner: Span {
+                                        start: 128,
+                                        end: 137,
+                                    },
                                 },
                             },
                         ],
                     },
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 172,
-                            end: 197,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 172,
+                                end: 197,
+                            },
+                            inner: Span {
+                                start: 173,
+                                end: 196,
+                            },
                         },
                         exp: "\"You are an AI assistant\"",
                         vars: [],
@@ -656,17 +774,29 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 30,
-                            end: 49,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 30,
+                                end: 49,
+                            },
+                            inner: Span {
+                                start: 31,
+                                end: 48,
+                            },
                         },
                         exp: "`Assigned ${value}`",
                         vars: [
                             PromptVar {
                                 exp: "${value}",
-                                span: Span {
-                                    start: 40,
-                                    end: 48,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 40,
+                                        end: 48,
+                                    },
+                                    inner: Span {
+                                        start: 42,
+                                        end: 47,
+                                    },
                                 },
                             },
                         ],
@@ -696,17 +826,29 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 44,
-                            end: 63,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 44,
+                                end: 63,
+                            },
+                            inner: Span {
+                                start: 45,
+                                end: 62,
+                            },
                         },
                         exp: "`Assigned ${value}`",
                         vars: [
                             PromptVar {
                                 exp: "${value}",
-                                span: Span {
-                                    start: 54,
-                                    end: 62,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 54,
+                                        end: 62,
+                                    },
+                                    inner: Span {
+                                        start: 56,
+                                        end: 61,
+                                    },
                                 },
                             },
                         ],
@@ -740,17 +882,29 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 19,
-                            end: 36,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 19,
+                                end: 36,
+                            },
+                            inner: Span {
+                                start: 20,
+                                end: 35,
+                            },
                         },
                         exp: "`Hello, ${name}!`",
                         vars: [
                             PromptVar {
                                 exp: "${name}",
-                                span: Span {
-                                    start: 27,
-                                    end: 34,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 27,
+                                        end: 34,
+                                    },
+                                    inner: Span {
+                                        start: 29,
+                                        end: 33,
+                                    },
                                 },
                             },
                         ],
@@ -772,24 +926,42 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 19,
-                            end: 73,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 19,
+                                end: 73,
+                            },
+                            inner: Span {
+                                start: 20,
+                                end: 72,
+                            },
                         },
                         exp: "`Hello, ${name}! How is the weather today in ${city}?`",
                         vars: [
                             PromptVar {
                                 exp: "${name}",
-                                span: Span {
-                                    start: 27,
-                                    end: 34,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 27,
+                                        end: 34,
+                                    },
+                                    inner: Span {
+                                        start: 29,
+                                        end: 33,
+                                    },
                                 },
                             },
                             PromptVar {
                                 exp: "${city}",
-                                span: Span {
-                                    start: 64,
-                                    end: 71,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 64,
+                                        end: 71,
+                                    },
+                                    inner: Span {
+                                        start: 66,
+                                        end: 70,
+                                    },
                                 },
                             },
                         ],
@@ -810,24 +982,42 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 19,
-                            end: 92,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 19,
+                                end: 92,
+                            },
+                            inner: Span {
+                                start: 20,
+                                end: 91,
+                            },
                         },
                         exp: "`Hello, ${user.name}! How is the weather today in ${user.location.city}?`",
                         vars: [
                             PromptVar {
                                 exp: "${user.name}",
-                                span: Span {
-                                    start: 27,
-                                    end: 39,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 27,
+                                        end: 39,
+                                    },
+                                    inner: Span {
+                                        start: 29,
+                                        end: 38,
+                                    },
                                 },
                             },
                             PromptVar {
                                 exp: "${user.location.city}",
-                                span: Span {
-                                    start: 69,
-                                    end: 90,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 69,
+                                        end: 90,
+                                    },
+                                    inner: Span {
+                                        start: 71,
+                                        end: 89,
+                                    },
                                 },
                             },
                         ],
@@ -849,17 +1039,29 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 19,
-                            end: 75,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 19,
+                                end: 75,
+                            },
+                            inner: Span {
+                                start: 20,
+                                end: 74,
+                            },
                         },
                         exp: "`Hello, ${User.fullName({ ...user.name, last: null })}!`",
                         vars: [
                             PromptVar {
                                 exp: "${User.fullName({ ...user.name, last: null })}",
-                                span: Span {
-                                    start: 27,
-                                    end: 73,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 27,
+                                        end: 73,
+                                    },
+                                    inner: Span {
+                                        start: 29,
+                                        end: 72,
+                                    },
                                 },
                             },
                         ],
@@ -893,17 +1095,29 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "test.js",
-                        span: Span {
-                            start: 29,
-                            end: 46,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 29,
+                                end: 46,
+                            },
+                            inner: Span {
+                                start: 30,
+                                end: 45,
+                            },
                         },
                         exp: "`Hello ${world}!`",
                         vars: [
                             PromptVar {
                                 exp: "${world}",
-                                span: Span {
-                                    start: 36,
-                                    end: 44,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 36,
+                                        end: 44,
+                                    },
+                                    inner: Span {
+                                        start: 38,
+                                        end: 43,
+                                    },
                                 },
                             },
                         ],
@@ -927,17 +1141,29 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "test.jsx",
-                        span: Span {
-                            start: 29,
-                            end: 46,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 29,
+                                end: 46,
+                            },
+                            inner: Span {
+                                start: 30,
+                                end: 45,
+                            },
                         },
                         exp: "`Hello ${world}!`",
                         vars: [
                             PromptVar {
                                 exp: "${world}",
-                                span: Span {
-                                    start: 36,
-                                    end: 44,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 36,
+                                        end: 44,
+                                    },
+                                    inner: Span {
+                                        start: 38,
+                                        end: 43,
+                                    },
                                 },
                             },
                         ],
@@ -958,17 +1184,29 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "test.ts",
-                        span: Span {
-                            start: 38,
-                            end: 55,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 38,
+                                end: 55,
+                            },
+                            inner: Span {
+                                start: 39,
+                                end: 54,
+                            },
                         },
                         exp: "`Hello ${world}!`",
                         vars: [
                             PromptVar {
                                 exp: "${world}",
-                                span: Span {
-                                    start: 45,
-                                    end: 53,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 45,
+                                        end: 53,
+                                    },
+                                    inner: Span {
+                                        start: 47,
+                                        end: 52,
+                                    },
                                 },
                             },
                         ],
@@ -992,17 +1230,29 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "test.tsx",
-                        span: Span {
-                            start: 38,
-                            end: 55,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 38,
+                                end: 55,
+                            },
+                            inner: Span {
+                                start: 39,
+                                end: 54,
+                            },
                         },
                         exp: "`Hello ${world}!`",
                         vars: [
                             PromptVar {
                                 exp: "${world}",
-                                span: Span {
-                                    start: 45,
-                                    end: 53,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 45,
+                                        end: 53,
+                                    },
+                                    inner: Span {
+                                        start: 47,
+                                        end: 52,
+                                    },
                                 },
                             },
                         ],
@@ -1054,26 +1304,44 @@ const hello = `Hello, world!`;"#;
                 prompts: [
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 91,
-                            end: 108,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 91,
+                                end: 108,
+                            },
+                            inner: Span {
+                                start: 92,
+                                end: 107,
+                            },
                         },
                         exp: "`Hello, ${name}!`",
                         vars: [
                             PromptVar {
                                 exp: "${name}",
-                                span: Span {
-                                    start: 99,
-                                    end: 106,
+                                span: SpanShape {
+                                    outer: Span {
+                                        start: 99,
+                                        end: 106,
+                                    },
+                                    inner: Span {
+                                        start: 101,
+                                        end: 105,
+                                    },
                                 },
                             },
                         ],
                     },
                     Prompt {
                         file: "prompts.ts",
-                        span: Span {
-                            start: 164,
-                            end: 169,
+                        span: SpanShape {
+                            outer: Span {
+                                start: 164,
+                                end: 169,
+                            },
+                            inner: Span {
+                                start: 165,
+                                end: 168,
+                            },
                         },
                         exp: "\"Hi!\"",
                         vars: [],

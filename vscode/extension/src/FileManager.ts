@@ -38,6 +38,8 @@ export class FileManager {
     ".mjsx",
     ".cjs",
     ".cjsx",
+    ".py",
+    ".pyi",
   ];
 
   //#endregion

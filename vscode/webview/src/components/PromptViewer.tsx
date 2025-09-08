@@ -3,11 +3,24 @@ import type { Prompt } from "@mindcontrol/code-types";
 export namespace PromptViewer {
   export interface Props {
     prompt: Prompt | null;
+    fileContent?: string | null;
   }
 }
 
-export function PromptViewer({ prompt }: PromptViewer.Props) {
+export function PromptViewer({ prompt, fileContent }: PromptViewer.Props) {
   if (!prompt) return null;
+
+  const text = (() => {
+    if (!fileContent) return prompt.exp;
+    try {
+      const start = prompt.span?.inner?.start ?? 0;
+      const end = prompt.span?.inner?.end ?? 0;
+      if (end > start && end <= fileContent.length) {
+        return fileContent.slice(start, end);
+      }
+    } catch {}
+    return prompt.exp;
+  })();
 
   return (
     <div className="bg-white rounded-lg border border-gray-100">
@@ -17,7 +30,7 @@ export function PromptViewer({ prompt }: PromptViewer.Props) {
       <div className="p-4">
         <textarea
           className="w-full h-32 p-3 border border-gray-300 rounded bg-gray-50 text-gray-900 text-xs font-mono resize-none focus:outline-none"
-          value={prompt.text}
+          value={text}
           readOnly
           placeholder="No prompt selected"
         />

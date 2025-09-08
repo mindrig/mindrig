@@ -262,13 +262,13 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     content: string;
     language: string;
   }) {
-    // Only parse TypeScript and JavaScript files
     if (
       ![
         "typescript",
         "javascript",
         "typescriptreact",
         "javascriptreact",
+        "python",
       ].includes(fileState.language)
     ) {
       this.#sendMessage({

@@ -22,13 +22,13 @@ pub fn assert_prompt_spans(src: &str, result: ParseResult) {
 
             for prompt in &prompts {
                 assert_eq!(
-                    &src[prompt.span.start as usize..prompt.span.end as usize],
+                    &src[prompt.span.outer.start as usize..prompt.span.outer.end as usize],
                     prompt.exp
                 );
 
                 for var in &prompt.vars {
                     assert_eq!(
-                        &src[var.span.start as usize..var.span.end as usize],
+                        &src[var.span.outer.start as usize..var.span.outer.end as usize],
                         var.exp
                     );
                 }

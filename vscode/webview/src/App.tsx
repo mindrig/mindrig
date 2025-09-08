@@ -23,8 +23,8 @@ function findPromptAtCursor(prompts: any[], cursorOffset?: number): any {
   return prompts.find(
     (prompt) =>
       prompt.span &&
-      cursorOffset >= prompt.span.start &&
-      cursorOffset <= prompt.span.end,
+      cursorOffset >= prompt.span.outer.start &&
+      cursorOffset <= prompt.span.outer.end,
   );
 }
 
@@ -159,12 +159,13 @@ export function App() {
         onUnpin={handleUnpin}
       />
 
-      <PromptViewer prompt={currentPrompt} />
+      <PromptViewer prompt={currentPrompt} fileContent={fileState?.content} />
 
       <PromptExecution
         prompt={currentPrompt}
         vscode={vscode}
         vercelGatewayKey={vercelGatewayKey}
+        fileContent={fileState?.content}
       />
 
       <DebugSection
