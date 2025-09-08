@@ -10,6 +10,6 @@ pub struct PromptVar {
 pub struct Prompt {
     pub file: String,
     pub span: super::span::Span,
-    pub text: String,
+    pub exp: String,
     pub vars: Vec<PromptVar>,
 }

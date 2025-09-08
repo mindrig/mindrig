@@ -6,6 +6,6 @@ PromptVar = {
 Prompt = {
   file: string
   span: ./span/Span,
-  text: string,
+  exp: string,
   vars: [PromptVar]
 }

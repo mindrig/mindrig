@@ -6,6 +6,6 @@ export interface PromptVar {
 export interface Prompt {
   file: string;
   span: import("./span.js").Span;
-  text: string;
+  exp: string;
   vars: Array<PromptVar>;
 }

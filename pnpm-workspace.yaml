@@ -17,5 +17,5 @@ onlyBuiltDependencies:
 overrides:
   "@mindcontrol/code-parser-wasm": workspace:*
   "@mindcontrol/code-types": workspace:*
-  "@mindcontrol/vscode-types": workspace:*
   "@mindcontrol/vscode-sync": workspace:*
+  "@mindcontrol/vscode-types": workspace:*
