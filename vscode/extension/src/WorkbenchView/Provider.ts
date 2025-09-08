@@ -177,7 +177,8 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         case "requestAttachmentPick":
           // remember filter preference for this pick operation
           try {
-            (this as any).lastAttachmentPickImagesOnly = !!(message as any).payload?.imagesOnly;
+            (this as any).lastAttachmentPickImagesOnly = !!(message as any)
+              .payload?.imagesOnly;
           } catch {}
           this.#handleRequestAttachmentPick();
           break;
@@ -231,12 +232,17 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         this.#modelsDevCache = await resp.json();
       }
-      this.#sendMessage({ type: "modelsDev", payload: { data: this.#modelsDevCache } });
+      this.#sendMessage({
+        type: "modelsDev",
+        payload: { data: this.#modelsDevCache },
+      });
     } catch (error) {
       console.error("Failed to fetch models.dev data:", error);
       this.#sendMessage({
         type: "modelsDev",
-        payload: { error: error instanceof Error ? error.message : String(error) },
+        payload: {
+          error: error instanceof Error ? error.message : String(error),
+        },
       });
     }
   }
@@ -473,11 +479,19 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         filters: {
           ...(imagesOnly
             ? { Images: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"] }
-            : { "All Files": ["*"], Images: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"] }),
+            : {
+                "All Files": ["*"],
+                Images: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"],
+              }),
         },
       });
       if (!uris || uris.length === 0) return;
-      const items: Array<{ path: string; name: string; mime: string; dataBase64: string }> = [];
+      const items: Array<{
+        path: string;
+        name: string;
+        mime: string;
+        dataBase64: string;
+      }> = [];
       for (const uri of uris) {
         const data = await vscode.workspace.fs.readFile(uri);
         const base64 = Buffer.from(data).toString("base64");
@@ -490,7 +504,9 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       console.error("Attachment selection failed:", error);
       this.#sendMessage({
         type: "attachmentsLoaded",
-        payload: { error: error instanceof Error ? error.message : String(error) },
+        payload: {
+          error: error instanceof Error ? error.message : String(error),
+        },
       });
     }
   }

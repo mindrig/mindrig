@@ -74,7 +74,8 @@ export class AIService {
     try {
       const gateway = createGateway({ apiKey: this.#apiKey });
 
-      const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
+      const hasAttachments =
+        Array.isArray(attachments) && attachments.length > 0;
 
       const genArgs: any = {
         model: gateway((modelId || "openai/gpt-5-mini") as any),
@@ -168,8 +169,12 @@ export class AIService {
         genArgs.prompt = promptText;
       }
 
-      const { request, response: { messages, ...response }, usage, totalUsage } =
-        await generateText(genArgs);
+      const {
+        request,
+        response: { messages, ...response },
+        usage,
+        totalUsage,
+      } = await generateText(genArgs);
 
       return {
         success: true,

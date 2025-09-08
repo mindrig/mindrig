@@ -36,7 +36,12 @@ export function PromptExecution({
   const [csvRows, setCsvRows] = useState<string[][]>([]);
   const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
   const [models, setModels] = useState<
-    Array<{ id: string; name?: string; modelType?: string | null; specification?: { provider?: string } }>
+    Array<{
+      id: string;
+      name?: string;
+      modelType?: string | null;
+      specification?: { provider?: string };
+    }>
   >([]);
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
   const [modelsLoading, setModelsLoading] = useState(false);
@@ -53,7 +58,9 @@ export function PromptExecution({
     seed?: number;
   }>({});
   const [reasoningEnabled, setReasoningEnabled] = useState(false);
-  const [reasoningEffort, setReasoningEffort] = useState<"low" | "medium" | "high">("medium");
+  const [reasoningEffort, setReasoningEffort] = useState<
+    "low" | "medium" | "high"
+  >("medium");
   const [reasoningBudget, setReasoningBudget] = useState<number | "">("");
   const [toolsJson, setToolsJson] = useState<string>("null");
   const [providerOptionsJson, setProviderOptionsJson] = useState<string>("{}");
@@ -262,7 +269,10 @@ export function PromptExecution({
   const handleAttachFiles = () => {
     if (!vscode) return;
     const caps = selectedModelCapabilities();
-    vscode.postMessage({ type: "requestAttachmentPick", payload: { imagesOnly: caps.supportsImages && !caps.supportsFiles } });
+    vscode.postMessage({
+      type: "requestAttachmentPick",
+      payload: { imagesOnly: caps.supportsImages && !caps.supportsFiles },
+    });
   };
 
   const handleClearAttachments = () => {
@@ -460,13 +470,20 @@ export function PromptExecution({
         variables,
         promptId,
         modelId: selectedModelId || undefined,
-        tools: selectedModelCapabilities().supportsTools ? tools ?? null : null,
+        tools: selectedModelCapabilities().supportsTools
+          ? (tools ?? null)
+          : null,
         providerOptions: (() => {
           const merged = providerOptions ?? {};
-          if (selectedModelCapabilities().supportsReasoning && reasoningEnabled) {
+          if (
+            selectedModelCapabilities().supportsReasoning &&
+            reasoningEnabled
+          ) {
             (merged as any).reasoning = {
               effort: reasoningEffort,
-              ...(reasoningBudget !== "" ? { budgetTokens: Number(reasoningBudget) } : {}),
+              ...(reasoningBudget !== ""
+                ? { budgetTokens: Number(reasoningBudget) }
+                : {}),
             };
           }
           return merged;
@@ -613,19 +630,29 @@ export function PromptExecution({
         {selectedModelEntry() && (
           <div className="flex items-center gap-2 text-[10px]">
             {selectedModelCapabilities().supportsImages && (
-              <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">Images</span>
+              <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                Images
+              </span>
             )}
             {selectedModelCapabilities().supportsVideo && (
-              <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">Video</span>
+              <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                Video
+              </span>
             )}
             {selectedModelCapabilities().supportsFiles && (
-              <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">Files</span>
+              <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                Files
+              </span>
             )}
             {selectedModelCapabilities().supportsTools && (
-              <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Tools</span>
+              <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Tools
+              </span>
             )}
             {selectedModelCapabilities().supportsReasoning && (
-              <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">Reasoning</span>
+              <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                Reasoning
+              </span>
             )}
           </div>
         )}
@@ -703,9 +730,14 @@ export function PromptExecution({
                 <div className="p-2 bg-gray-50 border border-gray-200 rounded">
                   <ul className="text-xs text-gray-700 space-y-1">
                     {attachments.map((a, i) => (
-                      <li key={`${a.path}-${i}`} className="flex justify-between">
+                      <li
+                        key={`${a.path}-${i}`}
+                        className="flex justify-between"
+                      >
                         <span className="truncate">{a.name}</span>
-                        <span className="text-gray-500 ml-2">{a.mime || ""}</span>
+                        <span className="text-gray-500 ml-2">
+                          {a.mime || ""}
+                        </span>
                       </li>
                     ))}
                   </ul>
