@@ -2,6 +2,24 @@ import { getModelCapabilities, setModelsDevData } from "@/modelsDevCaps";
 import { createGateway } from "@ai-sdk/gateway";
 import type { Prompt, PromptVar } from "@mindcontrol/code-types";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import JsonView, { ShouldExpandNodeInitially } from "@uiw/react-json-view";
+import MarkdownPreview from "@uiw/react-markdown-preview";
+
+const shouldExpandNodeInitially: ShouldExpandNodeInitially<object> = (
+  isExpanded,
+  props,
+) => {
+  const { value, level } = props;
+  const isArray = Array.isArray(value);
+  const isObject = typeof value === "object" && value !== null && !isArray;
+  if (isArray) {
+    return isExpanded || (Array.isArray(value) && value.length > 5);
+  }
+  if (isObject && level > 3) {
+    return true;
+  }
+  return isExpanded;
+};
 import { parseString as parseCsvString } from "smolcsv";
 
 export namespace PromptExecution {
@@ -24,6 +42,8 @@ interface RunResult {
   usage?: any;
   error?: string | null;
   label?: string;
+  text?: string | null;
+  prompt?: string | null;
 }
 
 interface ExecutionState {
@@ -94,9 +114,18 @@ export function PromptExecution({
   );
   const [rangeStart, setRangeStart] = useState<string>("");
   const [rangeEnd, setRangeEnd] = useState<string>("");
-  const [collapsedResults, setCollapsedResults] = useState<Record<number, boolean>>(
-    {},
-  );
+  const [collapsedResults, setCollapsedResults] = useState<
+    Record<number, boolean>
+  >({});
+  const [textViewTab, setTextViewTab] = useState<
+    Record<number, "raw" | "markdown">
+  >({});
+  const [expandedRequest, setExpandedRequest] = useState<
+    Record<number, boolean>
+  >({});
+  const [expandedResponse, setExpandedResponse] = useState<
+    Record<number, boolean>
+  >({});
 
   // Generate unique prompt ID for state persistence
   const promptId = prompt
@@ -208,7 +237,7 @@ export function PromptExecution({
           : undefined,
       generationOptions: generationOptions,
       lastResponse:
-        (executionState.results?.length || executionState.error)
+        executionState.results?.length || executionState.error
           ? {
               success:
                 executionState.results.length > 0 &&
@@ -792,8 +821,6 @@ export function PromptExecution({
           </div>
         )}
 
-        
-
         {/* Attachments and advanced config */}
         {(() => {
           const caps = selectedModelCapabilities();
@@ -922,7 +949,9 @@ export function PromptExecution({
             {usingCsv && (
               <>
                 <div className="space-y-2">
-                  <h5 className="text-sm font-medium text-gray-700">Run Scope</h5>
+                  <h5 className="text-sm font-medium text-gray-700">
+                    Run Scope
+                  </h5>
                   <div className="flex flex-wrap items-center gap-4 text-sm">
                     <label className="inline-flex items-center gap-1">
                       <input
@@ -959,7 +988,9 @@ export function PromptExecution({
 
                 {datasetMode === "row" && (
                   <div className="space-y-2">
-                    <h5 className="text-sm font-medium text-gray-700">Select Row</h5>
+                    <h5 className="text-sm font-medium text-gray-700">
+                      Select Row
+                    </h5>
                     <select
                       className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                       value={selectedRowIdx ?? ""}
@@ -1346,30 +1377,183 @@ export function PromptExecution({
                       )}
                       {res.request && (
                         <div className="space-y-2">
-                          <h5 className="text-sm font-medium text-gray-700">
-                            Request
-                          </h5>
-                          <div className="p-3 bg-gray-50 rounded border border-gray-300">
-                            <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono overflow-x-auto">
-                              {JSON.stringify(res.request, null, 2)}
-                            </pre>
+                          <div className="flex items-center justify-between">
+                            <h5 className="text-sm font-medium text-gray-700">
+                              Request
+                            </h5>
+                            <button
+                              className="text-xs text-blue-600 hover:underline"
+                              onClick={() =>
+                                setExpandedRequest((prev) => ({
+                                  ...prev,
+                                  [i]: !prev[i],
+                                }))
+                              }
+                            >
+                              {expandedRequest[i]
+                                ? "Hide request"
+                                : "Show request"}
+                            </button>
                           </div>
+                          {expandedRequest[i] && (
+                            <div className="p-3 bg-gray-50 rounded border border-gray-300 overflow-auto">
+                              <JsonView
+                                value={res.request as object}
+                                displayObjectSize={false}
+                                shouldExpandNodeInitially={
+                                  shouldExpandNodeInitially
+                                }
+                              />
+                            </div>
+                          )}
                         </div>
                       )}
-                      {res.response && (
+                      {(res.text || res.response || res.prompt) && (
                         <div className="space-y-2">
+                          {res.prompt && (
+                            <div className="space-y-1">
+                              <h5 className="text-sm font-medium text-gray-700">
+                                User Message
+                              </h5>
+                              <div className="p-3 bg-white rounded border border-gray-200">
+                                <pre className="text-xs whitespace-pre-wrap overflow-x-auto">
+                                  {res.prompt}
+                                </pre>
+                              </div>
+                            </div>
+                          )}
                           <h5 className="text-sm font-medium text-gray-700">
                             Response
                           </h5>
-                          <div className="p-3 bg-gray-50 rounded border border-gray-300">
-                            <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono overflow-x-auto">
-                              {JSON.stringify(res.response, null, 2)}
-                            </pre>
-                          </div>
+                          {/* Text message view (raw/markdown tabs) or JSON if text is JSON */}
+                          {(() => {
+                            const text = (res.text ?? "").trim();
+                            let parsedTextJson: any = null;
+                            if (text) {
+                              try {
+                                parsedTextJson = JSON.parse(text);
+                              } catch {}
+                            }
+
+                            if (parsedTextJson) {
+                              return (
+                                <div className="space-y-2">
+                                  <div className="p-3 bg-gray-50 rounded border border-gray-300 overflow-auto">
+                                    <JsonView
+                                      value={parsedTextJson}
+                                      displayObjectSize={false}
+                                      shouldExpandNodeInitially={
+                                        shouldExpandNodeInitially
+                                      }
+                                    />
+                                  </div>
+                                  {/* Optional raw view for the original JSON text */}
+                                  <details className="text-xs">
+                                    <summary className="cursor-pointer select-none text-gray-600">
+                                      Raw text
+                                    </summary>
+                                    <pre className="mt-1 p-2 bg-white rounded border border-gray-200 whitespace-pre-wrap overflow-x-auto text-xs">
+                                      {text}
+                                    </pre>
+                                  </details>
+                                </div>
+                              );
+                            }
+
+                            if (text) {
+                              const tab = textViewTab[i] ?? "markdown";
+                              return (
+                                <div className="space-y-2">
+                                  <div className="flex gap-2 text-xs">
+                                    <button
+                                      className={`px-2 py-1 border rounded ${
+                                        tab === "markdown"
+                                          ? "bg-white border-gray-400"
+                                          : "bg-gray-100 border-gray-300"
+                                      }`}
+                                      onClick={() =>
+                                        setTextViewTab((prev) => ({
+                                          ...prev,
+                                          [i]: "markdown",
+                                        }))
+                                      }
+                                    >
+                                      Markdown
+                                    </button>
+                                    <button
+                                      className={`px-2 py-1 border rounded ${
+                                        tab === "raw"
+                                          ? "bg-white border-gray-400"
+                                          : "bg-gray-100 border-gray-300"
+                                      }`}
+                                      onClick={() =>
+                                        setTextViewTab((prev) => ({
+                                          ...prev,
+                                          [i]: "raw",
+                                        }))
+                                      }
+                                    >
+                                      Raw
+                                    </button>
+                                  </div>
+                                  {tab === "markdown" ? (
+                                    <div className="p-3 bg-white rounded border border-gray-200">
+                                      <MarkdownPreview source={text} />
+                                    </div>
+                                  ) : (
+                                    <div className="p-3 bg-white rounded border border-gray-200">
+                                      <pre className="text-xs whitespace-pre-wrap overflow-x-auto">
+                                        {text}
+                                      </pre>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            }
+
+                            return null;
+                          })()}
+
+                          {/* Response metadata/object JSON (collapsed by default) */}
+                          {res.response && (
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between">
+                                <h6 className="text-xs font-medium text-gray-600">
+                                  Response JSON
+                                </h6>
+                                <button
+                                  className="text-xs text-blue-600 hover:underline"
+                                  onClick={() =>
+                                    setExpandedResponse((prev) => ({
+                                      ...prev,
+                                      [i]: !prev[i],
+                                    }))
+                                  }
+                                >
+                                  {expandedResponse[i]
+                                    ? "Hide response"
+                                    : "Show response"}
+                                </button>
+                              </div>
+                              {expandedResponse[i] && (
+                                <div className="p-3 bg-gray-50 rounded border border-gray-300 overflow-auto">
+                                  <JsonView
+                                    value={res.response as object}
+                                    displayObjectSize={false}
+                                    shouldExpandNodeInitially={
+                                      shouldExpandNodeInitially
+                                    }
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )}
                           <PricingInfo
                             usage={res.usage}
                             selectedModel={
-                              models.find((m) => m.id === selectedModelId) as any
+                              models.find(
+                                (m) => m.id === selectedModelId,
+                              ) as any
                             }
                           />
                         </div>

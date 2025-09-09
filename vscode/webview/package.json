@@ -24,6 +24,8 @@
     "@mindcontrol/code-types": "workspace:*",
     "@mindcontrol/vscode-sync": "workspace:*",
     "@mindcontrol/vscode-types": "workspace:*",
+    "@uiw/react-json-view": "2.0.0-alpha.37",
+    "@uiw/react-markdown-preview": "^5.1.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "smolcsv": "^0.1.0",

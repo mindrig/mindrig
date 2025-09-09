@@ -659,15 +659,16 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     this.#aiService!.setApiKey(apiKey);
 
     try {
-      const runs = Array.isArray(payload.runs) && payload.runs.length
-        ? payload.runs
-        : [
-            {
-              label: "Run 1",
-              variables: payload.variables || {},
-              substitutedPrompt: payload.substitutedPrompt,
-            },
-          ];
+      const runs =
+        Array.isArray(payload.runs) && payload.runs.length
+          ? payload.runs
+          : [
+              {
+                label: "Run 1",
+                variables: payload.variables || {},
+                substitutedPrompt: payload.substitutedPrompt,
+              },
+            ];
 
       const results = await Promise.all(
         runs.map(async (r) => {
@@ -689,12 +690,18 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
               response: result.response,
               usage: (result as any).usage,
               totalUsage: (result as any).totalUsage,
+              // Surface assistant text output when available
+              text: (result as any).text,
+              // Include the user message that was sent
+              prompt: r.substitutedPrompt,
               label: r.label,
             } as const;
           } else {
             return {
               success: false,
               error: result.error,
+              // Include the user message that was intended to be sent
+              prompt: r.substitutedPrompt,
               label: r.label,
             } as const;
           }

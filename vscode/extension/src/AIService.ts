@@ -170,6 +170,7 @@ export class AIService {
       }
 
       const {
+        text,
         request,
         response: { messages, ...response },
         usage,
@@ -182,6 +183,9 @@ export class AIService {
         response,
         usage,
         totalUsage,
+        // Include assistant text output so webview can render markdown/raw
+        // without needing to inspect provider-specific response shapes.
+        ...(typeof text === "string" ? { text } : {}),
       };
     } catch (error) {
       console.error("AI Service error:", error);
