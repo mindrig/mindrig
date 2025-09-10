@@ -52,12 +52,14 @@ ensure_file() {
 	file="$HOME/$1"
 	content="$2"
 	echo "🔹 $file"
+	mkdir -p "$(dirname "$file")"
 	[ -f "$file" ] || echo "$content" >"$file"
 }
 
 ensure_file ".cargo/credentials.toml"
 ensure_file ".codex/auth.json" "{}"
 ensure_file ".npmrc"
+ensure_file ".config/mothership/.env"
 
 echo
 

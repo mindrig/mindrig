@@ -9,6 +9,7 @@
 
   "mounts": [
     // Mount credentials from host machine:
+    "source=${localEnv:HOME}/.config/mothership/.env,target=/home/vscode/.config/mothership/.env,type=bind",
     "source=${localEnv:HOME}/.cargo/credentials.toml,target=/home/vscode/.cargo/credentials.toml,type=bind",
     "source=${localEnv:HOME}/.npmrc,target=/home/vscode/.npmrc,type=bind",
     "source=${localEnv:HOME}/.codex/auth.json,target=/home/vscode/.codex/auth.json,type=bind",
