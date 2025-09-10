@@ -4,6 +4,9 @@
 
 set -e
 
+# Make sure mise is activated
+eval "$(mise activate bash --shims)"
+
 # Pull git submodules
 if [ -d .git ]; then
   git submodule update --recursive --init --remote
