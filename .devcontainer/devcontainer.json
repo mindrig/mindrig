@@ -9,16 +9,16 @@
 
   "mounts": [
     // Mount credentials from host machine:
-    "source=${localEnv:HOME}/.config/mothership/.env,target=/home/vscode/.config/mothership/.env,type=bind",
-    "source=${localEnv:HOME}/.cargo/credentials.toml,target=/home/vscode/.cargo/credentials.toml,type=bind",
-    "source=${localEnv:HOME}/.npmrc,target=/home/vscode/.npmrc,type=bind",
-    "source=${localEnv:HOME}/.codex/auth.json,target=/home/vscode/.codex/auth.json,type=bind",
+    "source=${localEnv:HOME}/.config/mothership/.env,target=/home/vscode/.config/mothership/.env,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.cargo/credentials.toml,target=/home/vscode/.cargo/credentials.toml,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.npmrc,target=/home/vscode/.npmrc,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.codex/auth.json,target=/home/vscode/.codex/auth.json,type=bind,consistency=cached",
     // Mount state directories from local directory:
-    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.cache,target=/home/vscode/.cache,type=bind",
-    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.local/share,target=/home/vscode/.local/share,type=bind",
-    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.local/state,target=/home/vscode/.local/state,type=bind",
-    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.rustup,target=/home/vscode/.rustup,type=bind",
-    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.codex/sessions,target=/home/vscode/.codex/sessions,type=bind"
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.cache,target=/home/vscode/.cache,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.local/share,target=/home/vscode/.local/share,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.local/state,target=/home/vscode/.local/state,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.rustup,target=/home/vscode/.rustup,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.codex/sessions,target=/home/vscode/.codex/sessions,type=bind,consistency=cached"
     // NOTE: When adding new mounts, make sure to also update ./Dockerfile to ensure the directories
   ],
 
