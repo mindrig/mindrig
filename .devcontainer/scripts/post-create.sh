@@ -9,6 +9,9 @@ source ~/.config/mothership/.env || true
 # Make sure mise is activated
 eval "$(mise activate bash --shims)"
 
+# Make sure pnpm is installed
+yes | pnpm install
+
 # Install xvfb and dbus to run VS Code
 sudo apt install -y xvfb dbus-x11
 
