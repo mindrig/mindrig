@@ -20,6 +20,7 @@ dirs=(
 	".cache"
 	".local/share"
 	".local/state"
+	".rustup"
 	".codex/sessions"
 )
 

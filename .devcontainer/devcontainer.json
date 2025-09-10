@@ -17,6 +17,7 @@
     "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.cache,target=/home/vscode/.cache,type=bind",
     "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.local/share,target=/home/vscode/.local/share,type=bind",
     "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.local/state,target=/home/vscode/.local/state,type=bind",
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.rustup,target=/home/vscode/.rustup,type=bind",
     "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.codex/sessions,target=/home/vscode/.codex/sessions,type=bind"
     // NOTE: When adding new mounts, make sure to also update ./Dockerfile to ensure the directories
   ],
