@@ -1,4 +1,5 @@
 import type { Prompt } from "@mindcontrol/code-types";
+import { Button } from "@wrkspc/ds";
 import { useState } from "react";
 import { CodeEditor } from "./CodeEditor";
 import { SettingsPanel } from "./SettingsPanel";
@@ -51,12 +52,14 @@ export function DebugSection(props: DebugSection.Props) {
   return (
     <div className="space-y-4">
       <div className="flex justify-center">
-        <button
+        <Button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-1 px-2 py-1 text-xs text-gray-800 border border-gray-300 hover:border-gray-400 rounded transition-colors bg-transparent"
+          size="small"
+          style="transparent"
+          color="secondary"
         >
           {isExpanded ? "Hide Debug" : "Show Debug"}
-        </button>
+        </Button>
       </div>
 
       {isExpanded && (

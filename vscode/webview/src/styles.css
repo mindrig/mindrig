@@ -1,1 +1,23 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@config "../tailwind.config.ts";
+@plugin "@tailwindcss/typography";
+@plugin "tailwindcss-react-aria-components";
+@plugin "tailwind-scrollbar" {
+  nocompatible: true;
+}
+
+:placeholder-shown {
+  font-style: italic;
+  font-weight: 400;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .flex > * {
+    min-width: 0;
+  }
+}
