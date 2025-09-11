@@ -7,6 +7,8 @@ packages:
   - parser/pkg
   - types
   - types/pkg/ts
+  - pkgs/*
+  - subs/*/pkgs/*
 
 onlyBuiltDependencies:
   - "@tailwindcss/oxide"

@@ -5,5 +5,8 @@
     "vscode/extension/out": true,
     "vscode/extension/.vscode-test": true
   },
-  "typescript.tsc.autoDetect": "off"
+  "typescript.tsc.autoDetect": "off",
+  "files.associations": {
+    "**/pkgs/ts/base.json": "jsonc"
+  }
 }

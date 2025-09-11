@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Base",
+  "include": [
+    "${configDir}/*.ts",
+    "${configDir}/src/**/*.ts",
+    "${configDir}/src/**/*.tsx",
+    "${configDir}/tests/**/*.ts",
+    "${configDir}/tests/**/*.tsx",
+    "${configDir}/scripts/**/*.ts",
+    "${configDir}/scripts/**/*.tsx"
+  ],
+  "compilerOptions": {
+    // Resolve
+    "rootDir": "${configDir}/.",
+    "baseUrl": "${configDir}/.",
+    "paths": {
+      "@": ["${configDir}/src"]
+    },
+    // Output
+    "target": "esnext",
+    "outDir": "${configDir}/.ts",
+    "tsBuildInfoFile": "${configDir}/.ts/tsconfig.tsbuildinfo",
+    "noEmit": true,
+    // Modules
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "allowImportingTsExtensions": false,
+    // Env
+    "lib": ["ESNext"],
+    "jsx": "react-jsx",
+    // Checks
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true
+  }
+}
