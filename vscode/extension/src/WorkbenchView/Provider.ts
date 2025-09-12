@@ -1,3 +1,4 @@
+import { setAuthContext } from "@/auth";
 import { parsePrompts } from "@mindcontrol/code-parser-wasm";
 import type { SyncMessage, SyncResource } from "@mindcontrol/vscode-sync";
 import * as vscode from "vscode";
@@ -47,6 +48,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
   #webview: vscode.Webview | null = null;
   #currentResourcePath: string | null = null;
+  #pendingOpenVercelPanel = false;
 
   public resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -89,6 +91,11 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
     this.#sendSettings();
     this.#sendVercelGatewayKey();
+
+    if (this.#pendingOpenVercelPanel) {
+      this.#sendMessage({ type: "openVercelGatewayPanel" });
+      this.#pendingOpenVercelPanel = false;
+    }
 
     // Send initial prompts if we have a current file
     if (this.#fileManager) {
@@ -249,6 +256,12 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
   #sendMessage(message: any) {
     if (this.#webview) this.#webview.postMessage(message);
+  }
+
+  // Exposed to extension.ts to open the API key panel
+  public openVercelGatewayPanel() {
+    if (this.#webview) this.#sendMessage({ type: "openVercelGatewayPanel" });
+    else this.#pendingOpenVercelPanel = true;
   }
 
   //#endregion
@@ -560,11 +573,17 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   #initializeSecretManager() {
     this.#secretManager = new SecretManager(this.#context.secrets, {
       onSecretChanged: (secret) => {
+        setAuthContext({ loggedIn: !!secret });
+
         this.#sendMessage({
           type: "vercelGatewayKeyChanged",
           payload: { vercelGatewayKey: secret || null },
         });
       },
+    });
+
+    this.#secretManager.getSecret().then((secret) => {
+      setAuthContext({ loggedIn: !!secret });
     });
   }
 
@@ -585,6 +604,11 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   async #handleClearVercelGatewayKey() {
     if (!this.#secretManager) return;
     await this.#secretManager.clearSecret();
+  }
+
+  // Exposed to extension.ts to clear the stored key
+  public async clearVercelGatewayKey() {
+    await this.#handleClearVercelGatewayKey();
   }
 
   //#endregion

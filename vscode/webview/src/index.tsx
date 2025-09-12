@@ -35,6 +35,7 @@ function Inner() {
   return (
     <RouterProvider navigate={navigate} useHref={useHref}>
       <Routes>
+        <Route path="/index.html" element={<App />} />
         <Route path="/" element={<App />} />
       </Routes>
     </RouterProvider>

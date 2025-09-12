@@ -1,8 +1,8 @@
 {
-  "name": "@mindcontrol/vscode-sync",
+  "name": "@wrkspc/lang",
   "private": true,
   "version": "0.1.0",
-  "description": "Mind Control Code VS Code extension synchronization logic",
+  "description": "Mind Rig language aspect",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
@@ -17,14 +17,10 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@wrkspc/ts": "workspace:*",
     "oxlint": "^1.13.0",
     "prettier": "^3.6.2",
-    "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
-  "dependencies": {
-    "yjs": "^13.6.27",
-    "@mindcontrol/vscode-types": "workspace:*",
-    "@wrkspc/lang": "workspace:*"
-  }
+  "dependencies": {}
 }

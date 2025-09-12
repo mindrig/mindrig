@@ -50,8 +50,8 @@ export function workbenchWebviewHtml(props: WorkbenchWebviewHtmlProps): string {
 ${renderInjects(headInjects)}
     <title>Mind Control Code</title>
   </head>
-  <body class="bg-gray-100">
-    <div id="root" class="min-h-screen"></div>
+  <body>
+    <div id="root"></div>
 ${renderInjects(bodyInjects)}
   </body>
 </html>`;

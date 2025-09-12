@@ -7,6 +7,7 @@
   },
   "typescript.tsc.autoDetect": "off",
   "files.associations": {
-    "**/pkgs/ts/base.json": "jsonc"
+    "**/pkgs/ts/base.json": "jsonc",
+    "*.css": "tailwindcss"
   }
 }

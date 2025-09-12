@@ -1,8 +1,8 @@
 {
   "name": "vscode",
   "publisher": "mindcontrol",
-  "displayName": "Mind Control Code",
-  "description": "Mind Control Code extension for VS Code",
+  "displayName": "Mind Rig",
+  "description": "Mind Rig extension for VS Code",
   "version": "0.1.0",
   "repository": {
     "type": "git",
@@ -24,10 +24,25 @@
       {
         "command": "mindcontrol.addItWorks",
         "title": "Add 'It works!' comment"
+      },
+      {
+        "command": "mindrig.logIn",
+        "title": "Log In",
+        "icon": "$(unlock)"
+      },
+      {
+        "command": "mindrig.logOut",
+        "title": "Log Out",
+        "icon": "$(lock)"
+      },
+      {
+        "command": "mindrig.showProfile",
+        "title": "Show Profile",
+        "icon": "$(account)"
       }
     ],
     "configuration": {
-      "title": "Mind Control Code",
+      "title": "Mind Rig",
       "properties": {
         "mindcontrol.exampleSetting": {
           "type": "string",
@@ -55,7 +70,7 @@
       "mindcontrol-workbench": [
         {
           "id": "mindcontrol.workbench",
-          "name": "Mind Control Code",
+          "name": "Playground",
           "when": "true",
           "type": "webview",
           "icon": "$(extensions)"
@@ -66,8 +81,37 @@
       "activitybar": [
         {
           "id": "mindcontrol-workbench",
-          "title": "Mind Control Code",
+          "title": "Mind Rig",
           "icon": "$(extensions)"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "mindrig.logIn",
+          "when": "view == mindcontrol.workbench && !mindrig.auth.loggedIn",
+          "group": "navigation"
+        },
+        {
+          "command": "mindrig.showProfile",
+          "when": "view == mindcontrol.workbench && mindrig.auth.loggedIn",
+          "group": "navigation"
+        },
+        {
+          "command": "mindrig.logOut",
+          "when": "view == mindcontrol.workbench"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "mindcontrol.addItWorks",
+          "when": "view == mindcontrol.workbench",
+          "group": "inline"
+        },
+        {
+          "command": "mindcontrol.addItWorks",
+          "when": "view == mindcontrol.workbench"
         }
       ]
     }
@@ -115,6 +159,7 @@
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.6.0",
+    "@wrkspc/lang": "workspace:*",
     "oxlint": "^1.13.0",
     "playwright-core": "^1.55.0",
     "prettier": "^3.6.2",

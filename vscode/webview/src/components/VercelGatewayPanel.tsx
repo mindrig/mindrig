@@ -5,6 +5,7 @@ export namespace VercelGatewayPanel {
     vercelGatewayKey: string | null;
     onVercelGatewayKeyChange: (key: string) => void;
     onClearVercelGatewayKey: () => void;
+    openSignal?: number;
   }
 }
 
@@ -13,6 +14,7 @@ export function VercelGatewayPanel(props: VercelGatewayPanel.Props) {
     vercelGatewayKey,
     onVercelGatewayKeyChange,
     onClearVercelGatewayKey,
+    openSignal = 0,
   } = props;
   const [inputValue, setInputValue] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -22,6 +24,11 @@ export function VercelGatewayPanel(props: VercelGatewayPanel.Props) {
     setInputValue(vercelGatewayKey || "");
     setHasKey(!!vercelGatewayKey);
   }, [vercelGatewayKey]);
+
+  // Open on explicit signal from extension commands
+  useEffect(() => {
+    if (openSignal > 0) setIsExpanded(true);
+  }, [openSignal]);
 
   const handleSave = () => {
     if (inputValue.trim()) {
@@ -38,13 +45,6 @@ export function VercelGatewayPanel(props: VercelGatewayPanel.Props) {
     setIsExpanded(false);
   };
 
-  const handleToggle = () => {
-    setIsExpanded(!isExpanded);
-    if (!isExpanded && !hasKey) {
-      setInputValue("");
-    }
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSave();
     else if (e.key === "Escape") setIsExpanded(false);
@@ -52,33 +52,7 @@ export function VercelGatewayPanel(props: VercelGatewayPanel.Props) {
 
   return (
     <div className="space-y-3">
-      {/* Top Panel */}
-      <div className="flex items-center justify-between py-2 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-gray-800">Mind Control Code</h1>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleToggle}
-            className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 transition-colors"
-          >
-            <span>Vercel Gateway</span>
-            <div
-              className={`w-2 h-2 rounded-full ${
-                hasKey ? "bg-green-400" : "bg-red-400"
-              }`}
-            />
-          </button>
-          {!hasKey && (
-            <button
-              onClick={() => setIsExpanded(true)}
-              className="px-3 py-1 text-sm text-gray-700 border border-gray-300 rounded hover:border-gray-400 transition-colors"
-            >
-              Login
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Expandable Form */}
+      {/* API Key Form (no topbar) */}
       {isExpanded && (
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">

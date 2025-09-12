@@ -42,9 +42,46 @@ export function activate(context: vscode.ExtensionContext) {
     }),
   );
 
+  const logInDisposable = vscode.commands.registerCommand(
+    "mindrig.logIn",
+    async () => {
+      await vscode.commands.executeCommand(
+        "workbench.view.extension.mindcontrol-workbench",
+      );
+      // Open the Vercel Gateway API Key panel in the webview
+      try {
+        (webviewProvider as any).openVercelGatewayPanel?.();
+      } catch {}
+    },
+  );
+
+  const logOutDisposable = vscode.commands.registerCommand(
+    "mindrig.logOut",
+    async () => {
+      try {
+        (webviewProvider as any).clearVercelGatewayKey?.();
+      } catch {}
+    },
+  );
+
+  const showProfileDisposable = vscode.commands.registerCommand(
+    "mindrig.showProfile",
+    async () => {
+      await vscode.commands.executeCommand(
+        "workbench.view.extension.mindcontrol-workbench",
+      );
+      try {
+        (webviewProvider as any).openVercelGatewayPanel?.();
+      } catch {}
+    },
+  );
+
   context.subscriptions.push(
     showWorkbenchDisposable,
     addItWorksDisposable,
+    logInDisposable,
+    logOutDisposable,
+    showProfileDisposable,
     webviewProvider,
   );
 }

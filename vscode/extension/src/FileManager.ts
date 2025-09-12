@@ -1,28 +1,16 @@
+import { SyncFile } from "@mindcontrol/vscode-sync";
+import { Language, languageIdFromExt } from "@wrkspc/lang";
 import * as vscode from "vscode";
-
-export interface FileManagerCursorPosition {
-  offset: number;
-  line: number;
-  character: number;
-}
-
-export interface FileManagerFileState {
-  path: string;
-  content: string;
-  isDirty: boolean;
-  lastSaved?: Date | undefined;
-  language: string;
-  cursorPosition?: FileManagerCursorPosition | undefined;
-}
+import { fileExtFromPath } from "./aspects/file";
 
 export interface FileManagerEvents {
-  onActiveFileChanged: (fileState: FileManagerFileState | null) => void;
-  onFileContentChanged: (fileState: FileManagerFileState) => void;
-  onFileSaved: (fileState: FileManagerFileState) => void;
-  onCursorPositionChanged: (fileState: FileManagerFileState) => void;
+  onActiveFileChanged: (fileState: SyncFile.State | null) => void;
+  onFileContentChanged: (fileState: SyncFile.State) => void;
+  onFileSaved: (fileState: SyncFile.State) => void;
+  onCursorPositionChanged: (fileState: SyncFile.State) => void;
   onPinStateChanged: (
-    pinnedFile: FileManagerFileState | null,
-    activeFile: FileManagerFileState | null,
+    pinnedFile: SyncFile.State | null,
+    activeFile: SyncFile.State | null,
   ) => void;
 }
 
@@ -89,9 +77,9 @@ export class FileManager {
 
   //#region File
 
-  #activeFile: FileManagerFileState | null = null;
+  #activeFile: SyncFile.State | null = null;
 
-  getCurrentFile(): FileManagerFileState | null {
+  getCurrentFile(): SyncFile.State | null {
     return this.#activeFile;
   }
 
@@ -99,14 +87,15 @@ export class FileManager {
   //   return this.#isPinned ? this.#pinnedFile : this.#activeFile;
   // }
 
-  #isSupportedFile(document: vscode.TextDocument): boolean {
-    const fileName = document.fileName.toLowerCase();
-    return FileManager.supportedExtensions.some((ext) =>
-      fileName.endsWith(ext),
-    );
+  #detectFileLang(document: vscode.TextDocument): Language.Id | undefined {
+    const ext = fileExtFromPath(document.fileName);
+    return languageIdFromExt(ext);
   }
 
-  #createFileState(document: vscode.TextDocument): FileManagerFileState {
+  #createFileState(
+    document: vscode.TextDocument,
+    languageId: Language.Id,
+  ): SyncFile.State {
     const editor = vscode.window.activeTextEditor;
     let cursorPosition;
 
@@ -121,8 +110,8 @@ export class FileManager {
       content: document.getText(),
       isDirty: document.isDirty,
       lastSaved: document.isDirty ? undefined : new Date(),
-      language: document.languageId,
-      cursorPosition,
+      languageId,
+      cursor: cursorPosition,
     };
   }
 
@@ -131,7 +120,8 @@ export class FileManager {
   //#region Active editor
 
   #handleActiveEditorChange(editor: vscode.TextEditor | undefined) {
-    if (!editor || !this.#isSupportedFile(editor.document)) {
+    const languageId = editor && this.#detectFileLang(editor.document);
+    if (!languageId) {
       this.#activeFile = null;
       if (!this.#isPinned) this.#events.onActiveFileChanged(null);
       else
@@ -141,7 +131,7 @@ export class FileManager {
       return;
     }
 
-    this.#activeFile = this.#createFileState(editor.document);
+    this.#activeFile = this.#createFileState(editor.document, languageId);
     if (!this.#isPinned) this.#events.onActiveFileChanged(this.#activeFile);
     else
       // Always send pin state change to update active file info when pinned
@@ -177,7 +167,7 @@ export class FileManager {
         content: event.document.getText(),
         isDirty: event.document.isDirty,
         // Keep the pinned cursor position unchanged
-        cursorPosition: this.#pinnedCursorPosition || undefined,
+        cursor: this.#pinnedCursorPosition || undefined,
       };
 
       // Send updated pinned file state
@@ -212,7 +202,7 @@ export class FileManager {
         isDirty: false,
         lastSaved: new Date(),
         // Keep the pinned cursor position unchanged
-        cursorPosition: this.#pinnedCursorPosition || undefined,
+        cursor: this.#pinnedCursorPosition || undefined,
       };
 
       // Send updated pinned file state
@@ -238,7 +228,7 @@ export class FileManager {
       position,
     );
 
-    this.#activeFile = { ...this.#activeFile, cursorPosition };
+    this.#activeFile = { ...this.#activeFile, cursor: cursorPosition };
 
     if (this.#isPinned)
       this.#events.onPinStateChanged(this.#pinnedFile, this.#activeFile);
@@ -248,7 +238,7 @@ export class FileManager {
   #convertCursorPosition(
     document: vscode.TextDocument,
     position: vscode.Position,
-  ): FileManagerCursorPosition {
+  ): SyncFile.Cursor {
     const offset = document.offsetAt(position);
     const { line, character } = position;
     return { offset, line, character };
@@ -258,9 +248,9 @@ export class FileManager {
 
   //#region Pinning
 
-  #pinnedFile: FileManagerFileState | null = null;
+  #pinnedFile: SyncFile.State | null = null;
   #pinnedFilePath: string | null = null;
-  #pinnedCursorPosition: FileManagerCursorPosition | null = null;
+  #pinnedCursorPosition: SyncFile.Cursor | null = null;
   #isPinned: boolean = false;
 
   pinCurrentFile(): boolean {
@@ -268,8 +258,8 @@ export class FileManager {
 
     this.#pinnedFile = { ...this.#activeFile };
     this.#pinnedFilePath = this.#activeFile.path;
-    this.#pinnedCursorPosition = this.#activeFile.cursorPosition
-      ? { ...this.#activeFile.cursorPosition }
+    this.#pinnedCursorPosition = this.#activeFile.cursor
+      ? { ...this.#activeFile.cursor }
       : null;
     this.#isPinned = true;
     this.#events.onPinStateChanged(this.#pinnedFile, this.#activeFile);
@@ -291,7 +281,7 @@ export class FileManager {
     return this.#isPinned;
   }
 
-  getPinnedFile(): FileManagerFileState | null {
+  getPinnedFile(): SyncFile.State | null {
     return this.#pinnedFile;
   }
 
@@ -301,7 +291,7 @@ export class FileManager {
 
   async addCommentToActiveFile(comment: string): Promise<boolean> {
     const editor = vscode.window.activeTextEditor;
-    if (!editor || !this.#isSupportedFile(editor.document)) return false;
+    if (!editor || !this.#detectFileLang(editor.document)) return false;
 
     const document = editor.document;
     const lastLine = document.lineAt(document.lineCount - 1);

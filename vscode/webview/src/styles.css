@@ -3,8 +3,10 @@
 @config "../tailwind.config.ts";
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-react-aria-components";
-@plugin "tailwind-scrollbar" {
-  nocompatible: true;
+
+@theme {
+  --color-canvas-bg: var(--vscode-sideBar-background);
+  --color-canvas-fg: var(--vscode-sideBar-foreground);
 }
 
 :placeholder-shown {

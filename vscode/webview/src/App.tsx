@@ -45,6 +45,7 @@ export function App() {
   const [syncMessageHandler, setSyncMessageHandler] = useState<
     ((message: any) => void) | null
   >(null);
+  const [vercelPanelOpenSignal, setVercelPanelOpenSignal] = useState(0);
 
   useEffect(() => {
     if (!vscode) return;
@@ -83,6 +84,9 @@ export function App() {
           break;
         case "vercelGatewayKeyChanged":
           setVercelGatewayKey(message.payload.vercelGatewayKey);
+          break;
+        case "openVercelGatewayPanel":
+          setVercelPanelOpenSignal((n) => n + 1);
           break;
         case "promptsChanged":
           setPrompts(message.payload.prompts);
@@ -141,11 +145,12 @@ export function App() {
   }, [prompts, activeFile, pinnedFile, isPinned]);
 
   return (
-    <div className="h-full bg-gradient-to-br from-purple-50 to-blue-50 p-4 space-y-4 overflow-y-auto">
+    <div>
       <VercelGatewayPanel
         vercelGatewayKey={vercelGatewayKey}
         onVercelGatewayKeyChange={handleVercelGatewayKeyChange}
         onClearVercelGatewayKey={handleClearVercelGatewayKey}
+        openSignal={vercelPanelOpenSignal}
       />
 
       <ActiveFile

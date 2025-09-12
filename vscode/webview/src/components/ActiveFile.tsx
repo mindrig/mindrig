@@ -1,41 +1,11 @@
+import { LanguageIcon } from "@/aspects/language/Icon";
+import { SyncFile } from "@mindcontrol/vscode-sync";
+
 export namespace ActiveFile {
   export interface Props {
-    fileState: {
-      path: string;
-      content: string;
-      isDirty: boolean;
-      lastSaved?: Date;
-      language: string;
-      cursorPosition?: {
-        line: number;
-        character: number;
-        offset?: number;
-      };
-    } | null;
-    pinnedFile?: {
-      path: string;
-      content: string;
-      isDirty: boolean;
-      lastSaved?: Date;
-      language: string;
-      cursorPosition?: {
-        line: number;
-        character: number;
-        offset?: number;
-      };
-    } | null;
-    activeFile?: {
-      path: string;
-      content: string;
-      isDirty: boolean;
-      lastSaved?: Date;
-      language: string;
-      cursorPosition?: {
-        line: number;
-        character: number;
-        offset?: number;
-      };
-    } | null;
+    fileState: SyncFile.State | null;
+    pinnedFile?: SyncFile.State | null;
+    activeFile?: SyncFile.State | null;
     isPinned?: boolean;
     parseStatus?: "success" | "error";
     parseError?: string | null;
@@ -71,7 +41,11 @@ export function ActiveFile(props: ActiveFile.Props) {
       </div>
     );
 
-  const renderFileCard = (file: any, title: string, isPinnedView: boolean) => {
+  const renderFileCard = (
+    file: SyncFile.State,
+    title: string,
+    isPinnedView: boolean,
+  ) => {
     if (!file) return null;
 
     const relativePath = file.path.includes("/")
@@ -89,6 +63,8 @@ export function ActiveFile(props: ActiveFile.Props) {
       <div className={`bg-white rounded-lg p-4 border ${borderClass}`}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 mr-2 min-w-0 flex-1">
+            <LanguageIcon id={file.languageId} size="small" />
+
             <h3
               className="font-semibold text-gray-800 truncate"
               title={file.path}
@@ -110,9 +86,7 @@ export function ActiveFile(props: ActiveFile.Props) {
                 Unsaved
               </span>
             )}
-            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-              {file.language}
-            </span>
+
             <button
               onClick={isPinnedView ? onUnpin : onPin}
               disabled={!file}
@@ -126,13 +100,12 @@ export function ActiveFile(props: ActiveFile.Props) {
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>
             {file.content.split("\n").length} lines
-            {file.cursorPosition && (
+            {file.cursor && (
               <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-700 rounded">
-                Ln {file.cursorPosition.line}, Col{" "}
-                {file.cursorPosition.character}
-                {file.cursorPosition.offset !== undefined && (
+                Ln {file.cursor.line}, Col {file.cursor.character}
+                {file.cursor.offset !== undefined && (
                   <span className="ml-1 text-gray-600">
-                    (offset: {file.cursorPosition.offset})
+                    (offset: {file.cursor.offset})
                   </span>
                 )}
               </span>
@@ -158,10 +131,9 @@ export function ActiveFile(props: ActiveFile.Props) {
             <span className="text-xs font-medium text-gray-800">
               {activeFile.path.split("/").pop()}
             </span>
-            {activeFile.cursorPosition && (
+            {activeFile.cursor && (
               <span className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded">
-                Ln {activeFile.cursorPosition.line}, Col{" "}
-                {activeFile.cursorPosition.character}
+                Ln {activeFile.cursor.line}, Col {activeFile.cursor.character}
               </span>
             )}
           </div>

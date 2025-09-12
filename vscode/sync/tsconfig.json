@@ -1,5 +1,10 @@
 {
-  "include": ["./*.ts", "./src/**/*.ts", "./src/**/*.tsx"],
+  "include": [
+    "./*.ts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "../types/src/language.ts"
+  ],
   "compilerOptions": {
     // Resolve
     "rootDir": ".",

@@ -44,7 +44,8 @@
         "vadimcn.vscode-lldb",
         "Vercel.turbo-vsc",
         "mitsuhiko.insta",
-        "oxc.oxc-vscode"
+        "oxc.oxc-vscode",
+        "bradlc.vscode-tailwindcss"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",
