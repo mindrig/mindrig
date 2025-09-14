@@ -20,6 +20,9 @@ importers:
       turbo:
         specifier: ^2.5.6
         version: 2.5.6
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.17.2)(happy-dom@18.0.1)(jiti@2.5.1)(jsdom@25.0.1)(lightningcss@1.30.1)(tsx@4.20.5)(yaml@2.8.1)
 
   parser: {}
 
@@ -28,6 +31,21 @@ importers:
       '@mindcontrol/code-types':
         specifier: workspace:*
         version: link:../../types/pkg/ts
+
+  pkgs/file:
+    devDependencies:
+      '@wrkspc/ts':
+        specifier: workspace:*
+        version: link:../ts
+      oxlint:
+        specifier: ^1.13.0
+        version: 1.13.0
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.17.2)(happy-dom@18.0.1)(jiti@2.5.1)(jsdom@25.0.1)(lightningcss@1.30.1)(tsx@4.20.5)(yaml@2.8.1)
 
   pkgs/lang:
     devDependencies:
@@ -262,9 +280,15 @@ importers:
       '@vscode/vsce':
         specifier: ^3.6.0
         version: 3.6.0
+      '@wrkspc/file':
+        specifier: workspace:*
+        version: link:../../pkgs/file
       '@wrkspc/lang':
         specifier: workspace:*
         version: link:../../pkgs/lang
+      '@wrkspc/theme':
+        specifier: workspace:*
+        version: link:../../subs/ds/pkgs/theme
       oxlint:
         specifier: ^1.13.0
         version: 1.13.0
@@ -344,6 +368,9 @@ importers:
       '@wrkspc/ds':
         specifier: workspace:*
         version: link:../../subs/ds/pkgs/ds
+      '@wrkspc/file':
+        specifier: workspace:*
+        version: link:../../pkgs/file
       '@wrkspc/form':
         specifier: workspace:*
         version: link:../../subs/ds/pkgs/form

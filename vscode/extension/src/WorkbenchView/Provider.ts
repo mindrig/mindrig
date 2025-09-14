@@ -1,6 +1,10 @@
 import { setAuthContext } from "@/auth";
 import { parsePrompts } from "@mindcontrol/code-parser-wasm";
-import type { SyncMessage, SyncResource } from "@mindcontrol/vscode-sync";
+import type {
+  SyncFile,
+  SyncMessage,
+  SyncResource,
+} from "@mindcontrol/vscode-sync";
 import * as vscode from "vscode";
 import { AIService } from "../AIService";
 import { CodeSyncManager } from "../CodeSyncManager";
@@ -178,6 +182,9 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         case "addItWorks":
           this.#handleAddItWorks();
           break;
+        case "revealPrompt":
+          this.#handleRevealPrompt((message as any).payload);
+          break;
         case "requestCsvPick":
           this.#handleRequestCsvPick();
           break;
@@ -258,6 +265,32 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     if (this.#webview) this.#webview.postMessage(message);
   }
 
+  async #handleRevealPrompt(payload: {
+    file: string;
+    selection: { start: number; end: number };
+  }) {
+    try {
+      const uri = vscode.Uri.file(payload.file);
+      const doc = await vscode.workspace.openTextDocument(uri);
+      const editor = await vscode.window.showTextDocument(doc, {
+        preview: false,
+        preserveFocus: false,
+      });
+
+      const startPos = doc.positionAt(payload.selection.start);
+      const endPos = doc.positionAt(payload.selection.end);
+      const range = new vscode.Range(startPos, endPos);
+
+      editor.selection = new vscode.Selection(startPos, endPos);
+      editor.revealRange(range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+    } catch (error) {
+      console.error("Failed to reveal prompt:", error);
+      void vscode.window.showErrorMessage(
+        `Failed to reveal prompt: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
   // Exposed to extension.ts to open the API key panel
   public openVercelGatewayPanel() {
     if (this.#webview) this.#sendMessage({ type: "openVercelGatewayPanel" });
@@ -270,20 +303,8 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
   #cachedPrompts: any[] = [];
 
-  #parseAndSendPrompts(fileState: {
-    path: string;
-    content: string;
-    language: string;
-  }) {
-    if (
-      ![
-        "typescript",
-        "javascript",
-        "typescriptreact",
-        "javascriptreact",
-        "python",
-      ].includes(fileState.language)
-    ) {
+  #parseAndSendPrompts(fileState: SyncFile.State) {
+    if (!["ts", "js", "py"].includes(fileState.languageId)) {
       this.#sendMessage({
         type: "promptsChanged",
         payload: { prompts: [] },
@@ -833,19 +854,10 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     this.#sendMessage(message);
   }
 
-  #syncActiveFile(fileState: {
-    path: string;
-    content: string;
-    language: string;
-  }) {
+  #syncActiveFile(fileState: SyncFile.State) {
     // Only enable sync for supported file types to avoid issues
-    const supportedLanguages = [
-      "typescript",
-      "javascript",
-      "typescriptreact",
-      "javascriptreact",
-    ];
-    if (!supportedLanguages.includes(fileState.language)) return;
+    const supportedLanguages = ["ts", "js", "py"];
+    if (!supportedLanguages.includes(fileState.languageId)) return;
 
     if (!this.#codeSyncManager) this.#initializeCodeSyncManager();
 

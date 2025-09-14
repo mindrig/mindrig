@@ -1,7 +1,10 @@
+import { FileLabel } from "@/aspects/file/Label";
 import { LanguageIcon } from "@/aspects/language/Icon";
+import { Prompt } from "@mindcontrol/code-types";
 import { SyncFile } from "@mindcontrol/vscode-sync";
+import { Select } from "@wrkspc/form";
 
-export namespace ActiveFile {
+export namespace FileHeader {
   export interface Props {
     fileState: SyncFile.State | null;
     pinnedFile?: SyncFile.State | null;
@@ -9,12 +12,14 @@ export namespace ActiveFile {
     isPinned?: boolean;
     parseStatus?: "success" | "error";
     parseError?: string | null;
+    prompts: Prompt[];
+    promptIdx: number | undefined;
     onPin?: () => void;
     onUnpin?: () => void;
   }
 }
 
-export function ActiveFile(props: ActiveFile.Props) {
+export function FileHeader(props: FileHeader.Props) {
   const {
     fileState,
     pinnedFile,
@@ -24,6 +29,8 @@ export function ActiveFile(props: ActiveFile.Props) {
     parseError,
     onPin,
     onUnpin,
+    prompts,
+    promptIdx,
   } = props;
 
   const displayFile = isPinned ? pinnedFile : fileState;
@@ -123,7 +130,45 @@ export function ActiveFile(props: ActiveFile.Props) {
 
   return (
     <div className="space-y-3">
-      {/* Show active file info when pinned - ALWAYS ON TOP */}
+      {displayFile && (
+        <div className="flex items-center justify-between gap-2">
+          <FileLabel file={displayFile} />
+
+          <Select
+            label={{ a11y: "Select prompt" }}
+            size="xsmall"
+            selectedKey={promptIdx ?? null}
+            options={prompts.map((prompt, index) => ({
+              label: prompt.exp.slice(0, 15),
+              value: index,
+            }))}
+            placeholder={prompts.length ? "Select prompt" : "No prompts"}
+            isDisabled={!prompts.length}
+            onSelectionChange={(idx) => {
+              if (idx === null) return;
+              const index = Number(idx);
+              const prompt = prompts[index];
+              if (!prompt) return;
+
+              const vscode = (window as any).__vscode;
+              if (!vscode) return;
+
+              vscode.postMessage({
+                type: "revealPrompt",
+                payload: {
+                  file: prompt.file,
+                  selection: {
+                    start: prompt.span.inner.start,
+                    end: prompt.span.inner.end,
+                  },
+                },
+              });
+            }}
+          />
+        </div>
+      )}
+
+      {/*
       {isPinned && activeFile && (
         <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
           <div className="flex items-center gap-2 mb-2">
@@ -142,7 +187,7 @@ export function ActiveFile(props: ActiveFile.Props) {
 
       {isPinned && pinnedFile && renderFileCard(pinnedFile, "Pinned", true)}
 
-      {!isPinned && displayFile && renderFileCard(displayFile, "Active", false)}
+      {!isPinned && displayFile && renderFileCard(displayFile, "Active", false)} */}
     </div>
   );
 }

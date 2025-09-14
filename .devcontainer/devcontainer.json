@@ -45,7 +45,8 @@
         "Vercel.turbo-vsc",
         "mitsuhiko.insta",
         "oxc.oxc-vscode",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "vitest.explorer"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",

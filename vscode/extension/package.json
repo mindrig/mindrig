@@ -159,6 +159,8 @@
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.6.0",
+    "@wrkspc/theme": "workspace:*",
+    "@wrkspc/file": "workspace:*",
     "@wrkspc/lang": "workspace:*",
     "oxlint": "^1.13.0",
     "playwright-core": "^1.55.0",

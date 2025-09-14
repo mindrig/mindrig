@@ -1,11 +1,10 @@
-import {
-  ActiveFile,
-  DebugSection,
-  PromptExecution,
-  PromptViewer,
-  VercelGatewayPanel,
-} from "@/components";
-import { useCallback, useEffect, useState } from "react";
+import { Prompt } from "@mindcontrol/code-types";
+import { SyncFile } from "@mindcontrol/vscode-sync";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Blueprint } from "./aspects/blueprint/Blueprint";
+import { FileHeader } from "./aspects/file/Header";
+import { DebugSection } from "./components/DebugSection";
+import { VercelGatewayPanel } from "./components/VercelGatewayPanel";
 
 declare global {
   interface Window {
@@ -17,31 +16,25 @@ declare global {
   }
 }
 
-function findPromptAtCursor(prompts: any[], cursorOffset?: number): any {
-  if (!cursorOffset || !prompts.length) return null;
-
-  return prompts.find(
-    (prompt) =>
-      prompt.span &&
-      cursorOffset >= prompt.span.outer.start &&
-      cursorOffset <= prompt.span.outer.end,
-  );
-}
-
 export function App() {
-  const [fileState, setFileState] = useState<any>(null);
-  const [pinnedFile, setPinnedFile] = useState<any>(null);
-  const [activeFile, setActiveFile] = useState<any>(null);
+  const [fileState, setFileState] = useState<SyncFile.State | null>(null);
+  const [pinnedFile, setPinnedFile] = useState<SyncFile.State | null>(null);
+  const [activeFile, setActiveFile] = useState<SyncFile.State | null>(null);
   const [isPinned, setIsPinned] = useState<boolean>(false);
   const [settings, setSettings] = useState<any>(null);
   const [vercelGatewayKey, setVercelGatewayKey] = useState<string | null>(null);
-  const [prompts, setPrompts] = useState<any[]>([]);
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [parseStatus, setParseStatus] = useState<"success" | "error">(
     "success",
   );
   const [parseError, setParseError] = useState<string | null>(null);
-  const [currentPrompt, setCurrentPrompt] = useState<any>(null);
-  const [vscode] = useState(() => window.acquireVsCodeApi?.());
+  const [vscode] = useState(() => {
+    const existing = (window as any).__vscode;
+    if (existing) return existing;
+    const api = window.acquireVsCodeApi?.();
+    if (api) (window as any).__vscode = api;
+    return api;
+  });
   const [syncMessageHandler, setSyncMessageHandler] = useState<
     ((message: any) => void) | null
   >(null);
@@ -136,16 +129,22 @@ export function App() {
     [],
   );
 
-  // Update current prompt when cursor position or prompts change
-  useEffect(() => {
-    const targetFile = isPinned ? pinnedFile : activeFile;
-    const cursorOffset = targetFile?.cursorPosition?.offset;
-    const foundPrompt = findPromptAtCursor(prompts, cursorOffset);
-    setCurrentPrompt(foundPrompt);
-  }, [prompts, activeFile, pinnedFile, isPinned]);
+  // // Update current prompt when cursor position or prompts change
+  // useEffect(() => {
+  //   const targetFile = isPinned ? pinnedFile : activeFile;
+  //   const cursorOffset = targetFile?.cursor?.offset;
+  //   const foundPrompt = findPromptAtCursor(prompts, cursorOffset);
+  //   // setCurrentPrompt(foundPrompt);
+  // }, [prompts, activeFile, pinnedFile, isPinned]);
+
+  const targetFile = pinnedFile || activeFile;
+  const [promptIdx, prompt] = useMemo(
+    () => findPromptAtCursor(prompts, targetFile?.cursor?.offset),
+    [targetFile?.cursor?.offset],
+  );
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <VercelGatewayPanel
         vercelGatewayKey={vercelGatewayKey}
         onVercelGatewayKeyChange={handleVercelGatewayKeyChange}
@@ -153,7 +152,9 @@ export function App() {
         openSignal={vercelPanelOpenSignal}
       />
 
-      <ActiveFile
+      <FileHeader
+        prompts={prompts}
+        promptIdx={promptIdx}
         fileState={fileState}
         pinnedFile={pinnedFile}
         activeFile={activeFile}
@@ -164,14 +165,14 @@ export function App() {
         onUnpin={handleUnpin}
       />
 
-      <PromptViewer prompt={currentPrompt} fileContent={fileState?.content} />
-
-      <PromptExecution
-        prompt={currentPrompt}
-        vscode={vscode}
-        vercelGatewayKey={vercelGatewayKey}
-        fileContent={fileState?.content}
-      />
+      {targetFile && prompt && (
+        <Blueprint
+          file={targetFile}
+          vscode={vscode}
+          prompt={prompt}
+          vercelGatewayKey={vercelGatewayKey}
+        />
+      )}
 
       <DebugSection
         vscode={vscode}
@@ -183,4 +184,23 @@ export function App() {
       />
     </div>
   );
+}
+
+function findPromptAtCursor(
+  prompts: Prompt[],
+  cursorOffset: number | undefined,
+): [number, Prompt] | [] {
+  if (!cursorOffset) return [];
+
+  for (let idx = 0; idx < prompts.length; idx++) {
+    const prompt = prompts[idx];
+    if (
+      prompt &&
+      cursorOffset >= prompt.span.outer.start &&
+      cursorOffset <= prompt.span.outer.end
+    ) {
+      return [idx, prompt];
+    }
+  }
+  return [];
 }

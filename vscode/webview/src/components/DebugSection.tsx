@@ -1,4 +1,5 @@
 import type { Prompt } from "@mindcontrol/code-types";
+import { SyncFile } from "@mindcontrol/vscode-sync";
 import { Button } from "@wrkspc/ds";
 import { useState } from "react";
 import { CodeEditor } from "./CodeEditor";
@@ -16,30 +17,8 @@ export namespace DebugSection {
       showFileContent: boolean;
     } | null;
     prompts: Prompt[];
-    fileState: {
-      path: string;
-      content: string;
-      isDirty: boolean;
-      lastSaved?: Date;
-      language: string;
-      cursorPosition?: {
-        line: number;
-        character: number;
-        offset?: number;
-      };
-    } | null;
-    activeFile: {
-      path: string;
-      content: string;
-      isDirty: boolean;
-      lastSaved?: Date;
-      language: string;
-      cursorPosition?: {
-        line: number;
-        character: number;
-        offset?: number;
-      };
-    } | null;
+    fileState: SyncFile.State | null;
+    activeFile: SyncFile.State | null;
     onSyncMessage: (handler: (message: any) => void) => void;
   }
 }

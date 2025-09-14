@@ -5,8 +5,92 @@
 @plugin "tailwindcss-react-aria-components";
 
 @theme {
-  --color-canvas-bg: var(--vscode-sideBar-background);
-  --color-canvas-fg: var(--vscode-sideBar-foreground);
+  /*# Colors */
+
+  /* Base */
+
+  --canvas: var(--vscode-sideBar-background);
+  --ink: var(--vscode-sideBar-foreground);
+
+  /* Use-case */
+
+  --color-item-hover: var(--vscode-list-hoverForeground);
+
+  /* Canvas (background) */
+
+  --color-canvas: var(--canvas);
+
+  /* Ink (text) */
+
+  /* Primary */
+  --color-ink: var(--ink);
+  /* --color-ink-inverse: red; */
+  /* Support */
+  --color-ink-support: color-mix(in srgb, var(--ink) 85%, transparent);
+  /* --color-ink-support-inverse: red; */
+  /* Detail */
+  --color-ink-detail: color-mix(in srgb, var(--ink) 70%, transparent);
+  /* --color-ink-detail-inverse: red; */
+
+  /* Icon */
+
+  /* Primary */
+  --color-icon: color-mix(in srgb, var(--ink) 85%, transparent);
+  --color-icon-hover: color-mix(in srgb, var(--color-icon) 80%, transparent);
+  /* Support */
+  --color-icon-support: color-mix(in srgb, var(--ink) 70%, transparent);
+  --color-icon-support-hover: color-mix(
+    in srgb,
+    var(--color-icon-support) 80%,
+    transparent
+  );
+  /* Detail */
+  --color-icon-detail: color-mix(in srgb, var(--ink) 55%, transparent);
+  --color-icon-detail-hover: color-mix(
+    in srgb,
+    var(--color-icon-detail) 80%,
+    transparent
+  );
+
+  /*# Sizes */
+
+  --text-base: var(--vscode-font-size);
+
+  /* Input */
+
+  /* Radius */
+  --radius-input: var(--radius-md);
+  --radius-input-sm: var(--radius-sm);
+  /* Shadow */
+  --shadow-input: var(--shadow-xs);
+  /* Colors */
+  --color-input-canvas: var(--vscode-input-background);
+  --color-input-ink: var(--vscode-input-foreground);
+  --color-input-placeholder: var(--vscode-input-placeholderForeground);
+  --color-input-border: var(--vscode-input-border);
+
+  /* Menu */
+
+  /* Radius */
+  --radius-menu: var(--radius-sm);
+  /* Shadow */
+  --shadow-menu: var(--shadow-md);
+  /* Colors */
+  --color-menu-canvas: var(--vscode-menu-background);
+  --color-menu-border: var(--vscode-menu-border);
+
+  /* Option */
+
+  /* Radius */
+  --radius-option: var(--radius-sm);
+  /* Shadow */
+  --shadow-option: var(--shadow-md);
+  /* Colors */
+  --color-option-canvas: var(--vscode-dropdown-listBackground);
+  --color-option-canvas-hover: var(--vscode-inputOption-hoverBackground);
+  --color-option-canvas-selected: var(--vscode-inputOption-activeBackground);
+  --color-option-ink: var(--vscode-input-foreground);
+  --color-option-ink-selected: var(--vscode-inputOption-activeForeground);
 }
 
 :placeholder-shown {

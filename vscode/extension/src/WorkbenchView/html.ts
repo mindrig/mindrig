@@ -1,3 +1,5 @@
+import { bodyCn } from "@wrkspc/theme";
+
 export interface WorkbenchWebviewHtmlUris {
   csp?: string;
   app: string;
@@ -50,7 +52,7 @@ export function workbenchWebviewHtml(props: WorkbenchWebviewHtmlProps): string {
 ${renderInjects(headInjects)}
     <title>Mind Control Code</title>
   </head>
-  <body>
+  <body class="${bodyCn()}">
     <div id="root"></div>
 ${renderInjects(bodyInjects)}
   </body>

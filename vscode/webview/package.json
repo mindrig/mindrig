@@ -28,6 +28,7 @@
     "@uiw/react-markdown-preview": "^5.1.5",
     "@wrkspc/ds": "workspace:*",
     "@wrkspc/form": "workspace:*",
+    "@wrkspc/file": "workspace:*",
     "@wrkspc/lang": "workspace:*",
     "crab": "^1.13.0",
     "enso": "^2.0.4",

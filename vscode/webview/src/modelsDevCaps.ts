@@ -43,7 +43,7 @@ export function getModelCapabilities(
     supportsImages: false,
     supportsVideo: false,
     supportsFiles: false,
-    supportsTools: true,
+    supportsTools: false,
     supportsReasoning: false,
   };
 
