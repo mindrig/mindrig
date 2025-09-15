@@ -134,12 +134,12 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     const baseUri = externalUri.toString().replace(/\/$/, "");
 
     const csp = [
-      "`default-src 'none';",
+      "default-src 'none';",
       `img-src ${webviewSources} https: data:;`,
       `script-src ${webviewSources} ${baseUri} 'unsafe-eval' 'unsafe-inline';`,
       `script-src-elem ${webviewSources} ${baseUri} 'unsafe-eval' 'unsafe-inline';`,
       `style-src ${webviewSources} ${baseUri} 'unsafe-inline';`,
-      `connect-src ${baseUri} ws://127.0.0.1:* ws://localhost:* https:;`,
+      `connect-src ${baseUri} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https:;`,
     ].join(" ");
 
     const app = `${baseUri}/src/index.tsx`;
@@ -155,7 +155,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       `img-src ${webviewSources} https: data:;`,
       `script-src ${webviewSources} 'unsafe-inline';`,
       `style-src ${webviewSources} 'unsafe-inline';`,
-      `connect-src https:;`,
+      `connect-src ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https:;`,
     ].join(" ");
 
     const baseUri = [this.#extensionUri, "dist", "webview"] as const;
@@ -282,7 +282,10 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       const range = new vscode.Range(startPos, endPos);
 
       editor.selection = new vscode.Selection(startPos, endPos);
-      editor.revealRange(range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+      editor.revealRange(
+        range,
+        vscode.TextEditorRevealType.InCenterIfOutsideViewport,
+      );
     } catch (error) {
       console.error("Failed to reveal prompt:", error);
       void vscode.window.showErrorMessage(

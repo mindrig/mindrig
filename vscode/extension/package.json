@@ -117,13 +117,14 @@
     }
   },
   "scripts": {
-    "dev": "pnpm run build:watch",
+    "dev": "pnpm run preview:watch",
     "pack": "vsce pack --no-dependencies",
     "publish": "vsce publish --no-dependencies",
     "vscode:prepublish": "pnpm -F @mindcontrol/vscode-webview run package && pnpm run package",
     "package": "vite build --mode production",
-    "build": "vite build",
-    "build:watch": "VSCODE_DEV_SERVER=true vite build --watch --mode development",
+    "build": "vite build --mode production",
+    "preview": "vite build --mode development",
+    "preview:watch": "VSCODE_DEV_SERVER=true vite build --watch --mode development",
     "test": "test -z $TURBO_HASH && turbo run test || echo OK",
     "test/unit": "vitest run",
     "test/unit:watch": "vitest",
@@ -142,7 +143,6 @@
   },
   "dependencies": {
     "@ai-sdk/gateway": "^1.0.15",
-    "@ai-sdk/openai": "^2.0.23",
     "@mindcontrol/code-parser-wasm": "0.1.0",
     "ai": "^5.0.28",
     "yjs": "^13.6.27"

@@ -2,16 +2,11 @@ import type { Prompt } from "@mindcontrol/code-types";
 import { SyncFile } from "@mindcontrol/vscode-sync";
 import { Button } from "@wrkspc/ds";
 import { useState } from "react";
-import { CodeEditor } from "./CodeEditor";
-import { SettingsPanel } from "./SettingsPanel";
+import { DevCodeEditor } from "./CodeEditor";
+import { DevSettings } from "./SettingsPanel";
 
-export namespace DebugSection {
+export namespace DevDebug {
   export interface Props {
-    vscode: {
-      postMessage: (message: any) => void;
-      getState: () => any;
-      setState: (state: any) => void;
-    } | null;
     settings: {
       enableFileTracking: boolean;
       showFileContent: boolean;
@@ -23,9 +18,8 @@ export namespace DebugSection {
   }
 }
 
-export function DebugSection(props: DebugSection.Props) {
-  const { vscode, settings, prompts, fileState, activeFile, onSyncMessage } =
-    props;
+export function DevDebug(props: DevDebug.Props) {
+  const { settings, prompts, fileState, activeFile, onSyncMessage } = props;
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -44,8 +38,7 @@ export function DebugSection(props: DebugSection.Props) {
       {isExpanded && (
         <div className="space-y-4 border-t border-gray-200 pt-4">
           {(activeFile?.path || fileState?.path) && (
-            <CodeEditor
-              vscode={vscode}
+            <DevCodeEditor
               resourcePath={(activeFile?.path || fileState?.path)!}
               onSyncMessage={onSyncMessage}
             />
@@ -68,7 +61,7 @@ export function DebugSection(props: DebugSection.Props) {
             </div>
           )}
 
-          <SettingsPanel settings={settings} />
+          <DevSettings settings={settings} />
         </div>
       )}
     </div>

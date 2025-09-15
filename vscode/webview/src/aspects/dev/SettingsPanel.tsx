@@ -1,4 +1,4 @@
-export namespace SettingsPanel {
+export namespace DevSettings {
   export interface Props {
     settings: {
       enableFileTracking: boolean;
@@ -7,7 +7,7 @@ export namespace SettingsPanel {
   }
 }
 
-export function SettingsPanel(props: SettingsPanel.Props) {
+export function DevSettings(props: DevSettings.Props) {
   const { settings } = props;
 
   if (!settings)

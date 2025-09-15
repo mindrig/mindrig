@@ -1,19 +1,15 @@
+import { useVsc } from "@/aspects/vsc/Context";
+import type { SyncResource } from "@mindcontrol/vscode-sync";
 import {
   applyCodeChanges,
   computeTextChanges,
   SyncMessage,
 } from "@mindcontrol/vscode-sync";
-import type { SyncResource } from "@mindcontrol/vscode-sync";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as Y from "yjs";
 
 export namespace UseCodeSync {
   export interface Props {
-    vscode: {
-      postMessage: (message: any) => void;
-      getState: () => any;
-      setState: (state: any) => void;
-    } | null;
     debounceMs?: number;
     resource?: SyncResource;
   }
@@ -33,7 +29,8 @@ export namespace UseCodeSync {
 }
 
 export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
-  const { vscode, debounceMs = 100, resource } = props;
+  const { vsc } = useVsc();
+  const { debounceMs = 100, resource } = props;
   const [content, setContent] = useState<string>("");
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const docRef = useRef<Y.Doc | null>(null);
@@ -65,7 +62,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
 
     // Set up update handler for remote sync
     const updateHandler = (update: Uint8Array) => {
-      if (!vscode || isApplyingRemoteRef.current) return;
+      if (isApplyingRemoteRef.current) return;
 
       console.log(
         "Webview sending sync update to extension",
@@ -76,19 +73,17 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
         resource: resource ?? { type: "code", path: "" },
         payload: { update: Array.from(update) },
       };
-      vscode.postMessage(message);
+      vsc.postMessage(message);
     };
 
     doc.on("update", updateHandler);
 
     // Request initial sync from extension
-    if (vscode) {
-      const message: SyncMessage.Init = {
-        type: "sync-init",
-        resource: resource ?? { type: "code", path: "" },
-      };
-      vscode.postMessage(message);
-    }
+    const message: SyncMessage.Init = {
+      type: "sync-init",
+      resource: resource ?? { type: "code", path: "" },
+    };
+    vsc.postMessage(message);
 
     return () => {
       if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
@@ -97,7 +92,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
       doc.off("update", updateHandler);
       doc.destroy();
     };
-  }, [vscode, debounceMs]);
+  }, [vsc, debounceMs]);
 
   const updateContent = useCallback(
     (newContent: string, _selectionStart?: number, _selectionEnd?: number) => {
@@ -178,8 +173,6 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
           }
 
           case "sync-state-vector": {
-            if (!vscode) return;
-
             const stateVector = new Uint8Array(message.payload.stateVector);
             const update = Y.encodeStateAsUpdate(docRef.current, stateVector);
 
@@ -188,7 +181,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
               resource: resource ?? { type: "code", path: "" },
               payload: { stateVector: Array.from(update) },
             };
-            vscode.postMessage(responseMessage);
+            vsc.postMessage(responseMessage);
             break;
           }
 
@@ -200,7 +193,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
         setIsConnected(false);
       }
     },
-    [vscode],
+    [vsc],
   );
 
   return {

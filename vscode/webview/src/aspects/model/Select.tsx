@@ -8,22 +8,15 @@ export namespace ModelSelect {
       modelType?: string | null;
       specification?: { provider?: string };
     }[];
-    vercelGatewayKey: string | null;
     modelsLoading: boolean;
-
     selectedModelId: string | null;
     onModelChange: (modelId: string | null) => void;
   }
 }
 
 export function ModelSelect(props: ModelSelect.Props) {
-  const {
-    models,
-    vercelGatewayKey,
-    modelsLoading,
-    selectedModelId,
-    onModelChange,
-  } = props;
+  const { models, modelsLoading, selectedModelId, onModelChange } = props;
+
   return (
     <Select
       size="xsmall"
@@ -31,13 +24,9 @@ export function ModelSelect(props: ModelSelect.Props) {
       onSelectionChange={(id) => {
         onModelChange(id as string | null);
       }}
-      isDisabled={!vercelGatewayKey || modelsLoading || models.length === 0}
+      isDisabled={modelsLoading || models.length === 0}
       label={{
-        a11y: vercelGatewayKey
-          ? modelsLoading
-            ? "Loading models…"
-            : "Select model"
-          : "Set Vercel Gateway API key",
+        a11y: modelsLoading ? "Loading models…" : "Select model",
       }}
       options={[
         {

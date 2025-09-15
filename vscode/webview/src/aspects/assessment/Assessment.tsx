@@ -1,12 +1,20 @@
-import { getModelCapabilities, setModelsDevData } from "@/modelsDevCaps";
 import { createGateway } from "@ai-sdk/gateway";
 import type { Prompt, PromptVar } from "@mindcontrol/code-types";
 import JsonView, { ShouldExpandNodeInitially } from "@uiw/react-json-view";
 import MarkdownPreview from "@uiw/react-markdown-preview";
+import { buildRunsAndSettings, computeVariablesFromRow } from "@wrkspc/dataset";
 import { Button } from "@wrkspc/ds";
+import {
+  buildExecutePayload,
+  selectedModelCapabilities as capsForEntry,
+  providerLogoUrl,
+  setModelsDevData,
+} from "@wrkspc/model";
+import { extractPromptText, substituteVariables } from "@wrkspc/prompt";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { parseString as parseCsvString } from "smolcsv";
 import { ModelSelect } from "../model/Select";
+import { useVsc } from "../vsc/Context";
 
 const shouldExpandNodeInitially: ShouldExpandNodeInitially<object> = (
   isExpanded,
@@ -45,11 +53,6 @@ interface ExecutionState {
 export namespace Assessment {
   export interface Props {
     prompt: Prompt | undefined;
-    vscode: {
-      postMessage: (message: any) => void;
-      getState: () => any;
-      setState: (state: any) => void;
-    } | null;
     vercelGatewayKey: string | null;
     fileContent?: string | undefined;
   }
@@ -57,10 +60,10 @@ export namespace Assessment {
 
 export function Assessment({
   prompt,
-  vscode,
   vercelGatewayKey,
   fileContent,
 }: Assessment.Props) {
+  const { vsc } = useVsc();
   const [modelsDevTick, setModelsDevTick] = useState(0);
   const [variables, setVariables] = useState<Record<string, string>>({});
   const [csvPath, setCsvPath] = useState<string | null>(null);
@@ -136,9 +139,9 @@ export function Assessment({
 
   // Load persistent state when prompt changes
   useEffect(() => {
-    if (!promptId || !vscode) return;
+    if (!promptId) return;
 
-    const state = vscode.getState() || {};
+    const state = vsc.getState() || {};
     const promptState = state[promptId];
 
     if (promptState) {
@@ -217,15 +220,15 @@ export function Assessment({
 
     // restore globally selected model
     try {
-      const s = vscode.getState?.();
+      const s = vsc.getState();
       if (s && s.__selectedModelId) setSelectedModelId(s.__selectedModelId);
     } catch {}
-  }, [promptId, vscode, prompt]);
+  }, [promptId, vsc, prompt]);
 
   const saveState = useCallback(() => {
-    if (!promptId || !vscode) return;
+    if (!promptId) return;
 
-    const state = vscode.getState() || {};
+    const state = vsc.getState() || {};
     state[promptId] = {
       variables,
       csv:
@@ -250,10 +253,10 @@ export function Assessment({
             }
           : undefined,
     };
-    vscode.setState(state);
+    vsc.setState(state);
   }, [
     promptId,
-    vscode,
+    vsc,
     variables,
     executionState,
     csvPath,
@@ -264,20 +267,24 @@ export function Assessment({
 
   // Fetch available models when API key becomes available
   const fetchModels = useCallback(async () => {
-    if (!vercelGatewayKey) return;
+    if (vercelGatewayKey === undefined) return;
     setModelsLoading(true);
     setModelsError(null);
     try {
-      const gateway = createGateway({ apiKey: vercelGatewayKey });
-      const res = await gateway.getAvailableModels();
+      const res = await (vercelGatewayKey
+        ? createGateway({ apiKey: vercelGatewayKey }).getAvailableModels()
+        : fetch(
+            `${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN}/vercel/models`,
+          ).then((r) => r.json()));
+
       const list = (res.models || []).filter(
         (m: any) => (m.modelType ?? "language") === "language",
       );
       setModels(list);
       if (!selectedModelId && list.length > 0) {
         setSelectedModelId(list[0]!.id);
-        const state = vscode?.getState?.() || {};
-        vscode?.setState?.({ ...state, __selectedModelId: list[0]!.id });
+        const state = vsc.getState() || {};
+        vsc.setState({ ...state, __selectedModelId: list[0]!.id });
       }
     } catch (e) {
       console.error(
@@ -290,15 +297,14 @@ export function Assessment({
     } finally {
       setModelsLoading(false);
     }
-  }, [vercelGatewayKey, selectedModelId, vscode]);
+  }, [vercelGatewayKey, selectedModelId, vsc]);
 
   useEffect(() => {
-    if (vercelGatewayKey) fetchModels();
-  }, [vercelGatewayKey, fetchModels]);
+    fetchModels();
+  }, [fetchModels]);
 
   // Request models.dev capabilities from the extension (avoids CORS)
   useEffect(() => {
-    if (!vscode) return;
     const onMessage = (event: MessageEvent) => {
       const message = event.data;
       if (message.type !== "modelsDev") return;
@@ -308,9 +314,9 @@ export function Assessment({
       }
     };
     window.addEventListener("message", onMessage);
-    vscode.postMessage({ type: "getModelsDev" });
+    vsc.postMessage({ type: "getModelsDev" });
     return () => window.removeEventListener("message", onMessage);
-  }, [vscode]);
+  }, [vsc]);
 
   useEffect(() => {
     saveState();
@@ -321,27 +327,21 @@ export function Assessment({
   };
 
   const handleLoadCsv = () => {
-    if (!vscode) return;
-    vscode.postMessage({ type: "requestCsvPick" });
+    vsc.postMessage({ type: "requestCsvPick" });
   };
 
   const selectedModelEntry = useCallback(() => {
     return models.find((m) => m.id === selectedModelId);
   }, [models, selectedModelId]);
 
-  function selectedModelCapabilities() {
-    const entry = selectedModelEntry();
-    console.log({ entry });
-    const id = entry?.id || "";
-    const provider = entry?.specification?.provider || id.split("/")[0] || "";
-    const caps = getModelCapabilities(provider, id);
-    return { ...caps, provider };
-  }
+  const selectedModelCapabilities = useCallback(
+    () => capsForEntry(selectedModelEntry() as any),
+    [selectedModelEntry, modelsDevTick],
+  );
 
   const handleAttachFiles = () => {
-    if (!vscode) return;
     const caps = selectedModelCapabilities();
-    vscode.postMessage({
+    vsc.postMessage({
       type: "requestAttachmentPick",
       payload: { imagesOnly: caps.supportsImages && !caps.supportsFiles },
     });
@@ -369,7 +369,6 @@ export function Assessment({
   };
 
   useEffect(() => {
-    if (!vscode) return;
     const handleCsv = async (event: MessageEvent) => {
       const message = event.data;
       if (message.type !== "csvFileLoaded") return;
@@ -398,11 +397,10 @@ export function Assessment({
     };
     window.addEventListener("message", handleCsv);
     return () => window.removeEventListener("message", handleCsv);
-  }, [vscode]);
+  }, [vsc]);
 
   // Attachments loader
   useEffect(() => {
-    if (!vscode) return;
     const handle = (event: MessageEvent) => {
       const message = event.data;
       if (message.type !== "attachmentsLoaded") return;
@@ -424,7 +422,7 @@ export function Assessment({
     };
     window.addEventListener("message", handle);
     return () => window.removeEventListener("message", handle);
-  }, [vscode]);
+  }, [vsc]);
 
   const usingCsv = useMemo(
     () => !!csvHeader && csvRows.length > 0,
@@ -442,25 +440,8 @@ export function Assessment({
     return base;
   }, [csvPath]);
 
-  const computeVariablesFromRow = useCallback(
-    (row: string[]) => {
-      if (!prompt?.vars || prompt.vars.length === 0)
-        return {} as Record<string, string>;
-      const next: Record<string, string> = {};
-      if (headersToUse) {
-        for (const variable of prompt.vars) {
-          const idx = headersToUse.indexOf(variable.exp);
-          if (idx !== -1) next[variable.exp] = row[idx] ?? "";
-        }
-      }
-      // Fallback by position if headers didn't cover all
-      if (Object.keys(next).length < (prompt.vars?.length ?? 0)) {
-        prompt.vars.forEach((v, i) => {
-          if (!next[v.exp]) next[v.exp] = row[i] ?? "";
-        });
-      }
-      return next;
-    },
+  const computeVariablesFromRowCb = useCallback(
+    (row: string[]) => computeVariablesFromRow(row, headersToUse, prompt?.vars),
     [prompt, headersToUse],
   );
 
@@ -469,29 +450,15 @@ export function Assessment({
     if (Number.isNaN(idx) || idx < 0 || idx >= csvRows.length) return;
     setSelectedRowIdx(idx);
     const row = csvRows[idx];
-    const mapped = computeVariablesFromRow(row!);
+    const mapped = computeVariablesFromRowCb(row!);
     setVariables(mapped);
   };
 
-  const substituteVariables = (
-    baseText: string,
-    vars: Record<string, string>,
-  ): string => {
-    if (!prompt?.vars || prompt.vars.length === 0) return baseText;
-    const innerStart = prompt.span.inner.start;
-    // Replace from right to left to preserve indexes
-    const sorted = [...prompt.vars].sort(
-      (a, b) => (b.span.outer.start || 0) - (a.span.outer.start || 0),
-    );
-    let result = baseText;
-    for (const v of sorted) {
-      const value = vars[v.exp] || "";
-      const s = Math.max(0, (v.span.outer.start ?? 0) - innerStart);
-      const e = Math.max(s, (v.span.outer.end ?? 0) - innerStart);
-      result = result.slice(0, s) + value + result.slice(e);
-    }
-    return result;
-  };
+  const interpolate = useCallback(
+    (baseText: string, vars: Record<string, string>) =>
+      substituteVariables(baseText, prompt!, vars),
+    [prompt],
+  );
 
   const canExecute = () => {
     if (!prompt?.vars) return true;
@@ -519,7 +486,7 @@ export function Assessment({
   };
 
   const handleExecute = () => {
-    if (!prompt || !vscode || !canExecute()) return;
+    if (!prompt || !canExecute()) return;
 
     // Parse JSON fields safely
     let tools: any = null;
@@ -542,17 +509,9 @@ export function Assessment({
       return;
     }
 
-    const promptText = (() => {
-      if (!fileContent) return prompt.exp;
-      try {
-        const s = prompt.span.inner.start;
-        const e = prompt.span.inner.end;
-        if (e > s && e <= fileContent.length) return fileContent.slice(s, e);
-      } catch {}
-      return prompt.exp;
-    })();
+    const promptText = extractPromptText(fileContent, prompt);
 
-    const substitutedPrompt = substituteVariables(promptText, variables);
+    const substitutedPrompt = interpolate(promptText, variables);
 
     setExecutionState({
       isLoading: true,
@@ -560,129 +519,42 @@ export function Assessment({
       error: null,
     });
 
-    // Build runs based on input source and dataset mode
-    const runs: Array<{
-      label: string;
-      variables: Record<string, string>;
-      substitutedPrompt: string;
-    }> = [];
+    const { runs, runSettings } = buildRunsAndSettings({
+      inputSource,
+      datasetMode,
+      csvRows,
+      selectedRowIdx,
+      rangeStart,
+      rangeEnd,
+      promptText,
+      variables,
+      prompt,
+      headers: headersToUse,
+    });
 
-    if (inputSource === "manual") {
-      runs.push({
-        label: "Manual",
-        variables,
-        substitutedPrompt,
-      });
-    } else if (usingCsv) {
-      if (datasetMode === "row") {
-        const idx = selectedRowIdx ?? 0;
-        const row = csvRows[idx]!;
-        const vars = computeVariablesFromRow(row);
-        runs.push({
-          label: `Row ${idx + 1}`,
-          variables: vars,
-          substitutedPrompt: substituteVariables(promptText, vars),
-        });
-      } else if (datasetMode === "range") {
-        const start = Math.max(1, Number(rangeStart));
-        const end = Math.min(csvRows.length, Number(rangeEnd));
-        for (let i = start - 1; i <= end - 1; i++) {
-          const row = csvRows[i]!;
-          const vars = computeVariablesFromRow(row);
-          runs.push({
-            label: `Row ${i + 1}`,
-            variables: vars,
-            substitutedPrompt: substituteVariables(promptText, vars),
-          });
-        }
-      } else if (datasetMode === "all") {
-        for (let i = 0; i < csvRows.length; i++) {
-          const row = csvRows[i]!;
-          const vars = computeVariablesFromRow(row);
-          runs.push({
-            label: `Row ${i + 1}`,
-            variables: vars,
-            substitutedPrompt: substituteVariables(promptText, vars),
-          });
-        }
-      }
-    }
-
-    vscode.postMessage({
-      type: "executePrompt",
-      payload: {
-        promptText,
-        substitutedPrompt,
-        variables,
-        runSettings: {
-          source: inputSource,
-          datasetMode,
-          selectedRowIdx,
-          range:
-            datasetMode === "range"
-              ? {
-                  start: Number(rangeStart) || 1,
-                  end: Number(rangeEnd) || csvRows.length,
-                }
-              : undefined,
-          totalRows: csvRows.length,
-        },
-        runs,
-        promptId,
-        modelId: selectedModelId || undefined,
-        tools: selectedModelCapabilities().supportsTools
-          ? (tools ?? null)
-          : null,
-        providerOptions: (() => {
-          const merged = providerOptions ?? {};
-          if (
-            selectedModelCapabilities().supportsReasoning &&
-            reasoningEnabled
-          ) {
-            (merged as any).reasoning = {
-              effort: reasoningEffort,
-              ...(reasoningBudget !== ""
-                ? { budgetTokens: Number(reasoningBudget) }
-                : {}),
-            };
-          }
-          return merged;
-        })(),
-        toolChoice: undefined,
-        attachments:
-          selectedModelCapabilities().supportsImages ||
-          selectedModelCapabilities().supportsFiles
-            ? attachments
-                .filter((a) => {
-                  const caps = selectedModelCapabilities();
-                  if (caps.supportsFiles) return true;
-                  return (a.mime || "").startsWith("image/");
-                })
-                .map((a) => ({
-                  name: a.name,
-                  mime: a.mime || "application/octet-stream",
-                  dataBase64: a.dataBase64 || "",
-                }))
-            : [],
-        options: {
-          maxOutputTokens: generationOptions.maxOutputTokens,
-          temperature: generationOptions.temperature,
-          topP: generationOptions.topP,
-          topK: generationOptions.topK,
-          presencePenalty: generationOptions.presencePenalty,
-          frequencyPenalty: generationOptions.frequencyPenalty,
-          stopSequences:
-            generationOptions.stopSequences &&
-            generationOptions.stopSequences.trim().length > 0
-              ? generationOptions.stopSequences
-                  .split(",")
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-              : undefined,
-          seed: generationOptions.seed,
-        },
+    const caps = selectedModelCapabilities();
+    const payload = buildExecutePayload({
+      promptText,
+      substitutedPrompt,
+      variables,
+      promptId,
+      modelId: selectedModelId,
+      tools: caps.supportsTools ? (tools ?? null) : null,
+      providerOptions,
+      toolChoice: undefined,
+      attachments,
+      caps,
+      runSettings,
+      runs,
+      options: generationOptions,
+      reasoning: {
+        enabled: reasoningEnabled,
+        effort: reasoningEffort,
+        budgetTokens: reasoningBudget,
       },
     });
+
+    vsc.postMessage({ type: "executePrompt", payload });
   };
 
   const handleClear = () => {
@@ -694,8 +566,6 @@ export function Assessment({
   };
 
   useEffect(() => {
-    if (!vscode) return;
-
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
 
@@ -725,7 +595,7 @@ export function Assessment({
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [vscode, promptId]);
+  }, [vsc, promptId]);
 
   if (!prompt) return null;
 
@@ -734,21 +604,20 @@ export function Assessment({
   return (
     <div className="flex flex-col gap-2">
       <ModelSelect
-        vercelGatewayKey={vercelGatewayKey}
         models={models}
         modelsLoading={modelsLoading}
         selectedModelId={selectedModelId}
         onModelChange={(id) => {
           setSelectedModelId(id);
-          const s = vscode?.getState?.() || {};
-          vscode?.setState?.({ ...s, __selectedModelId: id });
+          const s = vsc.getState() || {};
+          vsc.setState({ ...s, __selectedModelId: id });
         }}
       />
 
       <div className="flex items-center gap-2">
         {selectedModelEntry() && (
           <img
-            src={`https://models.dev/logos/${(selectedModelCapabilities().provider || "").toLowerCase()}.svg`}
+            src={providerLogoUrl(selectedModelCapabilities().provider)}
             alt="provider"
             width={16}
             height={16}

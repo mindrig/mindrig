@@ -7,5 +7,12 @@ node_modules/
 .venv/
 # Turborepo
 .turbo/
+# Cloudflare
+.wrangler/
+# Secrets
+.env.local
+.env.*.local
+!.env.local.example
+!.env.*.local.example
 # Temp
 /tmp/

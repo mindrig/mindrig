@@ -6,18 +6,13 @@ import { PromptSource } from "../prompt/Source";
 export namespace Blueprint {
   export interface Props {
     file: SyncFile.State;
-    vscode: {
-      postMessage: (message: any) => void;
-      getState: () => any;
-      setState: (state: any) => void;
-    } | null;
     prompt: Prompt;
     vercelGatewayKey: string | null;
   }
 }
 
 export function Blueprint(props: Blueprint.Props) {
-  const { file, vscode, prompt, vercelGatewayKey } = props;
+  const { file, prompt, vercelGatewayKey } = props;
 
   return (
     <div className="flex flex-col gap-2">
@@ -25,7 +20,6 @@ export function Blueprint(props: Blueprint.Props) {
 
       <Assessment
         prompt={prompt}
-        vscode={vscode}
         vercelGatewayKey={vercelGatewayKey}
         fileContent={file.content}
       />

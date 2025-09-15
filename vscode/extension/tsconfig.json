@@ -25,7 +25,7 @@
     "allowSyntheticDefaultImports": true,
     // Env
     "lib": ["ES2022"],
-    "types": ["node", "vscode", "mocha"],
+    "types": ["./env.d.ts", "node", "vscode", "mocha"],
     // Checks
     "skipLibCheck": true,
     "strict": true,

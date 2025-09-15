@@ -11,13 +11,15 @@ packages:
   - subs/*/pkgs/*
 
 onlyBuiltDependencies:
-  - "@tailwindcss/oxide"
-  - "@vscode/vsce-sign"
+  - '@tailwindcss/oxide'
+  - '@vscode/vsce-sign'
   - esbuild
   - keytar
+  - sharp
+  - workerd
 
 overrides:
-  "@mindcontrol/code-parser-wasm": workspace:*
-  "@mindcontrol/code-types": workspace:*
-  "@mindcontrol/vscode-sync": workspace:*
-  "@mindcontrol/vscode-types": workspace:*
+  '@mindcontrol/code-parser-wasm': workspace:*
+  '@mindcontrol/code-types': workspace:*
+  '@mindcontrol/vscode-sync': workspace:*
+  '@mindcontrol/vscode-types': workspace:*

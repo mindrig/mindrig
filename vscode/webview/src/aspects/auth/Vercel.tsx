@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export namespace VercelGatewayPanel {
+export namespace AuthVercel {
   export interface Props {
     vercelGatewayKey: string | null;
     onVercelGatewayKeyChange: (key: string) => void;
@@ -9,7 +9,7 @@ export namespace VercelGatewayPanel {
   }
 }
 
-export function VercelGatewayPanel(props: VercelGatewayPanel.Props) {
+export function AuthVercel(props: AuthVercel.Props) {
   const {
     vercelGatewayKey,
     onVercelGatewayKeyChange,

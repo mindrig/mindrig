@@ -18,6 +18,7 @@
     // Env
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
+    "types": ["./env.d.ts"],
     // Checks
     "skipLibCheck": true,
     "strict": true,

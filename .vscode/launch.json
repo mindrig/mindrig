@@ -34,9 +34,9 @@
       "preLaunchTask": "vscode#build"
     },
 
-    // vscode#build:watch
+    // vscode#preview
     {
-      "name": "vscode#build:watch",
+      "name": "vscode#preview",
       "type": "extensionHost",
       "request": "launch",
       "args": [
@@ -45,7 +45,21 @@
         "${workspaceFolder}/vscode/extension/tests/workspace"
       ],
       "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
-      "preLaunchTask": "vscode#build:watch"
+      "preLaunchTask": "vscode#preview"
+    },
+
+    // vscode#preview:watch
+    {
+      "name": "vscode#preview:watch",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
+        "${workspaceFolder}/vscode/extension/tests/workspace"
+      ],
+      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
+      "preLaunchTask": "vscode#preview:watch"
     }
 
     //#endregion

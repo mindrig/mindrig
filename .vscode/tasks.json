@@ -7,7 +7,11 @@
     {
       "type": "shell",
       "label": "vscode#dev",
-      "dependsOn": ["vscode-extension#dev", "vscode-webview#dev"],
+      "dependsOn": [
+        "vscode-extension#dev",
+        "vscode-webview#dev",
+        "gateway#dev"
+      ],
       "dependsOrder": "parallel",
       "command": "echo",
       "args": ["OK"],
@@ -33,11 +37,34 @@
       "problemMatcher": []
     },
 
-    // build:watch
+    // preview
     {
       "type": "shell",
-      "label": "vscode#build:watch",
-      "dependsOn": ["vscode-extension#build", "vscode-webview#build"],
+      "label": "vscode#preview",
+      "dependsOn": [
+        "vscode-extension#preview",
+        "vscode-webview#preview",
+        "gateway#dev"
+      ],
+      "dependsOrder": "parallel",
+      "command": "echo",
+      "args": ["OK"],
+      "presentation": {
+        "reveal": "silent",
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    // preview:watch
+    {
+      "type": "shell",
+      "label": "vscode#preview:watch",
+      "dependsOn": [
+        "vscode-extension#preview",
+        "vscode-webview#preview",
+        "gateway#dev"
+      ],
       "dependsOrder": "parallel",
       "command": "echo",
       "args": ["OK"],
@@ -113,12 +140,40 @@
       }
     },
 
-    // vscode-extension#build:watch
+    // vscode-extension#preview
     {
       "type": "shell",
-      "label": "vscode-extension:build:watch",
+      "group": "build",
+      "label": "vscode-extension#preview",
       "command": "pnpm",
-      "args": ["run", "build:watch"],
+      "args": ["run", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}/vscode/extension"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ]
+      }
+    },
+
+    // vscode-extension#preview:watch
+    {
+      "type": "shell",
+      "label": "vscode-extension:preview:watch",
+      "command": "pnpm",
+      "args": ["run", "preview:watch"],
       "options": {
         "cwd": "${workspaceFolder}/vscode/extension"
       },
@@ -211,12 +266,38 @@
       }
     },
 
-    // vscode-webview#build:watch
+    // vscode-webview#preview
     {
       "type": "shell",
-      "label": "vscode-webview#build:watch",
+      "label": "vscode-webview#preview",
       "command": "pnpm",
-      "args": ["run", "build:watch"],
+      "args": ["run", "preview"],
+      "options": {
+        "cwd": "${workspaceFolder}/vscode/webview"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ]
+      }
+    },
+    // vscode-webview#preview:watch
+    {
+      "type": "shell",
+      "label": "vscode-webview#preview:watch",
+      "command": "pnpm",
+      "args": ["run", "preview:watch"],
       "options": {
         "cwd": "${workspaceFolder}/vscode/webview"
       },
@@ -240,6 +321,39 @@
           "activeOnStart": true,
           "beginsPattern": "^vite.*building",
           "endsPattern": ".*built in.*ms\\."
+        }
+      }
+    },
+
+    //#endregion
+
+    //#region gateway
+
+    {
+      "type": "shell",
+      "label": "gateway#dev",
+      "command": "pnpm",
+      "args": ["-F", "@wrkspc/gateway", "run", "dev"],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "group": "watchers"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Ready on.*",
+          "endsPattern": ".*Ready on.*"
         }
       }
     }

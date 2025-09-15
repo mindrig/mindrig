@@ -1,13 +1,13 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { MockVSCodeAPI } from "../__tests__/mocks/vscode";
+import type { MockVSCodeAPI } from "../../__tests__/mocks/vscode";
 import {
   createMockSyncMessageUpdate,
   createMockVSCodeAPI,
   expectMessageSent,
-} from "../__tests__/mocks/vscode";
-import { CodeEditor } from "./CodeEditor";
+} from "../../__tests__/mocks/vscode";
+import { DevCodeEditor } from "./CodeEditor";
 
 describe("CodeEditor", () => {
   let mockVSCode: MockVSCodeAPI;
@@ -20,7 +20,7 @@ describe("CodeEditor", () => {
 
   describe("Rendering", () => {
     it("should render with basic structure", () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       expect(screen.getByText("Code Editor")).toBeInTheDocument();
       expect(screen.getByRole("textbox")).toBeInTheDocument();
@@ -33,14 +33,14 @@ describe("CodeEditor", () => {
     });
 
     it("should show connection status", () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       expect(screen.getByText("Disconnected")).toBeInTheDocument();
       expect(screen.queryByText("Synced")).not.toBeInTheDocument();
     });
 
     it("should render without vscode API", () => {
-      render(<CodeEditor vscode={null} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={null} resourcePath="/test.ts" />);
 
       expect(screen.getByText("Code Editor")).toBeInTheDocument();
       expect(screen.getByRole("textbox")).toBeInTheDocument();
@@ -50,7 +50,7 @@ describe("CodeEditor", () => {
     it("should initialize with provided content", async () => {
       const onSyncMessage = vi.fn();
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
@@ -70,7 +70,7 @@ describe("CodeEditor", () => {
 
   describe("User Interactions", () => {
     it("should handle typing in textarea", async () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       const textarea = screen.getByRole("textbox");
       await user.type(textarea, "Hello World");
@@ -97,7 +97,7 @@ describe("CodeEditor", () => {
     });
 
     it("should maintain focus during typing", async () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       const textarea = screen.getByRole("textbox");
       textarea.focus();
@@ -110,7 +110,7 @@ describe("CodeEditor", () => {
     });
 
     it("should handle backspace and delete operations", async () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       const textarea = screen.getByRole("textbox");
 
@@ -127,7 +127,7 @@ describe("CodeEditor", () => {
     });
 
     it("should handle tab indentation", async () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       const textarea: HTMLTextAreaElement = screen.getByRole("textbox");
       await user.type(textarea, "function test()");
@@ -141,7 +141,7 @@ describe("CodeEditor", () => {
     });
 
     it("should handle selection and replacement", async () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       const textarea = screen.getByRole("textbox");
       await user.type(textarea, "Hello World");
@@ -156,7 +156,7 @@ describe("CodeEditor", () => {
 
   describe("Sync Integration", () => {
     it("should send requestSync on mount", async () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       await waitFor(() => {
         expectMessageSent(mockVSCode, { type: "sync-init" });
@@ -166,7 +166,7 @@ describe("CodeEditor", () => {
     it("should handle incoming sync updates", async () => {
       const onSyncMessage = vi.fn();
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
@@ -192,7 +192,7 @@ describe("CodeEditor", () => {
     it("should preserve cursor position during remote updates", async () => {
       const onSyncMessage = vi.fn();
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
@@ -221,7 +221,7 @@ describe("CodeEditor", () => {
     });
 
     it("should debounce rapid typing", async () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       const textarea: HTMLTextAreaElement = screen.getByRole("textbox");
 
@@ -249,7 +249,7 @@ describe("CodeEditor", () => {
         .mockImplementation(() => {});
       const onSyncMessage = vi.fn();
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
@@ -268,7 +268,7 @@ describe("CodeEditor", () => {
 
     it("should handle missing textarea ref", () => {
       // This tests edge cases where ref might be null
-      render(<CodeEditor vscode={null} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={null} resourcePath="/test.ts" />);
 
       expect(screen.getByRole("textbox")).toBeInTheDocument();
     });
@@ -276,7 +276,7 @@ describe("CodeEditor", () => {
 
   describe("Character Count Display", () => {
     it("should update character count in real-time", async () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       const textarea = screen.getByRole("textbox");
 
@@ -301,7 +301,7 @@ describe("CodeEditor", () => {
     });
 
     it("should handle unicode characters correctly", async () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       const textarea = screen.getByRole("textbox");
       await user.type(textarea, "Hello 世界 🌍");
@@ -317,7 +317,7 @@ describe("CodeEditor", () => {
 
   describe("Performance", () => {
     it("should handle large content efficiently", async () => {
-      render(<CodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
+      render(<DevCodeEditor vscode={mockVSCode} resourcePath="/test.ts" />);
 
       const textarea = screen.getByRole("textbox");
       const largeContent = "x".repeat(1000);

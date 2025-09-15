@@ -1,0 +1,10 @@
+{
+  "extends": "@wrkspc/ts/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "composite": false,
+    "skipLibCheck": true,
+    "jsxImportSource": "hono/jsx"
+  }
+}

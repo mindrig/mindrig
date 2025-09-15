@@ -1,48 +1,34 @@
+import { useVsc } from "@/aspects/vsc/Context";
 import { Prompt } from "@mindcontrol/code-types";
 import { SyncFile } from "@mindcontrol/vscode-sync";
+import { findPromptAtCursor } from "@wrkspc/prompt";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Blueprint } from "./aspects/blueprint/Blueprint";
-import { FileHeader } from "./aspects/file/Header";
-import { DebugSection } from "./components/DebugSection";
-import { VercelGatewayPanel } from "./components/VercelGatewayPanel";
+import { AuthVercel } from "../aspects/auth/Vercel";
+import { Blueprint } from "../aspects/blueprint/Blueprint";
+import { DevDebug } from "../aspects/dev/DebugSection";
+import { FileHeader } from "../aspects/file/Header";
 
-declare global {
-  interface Window {
-    acquireVsCodeApi: () => {
-      postMessage: (message: any) => void;
-      getState: () => any;
-      setState: (state: any) => void;
-    };
-  }
-}
-
-export function App() {
+export function Index() {
   const [fileState, setFileState] = useState<SyncFile.State | null>(null);
   const [pinnedFile, setPinnedFile] = useState<SyncFile.State | null>(null);
   const [activeFile, setActiveFile] = useState<SyncFile.State | null>(null);
   const [isPinned, setIsPinned] = useState<boolean>(false);
   const [settings, setSettings] = useState<any>(null);
-  const [vercelGatewayKey, setVercelGatewayKey] = useState<string | null>(null);
+  const [vercelGatewayKey, setVercelGatewayKey] = useState<
+    string | null | undefined
+  >(undefined);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [parseStatus, setParseStatus] = useState<"success" | "error">(
     "success",
   );
   const [parseError, setParseError] = useState<string | null>(null);
-  const [vscode] = useState(() => {
-    const existing = (window as any).__vscode;
-    if (existing) return existing;
-    const api = window.acquireVsCodeApi?.();
-    if (api) (window as any).__vscode = api;
-    return api;
-  });
+  const { vsc } = useVsc();
   const [syncMessageHandler, setSyncMessageHandler] = useState<
     ((message: any) => void) | null
   >(null);
   const [vercelPanelOpenSignal, setVercelPanelOpenSignal] = useState(0);
 
   useEffect(() => {
-    if (!vscode) return;
-
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
 
@@ -95,31 +81,30 @@ export function App() {
 
     window.addEventListener("message", handleMessage);
 
-    vscode.postMessage({ type: "webviewReady" });
+    vsc.postMessage({ type: "webviewReady" });
 
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [vscode, syncMessageHandler]);
+  }, [vsc, syncMessageHandler]);
 
   const handlePin = () => {
-    if (vscode) vscode.postMessage({ type: "pinFile" });
+    if (vsc) vsc.postMessage({ type: "pinFile" });
   };
 
   const handleUnpin = () => {
-    if (vscode) vscode.postMessage({ type: "unpinFile" });
+    vsc.postMessage({ type: "unpinFile" });
   };
 
   const handleVercelGatewayKeyChange = (vercelGatewayKey: string) => {
-    if (vscode)
-      vscode.postMessage({
-        type: "setVercelGatewayKey",
-        payload: vercelGatewayKey,
-      });
+    vsc.postMessage({
+      type: "setVercelGatewayKey",
+      payload: vercelGatewayKey,
+    });
   };
 
   const handleClearVercelGatewayKey = () => {
-    if (vscode) vscode.postMessage({ type: "clearVercelGatewayKey" });
+    vsc.postMessage({ type: "clearVercelGatewayKey" });
   };
 
   const handleSyncMessageCallback = useCallback(
@@ -138,14 +123,13 @@ export function App() {
   // }, [prompts, activeFile, pinnedFile, isPinned]);
 
   const targetFile = pinnedFile || activeFile;
-  const [promptIdx, prompt] = useMemo(
-    () => findPromptAtCursor(prompts, targetFile?.cursor?.offset),
-    [targetFile?.cursor?.offset],
-  );
+  const [promptIdx, prompt] = useMemo(() => {
+    return findPromptAtCursor(prompts, targetFile?.cursor?.offset);
+  }, [targetFile?.cursor?.offset, prompts]);
 
   return (
     <div className="flex flex-col gap-2">
-      <VercelGatewayPanel
+      <AuthVercel
         vercelGatewayKey={vercelGatewayKey}
         onVercelGatewayKeyChange={handleVercelGatewayKeyChange}
         onClearVercelGatewayKey={handleClearVercelGatewayKey}
@@ -168,14 +152,12 @@ export function App() {
       {targetFile && prompt && (
         <Blueprint
           file={targetFile}
-          vscode={vscode}
           prompt={prompt}
           vercelGatewayKey={vercelGatewayKey}
         />
       )}
 
-      <DebugSection
-        vscode={vscode}
+      <DevDebug
         settings={settings}
         prompts={prompts}
         fileState={fileState}
@@ -186,21 +168,4 @@ export function App() {
   );
 }
 
-function findPromptAtCursor(
-  prompts: Prompt[],
-  cursorOffset: number | undefined,
-): [number, Prompt] | [] {
-  if (!cursorOffset) return [];
-
-  for (let idx = 0; idx < prompts.length; idx++) {
-    const prompt = prompts[idx];
-    if (
-      prompt &&
-      cursorOffset >= prompt.span.outer.start &&
-      cursorOffset <= prompt.span.outer.end
-    ) {
-      return [idx, prompt];
-    }
-  }
-  return [];
-}
+// moved to @wrkspc/prompt

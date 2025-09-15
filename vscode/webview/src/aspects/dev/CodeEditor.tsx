@@ -1,29 +1,22 @@
 import { useCodeSync } from "@/hooks/useCodeSync";
 import { useEffect, useRef, useState } from "react";
 
-export namespace CodeEditor {
+export namespace DevCodeEditor {
   export interface Props {
-    vscode: {
-      postMessage: (message: any) => void;
-      getState: () => any;
-      setState: (state: any) => void;
-    } | null;
     resourcePath: string;
     onSyncMessage?: (message: any) => void;
   }
 }
 
-export function CodeEditor({
-  vscode,
+export function DevCodeEditor({
   onSyncMessage,
   resourcePath,
-}: CodeEditor.Props) {
+}: DevCodeEditor.Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isProgrammaticUpdateRef = useRef(false);
   const isUpdatingDOMRef = useRef(false);
   const { content, isConnected, updateContent, handleSyncMessage } =
     useCodeSync({
-      vscode,
       resource: { type: "code", path: resourcePath },
       debounceMs: 50, // Reduced for better responsiveness
     });

@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as Y from "yjs";
-import { CodeEditor } from "../../components/CodeEditor";
+import { DevCodeEditor } from "../../aspects/dev/CodeEditor";
 import type { MockVSCodeAPI } from "../mocks/vscode";
 import { createMockVSCodeAPI } from "../mocks/vscode";
 
@@ -24,7 +24,7 @@ describe("End-to-End Sync Flow", () => {
       });
 
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
@@ -105,7 +105,7 @@ describe("End-to-End Sync Flow", () => {
       });
 
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
@@ -143,7 +143,7 @@ describe("End-to-End Sync Flow", () => {
       });
 
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
@@ -191,7 +191,7 @@ describe("End-to-End Sync Flow", () => {
       });
 
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
@@ -234,7 +234,7 @@ describe("End-to-End Sync Flow", () => {
       });
 
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
@@ -277,7 +277,7 @@ describe("End-to-End Sync Flow", () => {
       });
 
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
@@ -331,7 +331,7 @@ describe("End-to-End Sync Flow", () => {
       });
 
       render(
-        <CodeEditor
+        <DevCodeEditor
           vscode={mockVSCode}
           resourcePath="/test.ts"
           onSyncMessage={onSyncMessage}
