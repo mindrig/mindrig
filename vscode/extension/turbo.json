@@ -1,6 +1,10 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
+    "pack": {
+      "dependsOn": ["build"]
+    },
+
     "build": {
       "dependsOn": [
         "@mindcontrol/code-parser#build",
