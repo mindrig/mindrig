@@ -200,28 +200,27 @@ export class AIService extends VscController {
         if (
           errorMessage.includes("network socket disconnected") ||
           errorMessage.includes("TLS connection")
-        ) {
+        )
           errorMessage =
             "Network connectivity issue. Please check your internet connection and try again.";
-        } else if (
+        else if (
           errorMessage.includes("401") ||
           errorMessage.includes("unauthorized")
-        ) {
+        )
           errorMessage =
             "Invalid API key. Please verify your Vercel Gateway API key is correct.";
-        } else if (errorMessage.includes("429")) {
+        else if (errorMessage.includes("429"))
           errorMessage =
             "Rate limit exceeded. Please wait a moment and try again.";
-        } else if (
+        else if (
           errorMessage.includes("500") ||
           errorMessage.includes("502") ||
           errorMessage.includes("503")
-        ) {
+        )
           errorMessage =
             "Server error. The Vercel Gateway service may be temporarily unavailable.";
-        }
-      } else if (typeof error === "string") {
-        errorMessage = error;
+      } else {
+        if (typeof error === "string") errorMessage = error;
       }
 
       return {

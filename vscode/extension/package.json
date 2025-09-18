@@ -36,6 +36,10 @@
         "title": "Add 'It works!' comment"
       },
       {
+        "command": "mindcontrol.runPrompt",
+        "title": "Run Prompt"
+      },
+      {
         "command": "mindrig.logIn",
         "title": "Log In",
         "icon": "$(unlock)"

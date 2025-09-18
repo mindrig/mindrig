@@ -92,7 +92,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
       doc.off("update", updateHandler);
       doc.destroy();
     };
-  }, [vsc, debounceMs]);
+  }, [vsc, debounceMs, resource]);
 
   const updateContent = useCallback(
     (newContent: string, _selectionStart?: number, _selectionEnd?: number) => {
@@ -193,7 +193,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
         setIsConnected(false);
       }
     },
-    [vsc],
+    [vsc, resource],
   );
 
   return {

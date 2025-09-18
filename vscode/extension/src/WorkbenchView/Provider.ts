@@ -26,6 +26,57 @@ export interface ViteManifestEntry {
   assets?: string[];
 }
 
+interface ExecutePromptPayload {
+  promptText: string;
+  variables: Record<string, string>;
+  promptId: string;
+  modelId?: string | null;
+  runs?: Array<{
+    label?: string;
+    variables: Record<string, string>;
+    substitutedPrompt: string;
+  }>;
+  models?: Array<{
+    key: string;
+    modelId: string | null;
+    providerId?: string | null;
+    label?: string | null;
+    options?: {
+      maxOutputTokens?: number;
+      temperature?: number;
+      topP?: number;
+      topK?: number;
+      presencePenalty?: number;
+      frequencyPenalty?: number;
+      stopSequences?: string[];
+      seed?: number;
+    };
+    tools?: any | null;
+    providerOptions?: any | null;
+    attachments?: Array<{ name: string; mime: string; dataBase64: string }>;
+    reasoning?: {
+      enabled: boolean;
+      effort: "low" | "medium" | "high";
+      budgetTokens?: number | "";
+    };
+  }>;
+  options?: {
+    maxOutputTokens?: number;
+    temperature?: number;
+    topP?: number;
+    topK?: number;
+    presencePenalty?: number;
+    frequencyPenalty?: number;
+    stopSequences?: string[];
+    seed?: number;
+  };
+  tools?: any | null;
+  toolChoice?: any;
+  providerOptions?: any | null;
+  attachments?: Array<{ name: string; mime: string; dataBase64: string }>;
+  runSettings?: any;
+}
+
 export class WorkbenchViewProvider
   extends VscController
   implements vscode.WebviewViewProvider
@@ -63,6 +114,7 @@ export class WorkbenchViewProvider
   #webview: vscode.Webview | null = null;
   #currentResourcePath: string | null = null;
   #pendingOpenVercelPanel = false;
+  #lastExecutionPayload: ExecutePromptPayload | null = null;
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -708,33 +760,12 @@ export class WorkbenchViewProvider
     this.register((this.#aiService = new AIService()));
   }
 
-  async #handleExecutePrompt(payload: {
-    promptText: string;
-    substitutedPrompt: string;
-    variables: Record<string, string>;
-    promptId: string;
-    modelId?: string;
-    options?: {
-      maxOutputTokens?: number;
-      temperature?: number;
-      topP?: number;
-      topK?: number;
-      presencePenalty?: number;
-      frequencyPenalty?: number;
-      stopSequences?: string[];
-      seed?: number;
-    };
-    tools?: any | null;
-    toolChoice?: any;
-    providerOptions?: any | null;
-    attachments?: Array<{ name: string; mime: string; dataBase64: string }>;
-    runSettings?: any;
-    runs?: Array<{
-      label?: string;
-      variables: Record<string, string>;
-      substitutedPrompt: string;
-    }>;
-  }) {
+  #cloneExecutionPayload(payload: ExecutePromptPayload): ExecutePromptPayload {
+    return JSON.parse(JSON.stringify(payload)) as ExecutePromptPayload;
+  }
+
+  async #handleExecutePrompt(payload: ExecutePromptPayload) {
+    this.#lastExecutionPayload = this.#cloneExecutionPayload(payload);
     if (!this.#aiService) this.#initializeAIService();
 
     // Get the current API key from secret manager
@@ -779,53 +810,145 @@ export class WorkbenchViewProvider
               {
                 label: "Run 1",
                 variables: payload.variables || {},
-                substitutedPrompt: payload.substitutedPrompt,
+                substitutedPrompt: payload.promptText,
               },
             ];
 
-      const results = await Promise.all(
-        runs.map(async (r) => {
+      const models =
+        Array.isArray(payload.models) && payload.models.length
+          ? payload.models
+          : [
+              {
+                key: "default",
+                modelId: payload.modelId ?? null,
+                providerId: null,
+                label: payload.modelId ?? "Default model",
+                options: payload.options,
+                tools: payload.tools ?? null,
+                providerOptions: payload.providerOptions ?? null,
+                attachments: payload.attachments ?? [],
+                reasoning: {
+                  enabled: false,
+                  effort: "medium" as const,
+                  budgetTokens: "" as const,
+                },
+              },
+            ];
+
+      const aggregatedResults: Array<{
+        success: boolean;
+        request?: unknown;
+        response?: unknown;
+        usage?: unknown;
+        totalUsage?: unknown;
+        text?: string | null;
+        prompt: string | null;
+        label?: string;
+        runLabel?: string;
+        error?: string | null;
+        model: {
+          key: string;
+          id: string | null;
+          providerId: string | null;
+          label?: string | null;
+          settings: {
+            options?: unknown;
+            reasoning?: {
+              enabled: boolean;
+              effort: "low" | "medium" | "high";
+              budgetTokens?: number | "";
+            };
+            providerOptions?: unknown;
+            tools?: unknown;
+            attachments?: Array<{
+              name: string;
+              mime?: string;
+              dataBase64?: string;
+            }>;
+          };
+        };
+      }> = [];
+
+      for (const modelConfig of models) {
+        const modelLabel = modelConfig.label ?? modelConfig.modelId ?? "Model";
+        const reasoning = modelConfig.reasoning ?? {
+          enabled: false,
+          effort: "medium" as const,
+          budgetTokens: "" as const,
+        };
+        const extras = {
+          tools: modelConfig.tools ?? null,
+          toolChoice: payload.toolChoice,
+          providerOptions: modelConfig.providerOptions ?? null,
+        };
+        const attachments = Array.isArray(modelConfig.attachments)
+          ? modelConfig.attachments
+          : [];
+
+        for (const run of runs) {
+          const runLabel = run.label ?? "Run";
           const result = await this.#aiService!.executePrompt(
-            r.substitutedPrompt,
-            payload.modelId,
-            payload.options,
-            {
-              tools: payload.tools ?? null,
-              toolChoice: payload.toolChoice,
-              providerOptions: payload.providerOptions ?? null,
-            },
-            payload.attachments ?? [],
+            run.substitutedPrompt,
+            modelConfig.modelId ?? undefined,
+            modelConfig.options,
+            extras,
+            attachments,
           );
-          if (result.success) {
-            return {
+
+          if (result.success)
+            aggregatedResults.push({
               success: true,
               request: result.request,
               response: result.response,
               usage: (result as any).usage,
               totalUsage: (result as any).totalUsage,
-              // Surface assistant text output when available
               text: (result as any).text,
-              // Include the user message that was sent
-              prompt: r.substitutedPrompt,
-              label: r.label,
-            } as const;
-          } else {
-            return {
+              prompt: run.substitutedPrompt,
+              label: `${modelLabel} • ${runLabel}`,
+              runLabel,
+              model: {
+                key: modelConfig.key,
+                id: modelConfig.modelId ?? null,
+                providerId: modelConfig.providerId ?? null,
+                label: modelConfig.label ?? modelConfig.modelId ?? null,
+                settings: {
+                  options: modelConfig.options,
+                  reasoning,
+                  providerOptions: modelConfig.providerOptions ?? null,
+                  tools: modelConfig.tools ?? null,
+                  attachments,
+                },
+              },
+            });
+          else
+            aggregatedResults.push({
               success: false,
               error: result.error,
-              // Include the user message that was intended to be sent
-              prompt: r.substitutedPrompt,
-              label: r.label,
-            } as const;
-          }
-        }),
-      );
+              prompt: run.substitutedPrompt,
+              label: `${modelLabel} • ${runLabel}`,
+              runLabel,
+              model: {
+                key: modelConfig.key,
+                id: modelConfig.modelId ?? null,
+                providerId: modelConfig.providerId ?? null,
+                label: modelConfig.label ?? modelConfig.modelId ?? null,
+                settings: {
+                  options: modelConfig.options,
+                  reasoning,
+                  providerOptions: modelConfig.providerOptions ?? null,
+                  tools: modelConfig.tools ?? null,
+                  attachments,
+                },
+              },
+            });
+        }
+      }
 
       this.#sendMessage({
         type: "promptExecutionResult",
         payload: {
-          success: results.every((r) => r.success),
-          results,
+          success: aggregatedResults.every((r) => r.success),
+          results: aggregatedResults,
           promptId: payload.promptId,
           timestamp: Date.now(),
           runSettings: payload.runSettings,
@@ -844,6 +967,19 @@ export class WorkbenchViewProvider
         },
       });
     }
+  }
+
+  async runPromptFromCommand(): Promise<boolean> {
+    if (!this.#webview) return false;
+    this.#sendMessage({ type: "executePromptFromCommand" });
+    return true;
+  }
+
+  async rerunLastExecution(): Promise<boolean> {
+    if (!this.#lastExecutionPayload) return false;
+    const payload = this.#cloneExecutionPayload(this.#lastExecutionPayload);
+    await this.#handleExecutePrompt(payload);
+    return true;
   }
 
   //#endregion

@@ -575,6 +575,9 @@ importers:
       enso:
         specifier: ^2.0.4
         version: 2.0.4
+      leven:
+        specifier: ^4.1.0
+        version: 4.1.0
       react:
         specifier: ^19.1.1
         version: 19.1.1
@@ -3766,6 +3769,10 @@ packages:
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
     engines: {node: '>=6'}
+
+  leven@4.1.0:
+    resolution: {integrity: sha512-KZ9W9nWDT7rF7Dazg8xyLHGLrmpgq2nVNFUckhqdW3szVP6YhCpp/RAnpmVExA9JvrMynjwSLVrEj3AepHR6ew==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   lib0@0.2.114:
     resolution: {integrity: sha512-gcxmNFzA4hv8UYi8j43uPlQ7CGcyMJ2KQb5kZASw6SnAKAf10hK12i2fjrS3Cl/ugZa5Ui6WwIu1/6MIXiHttQ==}
@@ -9168,6 +9175,8 @@ snapshots:
   kleur@4.1.5: {}
 
   leven@3.1.0: {}
+
+  leven@4.1.0: {}
 
   lib0@0.2.114:
     dependencies:

@@ -38,6 +38,7 @@
     "@wrkspc/vsc-state": "workspace:*",
     "crab": "^1.13.0",
     "enso": "^2.0.4",
+    "leven": "^4.1.0",
     "react": "^19.1.1",
     "react-aria-components": "^1.12.1",
     "react-dom": "^19.1.1",

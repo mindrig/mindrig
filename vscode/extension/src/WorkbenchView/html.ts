@@ -38,11 +38,10 @@ export function workbenchWebviewHtml(props: WorkbenchWebviewHtmlProps): string {
       `<meta http-equiv="Content-Security-Policy" content="${uris.csp}">`,
     );
 
-  if (props.initialState) {
+  if (props.initialState)
     headInjects.push(`<script>
-  globalThis.initialState = ${JSON.stringify(props.initialState)};
-</script>`);
-  }
+    globalThis.initialState = ${JSON.stringify(props.initialState)};
+  </script>`);
 
   if (uris.reactRefresh)
     headInjects.push(`<script type="module">

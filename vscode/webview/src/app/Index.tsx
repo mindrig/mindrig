@@ -152,6 +152,7 @@ export function Index() {
             file={targetFile}
             prompt={prompt}
             vercelGatewayKey={vercelGatewayKey}
+            promptIndex={promptIdx ?? null}
           />
         )}
 

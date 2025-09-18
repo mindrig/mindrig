@@ -76,12 +76,27 @@ export function activate(context: vscode.ExtensionContext) {
     },
   );
 
+  const runPromptDisposable = vscode.commands.registerCommand(
+    "mindcontrol.runPrompt",
+    async () => {
+      await vscode.commands.executeCommand(
+        "workbench.view.extension.mindcontrol-workbench",
+      );
+      const executed = await webviewProvider.runPromptFromCommand();
+      if (!executed)
+        vscode.window.showWarningMessage(
+          "Mind Rig playground is not ready to run a prompt yet.",
+        );
+    },
+  );
+
   context.subscriptions.push(
     showWorkbenchDisposable,
     addItWorksDisposable,
     logInDisposable,
     logOutDisposable,
     showProfileDisposable,
+    runPromptDisposable,
     webviewProvider,
   );
 }

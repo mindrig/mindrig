@@ -11,11 +11,12 @@ export namespace Blueprint {
     prompt: Prompt;
     showSource: boolean;
     vercelGatewayKey: string | null;
+    promptIndex: number | null;
   }
 }
 
 export function Blueprint(props: Blueprint.Props) {
-  const { file, prompt, vercelGatewayKey } = props;
+  const { file, prompt, vercelGatewayKey, promptIndex } = props;
   const { settings } = useSettings();
 
   return (
@@ -28,6 +29,7 @@ export function Blueprint(props: Blueprint.Props) {
         prompt={prompt}
         vercelGatewayKey={vercelGatewayKey}
         fileContent={file.content}
+        promptIndex={promptIndex}
       />
     </PanelSection>
   );
