@@ -1,0 +1,9 @@
+{
+  "inputDir": "./icons",
+  "outputDir": "./assets",
+  "fontTypes": ["woff2"],
+  "assetTypes": [],
+  "fontsUrl": "/static/fonts",
+  "formatOptions": {},
+  "codepoints": { "toolbar-icon": 57344 }
+}

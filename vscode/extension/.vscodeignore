@@ -1,6 +1,8 @@
+# Ignore everything...
 *
 */**
+# ...except:
 !*.md
 !package.json
 !dist
-!*.png
+!assets

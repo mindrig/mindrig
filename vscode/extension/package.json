@@ -8,33 +8,28 @@
     "type": "git",
     "url": "https://github.com/mindcontrol/code.git"
   },
-  "engines": {
-    "vscode": "^1.99.0"
-  },
-  "categories": [
-    "AI"
-  ],
+  "engines": { "vscode": "^1.99.0" },
+  "icon": "./assets/logo-256.png",
+  "categories": ["AI"],
   "main": "./dist/extension/extension.js",
   "contributes": {
+    "icons": {
+      "mindrig-toolbar-icon": {
+        "description": "Mind Rig toolbar icon",
+        "default": {
+          "fontPath": "./assets/icons.woff2",
+          "fontCharacter": "\\E000"
+        }
+      }
+    },
     "commands": [
-      {
-        "command": "mindcontrol.showWorkbench",
-        "title": "Show Workbench"
-      },
+      { "command": "mindcontrol.showWorkbench", "title": "Show Workbench" },
       {
         "command": "mindcontrol.addItWorks",
         "title": "Add 'It works!' comment"
       },
-      {
-        "command": "mindrig.logIn",
-        "title": "Log In",
-        "icon": "$(unlock)"
-      },
-      {
-        "command": "mindrig.logOut",
-        "title": "Log Out",
-        "icon": "$(lock)"
-      },
+      { "command": "mindrig.logIn", "title": "Log In", "icon": "$(unlock)" },
+      { "command": "mindrig.logOut", "title": "Log Out", "icon": "$(lock)" },
       {
         "command": "mindrig.showProfile",
         "title": "Show Profile",
@@ -73,7 +68,7 @@
           "name": "Playground",
           "when": "true",
           "type": "webview",
-          "icon": "$(extensions)"
+          "icon": "$(mindrig-toolbar-icon)"
         }
       ]
     },
@@ -82,7 +77,7 @@
         {
           "id": "mindcontrol-workbench",
           "title": "Mind Rig",
-          "icon": "$(extensions)"
+          "icon": "$(mindrig-toolbar-icon)"
         }
       ]
     },
@@ -98,10 +93,7 @@
           "when": "view == mindcontrol.workbench && mindrig.auth.loggedIn",
           "group": "navigation"
         },
-        {
-          "command": "mindrig.logOut",
-          "when": "view == mindcontrol.workbench"
-        }
+        { "command": "mindrig.logOut", "when": "view == mindcontrol.workbench" }
       ],
       "view/item/context": [
         {
@@ -139,6 +131,7 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions",
     "format": "prettier --write .",
+    "gen/icons": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON ./scripts/gen/iconsFont.ts && fantasticon",
     "gen/webview/html": "tsx ./scripts/gen/webviewHtml.ts"
   },
   "dependencies": {
@@ -159,9 +152,10 @@
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.6.0",
-    "@wrkspc/theme": "workspace:*",
     "@wrkspc/file": "workspace:*",
     "@wrkspc/lang": "workspace:*",
+    "@wrkspc/theme": "workspace:*",
+    "fantasticon": "^3.0.0",
     "oxlint": "^1.13.0",
     "playwright-core": "^1.55.0",
     "prettier": "^3.6.2",
