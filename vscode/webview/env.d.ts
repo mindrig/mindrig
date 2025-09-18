@@ -1,10 +1,12 @@
 /// <reference types="vite/client" />
 
-import type { Vsc } from "@/aspects/vsc";
+import type { Vsc } from "@/aspects/vsc/api";
+import type { VscState } from "@wrkspc/vsc-state";
 
 declare global {
   interface Window {
     acquireVsCodeApi?: Vsc.AcquireApi;
+    initialState?: VscState;
   }
 
   interface ViteTypeOptions {}

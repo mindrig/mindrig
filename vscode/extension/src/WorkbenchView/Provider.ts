@@ -6,12 +6,13 @@ import type {
   SyncMessage,
   SyncResource,
 } from "@mindcontrol/vscode-sync";
+import { VscController } from "@wrkspc/vsc-controller";
+import { VscSettingsController } from "@wrkspc/vsc-settings";
 import * as vscode from "vscode";
 import { AIService } from "../AIService";
 import { CodeSyncManager } from "../CodeSyncManager";
 import { FileManager } from "../FileManager";
 import { SecretManager } from "../SecretManager";
-import { SettingsManager } from "../SettingsManager";
 import { resolveDevServerUri } from "../devServer";
 import { WorkbenchWebviewHtmlUris, workbenchWebviewHtml } from "./html";
 
@@ -25,7 +26,10 @@ export interface ViteManifestEntry {
   assets?: string[];
 }
 
-export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
+export class WorkbenchViewProvider
+  extends VscController
+  implements vscode.WebviewViewProvider
+{
   //#region Static
 
   public static readonly viewType = "mindcontrol.workbench";
@@ -45,17 +49,11 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
     isDevelopment: boolean,
     context: vscode.ExtensionContext,
   ) {
+    super();
+
     this.#extensionUri = extensionUri;
     this.#isDevelopment = isDevelopment;
     this.#context = context;
-  }
-
-  public dispose() {
-    this.#fileManager?.dispose();
-    this.#settingsManager?.dispose();
-    this.#secretManager?.dispose();
-    this.#codeSyncManager?.dispose();
-    this.#aiService?.clearApiKey();
   }
 
   //#endregion
@@ -66,7 +64,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   #currentResourcePath: string | null = null;
   #pendingOpenVercelPanel = false;
 
-  public resolveWebviewView(
+  resolveWebviewView(
     webviewView: vscode.WebviewView,
     _context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken,
@@ -78,7 +76,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
     this.#webview = webviewView.webview;
     this.#setupMessageHandling();
-    this.#initializeSettingsManager();
+    this.#registerSettings();
     this.#initializeSecretManager();
     this.#applyHtml(webviewView.webview);
   }
@@ -105,7 +103,6 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
         });
     }
 
-    this.#sendSettings();
     this.#sendVercelGatewayKey();
 
     if (this.#pendingOpenVercelPanel) {
@@ -138,7 +135,13 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       ? await this.#devServerUris()
       : await this.#localPaths(webview);
 
-    return workbenchWebviewHtml({ devServer: useDevServer, uris });
+    return workbenchWebviewHtml({
+      devServer: useDevServer,
+      uris,
+      initialState: {
+        settings: this.#settings?.settings,
+      },
+    });
   }
 
   async #devServerUris(): Promise<WorkbenchWebviewHtmlUris> {
@@ -269,9 +272,6 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
           break;
         case "getModelsDev":
           this.#handleGetModelsDev();
-          break;
-        case "getSettings":
-          this.#sendSettings();
           break;
         case "webviewReady":
           this.#handleWebviewReady();
@@ -432,50 +432,52 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   #fileManager: FileManager | null = null;
 
   #initializeFileManager() {
-    this.#fileManager = new FileManager({
-      onActiveFileChanged: (fileState) => {
-        this.#sendMessage({
-          type: "activeFileChanged",
-          payload: fileState,
-        });
-        if (fileState) {
+    this.register(
+      (this.#fileManager = new FileManager({
+        onActiveFileChanged: (fileState) => {
+          this.#sendMessage({
+            type: "activeFileChanged",
+            payload: fileState,
+          });
+          if (fileState) {
+            this.#parseAndSendPrompts(fileState);
+            this.#syncActiveFile(fileState);
+          }
+        },
+        onFileContentChanged: (fileState) => {
+          this.#sendMessage({
+            type: "fileContentChanged",
+            payload: fileState,
+          });
           this.#parseAndSendPrompts(fileState);
-          this.#syncActiveFile(fileState);
-        }
-      },
-      onFileContentChanged: (fileState) => {
-        this.#sendMessage({
-          type: "fileContentChanged",
-          payload: fileState,
-        });
-        this.#parseAndSendPrompts(fileState);
-        // Note: Don't sync here to avoid conflicts with ongoing edits
-      },
-      onFileSaved: (fileState) => {
-        this.#sendMessage({
-          type: "fileSaved",
-          payload: fileState,
-        });
-      },
-      onCursorPositionChanged: (fileState) => {
-        this.#sendMessage({
-          type: "cursorPositionChanged",
-          payload: fileState,
-        });
-      },
-      onPinStateChanged: (pinnedFile, activeFile) => {
-        this.#sendMessage({
-          type: "pinStateChanged",
-          payload: {
-            pinnedFile,
-            activeFile,
-            isPinned: pinnedFile !== null,
-          },
-        });
-        const targetFile = pinnedFile || activeFile;
-        if (targetFile) this.#parseAndSendPrompts(targetFile);
-      },
-    });
+          // Note: Don't sync here to avoid conflicts with ongoing edits
+        },
+        onFileSaved: (fileState) => {
+          this.#sendMessage({
+            type: "fileSaved",
+            payload: fileState,
+          });
+        },
+        onCursorPositionChanged: (fileState) => {
+          this.#sendMessage({
+            type: "cursorPositionChanged",
+            payload: fileState,
+          });
+        },
+        onPinStateChanged: (pinnedFile, activeFile) => {
+          this.#sendMessage({
+            type: "pinStateChanged",
+            payload: {
+              pinnedFile,
+              activeFile,
+              isPinned: pinnedFile !== null,
+            },
+          });
+          const targetFile = pinnedFile || activeFile;
+          if (targetFile) this.#parseAndSendPrompts(targetFile);
+        },
+      })),
+    );
   }
 
   #handleAddItWorks() {
@@ -635,28 +637,18 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
   //#endregion
 
-  //#region Settings manager
+  //#region Settings
 
-  #settingsManager: SettingsManager | null = null;
+  #settings: VscSettingsController | null = null;
 
-  #initializeSettingsManager() {
-    this.#settingsManager = new SettingsManager({
-      onSettingsChanged: (settings) => {
-        this.#sendMessage({
-          type: "settingsChanged",
-          payload: settings,
-        });
-      },
-    });
-  }
-
-  #sendSettings() {
-    if (!this.#settingsManager) return;
-    const settings = this.#settingsManager.settings;
-    this.#sendMessage({
-      type: "settingsChanged",
-      payload: settings,
-    });
+  #registerSettings() {
+    this.register(
+      (this.#settings = new VscSettingsController({
+        onUpdate: (settings) => {
+          this.#sendMessage({ type: "settingsUpdated", payload: settings });
+        },
+      })),
+    );
   }
 
   //#endregion
@@ -666,16 +658,18 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   #secretManager: SecretManager | null = null;
 
   #initializeSecretManager() {
-    this.#secretManager = new SecretManager(this.#context.secrets, {
-      onSecretChanged: (secret) => {
-        setAuthContext({ loggedIn: !!secret });
+    this.register(
+      (this.#secretManager = new SecretManager(this.#context.secrets, {
+        onSecretChanged: (secret) => {
+          setAuthContext({ loggedIn: !!secret });
 
-        this.#sendMessage({
-          type: "vercelGatewayKeyChanged",
-          payload: { vercelGatewayKey: secret || null },
-        });
-      },
-    });
+          this.#sendMessage({
+            type: "vercelGatewayKeyChanged",
+            payload: { vercelGatewayKey: secret || null },
+          });
+        },
+      })),
+    );
 
     this.#secretManager.getSecret().then((secret) => {
       setAuthContext({ loggedIn: !!secret });
@@ -711,7 +705,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   //#region AI Service
 
   #initializeAIService() {
-    this.#aiService = new AIService();
+    this.register((this.#aiService = new AIService()));
   }
 
   async #handleExecutePrompt(payload: {
@@ -872,21 +866,23 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   #aiService: AIService | null = null;
 
   #initializeCodeSyncManager() {
-    this.#codeSyncManager = new CodeSyncManager({
-      onDocumentChanged: (content: string) => {
-        // Handle changes from VS Code that need to be reflected in webview
-        // Note: This should only fire for actual VS Code user edits, not webview sync
-      },
-      onRemoteChange: (update: Uint8Array) => {
-        // Send update to webview
-        const message: SyncMessage.Update = {
-          type: "sync-update",
-          resource: this.#currentResource(),
-          payload: { update: Array.from(update) },
-        };
-        this.#sendMessage(message);
-      },
-    });
+    this.register(
+      (this.#codeSyncManager = new CodeSyncManager({
+        onDocumentChanged: (content: string) => {
+          // Handle changes from VS Code that need to be reflected in webview
+          // Note: This should only fire for actual VS Code user edits, not webview sync
+        },
+        onRemoteChange: (update: Uint8Array) => {
+          // Send update to webview
+          const message: SyncMessage.Update = {
+            type: "sync-update",
+            resource: this.#currentResource(),
+            payload: { update: Array.from(update) },
+          };
+          this.#sendMessage(message);
+        },
+      })),
+    );
   }
 
   #handleSyncUpdate(message: SyncMessage.Update) {

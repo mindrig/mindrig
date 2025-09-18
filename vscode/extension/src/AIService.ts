@@ -1,4 +1,5 @@
 import { createGateway } from "@ai-sdk/gateway";
+import { VscController } from "@wrkspc/vsc-controller";
 import {
   AssistantModelMessage,
   generateText,
@@ -16,10 +17,11 @@ type LlmResponse = LanguageModelResponseMetadata & {
   body?: unknown;
 };
 
-export class AIService {
+export class AIService extends VscController {
   #apiKey: string | null = null;
 
   constructor(apiKey?: string) {
+    super();
     this.#apiKey = apiKey || null;
   }
 
@@ -27,7 +29,7 @@ export class AIService {
     this.#apiKey = apiKey;
   }
 
-  clearApiKey() {
+  dispose() {
     this.#apiKey = null;
   }
 

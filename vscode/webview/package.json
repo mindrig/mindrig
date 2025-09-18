@@ -34,6 +34,8 @@
     "@wrkspc/lang": "workspace:*",
     "@wrkspc/model": "workspace:*",
     "@wrkspc/prompt": "workspace:*",
+    "@wrkspc/vsc-settings": "workspace:*",
+    "@wrkspc/vsc-state": "workspace:*",
     "crab": "^1.13.0",
     "enso": "^2.0.4",
     "react": "^19.1.1",

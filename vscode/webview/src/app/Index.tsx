@@ -7,13 +7,13 @@ import { AuthVercel } from "../aspects/auth/Vercel";
 import { Blueprint } from "../aspects/blueprint/Blueprint";
 import { DevDebug } from "../aspects/dev/DebugSection";
 import { FileHeader } from "../aspects/file/Header";
+import { Layout } from "./Layout";
 
 export function Index() {
   const [fileState, setFileState] = useState<SyncFile.State | null>(null);
   const [pinnedFile, setPinnedFile] = useState<SyncFile.State | null>(null);
   const [activeFile, setActiveFile] = useState<SyncFile.State | null>(null);
   const [isPinned, setIsPinned] = useState<boolean>(false);
-  const [settings, setSettings] = useState<any>(null);
   const [vercelGatewayKey, setVercelGatewayKey] = useState<
     string | null | undefined
   >(undefined);
@@ -57,9 +57,6 @@ export function Index() {
             setFileState(message.payload.pinnedFile);
           else setFileState(message.payload.activeFile);
 
-          break;
-        case "settingsChanged":
-          setSettings(message.payload);
           break;
         case "vercelGatewayKeyChanged":
           setVercelGatewayKey(message.payload.vercelGatewayKey);
@@ -128,43 +125,44 @@ export function Index() {
   }, [targetFile?.cursor?.offset, prompts]);
 
   return (
-    <div className="flex flex-col gap-2">
-      <AuthVercel
-        vercelGatewayKey={vercelGatewayKey}
-        onVercelGatewayKeyChange={handleVercelGatewayKeyChange}
-        onClearVercelGatewayKey={handleClearVercelGatewayKey}
-        openSignal={vercelPanelOpenSignal}
-      />
-
-      <FileHeader
-        prompts={prompts}
-        promptIdx={promptIdx}
-        fileState={fileState}
-        pinnedFile={pinnedFile}
-        activeFile={activeFile}
-        isPinned={isPinned}
-        parseStatus={parseStatus}
-        parseError={parseError}
-        onPin={handlePin}
-        onUnpin={handleUnpin}
-      />
-
-      {targetFile && prompt && (
-        <Blueprint
-          file={targetFile}
-          prompt={prompt}
+    <Layout>
+      <div className="flex flex-col gap-2">
+        <AuthVercel
           vercelGatewayKey={vercelGatewayKey}
+          onVercelGatewayKeyChange={handleVercelGatewayKeyChange}
+          onClearVercelGatewayKey={handleClearVercelGatewayKey}
+          openSignal={vercelPanelOpenSignal}
         />
-      )}
 
-      <DevDebug
-        settings={settings}
-        prompts={prompts}
-        fileState={fileState}
-        activeFile={activeFile}
-        onSyncMessage={handleSyncMessageCallback}
-      />
-    </div>
+        <FileHeader
+          prompts={prompts}
+          promptIdx={promptIdx}
+          fileState={fileState}
+          pinnedFile={pinnedFile}
+          activeFile={activeFile}
+          isPinned={isPinned}
+          parseStatus={parseStatus}
+          parseError={parseError}
+          onPin={handlePin}
+          onUnpin={handleUnpin}
+        />
+
+        {targetFile && prompt && (
+          <Blueprint
+            file={targetFile}
+            prompt={prompt}
+            vercelGatewayKey={vercelGatewayKey}
+          />
+        )}
+
+        <DevDebug
+          prompts={prompts}
+          fileState={fileState}
+          activeFile={activeFile}
+          onSyncMessage={handleSyncMessageCallback}
+        />
+      </div>
+    </Layout>
   );
 }
 

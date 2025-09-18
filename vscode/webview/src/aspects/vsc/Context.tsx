@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo } from "react";
-import { Vsc } from ".";
+import { Vsc } from "./api";
 
 export namespace VscContext {
   export interface Value {

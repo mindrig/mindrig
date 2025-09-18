@@ -1,5 +1,7 @@
 import { AssetResolver } from "@/aspects/asset";
 import { bodyCn } from "@wrkspc/theme";
+import { VscSettings } from "@wrkspc/vsc-settings";
+import { VscState } from "@wrkspc/vsc-state";
 
 export interface WorkbenchWebviewHtmlUris {
   csp?: string;
@@ -14,6 +16,12 @@ export interface WorkbenchWebviewHtmlUris {
 export interface WorkbenchWebviewHtmlProps {
   devServer?: boolean;
   uris: WorkbenchWebviewHtmlUris;
+  /** Initial state. */
+  initialState?: VscState;
+}
+
+export interface WorkbenchWebviewHtmlInitialState {
+  settings?: VscSettings | undefined;
 }
 
 export type WorkbenchWebviewHtmlManifest = Record<string, string>;
@@ -29,6 +37,12 @@ export function workbenchWebviewHtml(props: WorkbenchWebviewHtmlProps): string {
     headInjects.push(
       `<meta http-equiv="Content-Security-Policy" content="${uris.csp}">`,
     );
+
+  if (props.initialState) {
+    headInjects.push(`<script>
+  globalThis.initialState = ${JSON.stringify(props.initialState)};
+</script>`);
+  }
 
   if (uris.reactRefresh)
     headInjects.push(`<script type="module">

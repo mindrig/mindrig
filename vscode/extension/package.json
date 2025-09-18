@@ -8,9 +8,13 @@
     "type": "git",
     "url": "https://github.com/mindcontrol/code.git"
   },
-  "engines": { "vscode": "^1.99.0" },
+  "engines": {
+    "vscode": "^1.99.0"
+  },
   "icon": "./assets/logo-256.png",
-  "categories": ["AI"],
+  "categories": [
+    "AI"
+  ],
   "main": "./dist/extension/extension.js",
   "contributes": {
     "icons": {
@@ -23,13 +27,24 @@
       }
     },
     "commands": [
-      { "command": "mindcontrol.showWorkbench", "title": "Show Workbench" },
+      {
+        "command": "mindcontrol.showWorkbench",
+        "title": "Show Workbench"
+      },
       {
         "command": "mindcontrol.addItWorks",
         "title": "Add 'It works!' comment"
       },
-      { "command": "mindrig.logIn", "title": "Log In", "icon": "$(unlock)" },
-      { "command": "mindrig.logOut", "title": "Log Out", "icon": "$(lock)" },
+      {
+        "command": "mindrig.logIn",
+        "title": "Log In",
+        "icon": "$(unlock)"
+      },
+      {
+        "command": "mindrig.logOut",
+        "title": "Log Out",
+        "icon": "$(lock)"
+      },
       {
         "command": "mindrig.showProfile",
         "title": "Show Profile",
@@ -39,6 +54,11 @@
     "configuration": {
       "title": "Mind Rig",
       "properties": {
+        "mindrig.playground.showSource": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show prompt source code in the playground"
+        },
         "mindcontrol.exampleSetting": {
           "type": "string",
           "default": "default value",
@@ -93,7 +113,10 @@
           "when": "view == mindcontrol.workbench && mindrig.auth.loggedIn",
           "group": "navigation"
         },
-        { "command": "mindrig.logOut", "when": "view == mindcontrol.workbench" }
+        {
+          "command": "mindrig.logOut",
+          "when": "view == mindcontrol.workbench"
+        }
       ],
       "view/item/context": [
         {
@@ -147,7 +170,7 @@
     "@playwright/test": "^1.55.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "@types/vscode": "^1.103.0",
+    "@types/vscode": "^1.99.0",
     "@vitest/coverage-v8": "^3.2.4",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
@@ -155,6 +178,9 @@
     "@wrkspc/file": "workspace:*",
     "@wrkspc/lang": "workspace:*",
     "@wrkspc/theme": "workspace:*",
+    "@wrkspc/vsc-controller": "workspace:*",
+    "@wrkspc/vsc-settings": "workspace:*",
+    "@wrkspc/vsc-state": "workspace:*",
     "fantasticon": "^3.0.0",
     "oxlint": "^1.13.0",
     "playwright-core": "^1.55.0",

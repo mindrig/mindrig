@@ -91,6 +91,9 @@
   --color-option-canvas-selected: var(--vscode-inputOption-activeBackground);
   --color-option-ink: var(--vscode-input-foreground);
   --color-option-ink-selected: var(--vscode-inputOption-activeForeground);
+
+  /* Section */
+  --color-section-border: var(--vscode-sideBarSectionHeader-border);
 }
 
 :placeholder-shown {

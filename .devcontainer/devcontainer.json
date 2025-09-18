@@ -48,7 +48,7 @@
         "bradlc.vscode-tailwindcss",
         "vitest.explorer"
       ],
-      "settings": {
+      "settingsUpdated": {
         "terminal.integrated.defaultProfile.linux": "fish",
         "terminal.integrated.profiles.linux": {
           "fish": { "path": "/usr/bin/fish" }

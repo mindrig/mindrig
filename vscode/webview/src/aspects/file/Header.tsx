@@ -3,6 +3,7 @@ import { LanguageIcon } from "@/aspects/language/Icon";
 import { Prompt } from "@mindcontrol/code-types";
 import { SyncFile } from "@mindcontrol/vscode-sync";
 import { Select } from "@wrkspc/form";
+import { PanelSection } from "../panel/Section";
 
 export namespace FileHeader {
   export interface Props {
@@ -129,7 +130,7 @@ export function FileHeader(props: FileHeader.Props) {
   };
 
   return (
-    <div className="space-y-3">
+    <PanelSection bordered>
       {displayFile && (
         <div className="flex items-center justify-between gap-2">
           <FileLabel file={displayFile} />
@@ -188,6 +189,6 @@ export function FileHeader(props: FileHeader.Props) {
       {isPinned && pinnedFile && renderFileCard(pinnedFile, "Pinned", true)}
 
       {!isPinned && displayFile && renderFileCard(displayFile, "Active", false)} */}
-    </div>
+    </PanelSection>
   );
 }

@@ -3,14 +3,9 @@ import { SyncFile } from "@mindcontrol/vscode-sync";
 import { Button } from "@wrkspc/ds";
 import { useState } from "react";
 import { DevCodeEditor } from "./CodeEditor";
-import { DevSettings } from "./SettingsPanel";
 
 export namespace DevDebug {
   export interface Props {
-    settings: {
-      enableFileTracking: boolean;
-      showFileContent: boolean;
-    } | null;
     prompts: Prompt[];
     fileState: SyncFile.State | null;
     activeFile: SyncFile.State | null;
@@ -19,7 +14,7 @@ export namespace DevDebug {
 }
 
 export function DevDebug(props: DevDebug.Props) {
-  const { settings, prompts, fileState, activeFile, onSyncMessage } = props;
+  const { prompts, fileState, activeFile, onSyncMessage } = props;
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -60,8 +55,6 @@ export function DevDebug(props: DevDebug.Props) {
               </div>
             </div>
           )}
-
-          <DevSettings settings={settings} />
         </div>
       )}
     </div>
