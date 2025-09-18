@@ -39,3 +39,6 @@ fi
 if [ -f ./Cargo.lock ]; then
   cargo build || echo "🟡 Cargo build failed, but that's ok"
 fi
+
+# Setup
+turbo setup || echo -e "🟠 Setup failed, please make sure to check the logs, address the problem and then run:\n\n    turbo setup"

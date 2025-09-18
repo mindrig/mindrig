@@ -1,3 +1,4 @@
+import { AssetResolver } from "@/aspects/asset";
 import { setAuthContext } from "@/auth";
 import { parsePrompts } from "@mindcontrol/code-parser-wasm";
 import type {
@@ -14,6 +15,16 @@ import { SettingsManager } from "../SettingsManager";
 import { resolveDevServerUri } from "../devServer";
 import { WorkbenchWebviewHtmlUris, workbenchWebviewHtml } from "./html";
 
+export type ViteManifest = Record<string, ViteManifestEntry>;
+
+export interface ViteManifestEntry {
+  file: string;
+  src?: string;
+  isEntry?: boolean;
+  css?: string[];
+  assets?: string[];
+}
+
 export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   //#region Static
 
@@ -26,6 +37,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   #isDevelopment: boolean;
   #extensionUri: vscode.Uri;
   #context: vscode.ExtensionContext;
+  #manifest: ViteManifest | null | undefined = undefined;
 
   constructor(
     readonly extensionUri: vscode.Uri,
@@ -61,7 +73,7 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
   ) {
     webviewView.webview.options = {
       enableScripts: true,
-      localResourceRoots: [this.#extensionUri],
+      localResourceRoots: [vscode.Uri.joinPath(this.#extensionUri, "dist")],
     };
 
     this.#webview = webviewView.webview;
@@ -124,32 +136,39 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
 
     const uris = useDevServer
       ? await this.#devServerUris()
-      : this.#localPaths(webview);
+      : await this.#localPaths(webview);
 
     return workbenchWebviewHtml({ devServer: useDevServer, uris });
   }
 
   async #devServerUris(): Promise<WorkbenchWebviewHtmlUris> {
     const externalUri = await resolveDevServerUri();
-    const baseUri = externalUri.toString().replace(/\/$/, "");
+    const base = externalUri.toString().replace(/\/$/, "");
 
     const csp = [
       "default-src 'none';",
-      `img-src ${webviewSources} https: data:;`,
-      `script-src ${webviewSources} ${baseUri} 'unsafe-eval' 'unsafe-inline';`,
-      `script-src-elem ${webviewSources} ${baseUri} 'unsafe-eval' 'unsafe-inline';`,
-      `style-src ${webviewSources} ${baseUri} 'unsafe-inline';`,
-      `connect-src ${baseUri} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https:;`,
+      `img-src ${webviewSources} ${base} https: data:;`,
+      `script-src ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
+      `script-src-elem ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
+      `style-src ${webviewSources} ${base} 'unsafe-inline';`,
+      `connect-src ${base} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https:;`,
     ].join(" ");
 
-    const app = `${baseUri}/src/index.tsx`;
-    const reactRefresh = `${baseUri}/@react-refresh`;
-    const viteClient = `${baseUri}/@vite/client`;
+    const app = `${base}/src/index.tsx`;
+    const reactRefresh = `${base}/@react-refresh`;
+    const viteClient = `${base}/@vite/client`;
 
-    return { csp, app, reactRefresh, viteClient };
+    return {
+      csp,
+      app,
+      reactRefresh,
+      viteClient,
+    };
   }
 
-  #localPaths(webview: vscode.Webview): WorkbenchWebviewHtmlUris {
+  async #localPaths(
+    webview: vscode.Webview,
+  ): Promise<WorkbenchWebviewHtmlUris> {
     const csp = [
       "default-src 'none';",
       `img-src ${webviewSources} https: data:;`,
@@ -158,15 +177,67 @@ export class WorkbenchViewProvider implements vscode.WebviewViewProvider {
       `connect-src ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https:;`,
     ].join(" ");
 
-    const baseUri = [this.#extensionUri, "dist", "webview"] as const;
+    const baseUri = vscode.Uri.joinPath(this.#extensionUri, "dist", "webview");
     const app = webview
-      .asWebviewUri(vscode.Uri.joinPath(...baseUri, "webview.js"))
+      .asWebviewUri(vscode.Uri.joinPath(baseUri, "webview.js"))
       .toString();
     const styles = webview
-      .asWebviewUri(vscode.Uri.joinPath(...baseUri, "index.css"))
+      .asWebviewUri(vscode.Uri.joinPath(baseUri, "index.css"))
       .toString();
 
-    return { csp, app, styles };
+    const manifest = await this.#loadManifest();
+    const asset = manifest
+      ? this.#createAssetResolver(webview, baseUri, manifest)
+      : undefined;
+
+    return { csp, app, styles, asset };
+  }
+
+  async #loadManifest(): Promise<ViteManifest | null> {
+    if (this.#manifest !== undefined) return this.#manifest;
+
+    const manifestUri = vscode.Uri.joinPath(
+      this.#extensionUri,
+      "dist",
+      "webview",
+      ".vite",
+      "manifest.json",
+    );
+
+    try {
+      const manifestStr = await vscode.workspace.fs.readFile(manifestUri);
+      this.#manifest = JSON.parse(new TextDecoder("utf-8").decode(manifestStr));
+    } catch (error) {
+      console.error("Failed to read webview manifest");
+    }
+
+    this.#manifest ||= null;
+    return this.#manifest;
+  }
+
+  #createAssetResolver(
+    webview: vscode.Webview,
+    baseUri: vscode.Uri,
+    manifest: ViteManifest,
+  ): AssetResolver | undefined {
+    const map = new Map<string, string>();
+
+    function add(path: string) {
+      if (map.has(path)) return;
+
+      const resolved = webview
+        .asWebviewUri(vscode.Uri.joinPath(baseUri, path))
+        .toString();
+      map.set(path, resolved);
+    }
+
+    for (const entry of Object.values(manifest)) {
+      add(entry.file);
+      entry.css?.forEach(add);
+      entry.assets?.forEach(add);
+    }
+
+    return { type: "manifest", manifest: Object.fromEntries(map) };
   }
 
   //#endregion

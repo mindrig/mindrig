@@ -1,3 +1,4 @@
+import { AssetResolver } from "@/aspects/asset";
 import { bodyCn } from "@wrkspc/theme";
 
 export interface WorkbenchWebviewHtmlUris {
@@ -6,6 +7,8 @@ export interface WorkbenchWebviewHtmlUris {
   styles?: string;
   reactRefresh?: string;
   viteClient?: string;
+  /** Assets resolve function. */
+  asset?: AssetResolver | undefined;
 }
 
 export interface WorkbenchWebviewHtmlProps {
@@ -13,10 +16,14 @@ export interface WorkbenchWebviewHtmlProps {
   uris: WorkbenchWebviewHtmlUris;
 }
 
+export type WorkbenchWebviewHtmlManifest = Record<string, string>;
+
 export function workbenchWebviewHtml(props: WorkbenchWebviewHtmlProps): string {
   const { uris, devServer: useDevServer } = props;
 
   const headInjects = [];
+
+  if (uris.asset) headInjects.push(assetResolver(uris.asset));
 
   if (uris.csp)
     headInjects.push(
@@ -57,6 +64,26 @@ ${renderInjects(headInjects)}
 ${renderInjects(bodyInjects)}
   </body>
 </html>`;
+}
+
+function assetResolver(asset: AssetResolver): string {
+  switch (asset?.type) {
+    case "manifest":
+      return `<script>
+  const assets = ${JSON.stringify(asset.manifest)};
+  globalThis.__asset__ = function asset(path) {
+    return assets[path] || path;
+  };
+</script>`;
+
+    case "base":
+      return `<script>
+  const base = ${JSON.stringify(asset.base)};
+  globalThis.__asset__ = function asset(path) {
+    return base + path;
+  };
+</script>`;
+  }
 }
 
 function renderInjects(injects: string[]) {

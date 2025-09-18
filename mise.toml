@@ -25,6 +25,7 @@ uv = "0.8.15"
 
 [env]
 _.python.venv = { path = ".venv", create = true }
+_.file = ".env.local"
 
 [settings]
 # Enable extra features

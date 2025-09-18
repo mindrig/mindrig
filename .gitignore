@@ -14,5 +14,7 @@ node_modules/
 .env.*.local
 !.env.local.example
 !.env.*.local.example
+# Dist
+dist/
 # Temp
-/tmp/
+tmp/
