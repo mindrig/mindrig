@@ -1103,14 +1103,12 @@ export function Assessment({
       ? models.find((model) => model.id === result.model?.id) || null
       : null;
 
-    const titleParts: string[] = [];
-    if (result.model?.label) titleParts.push(result.model.label);
-    if (result.runLabel) titleParts.push(result.runLabel);
-    if (result.label && !titleParts.includes(result.label))
-      titleParts.push(result.label);
-    const headerTitle = titleParts.length
-      ? titleParts.join(" • ")
-      : `Result ${index + 1}`;
+    const headerTitle =
+      result.label ||
+      [result.model?.label ?? result.model?.id, result.runLabel]
+        .filter(Boolean)
+        .join(" • ") ||
+      `Result ${index + 1}`;
 
     const modelSettingsPayload = result.model?.settings
       ? {
@@ -1128,12 +1126,12 @@ export function Assessment({
     const modelSettingsCollapsed = collapsedModelSettings[index] ?? true;
 
     return (
-      <div className="border border-gray-200 rounded">
-        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
+      <div className="border rounded">
+        <div className="flex items-center justify-between px-3 py-2 border-b">
           <div className="flex items-center gap-2">
             {isVerticalLayout && (
               <button
-                className="px-2 py-1 border border-gray-300 rounded text-xs"
+                className="px-2 py-1 border rounded text-xs"
                 onClick={() =>
                   setCollapsedResults((prev) => ({
                     ...prev,
@@ -1145,15 +1143,11 @@ export function Assessment({
                 {collapsed ? "+" : "–"}
               </button>
             )}
-            <span className="text-sm font-medium text-gray-700">
-              {headerTitle}
-            </span>
-            {!result.success && (
-              <span className="text-xs text-red-600">Failed</span>
-            )}
+            <span className="text-sm font-medium">{headerTitle}</span>
+            {!result.success && <span className="text-xs">Failed</span>}
           </div>
           {executionState.timestamp && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs">
               {new Date(executionState.timestamp).toLocaleString()}
             </span>
           )}
@@ -1162,9 +1156,9 @@ export function Assessment({
           <div className="p-3 space-y-3">
             {result.error && (
               <div className="space-y-2">
-                <h5 className="text-sm font-medium text-red-700">Error</h5>
-                <div className="p-3 bg-red-50 rounded border border-red-300">
-                  <pre className="text-sm text-red-900 whitespace-pre-wrap">
+                <h5 className="text-sm font-medium">Error</h5>
+                <div className="p-3 rounded border">
+                  <pre className="text-sm whitespace-pre-wrap">
                     {result.error}
                   </pre>
                 </div>
@@ -1174,11 +1168,9 @@ export function Assessment({
             {modelSettingsPayload && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h5 className="text-sm font-medium text-gray-700">
-                    Model Settings
-                  </h5>
+                  <h5 className="text-sm font-medium">Model Settings</h5>
                   <button
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-xs hover:underline"
                     onClick={() =>
                       setCollapsedModelSettings((prev) => ({
                         ...prev,
@@ -1190,7 +1182,7 @@ export function Assessment({
                   </button>
                 </div>
                 {!modelSettingsCollapsed && (
-                  <div className="p-3 bg-gray-50 rounded border border-gray-300 overflow-auto">
+                  <div className="p-3 rounded border overflow-auto">
                     <JsonView
                       value={modelSettingsPayload as object}
                       displayObjectSize={false}
@@ -1204,9 +1196,9 @@ export function Assessment({
             {result.request && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h5 className="text-sm font-medium text-gray-700">Request</h5>
+                  <h5 className="text-sm font-medium">Request</h5>
                   <button
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-xs hover:underline"
                     onClick={() =>
                       setExpandedRequest((prev) => ({
                         ...prev,
@@ -1218,7 +1210,7 @@ export function Assessment({
                   </button>
                 </div>
                 {expandedRequest[index] && (
-                  <div className="p-3 bg-gray-50 rounded border border-gray-300 overflow-auto">
+                  <div className="p-3 rounded border overflow-auto">
                     <JsonView
                       value={result.request as object}
                       displayObjectSize={false}
@@ -1233,10 +1225,8 @@ export function Assessment({
               <div className="space-y-2">
                 {result.prompt && (
                   <div className="space-y-1">
-                    <h5 className="text-sm font-medium text-gray-700">
-                      User Message
-                    </h5>
-                    <div className="p-3 bg-white rounded border border-gray-200">
+                    <h5 className="text-sm font-medium">User Message</h5>
+                    <div className="p-3 rounded border">
                       <pre className="text-xs whitespace-pre-wrap overflow-x-auto">
                         {result.prompt}
                       </pre>
@@ -1253,7 +1243,7 @@ export function Assessment({
                   if (parsedTextJson)
                     return (
                       <div className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded border border-gray-300 overflow-auto">
+                        <div className="p-3 rounded border overflow-auto">
                           <JsonView
                             value={parsedTextJson}
                             displayObjectSize={false}
@@ -1263,10 +1253,10 @@ export function Assessment({
                           />
                         </div>
                         <details className="text-xs">
-                          <summary className="cursor-pointer select-none text-gray-600">
+                          <summary className="cursor-pointer select-none">
                             Raw text
                           </summary>
-                          <pre className="mt-1 p-2 bg-white rounded border border-gray-200 whitespace-pre-wrap overflow-x-auto text-xs">
+                          <pre className="mt-1 p-2 rounded border whitespace-pre-wrap overflow-x-auto text-xs">
                             {text}
                           </pre>
                         </details>
@@ -1278,7 +1268,7 @@ export function Assessment({
                         <div className="flex items-center gap-2 text-xs">
                           <button
                             type="button"
-                            className={`px-2 py-1 border border-gray-300 rounded ${textTab === "markdown" ? "bg-gray-200" : "bg-white"}`}
+                            className={`px-2 py-1 border rounded ${textTab === "markdown" ? "font-semibold" : ""}`}
                             onClick={() =>
                               setTextViewTab((prev) => ({
                                 ...prev,
@@ -1290,7 +1280,7 @@ export function Assessment({
                           </button>
                           <button
                             type="button"
-                            className={`px-2 py-1 border border-gray-300 rounded ${textTab === "raw" ? "bg-gray-200" : "bg-white"}`}
+                            className={`px-2 py-1 border rounded ${textTab === "raw" ? "font-semibold" : ""}`}
                             onClick={() =>
                               setTextViewTab((prev) => ({
                                 ...prev,
@@ -1302,11 +1292,11 @@ export function Assessment({
                           </button>
                         </div>
                         {textTab === "markdown" ? (
-                          <div className="p-3 bg-white rounded border border-gray-200">
+                          <div className="p-3 rounded border">
                             <MarkdownPreview source={text} />
                           </div>
                         ) : (
-                          <div className="p-3 bg-white rounded border border-gray-200">
+                          <div className="p-3 rounded border">
                             <pre className="text-xs whitespace-pre-wrap overflow-x-auto">
                               {text}
                             </pre>
@@ -1320,11 +1310,9 @@ export function Assessment({
                 {result.response && (
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <h6 className="text-xs font-medium text-gray-600">
-                        Response JSON
-                      </h6>
+                      <h6 className="text-xs font-medium">Response JSON</h6>
                       <button
-                        className="text-xs text-blue-600 hover:underline"
+                        className="text-xs hover:underline"
                         onClick={() =>
                           setExpandedResponse((prev) => ({
                             ...prev,
@@ -1338,7 +1326,7 @@ export function Assessment({
                       </button>
                     </div>
                     {expandedResponse[index] && (
-                      <div className="p-3 bg-gray-50 rounded border border-gray-300 overflow-auto">
+                      <div className="p-3 rounded border overflow-auto">
                         <JsonView
                           value={result.response as object}
                           displayObjectSize={false}
@@ -1362,24 +1350,22 @@ export function Assessment({
     <div className="flex flex-col gap-2">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-semibold text-gray-800">Model</h4>
+          <h4 className="text-sm font-semibold">Model</h4>
           <button
             type="button"
             onClick={handleAddModel}
             disabled={modelsLoading && models.length === 0}
-            className="inline-flex items-center px-3 py-1.5 border border-gray-300 bg-white text-gray-700 text-xs font-medium rounded hover:bg-gray-50 disabled:opacity-60"
+            className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded disabled:opacity-60"
           >
             {modelConfigs.length > 1 ? "Add model" : "Multi model"}
           </button>
         </div>
-        {modelsError && (
-          <div className="text-xs text-red-600">{modelsError}</div>
-        )}
+        {modelsError && <div className="text-xs">{modelsError}</div>}
         {modelsLoading && models.length === 0 && (
-          <div className="text-xs text-gray-600">Loading models…</div>
+          <div className="text-xs">Loading models…</div>
         )}
         {modelConfigs.length === 0 && !modelsLoading && (
-          <div className="text-xs text-gray-600">
+          <div className="text-xs">
             No models available. Provide gateway credentials to load models.
           </div>
         )}
@@ -1394,17 +1380,12 @@ export function Assessment({
               ? providerLogoUrl(caps.provider, { format: "svg" })
               : "";
             return (
-              <div
-                key={config.key}
-                className="border border-gray-200 rounded p-3 bg-white space-y-3"
-              >
+              <div key={config.key} className="border rounded p-3 space-y-3">
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-gray-600">
-                      Provider
-                    </label>
+                    <label className="text-xs font-medium">Provider</label>
                     <select
-                      className="min-w-[160px] px-3 py-1.5 border border-gray-300 rounded text-sm"
+                      className="min-w-[160px] px-3 py-1.5 border rounded text-sm"
                       value={config.providerId ?? ""}
                       onChange={(event) =>
                         handleProviderChange(config, event.target.value)
@@ -1421,18 +1402,14 @@ export function Assessment({
                       ))}
                     </select>
                     {errors.provider && (
-                      <span className="text-xs text-red-600">
-                        {errors.provider}
-                      </span>
+                      <span className="text-xs">{errors.provider}</span>
                     )}
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-gray-600">
-                      Model
-                    </label>
+                    <label className="text-xs font-medium">Model</label>
                     <select
-                      className="min-w-[200px] px-3 py-1.5 border border-gray-300 rounded text-sm"
+                      className="min-w-[200px] px-3 py-1.5 border rounded text-sm"
                       value={config.modelId ?? ""}
                       onChange={(event) =>
                         handleModelChange(config, event.target.value || null)
@@ -1449,9 +1426,7 @@ export function Assessment({
                       ))}
                     </select>
                     {errors.model && (
-                      <span className="text-xs text-red-600">
-                        {errors.model}
-                      </span>
+                      <span className="text-xs">{errors.model}</span>
                     )}
                   </div>
 
@@ -1477,7 +1452,7 @@ export function Assessment({
                     <button
                       type="button"
                       onClick={() => handleRemoveModel(config.key)}
-                      className="ml-auto inline-flex items-center justify-center h-6 w-6 rounded-full border border-red-300 text-red-500 text-xs hover:bg-red-50"
+                      className="ml-auto inline-flex items-center justify-center h-6 w-6 rounded-full border text-xs"
                       title="Remove model"
                     >
                       ✕
@@ -1488,27 +1463,19 @@ export function Assessment({
                 {config.modelId && (
                   <div className="flex items-center gap-2 text-[10px] flex-wrap">
                     {caps.supportsImages && (
-                      <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                        Images
-                      </span>
+                      <span className="px-2 py-0.5 rounded border">Images</span>
                     )}
                     {caps.supportsVideo && (
-                      <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
-                        Video
-                      </span>
+                      <span className="px-2 py-0.5 rounded border">Video</span>
                     )}
                     {caps.supportsFiles && (
-                      <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
-                        Files
-                      </span>
+                      <span className="px-2 py-0.5 rounded border">Files</span>
                     )}
                     {caps.supportsTools && (
-                      <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        Tools
-                      </span>
+                      <span className="px-2 py-0.5 rounded border">Tools</span>
                     )}
                     {caps.supportsReasoning && (
-                      <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                      <span className="px-2 py-0.5 rounded border">
                         Reasoning
                       </span>
                     )}
@@ -1516,7 +1483,7 @@ export function Assessment({
                 )}
 
                 {isExpanded && (
-                  <div className="space-y-4 border border-gray-100 rounded p-3 bg-gray-50">
+                  <div className="space-y-4 border rounded p-3">
                     {(() => {
                       const canAttach =
                         caps.supportsFiles || caps.supportsImages;
@@ -1529,7 +1496,7 @@ export function Assessment({
                                 <button
                                   type="button"
                                   onClick={() => requestAttachments(config)}
-                                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 bg-white text-gray-700 text-xs font-medium rounded hover:bg-gray-50 whitespace-nowrap"
+                                  className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded whitespace-nowrap"
                                 >
                                   {caps.supportsFiles
                                     ? "Attach Files"
@@ -1540,22 +1507,22 @@ export function Assessment({
                                 <button
                                   type="button"
                                   onClick={() => clearAttachments(config.key)}
-                                  className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 bg-white text-gray-700 text-xs font-medium rounded hover:bg-gray-50 whitespace-nowrap"
+                                  className="inline-flex items-center px-2.5 py-1.5 border text-xs font-medium rounded whitespace-nowrap"
                                 >
                                   Clear
                                 </button>
                               )}
                             </div>
                             {attachments.length > 0 && (
-                              <span className="text-xs text-gray-600">
+                              <span className="text-xs">
                                 {attachments.length} attachment
                                 {attachments.length > 1 ? "s" : ""}
                               </span>
                             )}
                           </div>
                           {attachments.length > 0 && (
-                            <div className="p-2 bg-white border border-gray-200 rounded">
-                              <ul className="text-xs text-gray-700 space-y-1">
+                            <div className="p-2 border rounded">
+                              <ul className="text-xs space-y-1">
                                 {attachments.map(
                                   (attachment, attachmentIdx) => (
                                     <li
@@ -1565,7 +1532,7 @@ export function Assessment({
                                       <span className="truncate">
                                         {attachment.name}
                                       </span>
-                                      <span className="text-gray-500 ml-2">
+                                      <span className="ml-2">
                                         {attachment.mime || ""}
                                       </span>
                                     </li>
@@ -1579,11 +1546,11 @@ export function Assessment({
                     })()}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                      <label className="text-xs text-gray-700">
+                      <label className="text-xs">
                         Max tokens
                         <input
                           type="number"
-                          className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                          className="mt-1 w-full px-2 py-1 border rounded text-xs"
                           value={config.generationOptions.maxOutputTokens ?? ""}
                           onChange={(event) =>
                             updateGenerationOption(
@@ -1597,11 +1564,11 @@ export function Assessment({
                           min={1}
                         />
                       </label>
-                      <label className="text-xs text-gray-700">
+                      <label className="text-xs">
                         Temperature
                         <input
                           type="number"
-                          className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                          className="mt-1 w-full px-2 py-1 border rounded text-xs"
                           value={config.generationOptions.temperature ?? ""}
                           onChange={(event) =>
                             updateGenerationOption(
@@ -1617,11 +1584,11 @@ export function Assessment({
                           max={2}
                         />
                       </label>
-                      <label className="text-xs text-gray-700">
+                      <label className="text-xs">
                         Top P
                         <input
                           type="number"
-                          className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                          className="mt-1 w-full px-2 py-1 border rounded text-xs"
                           value={config.generationOptions.topP ?? ""}
                           onChange={(event) =>
                             updateGenerationOption(
@@ -1637,11 +1604,11 @@ export function Assessment({
                           max={1}
                         />
                       </label>
-                      <label className="text-xs text-gray-700">
+                      <label className="text-xs">
                         Top K
                         <input
                           type="number"
-                          className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                          className="mt-1 w-full px-2 py-1 border rounded text-xs"
                           value={config.generationOptions.topK ?? ""}
                           onChange={(event) =>
                             updateGenerationOption(
@@ -1655,11 +1622,11 @@ export function Assessment({
                           min={0}
                         />
                       </label>
-                      <label className="text-xs text-gray-700">
+                      <label className="text-xs">
                         Presence penalty
                         <input
                           type="number"
-                          className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                          className="mt-1 w-full px-2 py-1 border rounded text-xs"
                           value={config.generationOptions.presencePenalty ?? ""}
                           onChange={(event) =>
                             updateGenerationOption(
@@ -1675,11 +1642,11 @@ export function Assessment({
                           max={2}
                         />
                       </label>
-                      <label className="text-xs text-gray-700">
+                      <label className="text-xs">
                         Frequency penalty
                         <input
                           type="number"
-                          className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                          className="mt-1 w-full px-2 py-1 border rounded text-xs"
                           value={
                             config.generationOptions.frequencyPenalty ?? ""
                           }
@@ -1697,11 +1664,11 @@ export function Assessment({
                           max={2}
                         />
                       </label>
-                      <label className="text-xs text-gray-700">
+                      <label className="text-xs">
                         Stop sequences
                         <input
                           type="text"
-                          className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                          className="mt-1 w-full px-2 py-1 border rounded text-xs"
                           value={config.generationOptions.stopSequences ?? ""}
                           onChange={(event) =>
                             updateGenerationOption(
@@ -1713,11 +1680,11 @@ export function Assessment({
                           placeholder="comma,separated"
                         />
                       </label>
-                      <label className="text-xs text-gray-700">
+                      <label className="text-xs">
                         Seed
                         <input
                           type="number"
-                          className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                          className="mt-1 w-full px-2 py-1 border rounded text-xs"
                           value={config.generationOptions.seed ?? ""}
                           onChange={(event) =>
                             updateGenerationOption(
@@ -1733,7 +1700,7 @@ export function Assessment({
                     </div>
 
                     <div className="space-y-2">
-                      <label className="inline-flex items-center gap-2 text-xs text-gray-700">
+                      <label className="inline-flex items-center gap-2 text-xs">
                         <input
                           type="checkbox"
                           checked={
@@ -1750,10 +1717,10 @@ export function Assessment({
                         Enable reasoning
                       </label>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <label className="text-xs text-gray-700">
+                        <label className="text-xs">
                           Reasoning effort
                           <select
-                            className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                            className="mt-1 w-full px-2 py-1 border rounded text-xs"
                             value={config.reasoning.effort}
                             onChange={(event) =>
                               updateReasoning(config.key, {
@@ -1771,11 +1738,11 @@ export function Assessment({
                             <option value="high">high</option>
                           </select>
                         </label>
-                        <label className="text-xs text-gray-700">
+                        <label className="text-xs">
                           Budget tokens (optional)
                           <input
                             type="number"
-                            className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                            className="mt-1 w-full px-2 py-1 border rounded text-xs"
                             value={config.reasoning.budgetTokens}
                             onChange={(event) =>
                               updateReasoning(config.key, {
@@ -1796,10 +1763,10 @@ export function Assessment({
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <label className="text-xs text-gray-700">
+                      <label className="text-xs">
                         Tools (JSON)
                         <textarea
-                          className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                          className="mt-1 w-full px-2 py-1 border rounded text-xs font-mono"
                           rows={3}
                           value={config.toolsJson}
                           onChange={(event) =>
@@ -1808,15 +1775,13 @@ export function Assessment({
                           placeholder="null"
                         />
                         {errors.tools && (
-                          <span className="text-xs text-red-600">
-                            {errors.tools}
-                          </span>
+                          <span className="text-xs">{errors.tools}</span>
                         )}
                       </label>
-                      <label className="text-xs text-gray-700">
+                      <label className="text-xs">
                         Provider Options (JSON)
                         <textarea
-                          className="mt-1 w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                          className="mt-1 w-full px-2 py-1 border rounded text-xs font-mono"
                           rows={3}
                           value={config.providerOptionsJson}
                           onChange={(event) =>
@@ -1828,7 +1793,7 @@ export function Assessment({
                           placeholder="{}"
                         />
                         {errors.providerOptions && (
-                          <span className="text-xs text-red-600">
+                          <span className="text-xs">
                             {errors.providerOptions}
                           </span>
                         )}
@@ -1875,14 +1840,14 @@ export function Assessment({
             <div className="flex items-center gap-2">
               <button
                 onClick={handleLoadCsv}
-                className="inline-flex items-center px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded hover:bg-emerald-700 whitespace-nowrap"
+                className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded whitespace-nowrap"
               >
                 {usingCsv ? "Reload CSV" : "Load CSV"}
               </button>
               {usingCsv && (
                 <button
                   onClick={handleClearCsv}
-                  className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 bg-white text-gray-700 text-xs font-medium rounded hover:bg-gray-50 whitespace-nowrap"
+                  className="inline-flex items-center px-2.5 py-1.5 border text-xs font-medium rounded whitespace-nowrap"
                 >
                   Clear CSV
                 </button>
@@ -1891,7 +1856,7 @@ export function Assessment({
 
             {usingCsv && (
               <div className="min-w-0 flex-1 text-right">
-                <span className="text-xs text-gray-600 font-mono truncate block">
+                <span className="text-xs font-mono truncate block">
                   {csvFileLabel ? `Loaded: ${csvFileLabel}` : "CSV loaded"}
                 </span>
               </div>
@@ -1899,7 +1864,7 @@ export function Assessment({
           </div>
 
           {!usingCsv && (
-            <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
+            <div className="text-xs border rounded p-2">
               Load a CSV to enable dataset options.
             </div>
           )}
@@ -1907,7 +1872,7 @@ export function Assessment({
           {usingCsv && (
             <>
               <div className="space-y-2">
-                <h5 className="text-sm font-medium text-gray-700">Run Scope</h5>
+                <h5 className="text-sm font-medium">Run Scope</h5>
                 <div className="flex flex-wrap items-center gap-4 text-sm">
                   <label className="inline-flex items-center gap-1">
                     <input
@@ -1944,11 +1909,9 @@ export function Assessment({
 
               {datasetMode === "row" && (
                 <div className="space-y-2">
-                  <h5 className="text-sm font-medium text-gray-700">
-                    Select Row
-                  </h5>
+                  <h5 className="text-sm font-medium">Select Row</h5>
                   <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                    className="w-full px-3 py-2 border rounded text-sm"
                     value={selectedRowIdx ?? ""}
                     onChange={(event) => handleSelectRow(event.target.value)}
                   >
@@ -1972,7 +1935,7 @@ export function Assessment({
                       );
                     })}
                   </select>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs">
                     Selecting a row fills the variables below and overrides
                     manual input.
                   </p>
@@ -1981,9 +1944,7 @@ export function Assessment({
 
               {datasetMode === "range" && (
                 <div className="space-y-2">
-                  <h5 className="text-sm font-medium text-gray-700">
-                    Enter CSV Range
-                  </h5>
+                  <h5 className="text-sm font-medium">Enter CSV Range</h5>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
@@ -1992,9 +1953,9 @@ export function Assessment({
                       value={rangeStart}
                       onChange={(event) => setRangeStart(event.target.value)}
                       placeholder="Start (1)"
-                      className="w-28 px-3 py-2 border border-gray-300 rounded text-sm"
+                      className="w-28 px-3 py-2 border rounded text-sm"
                     />
-                    <span className="text-gray-500">to</span>
+                    <span>to</span>
                     <input
                       type="number"
                       min={1}
@@ -2002,17 +1963,17 @@ export function Assessment({
                       value={rangeEnd}
                       onChange={(event) => setRangeEnd(event.target.value)}
                       placeholder={`End (${csvRows.length})`}
-                      className="w-28 px-3 py-2 border border-gray-300 rounded text-sm"
+                      className="w-28 px-3 py-2 border rounded text-sm"
                     />
                   </div>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs">
                     Range is inclusive. 1 to {csvRows.length} available.
                   </p>
                 </div>
               )}
 
               {datasetMode === "all" && (
-                <div className="text-xs text-gray-700">
+                <div className="text-xs">
                   All rows will run ({csvRows.length}).
                 </div>
               )}
@@ -2023,10 +1984,10 @@ export function Assessment({
 
       {hasVariables && inputSource === "manual" && (
         <div className="space-y-3">
-          <h5 className="text-sm font-medium text-gray-700">Variables</h5>
+          <h5 className="text-sm font-medium">Variables</h5>
           {prompt.vars!.map((variable: PromptVar) => (
             <div key={variable.exp} className="space-y-1">
-              <label className="block text-sm font-medium text-gray-600">
+              <label className="block text-sm font-medium">
                 {variable.exp}
               </label>
               <input
@@ -2035,7 +1996,7 @@ export function Assessment({
                 onChange={(event) =>
                   handleVariableChange(variable.exp, event.target.value)
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full px-3 py-2 border rounded focus:outline-none text-sm"
                 placeholder={`Enter value for ${variable.exp}`}
               />
             </div>
@@ -2047,7 +2008,7 @@ export function Assessment({
         <button
           onClick={handleExecute}
           disabled={executionState.isLoading || !canExecute()}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="px-4 py-2 border text-sm font-medium rounded disabled:opacity-60"
         >
           {executionState.isLoading ? "Running..." : "Run Prompt"}
         </button>
@@ -2055,7 +2016,7 @@ export function Assessment({
         {(executionState.results.length > 0 || executionState.error) && (
           <button
             onClick={handleClear}
-            className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded hover:bg-gray-700"
+            className="px-4 py-2 border text-sm font-medium rounded"
           >
             Clear
           </button>
@@ -2065,26 +2026,26 @@ export function Assessment({
       {executionState.results.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h5 className="text-sm font-medium text-gray-700">Results</h5>
+            <h5 className="text-sm font-medium">Results</h5>
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => setResultsLayout("vertical")}
-                className={`px-2 py-1 text-xs font-medium rounded border ${resultsLayout === "vertical" ? "border-blue-500 text-blue-600 bg-blue-50" : "border-gray-300 text-gray-600 bg-white"}`}
+                className={`px-2 py-1 text-xs font-medium rounded border ${resultsLayout === "vertical" ? "font-semibold" : ""}`}
               >
                 Vertical
               </button>
               <button
                 type="button"
                 onClick={() => setResultsLayout("horizontal")}
-                className={`px-2 py-1 text-xs font-medium rounded border ${resultsLayout === "horizontal" ? "border-blue-500 text-blue-600 bg-blue-50" : "border-gray-300 text-gray-600 bg-white"}`}
+                className={`px-2 py-1 text-xs font-medium rounded border ${resultsLayout === "horizontal" ? "font-semibold" : ""}`}
               >
                 Horizontal
               </button>
               <button
                 type="button"
                 onClick={() => setResultsLayout("carousel")}
-                className={`px-2 py-1 text-xs font-medium rounded border ${resultsLayout === "carousel" ? "border-blue-500 text-blue-600 bg-blue-50" : "border-gray-300 text-gray-600 bg-white"}`}
+                className={`px-2 py-1 text-xs font-medium rounded border ${resultsLayout === "carousel" ? "font-semibold" : ""}`}
               >
                 Carousel
               </button>
@@ -2116,7 +2077,7 @@ export function Assessment({
             executionState.results.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs">
                     Result {activeResultIndex + 1} of{" "}
                     {executionState.results.length}
                   </span>
@@ -2127,7 +2088,7 @@ export function Assessment({
                         setActiveResultIndex((index) => Math.max(index - 1, 0))
                       }
                       disabled={activeResultIndex === 0}
-                      className="h-7 w-7 inline-flex items-center justify-center border border-gray-300 rounded text-gray-600 disabled:opacity-50"
+                      className="h-7 w-7 inline-flex items-center justify-center border rounded disabled:opacity-50"
                     >
                       ◀
                     </button>
@@ -2144,7 +2105,7 @@ export function Assessment({
                       disabled={
                         activeResultIndex === executionState.results.length - 1
                       }
-                      className="h-7 w-7 inline-flex items-center justify-center border border-gray-300 rounded text-gray-600 disabled:opacity-50"
+                      className="h-7 w-7 inline-flex items-center justify-center border rounded disabled:opacity-50"
                     >
                       ▶
                     </button>
@@ -2161,9 +2122,9 @@ export function Assessment({
 
       {executionState.error && (
         <div className="space-y-2">
-          <h5 className="text-sm font-medium text-red-700">Error</h5>
-          <div className="p-3 bg-red-50 rounded border border-red-300">
-            <pre className="text-sm text-red-900 whitespace-pre-wrap">
+          <h5 className="text-sm font-medium">Error</h5>
+          <div className="p-3 rounded border">
+            <pre className="text-sm whitespace-pre-wrap">
               {executionState.error}
             </pre>
           </div>
@@ -2186,11 +2147,11 @@ function PricingInfo(props: { usage: any; modelEntry: AvailableModel | null }) {
   const outputCost = outputTokens * outputPerToken;
   const total = inputCost + outputCost;
   return (
-    <div className="text-xs text-gray-700">
-      <div className="inline-flex items-center gap-2 px-2 py-1 border border-gray-200 rounded bg-white">
+    <div className="text-xs">
+      <div className="inline-flex items-center gap-2 px-2 py-1 border rounded">
         <span className="font-medium">Estimated cost:</span>
         <span>${total.toFixed(6)}</span>
-        <span className="text-gray-500">
+        <span>
           (in: {inputTokens} • ${inputCost.toFixed(6)}, out: {outputTokens} • $
           {outputCost.toFixed(6)})
         </span>
