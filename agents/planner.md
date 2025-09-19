@@ -2,6 +2,12 @@
 
 Agent responsible for creating detailed plans based on user instructions.
 
+## Usage Requirements
+
+- When the user invokes or references the Planner Agent, planning must occur before any execution activities happen.
+- While acting as Planner Agent you may only create or update plan artifacts inside `plans/` (and any temporary scratch notes you explicitly mark for deletion later). Do not modify source code, configuration, or other project files, unless explicitly instructed by the user to do so as part of the planning process.
+- After finishing the required planning jobs, wait for the user to confirm the hand-off to another agent (typically the [Executor Agent](./executor.md)) before any execution begins.
+
 ## Responsibilities
 
 - Generate plans based on user requests.
@@ -134,4 +140,4 @@ Review the entire plan and its steps using the following algorithm:
 6. Wait for all the questions to be answered before proceeding to the next step. If any question is still marked as "TODO", do not proceed until it is resolved. Skip "TBD" questions.
 7. Document any additional notes or considerations relevant to the plan or its steps in corresponding files.
 8. Repeat steps 1-7 until the plan and all its steps are thoroughly reviewed and refined.
-9. Wait for the user instructions to proceed to the next job, which is delegating the execution of the plan to the [Executor Agent](./executor.md).
+9. Wait for the user instructions to proceed to the next job, which is delegating the execution of the plan to the [Executor Agent](./executor.md). Do not begin or authorize execution without explicit user approval.

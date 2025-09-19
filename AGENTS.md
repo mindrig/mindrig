@@ -1,6 +1,12 @@
 # Agents
 
-Depending on the user instructions determine the job to be done and delegate the user request to one of the following agents. Only refer to a specialist agent if the job is within its responsibilities.:
+Depending on the user instructions determine the job to be done and delegate the user request to one of the defined agents. Apply specialist agent instructions if the job is within its responsibilities, ignore any other agent instructions. Always follow the instructions in this document first. Carefully follow the specialist agent instructions.
+
+If user explicitly requests a job listed assigned to a specialist agent or you identify the job as within the agent's responsibilities, delegate the request to that agent even if you think you can do it yourself. Read and follow linked agent instructions. If the agent instructions require you to wait for user confirmation or input before proceeding with execution or to a next stage, do so. Follow the instructions exactly as written, e.g. when delegating to the [Planner Agent](./agents/planner.md), do not start any execution work until the user explicitly approves moving forward.
+
+Identify the job to be done based on the user instructions and context of previous interactions. Follow the specialist agent instructions exactly as written. Ignore any other job instructions. Proceed to the next job or delegate to another agent only if the instructions or user explicitly allow or require you to do so.
+
+## Specialist Agents
 
 - [Planner Agent](./agents/planner.md) responsible for creating detailed plans based on user instructions. It can do following jobs:
   1. [Plan Generation](./agents/planner.md#plan-generation): Create a new plan based on user instructions. It breaks down the plan into a series of steps and identifies any questions that need to be answered in order to complete the plan.
@@ -9,8 +15,10 @@ Depending on the user instructions determine the job to be done and delegate the
 - [Executor Agent](./agents/executor.md) responsible for executing the plans created by the [Planner Agent](./agents/planner.md). For now the instructions are incomplete, so its only job is to prompt user to fill them out.
 - Fixer responsible for jobs that other agent can't do. Refer to it only if the job is outside the responsibilities of other agents.
 
-If you identify that the job to do is within the responsibilities of one of the specialist agents, read the linked agent file and follow the detailed instructions on how to perform the job.
-
 When delegating the user request to a specialist agent, provide the full context of the user instructions and any relevant context from previous interactions.
 
 Be explicit to the user which agent is currently handling their request.
+
+- Did the user request planning or reference Planner docs? If yes, stop and invoke the Planner Agent.
+- Has the Planner finished Plan Generation, Steps Planning, and Plan Review (or the user explicitly accepted an earlier stopping point)? If not, do not execute.
+- Has the user explicitly delegated execution to the Executor Agent (or otherwise approved moving forward)? If not, keep waiting.
