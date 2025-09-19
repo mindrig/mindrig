@@ -14,5 +14,5 @@ All type definitions are located in the [`./types/src/`](../types/src/) director
 
 The Genotype compiler (`gt build`) generates language-specific packages:
 
-- **TypeScript**: [`./types/pkg/ts/`](../types/pkg/ts/).
-- **Rust**: [`./types/pkg/rs/`](../types/pkg/rs/).
+- **TypeScript**: [`./types/pkgs/ts/`](../types/pkgs/ts/).
+- **Rust**: [`./types/pkgs/rs/`](../types/pkgs/rs/).

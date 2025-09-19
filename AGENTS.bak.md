@@ -63,14 +63,14 @@ Shared type definitions using the Genotype programming language for cross-langua
 **Stack:**
 
 - [Genotype](https://github.com/kossnocorp/genotype) programming language for type definitions
-- Generates TypeScript types in [`types/pkg/ts`](./types/pkg/ts)
-- Generates Rust types in [`types/pkg/rs`](./types/pkg/rs)
+- Generates TypeScript types in [`types/pkgs/ts`](./types/pkgs/ts)
+- Generates Rust types in [`types/pkgs/rs`](./types/pkgs/rs)
 - Automatically included in both pnpm (pkg/ts) and Rust (pkg/rs) workspaces
 
 **Available commands:**
 
 - `gt build` - Generate TypeScript and Rust types from Genotype definitions
-- **IMPORTANT**: Never manually edit the generated `types/pkg/` directories
+- **IMPORTANT**: Never manually edit the generated `types/pkgs/` directories
 
 **Language Guide**: Reference the [Genotype language guide](https://github.com/kossnocorp/genotype/blob/main/cli/examples/guide/guide.type) and [syntax examples](https://github.com/kossnocorp/genotype/tree/main/examples/02-syntax)
 

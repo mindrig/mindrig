@@ -86,7 +86,7 @@
       "command": "pnpm",
       "args": ["run", "dev"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode/extension"
+        "cwd": "${workspaceFolder}/pkgs/vsc-extension"
       },
       "isBackground": true,
       "presentation": {
@@ -120,7 +120,7 @@
       "command": "pnpm",
       "args": ["run", "build"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode/extension"
+        "cwd": "${workspaceFolder}/pkgs/vsc-extension"
       },
       "presentation": {
         "reveal": "silent",
@@ -148,7 +148,7 @@
       "command": "pnpm",
       "args": ["run", "build"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode/extension"
+        "cwd": "${workspaceFolder}/pkgs/vsc-extension"
       },
       "presentation": {
         "reveal": "silent",
@@ -175,7 +175,7 @@
       "command": "pnpm",
       "args": ["run", "preview:watch"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode/extension"
+        "cwd": "${workspaceFolder}/pkgs/vsc-extension"
       },
       "isBackground": true,
       "presentation": {
@@ -212,7 +212,7 @@
       "command": "pnpm",
       "args": ["run", "dev"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode/webview"
+        "cwd": "${workspaceFolder}/pkgs/vsc-webview"
       },
       "isBackground": true,
       "presentation": {
@@ -232,7 +232,7 @@
         ],
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "VITE",
+          "beginsPattern": ".*ready in.*",
           "endsPattern": ".*ready in.*"
         }
       }
@@ -246,7 +246,7 @@
       "command": "pnpm",
       "args": ["run", "build"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode/webview"
+        "cwd": "${workspaceFolder}/pkgs/vsc-webview"
       },
       "presentation": {
         "reveal": "silent",
@@ -273,7 +273,7 @@
       "command": "pnpm",
       "args": ["run", "preview"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode/webview"
+        "cwd": "${workspaceFolder}/pkgs/vsc-webview"
       },
       "presentation": {
         "reveal": "silent",
@@ -299,7 +299,7 @@
       "command": "pnpm",
       "args": ["run", "preview:watch"],
       "options": {
-        "cwd": "${workspaceFolder}/vscode/webview"
+        "cwd": "${workspaceFolder}/pkgs/vsc-webview"
       },
       "isBackground": true,
       "presentation": {

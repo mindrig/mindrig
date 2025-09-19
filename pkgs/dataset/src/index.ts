@@ -1,4 +1,4 @@
-import type { Prompt, PromptVar } from "@mindcontrol/code-types";
+import type { Prompt, PromptVar } from "@mindrig/types";
 import { substituteVariables } from "@wrkspc/prompt";
 
 export type DatasetMode = "row" | "range" | "all";

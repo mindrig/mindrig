@@ -5,8 +5,10 @@
   "description": "",
   "main": "index.js",
   "workspaces": [
-    "vscode/extension",
-    "vscode/webview"
+    "pkgs/*",
+    "pkgs/parser/pkg",
+    "pkgs/types/pkgs/ts",
+    "subs/*/pkgs/*"
   ],
   "scripts": {
     "all": "turbo run all",

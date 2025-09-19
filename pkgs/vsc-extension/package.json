@@ -1,0 +1,198 @@
+{
+  "name": "vscode",
+  "publisher": "mindcontrol",
+  "displayName": "Mind Rig",
+  "description": "Mind Rig extension for VS Code",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mindcontrol/code.git"
+  },
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "icon": "./assets/logo-256.png",
+  "categories": [
+    "AI"
+  ],
+  "main": "./dist/extension/extension.js",
+  "contributes": {
+    "icons": {
+      "mindrig-toolbar-icon": {
+        "description": "Mind Rig toolbar icon",
+        "default": {
+          "fontPath": "./assets/icons.woff2",
+          "fontCharacter": "\\E000"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "mindcontrol.showWorkbench",
+        "title": "Show Workbench"
+      },
+      {
+        "command": "mindcontrol.addItWorks",
+        "title": "Add 'It works!' comment"
+      },
+      {
+        "command": "mindcontrol.runPrompt",
+        "title": "Run Prompt"
+      },
+      {
+        "command": "mindrig.logIn",
+        "title": "Log In",
+        "icon": "$(unlock)"
+      },
+      {
+        "command": "mindrig.logOut",
+        "title": "Log Out",
+        "icon": "$(lock)"
+      },
+      {
+        "command": "mindrig.showProfile",
+        "title": "Show Profile",
+        "icon": "$(account)"
+      }
+    ],
+    "configuration": {
+      "title": "Mind Rig",
+      "properties": {
+        "mindrig.playground.showSource": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show prompt source code in the playground"
+        },
+        "mindcontrol.exampleSetting": {
+          "type": "string",
+          "default": "default value",
+          "description": "An example setting for demonstration"
+        },
+        "mindcontrol.enableFileTracking": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable tracking of active files"
+        },
+        "mindcontrol.showFileContent": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show file content in the webview"
+        },
+        "mindcontrol.autoSaveIndicator": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show auto-save indicator in the webview"
+        }
+      }
+    },
+    "views": {
+      "mindcontrol-workbench": [
+        {
+          "id": "mindcontrol.workbench",
+          "name": "Playground",
+          "when": "true",
+          "type": "webview",
+          "icon": "$(mindrig-toolbar-icon)"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mindcontrol-workbench",
+          "title": "Mind Rig",
+          "icon": "$(mindrig-toolbar-icon)"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "mindrig.logIn",
+          "when": "view == mindcontrol.workbench && !mindrig.auth.loggedIn",
+          "group": "navigation"
+        },
+        {
+          "command": "mindrig.showProfile",
+          "when": "view == mindcontrol.workbench && mindrig.auth.loggedIn",
+          "group": "navigation"
+        },
+        {
+          "command": "mindrig.logOut",
+          "when": "view == mindcontrol.workbench"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "mindcontrol.addItWorks",
+          "when": "view == mindcontrol.workbench",
+          "group": "inline"
+        },
+        {
+          "command": "mindcontrol.addItWorks",
+          "when": "view == mindcontrol.workbench"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "dev": "pnpm run preview:watch",
+    "pack": "vsce pack --no-dependencies",
+    "publish": "vsce publish --no-dependencies",
+    "vscode:prepublish": "pnpm -F @wrkspc/vsc-webview run package && pnpm run package",
+    "package": "vite build --mode production",
+    "build": "vite build --mode production",
+    "preview": "vite build --mode development",
+    "preview:watch": "VSCODE_DEV_SERVER=true vite build --watch --mode development",
+    "test": "test -z $TURBO_HASH && turbo run test || echo OK",
+    "test/unit": "vitest run",
+    "test/unit:watch": "vitest",
+    "test/unit:coverage": "vitest run --coverage",
+    "test/unit/snap/update": "vitest run --update",
+    "test/unit/snap/update:watch": "vitest --update",
+    "test/e2e": "./tests/e2e/run.sh",
+    "test/e2e/build": "rm -rf ./out && tsc -p ./tsconfig.e2e.json ",
+    "test/e2e/build:watch": "rm -rf ./out && tsc -p ./tsconfig.e2e.json --watch",
+    "types": "tsc",
+    "types:watch": "tsc --watch",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix --fix-suggestions",
+    "format": "prettier --write .",
+    "gen/icons": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON ./scripts/gen/iconsFont.ts && fantasticon",
+    "gen/webview/html": "tsx ./scripts/gen/webviewHtml.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/gateway": "^1.0.15",
+    "ai": "^5.0.28",
+    "yjs": "^13.6.27",
+    "@mindrig/parser-wasm": "0.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.99.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "@wrkspc/file": "workspace:*",
+    "@wrkspc/lang": "workspace:*",
+    "@wrkspc/theme": "workspace:*",
+    "@wrkspc/vsc-controller": "workspace:*",
+    "@wrkspc/vsc-settings": "workspace:*",
+    "@wrkspc/vsc-state": "workspace:*",
+    "fantasticon": "^3.0.0",
+    "oxlint": "^1.13.0",
+    "playwright-core": "^1.55.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3",
+    "vitest": "^3.2.4",
+    "@wrkspc/vsc-sync": "0.1.0",
+    "@wrkspc/vsc-types": "0.1.0",
+    "@mindrig/types": "0.1.0"
+  },
+  "private": false
+}

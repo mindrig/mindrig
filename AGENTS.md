@@ -26,4 +26,6 @@ Be explicit to the user which agent is currently handling their request.
 
 ## General Guidelines
 
-Never run `git commit`, `git stash`, `git reset`, or other commands that alter Git history or staging state. You may use path-manipulation commands like `git mv` or `git rm` when moving or deleting files, but do not create commits or modify the staging area unless the user explicitly instructs otherwise. Limit other Git usage to read-only queries (e.g., `git status`, `git diff`).
+- After updating a Markdown document, run `pnpm prettier <path>.md --write` to normalize formatting.
+
+- Never run `git commit`, `git stash`, `git reset`, or other commands that alter Git history or staging state. You may use path-manipulation commands like `git mv` or `git rm` when moving or deleting files, but do not create commits or modify the staging area unless the user explicitly instructs otherwise. Limit other Git usage to read-only queries (e.g., `git status`, `git diff`).

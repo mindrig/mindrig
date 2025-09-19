@@ -1,25 +1,19 @@
 packages:
-  - vscode/extension
-  - vscode/webview
-  - vscode/types
-  - vscode/sync
-  - parser
-  - parser/pkg
-  - types
-  - types/pkg/ts
   - pkgs/*
+  - pkgs/parser/pkg
+  - pkgs/types/pkgs/ts
   - subs/*/pkgs/*
 
 onlyBuiltDependencies:
-  - '@tailwindcss/oxide'
-  - '@vscode/vsce-sign'
+  - "@tailwindcss/oxide"
+  - "@vscode/vsce-sign"
   - esbuild
   - keytar
   - sharp
   - workerd
 
 overrides:
-  '@mindcontrol/code-parser-wasm': workspace:*
-  '@mindcontrol/code-types': workspace:*
-  '@mindcontrol/vscode-sync': workspace:*
-  '@mindcontrol/vscode-types': workspace:*
+  "@mindrig/parser-wasm": workspace:*
+  "@mindrig/types": workspace:*
+  "@wrkspc/vsc-sync": workspace:*
+  "@wrkspc/vsc-types": workspace:*

@@ -1,4 +1,4 @@
-import type { Prompt, PromptVar } from "@mindcontrol/code-types";
+import type { Prompt, PromptVar } from "@mindrig/types";
 
 export function extractPromptText(
   fileContent: string | null | undefined,

@@ -10,10 +10,10 @@
       "request": "launch",
       "args": [
         "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
-        "${workspaceFolder}/vscode/extension/tests/workspace"
+        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
+        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
       ],
-      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
+      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
       "preLaunchTask": "vscode#dev",
       "env": {
         "VSCODE_DEV_SERVER": "true"
@@ -27,10 +27,10 @@
       "request": "launch",
       "args": [
         "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
-        "${workspaceFolder}/vscode/extension/tests/workspace"
+        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
+        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
       ],
-      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
+      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
       "preLaunchTask": "vscode#build"
     },
 
@@ -41,10 +41,10 @@
       "request": "launch",
       "args": [
         "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
-        "${workspaceFolder}/vscode/extension/tests/workspace"
+        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
+        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
       ],
-      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
+      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
       "preLaunchTask": "vscode#preview"
     },
 
@@ -55,10 +55,10 @@
       "request": "launch",
       "args": [
         "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceFolder}/vscode/extension",
-        "${workspaceFolder}/vscode/extension/tests/workspace"
+        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
+        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
       ],
-      "outFiles": ["${workspaceFolder}/vscode/extension/dist/**/*.js"],
+      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
       "preLaunchTask": "vscode#preview:watch"
     }
 

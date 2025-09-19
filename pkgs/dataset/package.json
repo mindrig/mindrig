@@ -24,7 +24,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@mindcontrol/code-types": "workspace:*",
-    "@wrkspc/prompt": "workspace:*"
+    "@wrkspc/prompt": "workspace:*",
+    "@mindrig/types": "workspace:*"
   }
 }

@@ -1,9 +1,0 @@
-[package]
-edition = "2024"
-name = "mindcontrol_code_types"
-version = "0.1.0"
-
-[dependencies]
-serde = { version = "1", features = ["derive"] }
-litty = "0.2"
-

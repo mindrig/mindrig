@@ -1,10 +1,10 @@
-# Mindrig Package Consolidation
+# Mind Rig Package Consolidation
 
 ## Brief
 
 ### Summary
 
-Consolidate all Mindrig packages under `./pkgs`, align naming with the new schema, ensure manifests and dependency references stay consistent, and document the final structure for contributors.
+Consolidate all Mind Rig packages under `./pkgs`, align naming with the new schema, ensure manifests and dependency references stay consistent, and document the final structure for contributors.
 
 ### Original Prompt
 
@@ -41,11 +41,11 @@ The npm packages and crates are located in [`./pkgs`](./pkgs) directory:
 
 ## Plan
 
-- [ ] [Inventory existing packages](./001-inventory-existing-packages.md): Catalog current packages in `./pkgs` and legacy locations, noting names, visibility, and manifest metadata.
-- [ ] [Relocate legacy packages](./002-relocate-legacy-packages.md): Move remaining legacy folders into `./pkgs` with correct directory slugs and resolve any duplicates or conflicts.
-- [ ] [Normalize package manifests](./003-normalize-package-manifests.md): Update package manifests (`package.json`, `Cargo.toml`, etc.) with new names, privacy flags, and workspace settings.
-- [ ] [Update dependency references](./004-update-dependency-references.md): Adjust internal imports, workspace references, build tooling, and scripts to reference the renamed packages.
-- [ ] [Document and verify](./005-document-and-verify.md): Refresh contributor docs, add package list entries, ensure naming schema guidance is present, and validate via `pnpm install`.
+- [x] [Inventory existing packages](./001-inventory-existing-packages.md): Catalog current packages in `./pkgs` and legacy locations, noting names, visibility, and manifest metadata.
+- [x] [Relocate legacy packages](./002-relocate-legacy-packages.md): Move remaining legacy folders into `./pkgs` with correct directory slugs and resolve any duplicates or conflicts.
+- [x] [Normalize package manifests](./003-normalize-package-manifests.md): Update package manifests (`package.json`, `Cargo.toml`, etc.) with new names, privacy flags, and workspace settings.
+- [x] [Update dependency references](./004-update-dependency-references.md): Adjust internal imports, workspace references, build tooling, and scripts to reference the renamed packages.
+- [x] [Document and verify](./005-document-and-verify.md): Refresh contributor docs, add package list entries, ensure naming schema guidance is present, and validate via `pnpm install`.
 
 ## Steps
 
@@ -68,6 +68,10 @@ Replace imports, dependency declarations, and tooling references so every consum
 ### [Document and verify](./005-document-and-verify.md)
 
 Update contributor documentation with the new naming scheme and package list, then run verification commands and draft rollout notes.
+
+## Follow-Ups
+
+- 2025-09-19: Align naming with updated Mind Rig branding and restore public package dependencies (e.g., parser wasm, types crates) per latest user guidance.
 
 ## Questions
 

@@ -1,0 +1,8 @@
+{
+  "name": "@wrkspc/types-src",
+  "private": true,
+  "scripts": {
+    "build": "gt build"
+  },
+  "version": "0.1.0"
+}

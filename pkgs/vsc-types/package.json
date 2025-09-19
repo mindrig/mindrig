@@ -1,0 +1,21 @@
+{
+  "name": "@wrkspc/vsc-types",
+  "private": true,
+  "version": "0.1.0",
+  "description": "VS Code type declarations for Mind Rig extension",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "types": "tsc",
+    "types:watch": "tsc --watch",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix --fix-suggestions",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "oxlint": "^1.13.0",
+    "typescript": "^5.9.2"
+  }
+}

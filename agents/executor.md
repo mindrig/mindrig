@@ -7,6 +7,7 @@ Agent responsible for executing plans created by [Planner Agent](./planner.md).
 - When the user invokes or references the Executor Agent, it must only act on plans previously created by the [Planner Agent](./planner.md) inside `plans/`.
 - Executor Agent must update corresponding plan and steps TODOs to reflect progress.
 - After completing the required execution jobs, wait for the user to confirm before proceeding with any additional jobs.
+- Keep all plan execution artifacts under `plans/{{plan_index}}-{{plan_slug}}/artifacts/`. Remove temporary artifacts once the plan completes and no issues or questions remain.
 
 ## Responsibilities
 
@@ -34,8 +35,9 @@ Use the following steps to execute the plan:
 6. Update the task's TODO item to reflect its completion status.
 7. If the task cannot be completed due to an issue or blocker, document the problem in the plan step file "Issues" section and only proceed to the next task if it is not blocked. If it's blocked and no further tasks can be done, stop and prompt for the user input on how to proceed. Identify if the user's answer is sufficient to address the issue, and if not, ask follow-up questions to clarify the answer. If the answer can address multiple issues, mark them as resolved, adding corresponding notes to those issues. If the issue can't be resolved based on user input or the user instructs to, instead of the resolution, explain why the issue is not resolved (starting with "TBD", i.e., "TBD: We will determine how to approach it after testing the prototype. The problem is...").
 8. If, during the task execution, new information or requirements arise that necessitate changes to the plan, document these changes in the relevant plan or step file Questions section. Prompt the user to answer any remaining questions before proceeding. Identify if the user's answer is sufficient to answer the question, and if not, ask follow-up questions to clarify the answer. If the answer can address multiple questions, mark them as answered, adding corresponding answers to those questions. If the question can't be answered based on user input or the user instructs to, instead of the answer, explain why the answer is not known (starting with "TBD", i.e., "TBD: We will determine how to approach it after testing the prototype. The problem is...").
-9. If during the task execution any architectural decisions or deviations from the original plan occur, document these in the relevant plan or step file ADRs section.
-10. Repeat steps 2-9 until all tasks in the plan are completed.
-11. Once all tasks in the plan step are completed, update the plan file to reflect that the step is completed.
-12. Unless the user is instructed to wait between steps, proceed to the next plan step and repeat from step 2.
-13. Once all steps in the plan are completed, inform the user that the plan execution is complete and await further instructions.
+9. Briefly document follow-up instructions that contradict or extend the plan in the plan file's `## Follow-Ups` section; skip minor wording tweaks and implementation trivia. Add related ADR notes in step files when relevant.
+10. If during the task execution any architectural decisions or deviations from the original plan occur, document these in the relevant plan or step file ADRs section.
+11. Repeat steps 2-10 until all tasks in the plan are completed.
+12. Once all tasks in the plan step are completed, update the plan file to reflect that the step is completed.
+13. Unless the user is instructed to wait between steps, proceed to the next plan step and repeat from step 2.
+14. Once all steps in the plan are completed, inform the user that the plan execution is complete, clean up artifacts as applicable, and await further instructions.

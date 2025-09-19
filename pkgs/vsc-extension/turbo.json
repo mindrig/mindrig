@@ -1,0 +1,95 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "pack": {
+      "dependsOn": ["build"]
+    },
+
+    "build": {
+      "dependsOn": [
+        "mindrig_parser#build",
+        "@wrkspc/vsc-webview#build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./src/**/*.ts",
+        "!./src/**/*.spec.ts",
+        "!./src/**/*.test.ts"
+      ],
+      "outputs": ["./dist/extension/**"]
+    },
+
+    "test": {
+      "with": ["test/unit", "test/e2e"]
+    },
+
+    "test/unit": {
+      "dependsOn": ["mindrig_parser#build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./vitest.config.ts",
+        "./src/**/*.ts"
+      ]
+    },
+
+    "test/unit:watch": {
+      "dependsOn": ["mindrig_parser#build"]
+    },
+
+    "test/e2e": {
+      "dependsOn": ["build", "test/e2e/build"],
+      "inputs": ["$TURBO_DEFAULT$", "./tests/e2e/run.sh", "./src/**/*.spec.ts"]
+    },
+
+    "test/e2e/build": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./tsconfig.e2e.json",
+        "./src/**/*.spec.ts"
+      ],
+      "outputs": ["./out/**/*.spec.js", "./out/**/*.spec.map"]
+    },
+
+    "types": {
+      "dependsOn": ["mindrig_parser#build"],
+      "inputs": ["$TURBO_DEFAULT$", "./tsconfig.json", "./src/**/*.ts"]
+    },
+
+    "types:watch": {
+      "dependsOn": ["mindrig_parser#build"]
+    },
+
+    "lint": {
+      "dependsOn": ["mindrig_parser#build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./.oxlintrc.json",
+        "./src/**/*.ts",
+        "./tests/**/*.ts",
+        "./scripts/**/*.ts"
+      ]
+    },
+
+    "lint:fix": {
+      "dependsOn": ["mindrig_parser#build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./.oxlintrc.json",
+        "./src/**/*.ts",
+        "./tests/**/*.ts",
+        "./scripts/**/*.ts"
+      ],
+      "outputs": ["./src/**/*.ts", "./src/**/*.tsx"]
+    },
+
+    "format": {
+      "inputs": ["$TURBO_DEFAULT$", "./**/*"]
+    }
+  },
+  "extends": ["//"]
+}

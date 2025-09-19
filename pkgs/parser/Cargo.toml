@@ -1,0 +1,32 @@
+[package]
+name = "mindrig_parser"
+description = "Mind Rig parser"
+version = "0.1.0"
+edition = "2024"
+license = "UNLICENSED"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = "1.0.219"
+serde_json = "1.0"
+serde-wasm-bindgen = "0.6.5"
+wasm-bindgen = "0.2.100"
+mindrig_types = { path = "../types/pkgs/rs" }
+# OxC for JavaScript/TypeScript parsing
+oxc_allocator = "0.41"
+oxc_ast = "0.41"
+oxc_parser = "0.41"
+oxc_span = "0.41"
+# Ruff for Python parsing
+ruff_python_ast = { git = "https://github.com/astral-sh/ruff/", rev = "0.12.12" }
+ruff_python_parser = { git = "https://github.com/astral-sh/ruff/", rev = "0.12.12" }
+ruff_python_trivia = { git = "https://github.com/astral-sh/ruff/", rev = "0.12.12" }
+ruff_text_size = { git = "https://github.com/astral-sh/ruff/", rev = "0.12.12" }
+
+[dev-dependencies]
+indoc = "2.0.6"
+insta = { version = "1.43.1", features = ["yaml"] }
+pretty_assertions = "1.4"
+wasm-bindgen-test = "0.3.50"

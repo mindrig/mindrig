@@ -370,12 +370,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
-name = "mindcontrol_code_parser"
+name = "mindrig_parser"
 version = "0.1.0"
 dependencies = [
  "indoc",
  "insta",
- "mindcontrol_code_types",
+ "mindrig_types",
  "oxc_allocator",
  "oxc_ast",
  "oxc_parser",
@@ -393,7 +393,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mindcontrol_code_types"
+name = "mindrig_types"
 version = "0.1.0"
 dependencies = [
  "litty",

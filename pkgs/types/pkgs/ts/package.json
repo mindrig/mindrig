@@ -1,0 +1,5 @@
+{
+  "types": "src/index.ts",
+  "name": "@mindrig/types",
+  "version": "0.1.0"
+}
