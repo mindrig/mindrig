@@ -51,23 +51,23 @@ The npm packages and crates are located in [`./pkgs`](./pkgs) directory:
 
 ### [Inventory existing packages](./001-inventory-existing-packages.md)
 
-Compile a definitive list of packages in `./pkgs` and legacy directories, capturing package type (npm crate, Rust crate, etc.), current names, descriptions, and privacy fields to inform renaming and documentation updates.
+Run the commands that capture current package directories and manifest metadata, committing the results to the inventory artifacts so later steps operate on accurate data.
 
 ### [Relocate legacy packages](./002-relocate-legacy-packages.md)
 
-Plan the moves of `./parser`, `./types`, and `./vscode/*` subpackages into the `./pkgs` tree, ensuring directory naming collisions are resolved and build tooling paths are updated.
+Resolve conflicts between existing `pkgs/*` folders and legacy sources, then move each package into its final location under `./pkgs` and remove the old directories.
 
 ### [Normalize package manifests](./003-normalize-package-manifests.md)
 
-Map required name changes to concrete manifest edits (e.g., `name`, `private`, `publishConfig`) and ensure workspace definitions and lockfiles remain coherent after relocation.
+Rename package/crate manifests, update workspace configuration files, and enforce privacy settings to reflect the new directory layout.
 
 ### [Update dependency references](./004-update-dependency-references.md)
 
-Identify all code, configuration, and documentation references to the old package names/paths and plan targeted updates to align with the new naming scheme and directory layout.
+Replace imports, dependency declarations, and tooling references so every consumer points to the renamed packages and crates.
 
 ### [Document and verify](./005-document-and-verify.md)
 
-Outline updates to `docs/contributing/pkgs.md`, add the package inventory with descriptions, restate the naming policy, and schedule verification via `pnpm install` and any other required checks.
+Update contributor documentation with the new naming scheme and package list, then run verification commands and draft rollout notes.
 
 ## Questions
 

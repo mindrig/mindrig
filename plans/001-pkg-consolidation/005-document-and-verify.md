@@ -1,82 +1,53 @@
 # Document and verify
 
 ## Spec
-
-Outline the documentation updates and verification steps needed to communicate the new package structure, enforce naming policies, and confirm the workspace remains healthy after consolidation.
+Update contributor documentation to describe the new package layout, list all packages with descriptions, and verify the workspace builds cleanly after the consolidation.
 
 ## Tasks
 
-- [ ] [Update naming policy docs](#update-naming-policy-docs): Add the schema guidance to `docs/contributing/pkgs.md`.
-- [ ] [Compile package catalog](#compile-package-catalog): Create the package list with paths, names, and descriptions sourced from manifests.
-- [ ] [Cross-check privacy defaults](#cross-check-privacy-defaults): Ensure all packages adhere to the "private by default" rule and document any exceptions.
-- [ ] [Plan verification commands](#plan-verification-commands): Specify the commands to validate the workspace (`pnpm install`, tests, Cargo checks).
-- [ ] [Communicate rollout](#communicate-rollout): Draft notes for changelog, PR description, or team announcement summarizing the consolidation.
+- [ ] [Update naming schema docs](#update-naming-schema-docs): Add the canonical naming rules to `docs/contributing/pkgs.md`.
+- [ ] [Publish package catalog](#publish-package-catalog): Insert the package list (path, name, short description) into the contributor doc using the latest inventory data.
+- [ ] [Cross-check privacy status](#cross-check-privacy-status): Ensure documentation and manifests agree on which packages are private.
+- [ ] [Run verification commands](#run-verification-commands): Execute the workspace health checks to confirm nothing broke.
+- [ ] [Communicate changes](#communicate-changes): Draft a PR summary or changelog entry that outlines the consolidation.
 
-### Update naming policy docs
-
+### Update naming schema docs
 #### Summary
-
-Document the canonical naming schemas for npm packages and crates.
-
+Document the required naming convention for contributors.
 #### Description
+- Add a "Naming Schema" section to `docs/contributing/pkgs.md` with the private/public rules for npm packages and crates.
+- Mention that packages are private by default unless required by `pkgs/vsc-extension` or similar needs.
 
-- Insert the provided schema (`@wrkspc/{{pkg-name}}`, etc.) into the contributing doc.
-- Clarify default privacy expectations and the criteria for making packages public.
-- Ensure the section references the new `./pkgs` layout.
-
-### Compile package catalog
-
+### Publish package catalog
 #### Summary
-
-Publish the up-to-date package inventory for contributors.
-
+Provide contributors with an authoritative package list.
 #### Description
+- Using `inventory.md`, write the package list in the contributor doc (markdown links to `./pkgs/...`).
+- Fill in missing descriptions by summarizing manifest `description` fields or writing concise explanations.
 
-- Use data from the inventory step to list each package with a markdown link, name, and description.
-- Separate npm packages and Rust crates if it aids clarity.
-- Confirm descriptions are accurate; draft succinct summaries if manifests lack one.
-
-### Cross-check privacy defaults
-
+### Cross-check privacy status
 #### Summary
-
-Validate that documentation aligns with actual manifest settings.
-
+Ensure docs match manifest reality.
 #### Description
+- Double-check each package's `private`/`publish` flags and ensure the doc highlights any intentional public packages.
+- Note exceptions inline in the documentation so readers understand why a package is public.
 
-- Compare the documented privacy status with manifest fields (`private`, `publish`).
-- Highlight any intentional exceptions (e.g., packages consumed externally) and justify them in the doc.
-- Note follow-up tasks if privacy settings still need adjustment.
-
-### Plan verification commands
-
+### Run verification commands
 #### Summary
-
-Define the health checks to run after consolidation work.
-
+Verify the workspace is healthy after changes.
 #### Description
+- Run `pnpm install`, `pnpm turbo run lint`, `pnpm turbo run test`, and `cargo check` for affected crates.
+- Capture any failures and update the plan or doc with remediation steps.
 
-- Include `pnpm install` as the primary verification step.
-- Add any supplemental commands (`pnpm test`, `pnpm lint`, `cargo check`) necessary to cover touched packages.
-- Capture expected runtime or ordering considerations (e.g., run Cargo checks after moving Rust crates).
-
-### Communicate rollout
-
+### Communicate changes
 #### Summary
-
-Ensure stakeholders understand the changes and next steps.
-
+Explain the consolidation to stakeholders.
 #### Description
-
-- Outline key points for a PR description or internal announcement.
-- Note any migration guidance developers must follow when rebasing existing branches.
-- Suggest updating issue trackers or project boards if applicable.
+- Draft a PR summary or changelog snippet covering the moves, renames, dependency updates, and verification results.
+- Share any follow-up tasks (e.g., publishing the VS Code extension with new dependencies) so they can be tracked.
 
 ## Questions
-
 None.
 
 ## Notes
-
-- Coordinate with repo maintainers to publish documentation updates concurrently with the code changes.
-- Consider adding a checklist in the PR template referencing the new documentation requirements.
+- Update contributor docs and communication artifacts in the same commit as the code changes to keep context aligned.

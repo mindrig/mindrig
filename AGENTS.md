@@ -23,3 +23,7 @@ Be explicit to the user which agent is currently handling their request.
 - Has the Planner finished Plan Generation, Steps Planning, and Plan Review (or the user explicitly accepted an earlier stopping point)? If not, do not execute.
 - Has the user explicitly delegated execution to the Executor Agent (or otherwise approved moving forward)? If not, keep waiting.
 - Before hand-off, verify the plan tasks are actionable. If steps only describe further planning (e.g., "design move matrix" without the actual move), route back to the Planner Agent or ask the user to refine the plan.
+
+## General Guidelines
+
+Never run `git commit`, `git stash`, `git reset`, or other commands that alter Git history or staging state. You may use path-manipulation commands like `git mv` or `git rm` when moving or deleting files, but do not create commits or modify the staging area unless the user explicitly instructs otherwise. Limit other Git usage to read-only queries (e.g., `git status`, `git diff`).

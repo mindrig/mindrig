@@ -1,70 +1,41 @@
 # Relocate legacy packages
 
 ## Spec
-
-Define the precise folder moves and renames required to bring legacy packages into `./pkgs`, ensuring directory slugs align with target names and that build tooling continues to resolve the new paths.
+Move the remaining legacy packages into `./pkgs` with their final directory names so the repository has a single, consistent package layout.
 
 ## Tasks
 
-- [ ] [Design move matrix](#design-move-matrix): Map source directories to target `./pkgs` destinations with final package names.
-- [ ] [Plan filesystem operations](#plan-filesystem-operations): Outline the commands or scripts needed to move directories and adjust ancillary files.
-- [ ] [Assess workspace impacts](#assess-workspace-impacts): Determine updates required to `pnpm-workspace.yaml`, Cargo workspace entries, and tooling configs.
-- [ ] [Schedule cleanup](#schedule-cleanup): Plan removal or archival of old paths after verifying successful moves.
+- [ ] [Assess destination conflicts](#assess-destination-conflicts): Compare each legacy package with its target `./pkgs` folder and decide whether to merge, replace, or archive existing contents.
+- [ ] [Move packages into place](#move-packages-into-place): Use `git mv` to relocate the legacy directories into the `./pkgs` tree with the correct slugs.
+- [ ] [Clean up leftovers](#clean-up-leftovers): Remove obsolete folders, regenerate missing shim directories, and note any manual merges that remain.
 
-### Design move matrix
-
+### Assess destination conflicts
 #### Summary
-
-Establish a definitive mapping from current package locations to their new homes.
-
+Determine how to reconcile existing `./pkgs/*` folders with the incoming moves.
 #### Description
+- For each target (`parser`, `types`, `vsc-extension`, `vsc-sync`, `vsc-types`, `vsc-webview`), run `diff -qr pkgs/<target> <legacy-path>` (or inspect manually) to understand differences.
+- Document the strategy (replace, merge specific files, preserve assets) in `plans/001-pkg-consolidation/relocation-notes.md`.
+- If any `pkgs/*` directories contain generated artifacts only, schedule their removal prior to the move.
 
-- List all legacy packages (`./parser`, `./types`, `./vscode/extension`, `./vscode/sync`, `./vscode/types`, `./vscode/webview`).
-- For each, specify the destination directory under `./pkgs` and the final package name.
-- Note any supporting assets (tests, configs, assets) that need to move along with the package.
-
-### Plan filesystem operations
-
+### Move packages into place
 #### Summary
-
-Detail the sequence of directory moves and renames.
-
+Perform the actual directory relocations with history preserved.
 #### Description
+- For each legacy directory, run the appropriate `git mv` to its new location and slug, e.g., `git mv parser pkgs/parser`.
+- Ensure the `types` sub-packages (`pkg/ts`, `pkg/rs`) end up under `pkgs/types` in their expected layout.
+- After each move, run `git status` (read-only) or `ls` to confirm files are present and remove any stray empty folders.
 
-- Decide whether to use `git mv` or plain `mv` depending on repository expectations.
-- Capture any prerequisite steps (e.g., creating target directories before moving contents).
-- Include post-move validation, such as ensuring no empty directories remain in the old locations.
-
-### Assess workspace impacts
-
+### Clean up leftovers
 #### Summary
-
-Prepare updates to workspace configuration files to reflect new paths.
-
+Leave the workspace without duplicate or empty directories.
 #### Description
-
-- Identify `pnpm-workspace.yaml` package entries that must change from legacy paths to new `./pkgs` paths.
-- Check Cargo workspace settings in `Cargo.toml` that reference moved crates.
-- Record any tooling scripts (e.g., `turbo.json`, CI configs) that hardcode paths for these packages.
-
-### Schedule cleanup
-
-#### Summary
-
-Ensure the repository no longer references the legacy paths after relocation.
-
-#### Description
-
-- Plan to remove or empty the old directories once code references are updated.
-- Verify that `.gitignore`, CI configs, and documentation do not retain stale paths.
-- Document rollback considerations in case the move needs to be undone.
+- Delete now-empty legacy directories (`parser`, `types`, `vscode/*`) once their contents live under `pkgs/`.
+- Restore any required parent directories (e.g., if `vscode/` must remain for other assets) with appropriate `.gitkeep` files.
+- Update `relocation-notes.md` with any outstanding follow-up (e.g., files that need manual merging in later steps).
 
 ## Questions
-
 None.
 
 ## Notes
-
-- Verify whether any symlinks or VS Code-specific build steps rely on the existing `./vscode` hierarchy before performing moves.
-- Coordinate move timing with dependency updates to avoid broken imports between commits.
-- Consider batching moves to minimize conflicts in long-running feature branches.
+- Perform moves in a single window to minimise broken imports between steps.
+- If conflicts arise during `git mv`, resolve immediately and document the resolution in `relocation-notes.md`.

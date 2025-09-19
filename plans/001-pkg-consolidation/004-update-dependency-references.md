@@ -1,82 +1,49 @@
 # Update dependency references
 
 ## Spec
-
-Plan the exhaustive updates required to align imports, dependency declarations, build scripts, and configuration files with the new package names and locations.
+Update imports, dependency declarations, and tooling references to match the renamed packages and new paths so the workspace builds without broken links.
 
 ## Tasks
 
-- [ ] [Map dependency surfaces](#map-dependency-surfaces): Identify all places where old package names or paths are referenced.
-- [ ] [Update npm dependency declarations](#update-npm-dependency-declarations): Define the changes needed in `package.json` dependency sections across the workspace.
-- [ ] [Update Rust dependency references](#update-rust-dependency-references): Capture required adjustments in Cargo manifests and `use` statements.
-- [ ] [Adjust tooling and build scripts](#adjust-tooling-and-build-scripts): Plan edits for CI, Turbo, scripts, and environment configs that depend on the old structure.
-- [ ] [Coordinate module alias changes](#coordinate-module-alias-changes): Outline updates to TypeScript path mappings, bundler configs, and any shared code references.
+- [ ] [Rewrite npm dependencies](#rewrite-npm-dependencies): Update `dependencies`/`devDependencies` entries across the workspace to use the new package names.
+- [ ] [Update Rust references](#update-rust-references): Adjust Rust `use` statements and `Cargo.toml` entries to the renamed crates.
+- [ ] [Refresh tooling configs](#refresh-tooling-configs): Fix path aliases, build scripts, and CI configs that hardcode old package names or locations.
+- [ ] [Verify references](#verify-references): Run targeted searches and builds to ensure no stale references remain.
 
-### Map dependency surfaces
-
+### Rewrite npm dependencies
 #### Summary
-
-List every area where the renamed packages are consumed.
-
+Point package manifests at the renamed packages.
 #### Description
+- Use `rg '@mindcontrol' --files-with-matches` (or similar) to find old package name references.
+- Edit each affected `package.json` to depend on the new names (e.g., `@wrkspc/vsc-sync`).
+- Update scripts or workspace filters (e.g., in `turbo.json`) that filter by the old package names.
 
-- Use `rg` searches for old package names (e.g., `"parser"`, `@wrkspc/types`) and legacy paths (`../parser`).
-- Include documentation, scripts, and configuration files in the search scope.
-- Produce a checklist tying each reference to the file(s) that must be updated.
-
-### Update npm dependency declarations
-
+### Update Rust references
 #### Summary
-
-Capture `package.json` dependency section edits needed across npm packages.
-
+Align Rust code with the new crate names.
 #### Description
+- Search for `mindcontrol_code_parser`/`mindcontrol_code_types` in `parser/src`, `parser/tests`, and related crates.
+- Replace imports and crate references with `mindrig_parser`, `wrkspc_types`, etc., matching the new manifest names.
+- Run `cargo fmt` to tidy up after edits.
 
-- For each workspace package, record the new dependency name and version spec.
-- Ensure dependencies that should be `dependency` vs. `devDependency` are categorized correctly (notably for `vsc-extension`).
-- Note if any peer or optional dependencies must change to match new names.
-
-### Update Rust dependency references
-
+### Refresh tooling configs
 #### Summary
-
-Ensure Cargo-related references stay accurate.
-
+Ensure tooling uses the relocated paths.
 #### Description
+- Update TypeScript path aliases (e.g., `vscode/extension/tsconfig.json`) to point at `../../pkgs/...` locations.
+- Adjust bundler/test configs (`vite.config.ts`, `playwright.config.ts`, CI workflows) with new import paths or package names.
+- Regenerate any generated artifacts (e.g., `parser/scripts/build.sh` outputs) that embed old paths.
 
-- Update `[dependencies]`, `[dev-dependencies]`, and `[workspace.dependencies]` entries for renamed crates.
-- Identify any `use mindrig_parser::...` statements needing path updates.
-- Plan to run `cargo fmt`/`cargo check` post-update to validate.
-
-### Adjust tooling and build scripts
-
+### Verify references
 #### Summary
-
-Keep automation aligned with the new structure.
-
+Confirm the codebase no longer references old package names or paths.
 #### Description
-
-- Review `turbo.json`, CI workflows, and custom scripts for references to legacy directories.
-- Update environment variable docs or `.env` samples if paths change.
-- Ensure any bundle output directories or watch scripts follow the new layout.
-
-### Coordinate module alias changes
-
-#### Summary
-
-Track updates to alias and import helper configurations.
-
-#### Description
-
-- Update `tsconfig.base.json`/`tsconfig.json` path mappings to new package names.
-- Adjust webpack/Vite/esbuild config aliases if applicable.
-- Verify `pnpm` workspace protocol references remain correct.
+- Run `rg '@mindcontrol'` and `rg '../parser'` across the repo to ensure no stale references remain.
+- Execute `pnpm lint` / `pnpm test` filtered to affected packages and `cargo check` to catch missing dependencies.
+- Document any lingering issues in the plan notes for follow-up.
 
 ## Questions
-
 None.
 
 ## Notes
-
-- Keep dependency updates in sync with manifest edits to avoid transient mismatch errors.
-- Consider automation (e.g., codemods) if reference counts are high.
+- Coordinate this step closely with manifest changes to avoid mismatched dependency names in the interim.

@@ -1,82 +1,44 @@
 # Normalize package manifests
 
 ## Spec
-
-Detail the manifest-level updates required after relocation so that each package reflects its new name, privacy status, and workspace configuration without breaking builds or publish settings.
+Rename packages and crates to follow the new conventions, ensure privacy flags are correct, and update workspace configuration files to match the relocated paths.
 
 ## Tasks
 
-- [ ] [Audit manifest fields](#audit-manifest-fields): Record current manifest fields that must change to meet the new naming schema.
-- [ ] [Define naming updates](#define-naming-updates): Specify the exact `name` values for npm packages and crate names for Rust packages.
-- [ ] [Set privacy and publish rules](#set-privacy-and-publish-rules): Establish desired `private`, `publish`/`publishConfig`, and access settings per package.
-- [ ] [Align workspace metadata](#align-workspace-metadata): Ensure workspace-specific fields (e.g., `packageManager`, path references) remain valid after edits.
-- [ ] [Plan manifest validation](#plan-manifest-validation): Describe the checks required to confirm manifests are consistent post-update.
+- [ ] [Rename package manifests](#rename-package-manifests): Update `package.json` files for the moved packages with their new names and adjust supporting metadata.
+- [ ] [Update workspace configuration](#update-workspace-configuration): Align root-level workspace files (`pnpm-workspace.yaml`, root `package.json`, `turbo.json`) with the new paths.
+- [ ] [Adjust Cargo manifests](#adjust-cargo-manifests): Rename crates and update dependency paths in `Cargo.toml` files affected by the relocation.
+- [ ] [Set privacy flags](#set-privacy-flags): Ensure every `@wrkspc/*` package is marked private and add `publish` settings for crates.
 
-### Audit manifest fields
-
+### Rename package manifests
 #### Summary
-
-Pinpoint every manifest property affected by the move so edits are exhaustive.
-
+Apply the new naming scheme to npm packages.
 #### Description
+- Edit each moved `package.json` to reflect its new `name` (e.g., `mindrig_parser`, `@wrkspc/types`, `@wrkspc/vsc-sync`).
+- Update related fields (`description`, `repository`, `bin`/`main` paths) if directory depth changed.
+- Run `pnpm pkg fix` or format the JSON to maintain consistency.
 
-- Compare `package.json` fields (scripts, bin entries, exports, references) before and after relocation.
-- For Cargo crates, review `[package]` and `[lib]/[bin]` sections plus workspace membership.
-- Create a checklist of fields needing confirmation once edits are applied.
-
-### Define naming updates
-
+### Update workspace configuration
 #### Summary
-
-Map new canonical names to each package.
-
+Keep workspace tooling pointing at the relocated packages.
 #### Description
+- Modify `pnpm-workspace.yaml` to replace legacy globs (`parser`, `vscode/extension`, etc.) with the new `pkgs/*` paths as needed.
+- Update the root `package.json` `workspaces` array and any scripts referencing old directories.
+- Adjust other tooling configs (e.g., `vitest.config.ts`, `turbo.json`) that enumerate package locations.
 
-- Apply `mindrig_parser` to the relocated parser crate/package.
-- Use `@wrkspc/{{pkg}}` names for private npm packages, retaining `vscode` for the extension package as required.
-- Confirm whether any Cargo crate names need underscores vs. hyphens based on existing conventions.
-
-### Set privacy and publish rules
-
+### Adjust Cargo manifests
 #### Summary
-
-Ensure manifests reflect the directive that packages are private by default.
-
+Rename Rust crates and update intra-workspace paths.
 #### Description
+- Change `[package].name` for affected crates to `mindrig_parser`, `wrkspc_types`, etc.
+- Update path dependencies (e.g., parser depending on types) to the new `pkgs/...` locations.
+- Regenerate `Cargo.lock` (via `cargo metadata` or `cargo check`) after edits to capture the new names.
 
-- For npm packages, set `"private": true` and configure `publishConfig` if future publishing is anticipated.
-- For packages that must remain public (e.g., shared crates), document rationale and required publish settings.
-- For Cargo crates, adjust the `publish` field to `false` where appropriate.
-
-### Align workspace metadata
-
+### Set privacy flags
 #### Summary
-
-Keep workspace tooling aligned with the renamed packages.
-
+Enforce the "private by default" policy.
 #### Description
-
-- Confirm that `pnpm` `packageManager` versions and `engines` fields remain consistent across manifests.
-- Update any relative path references (e.g., `./dist`, `./out`) that might change due to directory depth adjustments.
-- Ensure `tsconfig` path aliases, lint configs, and build outputs still point to valid locations.
-
-### Plan manifest validation
-
-#### Summary
-
-Define how to verify manifest edits.
-
-#### Description
-
-- Plan to run `pnpm install` and potentially `pnpm lint`/`pnpm test` after updates.
-- For Cargo crates, schedule `cargo check` or targeted builds.
-- Document expected outcomes to confirm the manifests are correct.
-
-## Questions
-
-None.
-
-## Notes
-
-- Keep original manifest configurations accessible for quick diffing during execution.
-- Consider batching manifest updates with directory moves to reduce intermediate breakage.
+- Ensure each `@wrkspc/*` package has "private": true and add a `publishConfig.access = "restricted"` block only when future publishing is expected.
+- Confirm the VS Code extension package remains publishable (keep `private: false`) and double-check its marketplace metadata after dependency renames.
+- For Rust crates, set `publish = false` (or the appropriate allowlist) unless they are intentionally public.
+- Log any intentional exceptions in the plan notes so documentation can mention them explicitly.
