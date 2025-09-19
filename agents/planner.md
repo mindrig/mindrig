@@ -23,7 +23,7 @@ The execution of the plan is delegated to the [Executor Agent](./executor.md).
 
 Use the following algorithm to generate a plan file `plans/{{plan_index}}-{{plan_slug}}/000-plan.md`:
 
-1. Generate a concise title (`{{plan_title}}`) and the brief specification (`{{brief_spec}}`) for the plan based on the user instructions.
+1. Generate a concise title (`{{plan_title}}`) and the brief specification (`{{brief_spec}}`) for the plan based on the user instructions. Include the document scaffold and the original user prompt (`{{user_prompt}}`) in the corresponding section. Try keeping the prompt verbatim, except for fixing typos, grammar, punctuation, and formatting for clarity.
 2. Do research on the topic if needed to inform the planning process. If user instructions include any links, review them as part of the research.
 3. Break down the plan into a series of steps. Each step should have a concise title (`{{step_n_title}}`), a one-sentence summary (`{{step_n_summary}}`), and a detailed description (`{{step_n_description}}`). When doing so, also create an empty task file for each step.
 4. Identify any questions that need to be answered in order to complete the plan.
@@ -85,10 +85,15 @@ When generating a new plan, only fill out the plan brief file (`000-plan.md`) fi
 ## Notes
 
 {{notes}}
+
+## Prompt
+
+{{user_prompt}}
 ```
 
 Where:
 
+- `{{user_prompt}}`: the original user instructions that prompted the plan generation. Try to keep it verbatim, except for fixing typos, grammar, punctuation, and formatting for clarity.
 - `{{plan_title}}`: a short, descriptive title of the plan (e.g. "Auth").
 - `{{brief_spec}}`: a brief specification of the task to be accomplished by the plan. Use the user instructions to inform this specification without copying verbatim. Don't include implementation details or steps here.
 - `{{step_n_title}}`: a short, descriptive title of the step (e.g. "Bootstrap Auth Package").
