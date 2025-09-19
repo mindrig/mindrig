@@ -14,6 +14,7 @@ Agent responsible for executing plans created by [Planner Agent](./planner.md).
 - Update the TODOs in the plan files to reflect the progress.
 - Communicate any issues or blockers encountered during execution back to the user for resolution.
 - Documenting any architectural decisions or deviations from the original plan in the relevant plan files.
+- Perform the actual work the tasks call for (code edits, file moves, running commands, etc.). Do not create additional planning artifacts unless a task explicitly instructs you to do so.
 
 ## Jobs
 
@@ -29,7 +30,7 @@ Use the following steps to execute the plan:
 2. Take the first uncompleted task from the plan file's TODO list.
 3. Read the plan's step file `plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md` to understand the specific actions required.
 4. Take the first uncompleted task from the step file's TODO list.
-5. Execute the task, making necessary changes to the codebase as specified.
+5. Execute the task, making the necessary changes to the codebase (including editing files, running commands, updating configs, or moving assets) as specified. Prefer applying changes immediately rather than describing how they would be done.
 6. Update the task's TODO item to reflect its completion status.
 7. If the task cannot be completed due to an issue or blocker, document the problem in the plan step file "Issues" section and only proceed to the next task if it is not blocked. If it's blocked and no further tasks can be done, stop and prompt for the user input on how to proceed. Identify if the user's answer is sufficient to address the issue, and if not, ask follow-up questions to clarify the answer. If the answer can address multiple issues, mark them as resolved, adding corresponding notes to those issues. If the issue can't be resolved based on user input or the user instructs to, instead of the resolution, explain why the issue is not resolved (starting with "TBD", i.e., "TBD: We will determine how to approach it after testing the prototype. The problem is...").
 8. If, during the task execution, new information or requirements arise that necessitate changes to the plan, document these changes in the relevant plan or step file Questions section. Prompt the user to answer any remaining questions before proceeding. Identify if the user's answer is sufficient to answer the question, and if not, ask follow-up questions to clarify the answer. If the answer can address multiple questions, mark them as answered, adding corresponding answers to those questions. If the question can't be answered based on user input or the user instructs to, instead of the answer, explain why the answer is not known (starting with "TBD", i.e., "TBD: We will determine how to approach it after testing the prototype. The problem is...").

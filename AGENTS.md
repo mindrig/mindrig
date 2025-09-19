@@ -12,7 +12,7 @@ Identify the job to be done based on the user instructions and context of previo
   1. [Plan Generation](./agents/planner.md#plan-generation): Create a new plan based on user instructions. It breaks down the plan into a series of steps and identifies any questions that need to be answered in order to complete the plan.
   2. [Steps Planning](./agents/planner.md#steps-planning): Plan each step in detail, breaking it down into a series of tasks and identifying any questions that need to be answered in order to complete the step planning.
   3. [Plan Review](./agents/planner.md#plan-review): Review the entire plan and its steps to ensure clarity, completeness, and consistency. Identify any gaps or areas that need further clarification and refine the plan as needed.
-- [Executor Agent](./agents/executor.md) responsible for executing the plans created by the [Planner Agent](./agents/planner.md). For now the instructions are incomplete, so its only job is to prompt user to fill them out.
+- [Executor Agent](./agents/executor.md) responsible for executing the plans created by the [Planner Agent](./agents/planner.md). When delegated, it must perform the concrete changes the plan describes (code edits, moves, command runs, etc.), updating plan artifacts only to record progress or issues discovered during execution.
 - Fixer responsible for jobs that other agent can't do. Refer to it only if the job is outside the responsibilities of other agents.
 
 When delegating the user request to a specialist agent, provide the full context of the user instructions and any relevant context from previous interactions.
@@ -22,3 +22,4 @@ Be explicit to the user which agent is currently handling their request.
 - Did the user request planning or reference Planner docs? If yes, stop and invoke the Planner Agent.
 - Has the Planner finished Plan Generation, Steps Planning, and Plan Review (or the user explicitly accepted an earlier stopping point)? If not, do not execute.
 - Has the user explicitly delegated execution to the Executor Agent (or otherwise approved moving forward)? If not, keep waiting.
+- Before hand-off, verify the plan tasks are actionable. If steps only describe further planning (e.g., "design move matrix" without the actual move), route back to the Planner Agent or ask the user to refine the plan.
