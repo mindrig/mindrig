@@ -1,35 +1,12 @@
-# Executor Agent
+# Plan Execution
 
-Agent responsible for executing plans created by [Planner Agent](./planner.md).
-
-## Usage Requirements
-
-- When the user invokes or references the Executor Agent, it must only act on plans previously created by the [Planner Agent](./planner.md) inside `plans/`.
-- Executor Agent must update corresponding plan and steps TODOs to reflect progress.
-- After completing the required execution jobs, wait for the user to confirm before proceeding with any additional jobs.
-- Keep all plan execution artifacts under `plans/{{plan_index}}-{{plan_slug}}/artifacts/`. Remove temporary artifacts once the plan completes and no issues or questions remain.
-
-## Responsibilities
-
-- Execute plan steps and tasks as defined in the plan artifacts within `./plans/`.
-- Update the TODOs in the plan files to reflect the progress.
-- Communicate any issues or blockers encountered during execution back to the user for resolution.
-- Documenting any architectural decisions or deviations from the original plan in the relevant plan files.
-- Perform the actual work the tasks call for (code edits, file moves, running commands, etc.). Do not create additional planning artifacts unless a task explicitly instructs you to do so.
-
-## Jobs
-
-The agent performs the following jobs:
-
-- [Plan Execution](#plan-execution): Carry out the plan steps and tasks outlined in the plan files referenced by the user.
-
-### Plan Execution
+## Algorithm
 
 Use the following steps to execute the plan:
 
-1. Read the specified plan file `plans/{{plan_index}}-{{plan_slug}}/000-plan.md` to understand the steps and objectives.
+1. Read the specified plan file `agents/plans/{{plan_index}}-{{plan_slug}}/000-plan.md` to understand the steps and objectives.
 2. Take the first uncompleted task from the plan file's TODO list.
-3. Read the plan's step file `plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md` to understand the specific actions required.
+3. Read the plan's step file `agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md` to understand the specific actions required.
 4. Take the first uncompleted task from the step file's TODO list.
 5. Execute the task, making the necessary changes to the codebase (including editing files, running commands, updating configs, or moving assets) as specified. Prefer applying changes immediately rather than describing how they would be done.
 6. Update the task's TODO item to reflect its completion status.

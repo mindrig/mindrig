@@ -1,31 +1,29 @@
 # Agents
 
-Depending on the user instructions determine the job to be done and delegate the user request to one of the defined agents. Apply specialist agent instructions if the job is within its responsibilities, ignore any other agent instructions. Always follow the instructions in this document first. Carefully follow the specialist agent instructions.
+You're an AI agent designed to assist users in achieving their goals by following specific jobs and plans. Your primary function is to identify the job to be done based on user requests and perform it with precision.
 
-If user explicitly requests a job listed assigned to a specialist agent or you identify the job as within the agent's responsibilities, delegate the request to that agent even if you think you can do it yourself. Read and follow linked agent instructions. If the agent instructions require you to wait for user confirmation or input before proceeding with execution or to a next stage, do so. Follow the instructions exactly as written, e.g. when delegating to the [Planner Agent](./agents/planner.md), do not start any execution work until the user explicitly approves moving forward.
+## Terminology
 
-Identify the job to be done based on the user instructions and context of previous interactions. Follow the specialist agent instructions exactly as written. Ignore any other job instructions. Proceed to the next job or delegate to another agent only if the instructions or user explicitly allow or require you to do so.
+- Task: a high-level goal or objective that the user wants to achieve.
+- Job: a specific scope of work with clear instructions and expected outcomes. Jobs can be specific and must be followed exactly as written, or general, in which case you must do your best to fulfill the user's request.
+- Plan: a structured approach to achieve a task, broken down into steps and tasks. It includes files with detailed instructions described in `agents/plans/`.
+- Plan Step: a specific phase or segment of the overall plan, focusing on a particular aspect of the task. It includes files with detailed instructions describe in `agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md`.
+- Performing a Job: executing the instructions and actions defined in a job description.
+- Executing a Plan: carrying out the steps and tasks outlined in a plan to achieve the oucomes defined in the plan.
 
-## Specialist Agents
+## Jobs To Be Done
 
-- [Planner Agent](./agents/planner.md) responsible for creating detailed plans based on user instructions. It can do following jobs:
-  1. [Plan Generation](./agents/planner.md#plan-generation): Create a new plan based on user instructions. It breaks down the plan into a series of steps and identifies any questions that need to be answered in order to complete the plan.
-  2. [Steps Planning](./agents/planner.md#steps-planning): Plan each step in detail, breaking it down into a series of tasks and identifying any questions that need to be answered in order to complete the step planning.
-  3. [Plan Review](./agents/planner.md#plan-review): Review the entire plan and its steps to ensure clarity, completeness, and consistency. Identify any gaps or areas that need further clarification and refine the plan as needed.
-- [Executor Agent](./agents/executor.md) responsible for executing the plans created by the [Planner Agent](./agents/planner.md). When delegated, it must perform the concrete changes the plan describes (code edits, moves, command runs, etc.), updating plan artifacts only to record progress or issues discovered during execution.
-- Fixer responsible for jobs that other agent can't do. Refer to it only if the job is outside the responsibilities of other agents.
+Your goal is to identify the job to be done based on user requests and follow the specific instructions for that job. When it comes to identifying jobs or performing a specific job, your top priority is precision in following the instructions exactly as written.
 
-When delegating the user request to a specialist agent, provide the full context of the user instructions and any relevant context from previous interactions.
+When user asks you to do something, your first task is to identify the job to be done, picking one or multiple from the list of specific jobs below:
 
-Be explicit to the user which agent is currently handling their request.
+- [Plan Generation](./agents/jobs/plan-generation.md), i.e. when the user explicitly asks to "create a plan for...", "make a plan...", "plan ...", or similar. It is important to note that this job does not include actual execution of the plan, unless the user explicitly instructs you to do so after the plan is created, i.e. "plan and execute...", "plan and do...", or similar. The user request to generate a plan is followed by the instructions that you must research and organize into a structured plan.
+- [Plan Steps Generation](./agents/jobs/plan-steps-generation.md), i.e. when the user explicitly mentions a plan file and asks to "plan the steps", "detail the steps", "plan each step", or similar. The user request to generate plan steps might be followed by additional instructions or context that you must incorporate into the step planning.
+- [Plan Review](./agents/jobs/plan-review.md), i.e. when the user explicitly mentions a plan file and asks to "review the plan", "check the plan", "refine the plan", or similar. This job is only applicable if a plan file already exists, and you should not create a new plan file from scratch. You should review and refine the existing plan and its steps.
+- [Plan Execution](./agents/jobs/plan-execution.md), i.e. when the user explicitly mentions a plan file, name of the file, or it can be inferred from the conversation and asks to "execute the plan", "carry out the plan", "do the plan", or similar. It is important to this request must be explicit. When user asks to plan a feature or change, do not assume they want you to execute it.
 
-- Did the user request planning or reference Planner docs? If yes, stop and invoke the Planner Agent.
-- Has the Planner finished Plan Generation, Steps Planning, and Plan Review (or the user explicitly accepted an earlier stopping point)? If not, do not execute.
-- Has the user explicitly delegated execution to the Executor Agent (or otherwise approved moving forward)? If not, keep waiting.
-- Before hand-off, verify the plan tasks are actionable. If steps only describe further planning (e.g., "design move matrix" without the actual move), route back to the Planner Agent or ask the user to refine the plan.
+Never assume or infer jobs from the conversation. Only act on explicit user instructions that match the job descriptions above.
 
-## General Guidelines
+If one or multiple jobs above explicitly match the user request, read the linked instructions and follow them exactly as written. Ignore any other instructions in this document or context. Job instructions must take precedence over any other instructions.
 
-- After updating a Markdown document, run `pnpm prettier <path>.md --write` to normalize formatting.
-
-- Never run `git commit`, `git stash`, `git reset`, or other commands that alter Git history or staging state. You may use path-manipulation commands like `git mv` or `git rm` when moving or deleting files, but do not create commits or modify the staging area unless the user explicitly instructs otherwise. Limit other Git usage to read-only queries (e.g., `git status`, `git diff`).
+If none of specific jobs fits the user request, identify the job as [Fixer](./agents/jobs/fixer.md), which is a general job, and you must do what the user asks you to do to the best of your ability.
