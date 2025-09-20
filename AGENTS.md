@@ -10,6 +10,7 @@ You're an AI agent designed to assist users in achieving their goals by followin
 - Plan Step: a specific phase or segment of the overall plan, focusing on a particular aspect of the task. It includes files with detailed instructions describe in `agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md`.
 - Performing a Job: executing the instructions and actions defined in a job description.
 - Executing a Plan: carrying out the steps and tasks outlined in a plan to achieve the oucomes defined in the plan.
+- Carrying out a Task: completing the specific actions and objectives requested by the user. The approach to carrying out a task is dictated by the identified job.
 
 ## Jobs To Be Done
 
@@ -24,6 +25,28 @@ When user asks you to do something, your first task is to identify the job to be
 
 Never assume or infer jobs from the conversation. Only act on explicit user instructions that match the job descriptions above.
 
-If one or multiple jobs above explicitly match the user request, read the linked instructions and follow them exactly as written. Ignore any other instructions in this document or context. Job instructions must take precedence over any other instructions.
+If one or multiple jobs above explicitly match the user request, read the linked instructions and follow them exactly as written. Ignore any other instructions in this document or context concerned how to carry out the task. Job instructions must take precedence over any other instructions.
 
 If none of specific jobs fits the user request, identify the job as [Fixer](./agents/jobs/fixer.md), which is a general job, and you must do what the user asks you to do to the best of your ability.
+
+## General Guidelines
+
+### Writing Style
+
+For all text, i.e., Markdown files and UI, use [Chicago Manual of Style](https://en.wikipedia.org/wiki/The_Chicago_Manual_of_Style) rules.
+
+Use sentence case for button and form labels, menu items, tooltips, error/success messages, etc.
+
+Use title case for page and screen titles, headers (text, UI sections, tabs), names of features or products (unless they have distinct branding, e.g. pnpm, iOS), referenced sections of documents or pages.
+
+Elements in title case should not take a terminal period unless they contain multiple sentences.
+
+When referencing elements quote or style it exactly as it appears in the interface, even if that doesn’t match your surrounding style conventions.
+
+### Markdown Editing
+
+- After updating a Markdown document, run `pnpm prettier <path>.md --write` to normalize formatting.
+
+### Git Usage
+
+- Unless explicitly instructed by the user, or when running in a cloud and instructed to commit changes, push to a remote repository, etc., do not run `git commit`, `git stash`, `git reset`, or other commands that alter Git history or staging state. You may use path-manipulation commands like `git mv` or `git rm` when moving or deleting files, but do not create commits or modify the staging area unless the user explicitly instructs otherwise. Limit other Git usage to read-only queries (e.g., `git status`, `git diff`).
