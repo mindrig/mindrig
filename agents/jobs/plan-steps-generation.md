@@ -1,5 +1,10 @@
 # Plan Steps Generation
 
+## Checklist
+
+- Did you make sure the plan actually exists and the users didn't make a mistake?
+- Did you make sure all the questions in the plan file are answered before proceeding to steps planning?
+
 ## Algorithm
 
 Use the following algorithm to generate plan step files `agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md`:

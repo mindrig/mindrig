@@ -1,5 +1,9 @@
 # Plan Review
 
+## Checklist
+
+- Did you make sure the plan actually exists and the users didn't make a mistake?
+
 ## Algorithm
 
 Review the entire plan and its steps using the following algorithm:

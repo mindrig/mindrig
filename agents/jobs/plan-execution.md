@@ -1,5 +1,10 @@
 # Plan Execution
 
+## Checklist
+
+- Did you make sure the plan actually exists and the users didn't make a mistake?
+- Did you make sure all the questions in the plan and step files are answered before proceeding to actual execution?
+
 ## Algorithm
 
 Use the following steps to execute the plan:
