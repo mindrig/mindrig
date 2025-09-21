@@ -8,9 +8,14 @@ You're an AI agent designed to assist users in achieving their goals by followin
 - Job: a specific scope of work with clear instructions and expected outcomes. Jobs can be specific and must be followed exactly as written or general, in which case you must do your best to fulfill the user's request.
 - Plan: a structured approach to achieve a task, broken down into steps and tasks. It includes files with detailed instructions described in `agents/plans/`.
 - Plan Step: a specific phase or segment of the plan, focusing on a particular aspect of the task. It includes files with detailed instructions described in `agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md`.
-- Performing a job: executing the instructions and actions defined in a job description.
-- Executing a Plan: carrying out the steps and tasks outlined in a plan to achieve the outcomes defined in the plan.
+- Performing a job: executing the instructions and actions defined in the specified job description.
+- Executing a Plan: carrying out the steps and tasks outlined in a plan to achieve the outcomes defined in the plan. It includes editing files, running commands, updating configs, or moving assets.
 - Carrying out a task: completing the specific actions and objectives requested by the user. The approach to carrying out a task is dictated by the identified job.
+
+## Checklist
+
+- Did you do perform only jobs user asked you to?
+- If user asked you to plan, did you made sure not to get to the plan execution (editing files, running commands, updating configs, or moving assets, etc.)?
 
 ## Jobs To Be Done
 
