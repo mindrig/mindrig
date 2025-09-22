@@ -6,10 +6,10 @@ Capture the current tooling, package structure, and shared assets that will infl
 
 ## Tasks
 
-- [ ] [Record workspace tooling context](#record-workspace-tooling-context): Summarize package manager, Turborepo, and Node versions plus relevant scripts into an audit note for future reference.
-- [ ] [Inventory target packages](#inventory-target-packages): List key dependencies and build outputs for `pkgs/vsc-webview` and `subs/ds/pkgs/ui` to anticipate Storybook needs.
-- [ ] [Review TypeScript configuration](#review-typescript-configuration): Map the tsconfig hierarchy and path aliases required for cross-package imports inside Storybook.
-- [ ] [Identify global styles and assets](#identify-global-styles-and-assets): Note CSS, fonts, and other resources Storybook must load to render components faithfully.
+- [x] [Record workspace tooling context](#record-workspace-tooling-context): Summarize package manager, Turborepo, and Node versions plus relevant scripts into an audit note for future reference.
+- [x] [Inventory target packages](#inventory-target-packages): List key dependencies and build outputs for `pkgs/vsc-webview` and `subs/ds/pkgs/ui` to anticipate Storybook needs.
+- [x] [Review TypeScript configuration](#review-typescript-configuration): Map the tsconfig hierarchy and path aliases required for cross-package imports inside Storybook.
+- [x] [Identify global styles and assets](#identify-global-styles-and-assets): Note CSS, fonts, and other resources Storybook must load to render components faithfully.
 
 ### Record workspace tooling context
 
@@ -66,4 +66,4 @@ None.
 
 ## Notes
 
-- Keep artifacts in `agents/plans/001-storybook-integration/artifacts` so later steps can reference consistent workspace facts.
+- Keep artifacts in `agents/plans/002-storybook-integration/artifacts` so later steps can reference consistent workspace facts (updated from original `001-*` path).

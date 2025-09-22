@@ -19,7 +19,7 @@ Generate the static site using workspace scripts.
 
 #### Description
 
-- Execute `pnpm --filter @wrkspc/storybook storybook:build` from the repo root.
+- Execute `pnpm --filter @wrkspc/storybook build` from the repo root.
 - Confirm the CLI reports success and note build duration and warnings.
 - If the build fails, capture the error output and create TODOs referencing the failing components or configs.
 

@@ -6,38 +6,38 @@ Introduce Storybook to the monorepo using a new `pkgs/storybook` workspace packa
 
 ## Plan
 
-- [ ] [Assess Workspace Requirements](agents/plans/001-storybook-integration/001-assess-workspace.md): Confirm tooling, package manager configuration, and existing component setup to scope Storybook dependencies and targets.
-- [ ] [Scaffold Storybook Package](agents/plans/001-storybook-integration/002-scaffold-storybook.md): Create `pkgs/storybook` with Storybook boilerplate following Turborepo recommendations while adapting paths and scripts to the `pkgs` namespace.
-- [ ] [Configure Shared Stories](agents/plans/001-storybook-integration/003-configure-stories.md): Point Storybook to stories in `pkgs/vsc-webview` and `subs/ds/pkgs/ui`, centralize TypeScript/alias config, and ensure hot reloading works across packages.
-- [ ] [Author Sample Stories](agents/plans/001-storybook-integration/004-sample-stories.md): Draft example stories for `Button` and `FileLabel` components to validate Storybook rendering and establish conventions.
-- [ ] [Update Contributor Docs](agents/plans/001-storybook-integration/005-update-docs.md): Refresh `docs/contributing/pkgs.md` with Storybook usage, scripts, and package details scoped to `pkgs/storybook`.
-- [ ] [Build & Verify Static Output](agents/plans/001-storybook-integration/006-static-build-verify.md): Configure build pipeline, produce static assets in `pkgs/storybook/dist`, and document manual verification steps.
+- [x] [Assess Workspace Requirements](agents/plans/002-storybook-integration/001-assess-workspace.md): Confirm tooling, package manager configuration, and existing component setup to scope Storybook dependencies and targets.
+- [x] [Scaffold Storybook Package](agents/plans/002-storybook-integration/002-scaffold-storybook.md): Create `pkgs/storybook` with Storybook boilerplate following Turborepo recommendations while adapting paths and scripts to the `pkgs` namespace.
+- [ ] [Configure Shared Stories](agents/plans/002-storybook-integration/003-configure-stories.md): Point Storybook to stories in `pkgs/vsc-webview` and `subs/ds/pkgs/ui`, centralize TypeScript/alias config, and ensure hot reloading works across packages.
+- [ ] [Author Sample Stories](agents/plans/002-storybook-integration/004-sample-stories.md): Draft example stories for `Button` and `FileLabel` components to validate Storybook rendering and establish conventions.
+- [ ] [Update Contributor Docs](agents/plans/002-storybook-integration/005-update-docs.md): Refresh `docs/contributing/pkgs.md` with Storybook usage, scripts, and package details scoped to `pkgs/storybook`.
+- [ ] [Build & Verify Static Output](agents/plans/002-storybook-integration/006-static-build-verify.md): Configure build pipeline, produce static assets in `pkgs/storybook/dist`, and document manual verification steps.
 
 ## Steps
 
-### [Assess Workspace Requirements](agents/plans/001-storybook-integration/001-assess-workspace.md)
+### [Assess Workspace Requirements](agents/plans/002-storybook-integration/001-assess-workspace.md)
 
 Inventory existing React packages, confirm PNPM/Turborepo setup, and note workspace path conventions to choose compatible Storybook builder options and dependency versions.
 
-### [Scaffold Storybook Package](agents/plans/001-storybook-integration/002-scaffold-storybook.md)
+### [Scaffold Storybook Package](agents/plans/002-storybook-integration/002-scaffold-storybook.md)
 
-Use Storybook's init workflow (via `pnpm dlx storybook@latest init`) targeting a React + Vite stack, adjust generated configs to live under `pkgs/storybook`, and wire scripts and `turbo.json` tasks for `storybook:dev` and `storybook:build`.
+Use Storybook's init workflow (via `pnpm dlx storybook@latest init`) targeting a React + Vite stack, adjust generated configs to live under `pkgs/storybook`, and wire scripts and `turbo.json` tasks for `dev` and `build`.
 
-### [Configure Shared Stories](agents/plans/001-storybook-integration/003-configure-stories.md)
+### [Configure Shared Stories](agents/plans/002-storybook-integration/003-configure-stories.md)
 
 Update `main.ts` and supporting config to include story globs from `pkgs/vsc-webview` and `subs/ds/pkgs/ui`, share tsconfig path aliases, and add workspace-specific preview setup (global styles, providers) so both packages render consistently.
 
-### [Author Sample Stories](agents/plans/001-storybook-integration/004-sample-stories.md)
+### [Author Sample Stories](agents/plans/002-storybook-integration/004-sample-stories.md)
 
 Implement foundational stories for `subs/ds/pkgs/ui/src/Button.tsx` and `pkgs/vsc-webview/src/aspects/file/Label.tsx`, capturing representative props/states and documenting usage patterns to guide future story authors.
 
-### [Update Contributor Docs](agents/plans/001-storybook-integration/005-update-docs.md)
+### [Update Contributor Docs](agents/plans/002-storybook-integration/005-update-docs.md)
 
 Extend `docs/contributing/pkgs.md` with instructions for running Storybook locally, expectations for story locations, sample commands, and notes about the `pkgs/storybook` package lifecycle.
 
-### [Build & Verify Static Output](agents/plans/001-storybook-integration/006-static-build-verify.md)
+### [Build & Verify Static Output](agents/plans/002-storybook-integration/006-static-build-verify.md)
 
-Finalize `storybook:build` configuration, ensure artifacts emit to `pkgs/storybook/dist`, and outline checks for verifying key HTML/CSS/JS bundles and component coverage in the static output.
+Finalize `build` configuration, ensure artifacts emit to `pkgs/storybook/dist`, and outline checks for verifying key HTML/CSS/JS bundles and component coverage in the static output.
 
 ## Questions
 

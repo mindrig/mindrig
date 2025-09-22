@@ -6,11 +6,11 @@ Bootstrap a dedicated `pkgs/storybook` workspace package using Storybook’s Vit
 
 ## Tasks
 
-- [ ] [Create package skeleton](#create-package-skeleton): Add `pkgs/storybook` with baseline `package.json`, TypeScript config, and README aligned to workspace conventions.
-- [ ] [Initialize Storybook via CLI](#initialize-storybook-via-cli): Run the Storybook generator inside the new package with Vite builder options and confirm generated files.
-- [ ] [Normalize generated configuration](#normalize-generated-configuration): Tidy up CLI output, remove sample stories, and ensure the config sits under `.storybook` with workspace-friendly paths.
-- [ ] [Integrate dependencies with pnpm](#integrate-dependencies-with-pnpm): Ensure Storybook dependencies are installed through the monorepo workflow and no stray lockfiles remain.
-- [ ] [Wire workspace scripts](#wire-workspace-scripts): Add `storybook:dev` and `storybook:build` scripts to relevant manifests and register Turbo pipeline tasks.
+- [x] [Create package skeleton](#create-package-skeleton): Add `pkgs/storybook` with baseline `package.json`, TypeScript config, and README aligned to workspace conventions.
+- [x] [Initialize Storybook via CLI](#initialize-storybook-via-cli): Run the Storybook generator inside the new package with Vite builder options and confirm generated files.
+- [x] [Normalize generated configuration](#normalize-generated-configuration): Tidy up CLI output, remove sample stories, and ensure the config sits under `.storybook` with workspace-friendly paths.
+- [x] [Integrate dependencies with pnpm](#integrate-dependencies-with-pnpm): Ensure Storybook dependencies are installed through the monorepo workflow and no stray lockfiles remain.
+- [x] [Wire workspace scripts](#wire-workspace-scripts): Add `dev` and `build` scripts to relevant manifests and register Turbo pipeline tasks.
 
 ### Create package skeleton
 
@@ -71,9 +71,9 @@ Expose Storybook commands through PNPM and Turborepo.
 
 #### Description
 
-- Add `storybook:dev` (`storybook dev -p 6006`) and `storybook:build` (`storybook build --output-dir dist`) scripts to `pkgs/storybook/package.json`.
-- Update the repo root `package.json` to include shortcuts (`storybook`, `storybook:build`) that call into the workspace script via `pnpm --filter @wrkspc/storybook`.
-- Extend `turbo.json` with tasks for `storybook:dev` and `storybook:build`, specifying `outputs` for the build (`pkgs/storybook/dist/**`) and optional cache configuration.
+- Add `dev` (`storybook dev -p 6006`) and `build` (`storybook build --output-dir dist`) scripts to `pkgs/storybook/package.json`.
+- Update the repo root `package.json` to include shortcuts (`storybook`, `build`) that call into the workspace script via `pnpm --filter @wrkspc/storybook`.
+- Extend `turbo.json` with tasks for `dev` and `build`, specifying `outputs` for the build (`pkgs/storybook/dist/**`) and optional cache configuration.
 - Capture any additional dependency updates (e.g., lockfile changes) for future execution review.
 
 ## Questions
@@ -83,4 +83,5 @@ None.
 ## Notes
 
 - Use PNPM workspace protocols (`workspace:*`) wherever Storybook depends on local packages to avoid version drift.
+- External React typings are not published as workspace packages, so semver pins from the Storybook 9.1.7 template are retained.
 - If the CLI attempts to install its own `react` or `vite`, pin them to workspace versions during normalization.

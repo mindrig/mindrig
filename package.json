@@ -21,9 +21,7 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "format": "turbo run format",
-    "storybook": "pnpm --filter @wrkspc/storybook storybook:dev",
-    "storybook:build": "pnpm --filter @wrkspc/storybook storybook:build"
+    "format": "turbo run format"
   },
   "keywords": [],
   "author": "",

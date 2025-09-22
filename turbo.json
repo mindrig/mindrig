@@ -30,14 +30,9 @@
 
     "lint:fix": {},
 
-    "storybook:dev": {
+    "dev": {
       "cache": false,
       "persistent": true
-    },
-
-    "storybook:build": {
-      "outputs": ["pkgs/storybook/dist/**"],
-      "dependsOn": ["^build"]
     }
   }
 }

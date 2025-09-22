@@ -30,7 +30,7 @@ Describe how to run and build the new Storybook package.
 
 #### Description
 
-- Add a subsection (e.g., "Storybook") covering `pnpm --filter @wrkspc/storybook storybook:dev` and `storybook:build` commands, including default ports and environment variables.
+- Add a subsection (e.g., "Storybook") covering `pnpm --filter @wrkspc/storybook dev` and `build` commands, including default ports and environment variables.
 - Mention that the static build outputs to `pkgs/storybook/dist` and should be inspected before PRs.
 - Outline any prerequisite setup (Node/PNPM versions, ensuring dependencies are installed) pulled from Step 1’s audit.
 
