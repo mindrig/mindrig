@@ -37,6 +37,14 @@ If none of the specific jobs fits the user request, identify the job as [Fixer](
 
 ## General Guidelines
 
+### File Naming
+
+- Use lowercase kebab-case for markdown documents, assets, and config files.
+- Use snakeCase for JS/TS and CSS files.
+- Use snake_case for Rust files.
+
+Exceptions: `README.md`, `CHANGELOG.md` and `AGENTS.md`.
+
 ### Writing Style
 
 For all text, i.e., Markdown files and UI, use [Chicago Manual of Style](https://en.wikipedia.org/wiki/The_Chicago_Manual_of_Style) rules.
