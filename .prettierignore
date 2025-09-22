@@ -1,4 +1,5 @@
 # pnpm
 pnpm-lock.yaml
+pnpm-workspace.yaml
 # VS Code
 .vscode-test

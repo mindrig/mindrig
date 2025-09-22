@@ -5,15 +5,17 @@ packages:
   - subs/*/pkgs/*
 
 onlyBuiltDependencies:
-  - "@tailwindcss/oxide"
-  - "@vscode/vsce-sign"
+  - '@tailwindcss/oxide'
+  - '@vscode/vsce-sign'
+  - es5-ext
   - esbuild
   - keytar
   - sharp
+  - ttf2woff2
   - workerd
 
 overrides:
-  "@mindrig/parser-wasm": workspace:*
-  "@mindrig/types": workspace:*
-  "@wrkspc/vsc-sync": workspace:*
-  "@wrkspc/vsc-types": workspace:*
+  '@mindrig/parser-wasm': workspace:*
+  '@mindrig/types': workspace:*
+  '@wrkspc/vsc-sync': workspace:*
+  '@wrkspc/vsc-types': workspace:*

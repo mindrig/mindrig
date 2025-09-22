@@ -11,6 +11,7 @@
     "subs/*/pkgs/*"
   ],
   "scripts": {
+    "setup": "turbo run setup",
     "all": "turbo run all",
     "build": "turbo run build",
     "test/rs": "cargo nextest run --no-fail-fast",
