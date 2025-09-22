@@ -8,6 +8,7 @@ source ~/.config/mothership/.env || true
 
 # Make sure mise is activated
 eval "$(mise activate bash --shims)"
+eval "$(mise env -s bash)"
 
 # Make sure pnpm is installed
 yes | pnpm install
@@ -23,6 +24,4 @@ sudo apt update
 sudo apt install -y code
 
 # Install Playwright dependencies
-cd ./vscode/extension/
-pnpm playwright-core install-deps chromium
-cd -
+pnpm -F vscode exec playwright-core install-deps chromium

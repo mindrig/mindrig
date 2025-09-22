@@ -8,6 +8,7 @@ source ~/.config/mothership/.env || true
 
 # Make sure mise is activated
 eval "$(mise activate bash --shims)"
+eval "$(mise env -s bash)"
 
 # Pull git submodules
 if [ -d .git ]; then
