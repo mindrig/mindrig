@@ -4,7 +4,7 @@
   "build": { "dockerfile": "Dockerfile", "context": ".." },
 
   // Put repo to /wrkspc
-  "workspaceMount": "source=${localWorkspaceFolder},target=/wrkspc/${localWorkspaceFolderBasename},type=bind",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/wrkspc/${localWorkspaceFolderBasename},type=bind,consistency=cached",
   "workspaceFolder": "/wrkspc/${localWorkspaceFolderBasename}",
 
   "mounts": [
