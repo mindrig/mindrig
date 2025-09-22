@@ -22,11 +22,26 @@ export namespace ModelDotdev {
       attachment?: boolean;
       tool_call?: boolean;
       reasoning?: boolean;
+      name?: string;
+      release_date?: string;
+      last_updated?: string;
+      knowledge?: string;
+      open_weights?: boolean;
+      temperature?: boolean;
+      cost?: Record<string, unknown>;
+      limit?: Record<string, unknown>;
+      [key: string]: unknown;
     }
 
     export interface Provider {
       id: string;
       models: Record<string, ModelMeta>;
+      name?: string;
+      api?: string;
+      doc?: string;
+      env?: string[];
+      npm?: string;
+      [key: string]: unknown;
     }
 
     export type Data = Record<string, Provider>;

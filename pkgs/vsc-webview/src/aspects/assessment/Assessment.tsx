@@ -1,4 +1,3 @@
-import { createGateway } from "@ai-sdk/gateway";
 import type { Prompt, PromptVar } from "@mindrig/types";
 import JsonView, { ShouldExpandNodeInitially } from "@uiw/react-json-view";
 import MarkdownPreview from "@uiw/react-markdown-preview";
@@ -11,12 +10,12 @@ import {
   mergeProviderOptionsWithReasoning,
   providerFromEntry,
   providerLogoUrl,
-  setModelsDevData,
 } from "@wrkspc/model";
 import { extractPromptText, substituteVariables } from "@wrkspc/prompt";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { parseString as parseCsvString } from "smolcsv";
 import { useVsc } from "../vsc/Context";
+import { useModelsDev } from "@/aspects/models-dev/Context";
 import {
   loadPromptState,
   PersistedPromptState,
@@ -25,6 +24,22 @@ import {
   ResultsLayout,
   savePromptState,
 } from "./persistence";
+import {
+  useGatewayModels,
+  type AvailableModel,
+} from "./hooks/useGatewayModels";
+import {
+  OFFLINE_MODEL_RECOMMENDATIONS,
+  PROVIDER_POPULARITY,
+  compareProviderModelEntries,
+  computeRecommendationWeightsForProvider,
+  modelKeyFromId,
+  normaliseProviderId,
+  parseLastUpdatedMs,
+} from "./modelSorting";
+import { ModelStatusDot } from "./components/ModelStatusDot";
+import type { ModelStatus } from "./components/ModelStatusDot";
+import type { ProviderModelWithScore } from "./modelSorting";
 
 const shouldExpandNodeInitially: ShouldExpandNodeInitially<object> = (
   isExpanded,
@@ -37,14 +52,6 @@ const shouldExpandNodeInitially: ShouldExpandNodeInitially<object> = (
   if (isObject && level > 3) return true;
   return isExpanded;
 };
-
-interface AvailableModel {
-  id: string;
-  name?: string;
-  modelType?: string | null;
-  specification?: { provider?: string };
-  pricing?: Record<string, number>;
-}
 
 interface ModelConfigState {
   key: string;
@@ -105,51 +112,6 @@ interface ExecutionState {
   timestamp?: number;
 }
 
-const PROVIDER_POPULARITY: Record<string, number> = {
-  openai: 100,
-  anthropic: 95,
-  google: 90,
-  meta: 80,
-  mistral: 70,
-};
-
-const MODEL_POPULARITY: Record<string, Record<string, number>> = {
-  openai: {
-    "gpt-4.1-mini": 100,
-    "gpt-4o-mini": 95,
-    "o3-mini": 90,
-  },
-  anthropic: {
-    "claude-3.5-sonnet": 100,
-    "claude-3.5-haiku": 95,
-    "claude-3.5-opus": 90,
-  },
-  google: {
-    "gemini-2.0-flash": 100,
-    "gemini-1.5-pro": 95,
-    "gemini-1.5-flash": 90,
-  },
-  meta: {
-    "llama-3.1-405b": 100,
-    "llama-3.1-70b": 95,
-    "llama-3.1-8b": 90,
-  },
-  mistral: {
-    "mistral-large": 100,
-    "mistral-small": 95,
-    "mistral-nemo": 90,
-  },
-};
-
-function normaliseProviderId(value: string | null | undefined): string {
-  return (value ?? "").toLowerCase();
-}
-
-function modelKeyFromId(id: string | null | undefined): string {
-  if (!id) return "";
-  return id.split("/").pop()?.toLowerCase() ?? id.toLowerCase();
-}
-
 function createModelConfigKey(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto)
     return `model-${crypto.randomUUID()}`;
@@ -163,17 +125,6 @@ function providerLabel(providerId: string): string {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
-}
-
-function scoreModelPopularity(
-  providerId: string,
-  modelId: string | null | undefined,
-): number {
-  const providerKey = normaliseProviderId(providerId);
-  const models = MODEL_POPULARITY[providerKey];
-  if (!models || !modelId) return 0;
-  const key = modelKeyFromId(modelId);
-  return models[key] || 0;
 }
 
 export namespace Assessment {
@@ -192,8 +143,6 @@ export function Assessment({
   promptIndex = null,
 }: Assessment.Props) {
   const { vsc } = useVsc();
-  const [modelsDevTick, setModelsDevTick] = useState(0);
-  const [models, setModels] = useState<AvailableModel[]>([]);
   const [modelConfigs, setModelConfigs] = useState<ModelConfigState[]>([]);
   const [expandedModelKey, setExpandedModelKey] = useState<string | null>(null);
   const [modelErrors, setModelErrors] = useState<
@@ -206,9 +155,6 @@ export function Assessment({
   const [csvHeader, setCsvHeader] = useState<string[] | null>(null);
   const [csvRows, setCsvRows] = useState<string[][]>([]);
   const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
-
-  const [modelsLoading, setModelsLoading] = useState(false);
-  const [modelsError, setModelsError] = useState<string | null>(null);
 
   const [executionState, setExecutionState] = useState<ExecutionState>({
     isLoading: false,
@@ -244,6 +190,54 @@ export function Assessment({
   const persistedStateRef = useRef<PersistedPromptState | undefined>(undefined);
   const [isHydrated, setIsHydrated] = useState(false);
 
+  const {
+    models: gatewayModels,
+    isLoading: modelsLoading,
+    error: modelsErrorRaw,
+  } = useGatewayModels(vercelGatewayKey);
+
+  const {
+    getModel: getModelsDevMeta,
+    providers: modelsDevProviders,
+    isFallback: modelsDevFallback,
+    isLoading: modelsDevLoading,
+    error: modelsDevError,
+  } = useModelsDev();
+
+  const manualModelFallback = useMemo<AvailableModel[]>(() => {
+    return Object.entries(OFFLINE_MODEL_RECOMMENDATIONS).flatMap(
+      ([providerId, entries]) =>
+        Object.keys(entries).map((modelId) => {
+          const meta = getModelsDevMeta(providerId, modelId) as
+            | { name?: string }
+            | undefined;
+          return {
+            id: modelId,
+            name: meta?.name ?? modelId,
+            specification: { provider: providerId },
+          };
+        }),
+    );
+  }, [getModelsDevMeta]);
+
+  const models = useMemo<AvailableModel[]>(() => {
+    if (gatewayModels && gatewayModels.length > 0) return gatewayModels;
+    return manualModelFallback;
+  }, [gatewayModels, manualModelFallback]);
+
+  const modelsError = useMemo(() => {
+    if (!modelsErrorRaw) return null;
+    return modelsErrorRaw instanceof Error
+      ? modelsErrorRaw.message
+      : String(modelsErrorRaw);
+  }, [modelsErrorRaw]);
+
+  const modelStatus = useMemo<ModelStatus>(() => {
+    if (modelsErrorRaw || modelsDevError) return "error";
+    if (modelsLoading || modelsDevLoading) return "loading";
+    return "success";
+  }, [modelsDevError, modelsDevLoading, modelsErrorRaw, modelsLoading]);
+
   useEffect(() => {
     if (resultsLayout !== "vertical") setCollapsedResults({});
   }, [resultsLayout]);
@@ -276,11 +270,16 @@ export function Assessment({
     for (const model of models) {
       const providerId = normaliseProviderId(providerFromEntry(model));
       if (!providerId) continue;
-      if (!map.has(providerId))
+      if (!map.has(providerId)) {
+        const providerMeta = modelsDevProviders[providerId];
         map.set(providerId, {
           id: providerId,
-          label: providerLabel(providerId),
+          label:
+            typeof providerMeta?.name === "string"
+              ? providerMeta.name
+              : providerLabel(providerId),
         });
+      }
     }
     return Array.from(map.values()).sort((a, b) => {
       const scoreA = PROVIDER_POPULARITY[a.id] ?? 0;
@@ -288,25 +287,56 @@ export function Assessment({
       if (scoreA !== scoreB) return scoreB - scoreA;
       return a.label.localeCompare(b.label);
     });
-  }, [models]);
+  }, [models, modelsDevProviders]);
 
   const modelsByProvider = useMemo(() => {
-    const grouped: Record<string, Array<{ id: string; name?: string }>> = {};
+    const grouped: Record<string, ProviderModelWithScore[]> = {};
+
     for (const model of models) {
       const providerId = normaliseProviderId(providerFromEntry(model));
+      if (!providerId) continue;
       if (!grouped[providerId]) grouped[providerId] = [];
-      grouped[providerId]!.push({ id: model.id, name: model.name });
-    }
-    Object.entries(grouped).forEach(([providerId, list]) => {
-      list.sort((a, b) => {
-        const scoreA = scoreModelPopularity(providerId, a.id);
-        const scoreB = scoreModelPopularity(providerId, b.id);
-        if (scoreA !== scoreB) return scoreB - scoreA;
-        return (a.name || a.id).localeCompare(b.name || b.id);
+      const meta = getModelsDevMeta(providerId, model.id) as
+        | { last_updated?: string; name?: string }
+        | undefined;
+      const displayName = model.name ?? meta?.name ?? null;
+      grouped[providerId]!.push({
+        id: model.id,
+        ...(displayName ? { name: displayName } : {}),
+        lastUpdatedMs: parseLastUpdatedMs(meta?.last_updated),
+        recommendationScore: 0,
       });
+    }
+
+    const result: Record<string, Array<{ id: string; name?: string }>> = {};
+
+    Object.entries(grouped).forEach(([providerId, list]) => {
+      const orderingEntries = list.map(({ id, name, lastUpdatedMs }) =>
+        name ? { id, name, lastUpdatedMs } : { id, lastUpdatedMs },
+      );
+      const recommendationWeights = computeRecommendationWeightsForProvider(
+        providerId,
+        orderingEntries,
+        { modelsDevFallback },
+      );
+
+      const offlineWeights = OFFLINE_MODEL_RECOMMENDATIONS[providerId] ?? {};
+
+      list.forEach((entry) => {
+        const key = modelKeyFromId(entry.id);
+        const fallbackScore = offlineWeights[key] ?? 0;
+        entry.recommendationScore = recommendationWeights[key] ?? fallbackScore;
+      });
+
+      list.sort(compareProviderModelEntries);
+
+      result[providerId] = list.map(({ id, name }) =>
+        name ? { id, name } : { id },
+      );
     });
-    return grouped;
-  }, [models]);
+
+    return result;
+  }, [models, getModelsDevMeta, modelsDevFallback]);
 
   const getModelsForProvider = useCallback(
     (providerId: string | null) => {
@@ -696,53 +726,6 @@ export function Assessment({
       }),
     );
   }, [isHydrated, models]);
-
-  const fetchModels = useCallback(async () => {
-    if (vercelGatewayKey === undefined) return;
-    setModelsLoading(true);
-    setModelsError(null);
-    try {
-      const res = await (vercelGatewayKey
-        ? createGateway({ apiKey: vercelGatewayKey }).getAvailableModels()
-        : fetch(
-            `${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN}/vercel/models`,
-          ).then((r) => r.json()));
-      const list = (res.models || []).filter(
-        (model: any) => (model.modelType ?? "language") === "language",
-      );
-      setModels(list);
-    } catch (error) {
-      console.error(
-        "Failed to load models",
-        JSON.stringify({ error: String(error) }),
-      );
-      setModelsError(
-        error instanceof Error
-          ? error.message
-          : "Failed to load models from Gateway",
-      );
-    } finally {
-      setModelsLoading(false);
-    }
-  }, [vercelGatewayKey]);
-
-  useEffect(() => {
-    fetchModels();
-  }, [fetchModels]);
-
-  useEffect(() => {
-    const onMessage = (event: MessageEvent) => {
-      const message = event.data;
-      if (message.type !== "modelsDev") return;
-      if (message.payload?.data) {
-        setModelsDevData(message.payload.data);
-        setModelsDevTick((tick) => tick + 1);
-      }
-    };
-    window.addEventListener("message", onMessage);
-    vsc.postMessage({ type: "getModelsDev" });
-    return () => window.removeEventListener("message", onMessage);
-  }, [vsc]);
 
   useEffect(() => {
     const handleCsv = async (event: MessageEvent) => {
@@ -1350,7 +1333,10 @@ export function Assessment({
     <div className="flex flex-col gap-2">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-semibold">Model</h4>
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-semibold">Model</h4>
+            <ModelStatusDot status={modelStatus} />
+          </div>
           <button
             type="button"
             onClick={handleAddModel}
