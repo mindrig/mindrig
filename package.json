@@ -1,5 +1,5 @@
 {
-  "name": "@mindcontrol/code-workspace",
+  "name": "@wrkspc/root",
   "private": true,
   "version": "0.1.0",
   "description": "",
@@ -11,6 +11,7 @@
     "subs/*/pkgs/*"
   ],
   "scripts": {
+    "install/npm": "pnpm install",
     "setup": "turbo run setup",
     "all": "turbo run all",
     "build": "turbo run build",
@@ -20,7 +21,9 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "format": "turbo run format"
+    "format": "turbo run format",
+    "storybook": "pnpm --filter @wrkspc/storybook storybook:dev",
+    "storybook:build": "pnpm --filter @wrkspc/storybook storybook:build"
   },
   "keywords": [],
   "author": "",

@@ -2,6 +2,10 @@
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
   "tasks": {
+    "//#install/npm": {
+      "dependsOn": []
+    },
+
     "setup": {},
 
     "all": {
@@ -24,6 +28,16 @@
 
     "lint": {},
 
-    "lint:fix": {}
+    "lint:fix": {},
+
+    "storybook:dev": {
+      "cache": false,
+      "persistent": true
+    },
+
+    "storybook:build": {
+      "outputs": ["pkgs/storybook/dist/**"],
+      "dependsOn": ["^build"]
+    }
   }
 }
