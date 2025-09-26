@@ -19,7 +19,7 @@ Document core tooling versions and scripts that will host Storybook.
 
 #### Description
 
-- Create `agents/plans/001-storybook-integration/artifacts` if it does not already exist and add `workspace-audit.md`.
+- Create `.agents/plans/001-storybook-integration/artifacts` if it does not already exist and add `workspace-audit.md`.
 - Capture `pnpm`, `node`, and `turbo` versions by running `pnpm -v`, `node -v`, and `pnpm turbo --version`; paste the results into the audit doc with the current date.
 - Note relevant root scripts from `package.json` (e.g., `build`, `test`, `lint`) and flag whether a Storybook script already exists.
 - Record any workspace-wide tooling hints from `mise.toml` or other environment files that Storybook should respect.
@@ -66,4 +66,4 @@ None.
 
 ## Notes
 
-- Keep artifacts in `agents/plans/002-storybook-integration/artifacts` so later steps can reference consistent workspace facts (updated from original `001-*` path).
+- Keep artifacts in `.agents/plans/002-storybook-integration/artifacts` so later steps can reference consistent workspace facts (updated from original `001-*` path).

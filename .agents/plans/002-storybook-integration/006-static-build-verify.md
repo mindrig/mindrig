@@ -55,7 +55,7 @@ Record the verification for future reference.
 
 #### Description
 
-- Append a short validation log to `agents/plans/001-storybook-integration/artifacts/build-verification.md`, including command used, timestamp, and any issues found.
+- Append a short validation log to `.agents/plans/001-storybook-integration/artifacts/build-verification.md`, including command used, timestamp, and any issues found.
 - Note whether additional follow-up is required before merging (e.g., missing fonts, noisy console warnings).
 - If everything passes, mark this step ready for execution and mention any recommended automation (e.g., adding a Turbo pipeline check).
 

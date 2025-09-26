@@ -9,9 +9,9 @@
 
 Use the following steps to execute the plan:
 
-1. Read the specified plan file `agents/plans/{{plan_index}}-{{plan_slug}}/000-plan.md` to understand the steps and objectives.
+1. Read the specified plan file `.agents/plans/{{plan_index}}-{{plan_slug}}/000-plan.md` to understand the steps and objectives.
 2. Take the first uncompleted task from the plan file's TODO list.
-3. Read the plan's step file `agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md` to understand the specific actions required.
+3. Read the plan's step file `.agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md` to understand the specific actions required.
 4. Take the first uncompleted task from the step file's TODO list.
 5. Execute the task, making the necessary changes to the codebase (including editing files, running commands, updating configs, or moving assets) as specified. Prefer applying changes immediately rather than describing how they would be done.
 6. Update the task's TODO item to reflect its completion status.

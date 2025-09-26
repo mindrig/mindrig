@@ -58,7 +58,7 @@ Bring add-ons and experimental flags in line with the guide.
 - Verify `.storybook/main.ts` includes `addons` such as `@storybook/addon-essentials`, `@storybook/addon-interactions`, and `@storybook/addon-a11y` if desired; disable any unused defaults.
 - Set `framework: { name: '@storybook/react-vite', options: {} }` and ensure the `docs` block reflects the Vite builder.
 - Add or update `.storybook/preview-head.html` if fonts or meta tags are required by the UI package.
-- Document final config choices in `agents/plans/001-storybook-integration/artifacts/config-notes.md` for future maintenance.
+- Document final config choices in `.agents/plans/001-storybook-integration/artifacts/config-notes.md` for future maintenance.
 
 ## Questions
 

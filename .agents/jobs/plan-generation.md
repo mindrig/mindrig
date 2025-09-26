@@ -2,7 +2,7 @@
 
 ## Algorithm
 
-Use the following algorithm to generate a plan file `agents/plans/{{plan_index}}-{{plan_slug}}/000-plan.md`:
+Use the following algorithm to generate a plan file `.agents/plans/{{plan_index}}-{{plan_slug}}/000-plan.md`:
 
 1. Generate a concise title (`{{plan_title}}`) and the brief specification (`{{brief_spec}}`) for the plan based on the user instructions. Include the document scaffold and the original user prompt (`{{user_prompt}}`) in the corresponding section. Try keeping the prompt verbatim, except for fixing typos, grammar, punctuation, and formatting for clarity.
 2. Do research on the topic if needed to inform the planning process. If user instructions include any links, review them as part of the research.
@@ -20,10 +20,10 @@ Use the following algorithm to generate a plan file `agents/plans/{{plan_index}}
 
 Use user instructions and generate plan files using the following schema:
 
-- `agents/plans/`: main plans directory.
-- `agents/plans/{{plan_index}}-{{plan_slug}}/`: directory for each plan.
-- `agents/plans/{{plan_index}}-{{plan_slug}}/000-plan.md`: plan brief file with the steps, TODO list linking to task files.
-- `agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md`: plan step file with step details, TODO and ongoing notes.
+- `.agents/plans/`: main plans directory.
+- `.agents/plans/{{plan_index}}-{{plan_slug}}/`: directory for each plan.
+- `.agents/plans/{{plan_index}}-{{plan_slug}}/000-plan.md`: plan brief file with the steps, TODO list linking to task files.
+- `.agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md`: plan step file with step details, TODO and ongoing notes.
 
 Where:
 
@@ -84,7 +84,7 @@ Where:
 - `{{plan_title}}`: a short, descriptive title of the plan (e.g., "Auth").
 - `{{brief_spec}}`: a brief specification of the task to be accomplished by the plan. Use the user instructions to inform this specification without copying verbatim. Don't include implementation details or steps here.
 - `{{step_n_title}}`: a short, descriptive title of the step (e.g., "Bootstrap Auth Package").
-- `{{step_n_file_path}}`: relative path to the step file (e.g., `agents/plans/001-auth/001-bootstrap-auth-pkg.md`).
+- `{{step_n_file_path}}`: relative path to the step file (e.g., `.agents/plans/001-auth/001-bootstrap-auth-pkg.md`).
 - `{{remaining_steps_todo}}`: repeat the `- [ ] [{{step_n_title}}]({{step_n_file_path}}): {{step_n_summary}}` line for each step in the plan.
 - `{{step_n_summary}}`: a one-sentence summary of the step (e.g., "Set up the initial structure and configuration for the auth package").
 - `{{step_n_description}}`: a detailed description of the step, including objectives, requirements, and any relevant context.

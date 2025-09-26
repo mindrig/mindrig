@@ -20,7 +20,7 @@ Capture current contributor context before editing.
 
 - Open `docs/contributing/pkgs.md` and note any existing references to Storybook or component previews.
 - Identify the best section (e.g., "UI Packages" or "Testing") to insert new Storybook guidance without duplicating content.
-- Log current headings in `agents/plans/001-storybook-integration/artifacts/docs-notes.md` for quick reference.
+- Log current headings in `.agents/plans/001-storybook-integration/artifacts/docs-notes.md` for quick reference.
 
 ### Document Storybook usage
 

@@ -19,7 +19,7 @@ Determine how to reconcile existing `./pkgs/*` folders with the incoming moves.
 #### Description
 
 - For each target (`parser`, `types`, `vsc-extension`, `vsc-sync`, `vsc-types`, `vsc-webview`), run `diff -qr pkgs/<target> <legacy-path>` (or inspect manually) to understand differences.
-- Document the strategy (replace, merge specific files, preserve assets) in `agents/plans/001-pkg-consolidation/artifacts/relocation-notes.md`.
+- Document the strategy (replace, merge specific files, preserve assets) in `.agents/plans/001-pkg-consolidation/artifacts/relocation-notes.md`.
 - If any `pkgs/*` directories contain generated artifacts only, schedule their removal prior to the move.
 
 ### Move packages into place

@@ -6,26 +6,26 @@ Improve the VS Code webview model selection experience by sourcing models.dev me
 
 ## Plan
 
-- [x] [Define Models.dev Context](agents/plans/003-model-sorting/001-models-dev-context.md): Establish a reusable hook and provider that exposes models.dev data with SWR-based caching and offline defaults.
-- [x] [Adopt SWR for Model Fetching](agents/plans/003-model-sorting/002-swr-model-fetch.md): Replace imperative model loading in `Assessment` with SWR hooks, wiring status flags needed by the UI.
-- [x] [Revise Sorting and Recommendations](agents/plans/003-model-sorting/003-model-sorting-logic.md): Update model grouping logic to prefer last-updated timestamps and use manual recommendation weights as secondary ordering.
-- [x] [Add Loading Status Indicator](agents/plans/003-model-sorting/004-model-status-indicator.md): Surface a color-dot indicator near the model selector to reflect loading and error states.
+- [x] [Define Models.dev Context](.agents/plans/003-model-sorting/001-models-dev-context.md): Establish a reusable hook and provider that exposes models.dev data with SWR-based caching and offline defaults.
+- [x] [Adopt SWR for Model Fetching](.agents/plans/003-model-sorting/002-swr-model-fetch.md): Replace imperative model loading in `Assessment` with SWR hooks, wiring status flags needed by the UI.
+- [x] [Revise Sorting and Recommendations](.agents/plans/003-model-sorting/003-model-sorting-logic.md): Update model grouping logic to prefer last-updated timestamps and use manual recommendation weights as secondary ordering.
+- [x] [Add Loading Status Indicator](.agents/plans/003-model-sorting/004-model-status-indicator.md): Surface a color-dot indicator near the model selector to reflect loading and error states.
 
 ## Steps
 
-### [Define Models.dev Context](agents/plans/003-model-sorting/001-models-dev-context.md)
+### [Define Models.dev Context](.agents/plans/003-model-sorting/001-models-dev-context.md)
 
 Design a React context provider patterned after `VscProvider` that fetches models.dev data once with SWR, normalises it for quick lookup, and exposes helpers for consumers along with fallback manual data when offline or pending.
 
-### [Adopt SWR for Model Fetching](agents/plans/003-model-sorting/002-swr-model-fetch.md)
+### [Adopt SWR for Model Fetching](.agents/plans/003-model-sorting/002-swr-model-fetch.md)
 
 Introduce SWR-driven hooks for the gateway model list and wire them into the assessment view, simplifying existing loading/error state handling while capturing the fetch status for downstream components.
 
-### [Revise Sorting and Recommendations](agents/plans/003-model-sorting/003-model-sorting-logic.md)
+### [Revise Sorting and Recommendations](.agents/plans/003-model-sorting/003-model-sorting-logic.md)
 
 Refactor the model sorting pipeline to merge SWR data, prioritise `last_updated` timestamps, and fall back to curated recommendation scores for recency ties or offline mode, keeping provider popularity unchanged.
 
-### [Add Loading Status Indicator](agents/plans/003-model-sorting/004-model-status-indicator.md)
+### [Add Loading Status Indicator](.agents/plans/003-model-sorting/004-model-status-indicator.md)
 
 Implement a lightweight status indicator adjacent to the model selector that responds to SWR state (loading, success, error), reusing existing design tokens or utility classes and covering behaviour with UI tests where practical.
 

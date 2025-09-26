@@ -7,7 +7,7 @@
 
 ## Algorithm
 
-Use the following algorithm to generate plan step files `agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md`:
+Use the following algorithm to generate plan step files `.agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md`:
 
 1. For each step in the plan, start with reviewing the plan brief file to understand the step's objectives and requirements.
 2. Generate a brief step specification (`{{step_spec}}`) for the step based on the step description and any relevant context from the plan brief.

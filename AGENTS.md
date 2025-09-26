@@ -6,8 +6,8 @@ You're an AI agent designed to assist users in achieving their goals by followin
 
 - Task: a high-level goal or objective that the user wants to achieve.
 - Job: a specific scope of work with clear instructions and expected outcomes. Jobs can be specific and must be followed exactly as written or general, in which case you must do your best to fulfill the user's request.
-- Plan: a structured approach to achieve a task, broken down into steps and tasks. It includes files with detailed instructions described in `agents/plans/`.
-- Plan Step: a specific phase or segment of the plan, focusing on a particular aspect of the task. It includes files with detailed instructions described in `agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md`.
+- Plan: a structured approach to achieve a task, broken down into steps and tasks. It includes files with detailed instructions described in `.agents/plans/`.
+- Plan Step: a specific phase or segment of the plan, focusing on a particular aspect of the task. It includes files with detailed instructions described in `.agents/plans/{{plan_index}}-{{plan_slug}}/{{step_index}}-{{step_slug}}.md`.
 - Performing a job: executing the instructions and actions defined in the specified job description.
 - Executing a Plan: carrying out the steps and tasks outlined in a plan to achieve the outcomes defined in the plan. It includes editing files, running commands, updating configs, or moving assets.
 - Carrying out a task: completing the specific actions and objectives requested by the user. The approach to carrying out a task is dictated by the identified job.
@@ -24,16 +24,16 @@ Your goal is to identify the job to be done based on user requests and follow th
 
 When user asks you to do something, your first task is to identify the job to be done, picking one or multiple from the list of specific jobs below:
 
-- [Plan Generation](./agents/jobs/plan-generation.md), i.e., when the user explicitly asks to "create a plan for...", "make a plan...", "plan...", or similar. It is important to note that this job does not include actual execution of the plan, unless the user explicitly instructs you to do so after the plan is created, i.e., "plan and execute...", "plan and do...", or similar. The user request to generate a plan is followed by the instructions that you must research and organize into a structured plan.
-- [Plan Steps Generation](./agents/jobs/plan-steps-generation.md), i.e., when the user explicitly mentions a plan file and asks to "plan the steps," "detail the steps," "plan each step," or similar. The user request to generate plan steps might be followed by additional instructions or context that you must incorporate into the step planning.
-- [Plan Review](./agents/jobs/plan-review.md), i.e., when the user explicitly mentions a plan file and asks to "review the plan," "check the plan," "refine the plan," or similar. This job is only applicable if a plan file already exists, and you should not create a new plan file from scratch. You should review and refine the existing plan and its steps.
-- [Plan Execution](./agents/jobs/plan-execution.md), i.e., when the user explicitly mentions a plan file, the name of the file, or it can be inferred from the conversation, and asks to "execute the plan," "carry out the plan," "do the plan," or similar. It is important that this request must be explicit. When the user asks to plan a feature or change, do not assume they want you to execute it.
+- [Plan Generation](./.agents/jobs/plan-generation.md), i.e., when the user explicitly asks to "create a plan for...", "make a plan...", "plan...", or similar. It is important to note that this job does not include actual execution of the plan, unless the user explicitly instructs you to do so after the plan is created, i.e., "plan and execute...", "plan and do...", or similar. The user request to generate a plan is followed by the instructions that you must research and organize into a structured plan.
+- [Plan Steps Generation](./.agents/jobs/plan-steps-generation.md), i.e., when the user explicitly mentions a plan file and asks to "plan the steps," "detail the steps," "plan each step," or similar. The user request to generate plan steps might be followed by additional instructions or context that you must incorporate into the step planning.
+- [Plan Review](./.agents/jobs/plan-review.md), i.e., when the user explicitly mentions a plan file and asks to "review the plan," "check the plan," "refine the plan," or similar. This job is only applicable if a plan file already exists, and you should not create a new plan file from scratch. You should review and refine the existing plan and its steps.
+- [Plan Execution](./.agents/jobs/plan-execution.md), i.e., when the user explicitly mentions a plan file, the name of the file, or it can be inferred from the conversation, and asks to "execute the plan," "carry out the plan," "do the plan," or similar. It is important that this request must be explicit. When the user asks to plan a feature or change, do not assume they want you to execute it.
 
 First, check the conversation to see if the user requested specific jobs above. If there was no following user request to do another job or an explicit request or confirmation that the job is done, continue the job until completion.
 
 If one or multiple jobs above explicitly match the current user request, read the linked instructions and follow them exactly as written. Ignore any other instructions in this document or context concerned with how to carry out the task. Job instructions must take precedence over any other instructions.
 
-If none of the specific jobs fits the user request, identify the job as [Fixer](./agents/jobs/fixer.md), which is a general job, and you must do what the user asks you to do to the best of your ability.
+If none of the specific jobs fits the user request, identify the job as [Fixer](./.agents/jobs/fixer.md), which is a general job, and you must do what the user asks you to do to the best of your ability.
 
 ## General Guidelines
 
