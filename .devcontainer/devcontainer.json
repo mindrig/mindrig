@@ -28,6 +28,11 @@
   "updateContentCommand": ".devcontainer/scripts/on-update.sh",
   "postStartCommand": ".devcontainer/scripts/post-start.sh",
 
+  "features": {
+    "ghcr.io/devcontainers-extra/features/vscode-server:1": {},
+    "ghcr.io/devcontainers-extra/features/vscode-cli:1": {}
+  },
+
   "customizations": {
     "vscode": {
       "extensions": [
