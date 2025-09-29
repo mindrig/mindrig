@@ -6,7 +6,14 @@
       "dependsOn": []
     },
 
-    "setup": {},
+    "//#setup/codex": {
+      "dependsOn": [],
+      "inputs": [".codex/**"]
+    },
+
+    "setup": {
+      "dependsOn": ["//#setup/codex"]
+    },
 
     "all": {
       "dependsOn": ["build", "types", "test", "lint"]

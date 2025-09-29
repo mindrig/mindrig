@@ -13,6 +13,7 @@
   "scripts": {
     "install/npm": "pnpm install",
     "setup": "turbo run setup",
+    "setup/codex": "./scripts/setup-codex.sh",
     "all": "turbo run all",
     "build": "turbo run build",
     "test/rs": "cargo nextest run --no-fail-fast",
