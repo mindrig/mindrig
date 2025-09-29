@@ -97,7 +97,7 @@ new() {
     exit 1
   fi
 
-  if ! err=$(git worktree add -b "$worktree_branch" "$worktree_dir" origin/main 2>&1); then
+  if ! err=$(git worktree add -b "$worktree_branch" "$worktree_dir" 2>&1); then
     echo -e "\n🔴 Failed to create worktree at '$worktree_dir':\n\n$err"
     exit 1
   fi
