@@ -51,14 +51,16 @@
         "mitsuhiko.insta",
         "oxc.oxc-vscode",
         "bradlc.vscode-tailwindcss",
-        "vitest.explorer"
+        "vitest.explorer",
+        "zoma.vscode-auto-open-workspace"
       ],
-      "settingsUpdated": {
+      "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",
         "terminal.integrated.profiles.linux": {
           "fish": { "path": "/usr/bin/fish" }
         },
-        "mise.binPath": "/home/vscode/.local/bin/mise"
+        "mise.binPath": "/home/vscode/.local/bin/mise",
+        "autoOpenWorkspace.enableAutoOpenAlwaysFirst": true
       }
     }
   }

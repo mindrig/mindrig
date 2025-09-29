@@ -11,6 +11,44 @@ eval "$(mise env -s bash)"
 script_path="$0"
 root_dir="$(dirname "$script_path")/.."
 root_repo_dir="$(git rev-parse --show-toplevel)"
+wrkspc_name=$(realpath "$root_repo_dir" | xargs basename)
+code_workspace_path="$root_repo_dir/wrkspc.code-workspace"
+
+add_worktree_to_workspace() {
+  worktree_name="$1"
+  echo "🌀 Adding worktree '$worktree_name' to VSCode workspace"
+
+  echo -e "$(cat "$code_workspace_path" | jaq '
+    .folders += [{
+      "name": "'"$wrkspc_name"'/'"$worktree_name"'",
+      "path": "trees/'"$worktree_name"'"
+    }]
+  ')" > "$code_workspace_path"
+}
+
+bootstrap_code_workspace() {
+  if [ ! -f "$code_workspace_path" ]; then
+    echo "🟡 VS Code workspace is not found"
+    echo "🌀 Bootstrapping VSCode workspace at '$code_workspace_path'"
+
+    cat <<EOF > "$code_workspace_path"
+{
+  "folders": [
+    {
+      "name": "$wrkspc_name",
+      "path": "."
+    }
+  ]
+}
+EOF
+
+    for worktree_name in $(git worktree list | grep tree | grep -oP '(?<=\[tree/)[^]]+'); do
+      add_worktree_to_workspace "$worktree_name"
+    done
+
+    echo -e "\n💡 Make sure to open the workspace in VS Code:\n\n    code $code_workspace_path\n"
+  fi
+}
 
 set_worktree_vars() {
   cmd="$1"
@@ -20,7 +58,7 @@ set_worktree_vars() {
     exit 1
   fi
   worktree_dir="$root_repo_dir/trees/$worktree_name"
-  worktree_branch="tree/$worktree_name"
+  worktree_branch="worktree/$worktree_name"
   worktree_git_dir="$root_repo_dir/.git/worktrees/$worktree_name"
 
   echo "🔵 Worktree '$worktree_name' at '$worktree_dir' on branch '$worktree_branch'"
@@ -46,6 +84,8 @@ get_worktree_dir() {
 new() {
   echo -e "⚡️ Creating worktree\n"
 
+  bootstrap_code_workspace
+
   set_worktree_vars new "$1"
 
   echo -e "🌀 Creating the worktree"
@@ -64,15 +104,17 @@ new() {
 
   cd_worktree
 
-  if ! err=$(mise trust --yes --all > /dev/null 2>&1); then
+  if ! err=$(mise trust --yes --all 2>&1 > /dev/null); then
     echo -e "\n🔴 Failed to trust mise configs:\n\n$err"
     exit 1
   fi
 
-  if ! err=$(mise install > /dev/null 2>&1); then
+  if ! err=$(mise install 2>&1 > /dev/null); then
     echo -e "\n🔴 Failed to install mise dependencies:\n\n$err"
     exit 1
   fi
+
+  add_worktree_to_workspace "$worktree_name"
 
   echo -e "\n💚 Worktree created!"
 
@@ -82,7 +124,14 @@ new() {
 drop() {
   echo -e "⚡️ Removing worktree\n"
 
+  bootstrap_code_workspace
+
   set_worktree_vars rm "$1"
+
+  echo -e "🌀 Removing the worktree from VS Code workspace $code_workspace_path"
+  echo -e "$(cat "$code_workspace_path" | jaq '
+    .folders |= map(select(.name != "'"$wrkspc_name"'/'"$worktree_name"'"))
+  ')" > "$code_workspace_path"
 
   echo -e "🌀 Removing the worktree"
 
@@ -119,18 +168,18 @@ drop() {
 
   cd_root
 
-  if ! err=$(git worktree remove "$worktree_dir" --force > /dev/null 2>&1); then
+  if ! err=$(git worktree remove "$worktree_dir" --force 2>&1 > /dev/null); then
     echo -e "\n🔴 Failed to remove worktree at '$worktree_dir':\n\n$err"
     exit 1
   fi
 
-  if ! err=$(git worktree prune > /dev/null 2>&1); then
+  if ! err=$(git worktree prune 2>&1 > /dev/null); then
     echo -e "\n🔴 Failed to prune worktrees:\n\n$err"
     exit 1
   fi
 
   echo -e "🌀 Removing the worktree branch"
-  if ! err=$(git branch -D "$worktree_branch" > /dev/null 2>&1); then
+  if ! err=$(git branch -D "$worktree_branch" 2>&1 > /dev/null); then
     echo -e "\n🔴 Failed to delete branch '$worktree_branch':\n\n$err"
     exit 1
   fi
