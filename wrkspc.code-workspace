@@ -3,6 +3,14 @@
     {
       "name": "mindrig",
       "path": "."
+    },
+    {
+      "name": "mindrig/streaming",
+      "path": "trees/streaming"
+    },
+    {
+      "name": "mindrig/pinning",
+      "path": "trees/pinning"
     }
   ]
 }
