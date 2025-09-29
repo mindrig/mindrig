@@ -104,15 +104,8 @@ new() {
 
   cd_worktree
 
-  if ! err=$(mise trust --yes --all 2>&1 > /dev/null); then
-    echo -e "\n🔴 Failed to trust mise configs:\n\n$err"
-    exit 1
-  fi
-
-  if ! err=$(mise install 2>&1 > /dev/null); then
-    echo -e "\n🔴 Failed to install mise dependencies:\n\n$err"
-    exit 1
-  fi
+  echo -e "🌀 Setting up environment "
+  ./.devcontainer/scripts/on-update.sh
 
   add_worktree_to_workspace "$worktree_name"
 
