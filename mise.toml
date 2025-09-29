@@ -22,6 +22,7 @@ uv = "0.8.15"
 # TODO: Will include with latest Mothership image, so can remove after updating
 "cargo:jaq" = "latest"
 "npm:turbo" = "latest"
+"npm:prettier" = "latest" # Code formatter
 
 [env]
 _.python.venv = { path = ".venv", create = true }
