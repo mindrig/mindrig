@@ -14,7 +14,7 @@ eval "$(mise activate bash --shims)"
 eval "$(mise env -s bash)"
 
 # Pull git submodules
-if [ -d .git ]; then
+if [ -e .git ]; then
   git submodule update --recursive --init --remote
 fi
 
