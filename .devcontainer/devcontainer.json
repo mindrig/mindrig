@@ -1,5 +1,5 @@
 {
-  "name": "@mindcontrol/code",
+  "name": "mindrig",
 
   "build": { "dockerfile": "Dockerfile", "context": ".." },
 

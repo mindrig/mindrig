@@ -12,7 +12,7 @@ script_path="$0"
 root_dir="$(dirname "$script_path")/.."
 root_repo_dir="$(git rev-parse --show-toplevel)"
 wrkspc_name=$(realpath "$root_repo_dir" | xargs basename)
-code_workspace_path="$root_repo_dir/wrkspc.code-workspace"
+code_workspace_path="$root_repo_dir/$wrkspc_name.code-workspace"
 
 add_worktree_to_workspace() {
   worktree_name="$1"
@@ -104,8 +104,17 @@ new() {
 
   cd_worktree
 
-  echo -e "🌀 Setting up environment "
+  echo -e "🌀 Setting up environment"
   ./.devcontainer/scripts/on-update.sh
+
+  echo -e "🌀 Copying secrets"
+  secrets=(
+    ".env.local"
+    "pkgs/gateway/.env.local"
+  )
+  for secret in "$secrets"; do
+    cp -r "$root_repo_dir/$secret" "$worktree_dir/$secret"
+  done
 
   add_worktree_to_workspace "$worktree_name"
 
@@ -126,7 +135,7 @@ drop() {
     .folders |= map(select(.name != "'"$wrkspc_name"'/'"$worktree_name"'"))
   ')" > "$code_workspace_path"
 
-  echo -e "🌀 Removing the worktree"
+  echo -e "🌀 Removing the worktree from Git"
 
   if [ ! -d "$worktree_git_dir" ]; then
     echo -e "\n🔴 Worktree for feature '$worktree_name' does not exist."

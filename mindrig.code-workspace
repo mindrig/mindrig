@@ -11,6 +11,10 @@
     {
       "name": "mindrig/pinning",
       "path": "trees/pinning"
+    },
+    {
+      "name": "mindrig/hello-world",
+      "path": "trees/hello-world"
     }
   ]
 }
