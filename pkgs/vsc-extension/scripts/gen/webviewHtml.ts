@@ -13,6 +13,6 @@ const html = workbenchWebviewHtml({
   devServer: true,
 });
 
-const htmlPath = path.resolve(__dirname, "../../../webview/index.html");
+const htmlPath = path.resolve(__dirname, "../../../vsc-webview/index.html");
 
 fs.writeFile(htmlPath, html);

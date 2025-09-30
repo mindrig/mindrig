@@ -195,6 +195,8 @@ export class WorkbenchViewProvider
   async #devServerUris(): Promise<WorkbenchWebviewHtmlUris> {
     const externalUri = await resolveDevServerUri();
     const base = externalUri.toString().replace(/\/$/, "");
+    // Vite websockets address for HMR
+    const wsUri = `ws://${externalUri.authority}`;
 
     const csp = [
       "default-src 'none';",
@@ -202,7 +204,8 @@ export class WorkbenchViewProvider
       `script-src ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
       `script-src-elem ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
       `style-src ${webviewSources} ${base} 'unsafe-inline';`,
-      `connect-src ${base} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https:;`,
+      // TODO: Come up with complete list of authorities rather than slapping global `https:`
+      `connect-src ${base} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https: ${wsUri}`,
     ].join(" ");
 
     const app = `${base}/src/index.tsx`;
