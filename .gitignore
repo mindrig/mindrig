@@ -18,6 +18,8 @@ vitest-report.xml
 .env.*.local
 !.env.local.example
 !.env.*.local.example
+# VS Code
+/mindrig.code-workspace
 # Dist
 dist/
 # Temp
