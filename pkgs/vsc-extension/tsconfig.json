@@ -1,12 +1,5 @@
 {
-  "include": [
-    "./src/**/*.ts",
-    "./tests/**/*.ts",
-    "./scripts/**/*.ts",
-    "../../pkgs/vsc-settings/src/controller.ts",
-    "../../pkgs/vsc-settings/src/index.ts",
-    "../../pkgs/vsc-settings/src/settings.ts"
-  ],
+  "include": ["./src/**/*.ts", "./tests/**/*.ts", "./scripts/**/*.ts"],
   "compilerOptions": {
     // Resolve
     "rootDir": ".",

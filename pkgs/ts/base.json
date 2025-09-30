@@ -13,8 +13,8 @@
   ],
   "compilerOptions": {
     // Resolve
-    "rootDir": "${configDir}/.",
-    "baseUrl": "${configDir}/.",
+    "rootDir": "${configDir}",
+    "baseUrl": "${configDir}",
     "paths": {
       "@": ["${configDir}/src"]
     },
