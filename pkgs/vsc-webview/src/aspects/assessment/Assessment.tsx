@@ -3,7 +3,7 @@ import type { Prompt, PromptVar } from "@mindrig/types";
 import JsonView, { ShouldExpandNodeInitially } from "@uiw/react-json-view";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import { buildRunsAndSettings, computeVariablesFromRow } from "@wrkspc/dataset";
-import { Button } from "@wrkspc/ds";
+import { Button, Select } from "@wrkspc/ds";
 import type { AttachmentInput, GenerationOptionsInput } from "@wrkspc/model";
 import {
   selectedModelCapabilities as capsForEntry,
@@ -1375,31 +1375,42 @@ export function Assessment({
               : "";
             return (
               <div key={config.key} className="border rounded p-3 space-y-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium">Provider</label>
-                    <select
-                      className="min-w-[160px] px-3 py-1.5 border rounded text-sm"
-                      value={config.providerId ?? ""}
-                      onChange={(event) =>
-                        handleProviderChange(config, event.target.value)
-                      }
-                      disabled={providerOptions.length === 0}
-                    >
-                      <option value="" disabled>
-                        Select provider
-                      </option>
-                      {providerOptions.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.provider && (
-                      <span className="text-xs">{errors.provider}</span>
-                    )}
-                  </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Select
+                    label={{ a11y: "Select model provider" }}
+                    options={providerOptions.map((provider) => ({
+                      label: provider.label,
+                      value: provider.id,
+                    }))}
+                    selectedKey={config.providerId}
+                    onSelectionChange={(providerId) =>
+                      // @ts-expect-error -- TODO
+                      handleProviderChange(config, providerId)
+                    }
+                    placeholder="Select provider..."
+                    size="small"
+                    errors={errors.provider}
+                  />
 
+                  <Select
+                    label={{ a11y: "Select model" }}
+                    options={modelOptions.map((model) => ({
+                      label: model.label,
+                      value: model.id,
+                    }))}
+                    selectedKey={config.modelId}
+                    onSelectionChange={(modelId) =>
+                      // @ts-expect-error -- TODO
+                      handleModelChange(config, modelId)
+                    }
+                    isDisabled={modelOptions.length === 0}
+                    placeholder="Select model..."
+                    size="small"
+                    errors={errors.model}
+                  />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-medium">Model</label>
                     <select
@@ -1419,6 +1430,7 @@ export function Assessment({
                         </option>
                       ))}
                     </select>
+
                     {errors.model && (
                       <span className="text-xs">{errors.model}</span>
                     )}
