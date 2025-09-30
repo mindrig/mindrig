@@ -4,7 +4,14 @@
   "scripts": {
     "dev": "wrangler dev --ip=0.0.0.0 --port 3100",
     "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "types": "$(pnpm root -w)/../scripts/pkg-types.sh || tsc",
+    "types:watch": "$(pnpm root -w)/../scripts/pkg-types.sh watch || tsc --watch",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix --fix-suggestions",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@ai-sdk/gateway": "^1.0.15",
@@ -13,6 +20,10 @@
   },
   "devDependencies": {
     "@wrkspc/ts": "workspace:^",
+    "oxlint": "^1.13.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
     "wrangler": "^4.4.0"
   }
 }

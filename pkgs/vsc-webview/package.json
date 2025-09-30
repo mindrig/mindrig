@@ -14,8 +14,8 @@
     "test/unit": "vitest run",
     "test/unit:watch": "vitest",
     "test/unit:coverage": "vitest run --coverage",
-    "types": "tsc",
-    "types:watch": "tsc --watch",
+    "types": "$(pnpm root -w)/../scripts/pkg-types.sh || tsc",
+    "types:watch": "$(pnpm root -w)/../scripts/pkg-types.sh watch || tsc --watch",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions",
     "format": "prettier --write ."

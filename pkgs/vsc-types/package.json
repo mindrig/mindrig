@@ -8,14 +8,18 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "types": "tsc",
-    "types:watch": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "types": "$(pnpm root -w)/../scripts/pkg-types.sh || tsc",
+    "types:watch": "$(pnpm root -w)/../scripts/pkg-types.sh watch || tsc --watch",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions",
     "format": "prettier --write ."
   },
   "devDependencies": {
     "oxlint": "^1.13.0",
-    "typescript": "^5.9.2"
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   }
 }

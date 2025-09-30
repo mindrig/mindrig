@@ -10,8 +10,8 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "types": "tsc",
-    "types:watch": "tsc --watch",
+    "types": "$(pnpm root -w)/../scripts/pkg-types.sh || tsc",
+    "types:watch": "$(pnpm root -w)/../scripts/pkg-types.sh watch || tsc --watch",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions",
     "format": "prettier --write ."
