@@ -19,8 +19,8 @@ eval "$(mise env -s bash)"
 # Provide base variables
 set_vars() {
   local script_path="$0"
-  root_dir="$(dirname "$script_path")/.."
-  root_repo_dir="$(git rev-parse --show-toplevel)"
+  repo_dir="$(dirname "$script_path")/.."
+  root_repo_dir="$(realpath "$(git rev-parse --git-common-dir)"/..)"
   wrkspc_name=$(realpath "$root_repo_dir" | xargs basename)
   vsc_workspace_path="$root_repo_dir/$wrkspc_name.code-workspace"
 }
@@ -53,7 +53,7 @@ bootstrap_code_workspace() {
 }
 EOF
 
-  local vsc_settings_path=$(realpath "$root_dir/.vscode/settings.json")
+  local vsc_settings_path=$(realpath "$root_repo_dir/.vscode/settings.json")
   if [ -f "$vsc_settings_path" ]; then
     echo "🌀 Applying VS Code settings from '$vsc_settings_path' to the workspace"
 
