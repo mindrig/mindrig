@@ -18,7 +18,7 @@
     },
 
     "setup": {
-      "dependsOn": ["//#setup/codex", "//#setup/vscode"]
+      "dependsOn": ["//#setup/codex", "//#setup/vsc"]
     },
 
     "all": {
