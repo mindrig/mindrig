@@ -11,8 +11,14 @@
       "inputs": [".codex/**"]
     },
 
+    "//#setup/vsc": {
+      "dependsOn": [],
+      "inputs": [".vscode/settings.json"],
+      "outputs": ["mindrig.code-workspace"]
+    },
+
     "setup": {
-      "dependsOn": ["//#setup/codex"]
+      "dependsOn": ["//#setup/codex", "//#setup/vscode"]
     },
 
     "all": {

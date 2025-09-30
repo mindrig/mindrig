@@ -2,53 +2,7 @@
 
 # This script provides git worktree management flow.
 
-set -eo pipefail
-
-# Make sure mise is activated
-eval "$(mise activate bash --shims)"
-eval "$(mise env -s bash)"
-
-script_path="$0"
-root_dir="$(dirname "$script_path")/.."
-root_repo_dir="$(git rev-parse --show-toplevel)"
-wrkspc_name=$(realpath "$root_repo_dir" | xargs basename)
-code_workspace_path="$root_repo_dir/$wrkspc_name.code-workspace"
-
-add_worktree_to_workspace() {
-  worktree_name="$1"
-  echo "🌀 Adding worktree '$worktree_name' to VSCode workspace"
-
-  echo -e "$(cat "$code_workspace_path" | jaq '
-    .folders += [{
-      "name": "'"$wrkspc_name"'/'"$worktree_name"'",
-      "path": "trees/'"$worktree_name"'"
-    }]
-  ')" > "$code_workspace_path"
-}
-
-bootstrap_code_workspace() {
-  if [ ! -f "$code_workspace_path" ]; then
-    echo "🟡 VS Code workspace is not found"
-    echo "🌀 Bootstrapping VSCode workspace at '$code_workspace_path'"
-
-    cat <<EOF > "$code_workspace_path"
-{
-  "folders": [
-    {
-      "name": "$wrkspc_name",
-      "path": "."
-    }
-  ]
-}
-EOF
-
-    for worktree_name in $(git worktree list | grep tree | grep -oP '(?<=\[tree/)[^]]+'); do
-      add_worktree_to_workspace "$worktree_name"
-    done
-
-    echo -e "\n💡 Make sure to open the workspace in VS Code:\n\n    code $code_workspace_path\n"
-  fi
-}
+source "$(dirname "$0")/_env.sh"
 
 set_worktree_vars() {
   cmd="$1"
@@ -84,7 +38,7 @@ get_worktree_dir() {
 new() {
   echo -e "⚡️ Creating worktree\n"
 
-  bootstrap_code_workspace
+  ensure_code_workspace
 
   set_worktree_vars new "$1"
 
@@ -126,14 +80,14 @@ new() {
 drop() {
   echo -e "⚡️ Removing worktree\n"
 
-  bootstrap_code_workspace
+  ensure_code_workspace
 
   set_worktree_vars rm "$1"
 
-  echo -e "🌀 Removing the worktree from VS Code workspace $code_workspace_path"
-  echo -e "$(cat "$code_workspace_path" | jaq '
+  echo -e "🌀 Removing the worktree from VS Code workspace $vsc_workspace_path"
+  echo -e "$(cat "$vsc_workspace_path" | jaq '
     .folders |= map(select(.name != "'"$wrkspc_name"'/'"$worktree_name"'"))
-  ')" > "$code_workspace_path"
+  ')" > "$vsc_workspace_path"
 
   echo -e "🌀 Removing the worktree from Git"
 
