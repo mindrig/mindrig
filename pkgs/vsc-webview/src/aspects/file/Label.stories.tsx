@@ -17,6 +17,7 @@ const meta = {
   },
   args: {
     file: syncFile(),
+    isPinned: false,
   },
 } satisfies Meta<typeof FileLabel>;
 

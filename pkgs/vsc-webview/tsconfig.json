@@ -1,7 +1,6 @@
 {
   "extends": "@wrkspc/ts/base",
   "compilerOptions": {
-    "types": ["./env.d.ts"],
-    "lib": ["DOM"]
+    "lib": ["ESNext", "DOM"]
   }
 }

@@ -16,7 +16,7 @@
     "rootDir": "${configDir}",
     "baseUrl": "${configDir}",
     "paths": {
-      "@": ["${configDir}/src"]
+      "@/*": ["${configDir}/src/*"]
     },
     // Output
     "target": "esnext",

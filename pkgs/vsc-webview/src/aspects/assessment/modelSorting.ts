@@ -98,7 +98,7 @@ export function computeRecommendationWeightsForProvider(
   sorted.forEach((entry, index) => {
     if (index >= DYNAMIC_RECOMMENDATION_WEIGHTS.length) return;
     const weight = DYNAMIC_RECOMMENDATION_WEIGHTS[index];
-    weights[modelKeyFromId(entry.id)] = weight;
+    if (typeof weight === "number") weights[modelKeyFromId(entry.id)] = weight;
   });
 
   return weights;

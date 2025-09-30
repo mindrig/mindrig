@@ -568,6 +568,13 @@ importers:
       '@wrkspc/ui':
         specifier: workspace:*
         version: link:../ui
+    devDependencies:
+      '@wrkspc/ts':
+        specifier: workspace:*
+        version: link:../../../../pkgs/ts
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
 
   subs/ds/pkgs/form:
     dependencies:
@@ -633,6 +640,9 @@ importers:
       glob:
         specifier: ^11.0.3
         version: 11.0.3
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
 
   subs/ds/pkgs/modal:
     dependencies:
@@ -667,6 +677,9 @@ importers:
       '@wrkspc/ts':
         specifier: workspace:*
         version: link:../../../../pkgs/ts
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
 
   subs/ds/pkgs/props:
     devDependencies:
@@ -676,6 +689,9 @@ importers:
       '@wrkspc/ts':
         specifier: workspace:*
         version: link:../../../../pkgs/ts
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
 
   subs/ds/pkgs/theme:
     dependencies:
@@ -689,6 +705,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.12
         version: 4.1.12
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
 
   subs/ds/pkgs/ui:
     dependencies:

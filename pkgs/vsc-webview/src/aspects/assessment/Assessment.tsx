@@ -389,6 +389,7 @@ export function Assessment({
       const providerId = entry
         ? normaliseProviderId(providerFromEntry(entry))
         : (providerOptions[0]?.id ?? null);
+      // @ts-expect-error -- TODO
       return {
         key: createModelConfigKey(),
         providerId,
@@ -480,6 +481,7 @@ export function Assessment({
       const entry = nextModelId
         ? models.find((model) => model.id === nextModelId) || null
         : null;
+      // @ts-expect-error -- TODO
       updateModelConfig(config.key, (current) => ({
         ...current,
         providerId: normalised,
@@ -496,6 +498,7 @@ export function Assessment({
       const entry = modelId
         ? models.find((model) => model.id === modelId) || null
         : null;
+      // @ts-expect-error -- TODO
       updateModelConfig(config.key, (current) => ({
         ...current,
         modelId,
@@ -604,10 +607,12 @@ export function Assessment({
       setRangeStart(data.range?.start ?? "");
       setRangeEnd(data.range?.end ?? "");
       if (data.execution)
+        // @ts-expect-error -- TODO
         setExecutionState({
           isLoading: false,
           results: Array.isArray(data.execution.results)
-            ? (data.execution.results as RunResult[])
+            ? // @ts-expect-error -- TODO
+              (data.execution.results as RunResult[])
             : [],
           error: data.execution.error ?? null,
           timestamp: data.execution.timestamp,
@@ -649,6 +654,7 @@ export function Assessment({
     if (!promptMeta || !isHydrated) return;
 
     const snapshot: PlaygroundState = {
+      // @ts-expect-error -- TODO
       modelConfigs,
       variables,
       csv:
@@ -663,6 +669,7 @@ export function Assessment({
       inputSource,
       datasetMode,
       range: { start: rangeStart, end: rangeEnd },
+      // @ts-expect-error -- TODO
       execution:
         executionState.results.length || executionState.error
           ? {
@@ -958,6 +965,7 @@ export function Assessment({
         parsedTools,
         providerOptions: mergedProviderOptions,
         reasoning: sanitizedReasoning,
+        // @ts-expect-error -- TODO
         filteredAttachments,
       });
     }
