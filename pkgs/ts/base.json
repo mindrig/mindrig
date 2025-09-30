@@ -31,7 +31,6 @@
     // Env
     "lib": ["ESNext"],
     "jsx": "react-jsx",
-    "types": ["${configDir}/env.d.ts", "node"],
     // Checks
     "skipLibCheck": true,
     "strict": true,
