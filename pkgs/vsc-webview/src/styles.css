@@ -94,6 +94,15 @@
 
   /* Section */
   --color-section-border: var(--vscode-sideBarSectionHeader-border);
+  --color-section-border-pinned: color-mix(
+    in srgb,
+    var(--vscode-textLink-foreground) 15%,
+    transparent
+  );
+
+  /* Active */
+  --color-active-text: var(--vscode-textLink-foreground);
+  --color-active-border: var(--vscode-focusBorder);
 }
 
 :placeholder-shown {

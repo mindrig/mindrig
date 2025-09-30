@@ -292,6 +292,7 @@
         ]
       }
     },
+
     // vscode-webview#preview:watch
     {
       "type": "shell",
@@ -354,6 +355,43 @@
           "activeOnStart": true,
           "beginsPattern": ".*Ready on.*",
           "endsPattern": ".*Ready on.*"
+        }
+      }
+    },
+
+    //#endregion
+
+    //#region storybook
+
+    // storybook#dev
+    {
+      "type": "shell",
+      "label": "storybook#dev",
+      "command": "pnpm",
+      "args": ["run", "dev"],
+      "options": {
+        "cwd": "${workspaceFolder}/pkgs/storybook"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "group": "watchers"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Starting manager.*",
+          "endsPattern": ".*Storybook [0-9]+\\.[0-9]+\\.[0-9]+.*started.*"
         }
       }
     }

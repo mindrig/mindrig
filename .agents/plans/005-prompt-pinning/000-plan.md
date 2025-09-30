@@ -6,9 +6,9 @@ Design a fresh prompt pinning experience in the VS Code webview that adds a pin 
 
 ## Plan
 
-- [ ] [Strip Legacy File Pinning](./001-strip-legacy-file-pinning.md): Remove the existing file pin state, messages, and UI so the extension and webview no longer coordinate on file pinning.
-- [ ] [Implement Prompt Pin Controls](./002-implement-prompt-pin-controls.md): Introduce a pin icon toggle in `FileHeader` and manage pinned prompt state within the webview.
-- [ ] [Enforce Prompt Panel Behavior](./003-enforce-prompt-panel-behavior.md): Ensure the blueprint always renders the pinned prompt source, add overrides for user settings, and validate the new flow with focused React tests (Testing Library + happy-dom) while disabling the broader webview unit suite per guidance.
+- [x] [Strip Legacy File Pinning](./001-strip-legacy-file-pinning.md): Remove the existing file pin state, messages, and UI so the extension and webview no longer coordinate on file pinning.
+- [x] [Implement Prompt Pin Controls](./002-implement-prompt-pin-controls.md): Introduce a pin icon toggle in `FileHeader` and manage pinned prompt state within the webview.
+- [x] [Enforce Prompt Panel Behavior](./003-enforce-prompt-panel-behavior.md): Ensure the blueprint always renders the pinned prompt source, add overrides for user settings, and validate the new flow with focused React tests (Testing Library + happy-dom) while disabling the broader webview unit suite per guidance.
 
 ## Steps
 

@@ -11,6 +11,8 @@ node_modules/
 .turbo/
 # Cloudflare
 .wrangler/
+# Vitest
+vitest-report.xml
 # Secrets
 .env.local
 .env.*.local

@@ -6,10 +6,10 @@ Add a thumbtack toggle in the file header that captures the currently resolved p
 
 ## Tasks
 
-- [ ] [Model pinned prompt state](#model-pinned-prompt-state): Define React state in `pkgs/vsc-webview/src/app/Index.tsx` to track the pinned prompt metadata and load/save it with `vscode.getState`/`setState`.
-- [ ] [Render thumbtack toggle](#render-thumbtack-toggle): Replace the legacy file pin button in `FileHeader` with the shared `Icon` component (`iconRegularThumbtack`/`iconSolidThumbtack`) positioned before the prompt `Select`.
-- [ ] [Handle pin/unpin interactions](#handle-pinunpin-interactions): Wire click handlers and prompt selection events so toggling captures or clears the pinned prompt, and dropdown changes while pinned immediately re-pin to the new prompt.
-- [ ] [Plumb state props](#plumb-state-props): Update component props and context so `FileHeader`, `Blueprint`, and any dependents receive the pinned prompt information without relying on file pin types.
+- [x] [Model pinned prompt state](#model-pinned-prompt-state): Define React state in `pkgs/vsc-webview/src/app/Index.tsx` to track the pinned prompt metadata and load/save it with `vscode.getState`/`setState`.
+- [x] [Render thumbtack toggle](#render-thumbtack-toggle): Replace the legacy file pin button in `FileHeader` with the shared `Icon` component (`iconRegularThumbtack`/`iconSolidThumbtack`) positioned before the prompt `Select`.
+- [x] [Handle pin/unpin interactions](#handle-pinunpin-interactions): Wire click handlers and prompt selection events so toggling captures or clears the pinned prompt, and dropdown changes while pinned immediately re-pin to the new prompt.
+- [x] [Plumb state props](#plumb-state-props): Update component props and context so `FileHeader`, `Blueprint`, and any dependents receive the pinned prompt information without relying on file pin types.
 
 ### Model pinned prompt state
 

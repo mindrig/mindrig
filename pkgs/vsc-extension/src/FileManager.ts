@@ -8,10 +8,6 @@ export interface FileManagerEvents {
   onFileContentChanged: (fileState: SyncFile.State) => void;
   onFileSaved: (fileState: SyncFile.State) => void;
   onCursorPositionChanged: (fileState: SyncFile.State) => void;
-  onPinStateChanged: (
-    pinnedFile: SyncFile.State | null,
-    activeFile: SyncFile.State | null,
-  ) => void;
 }
 
 export class FileManager {
@@ -83,10 +79,6 @@ export class FileManager {
     return this.#activeFile;
   }
 
-  // getDisplayFile(): FileState | null {
-  //   return this.#isPinned ? this.#pinnedFile : this.#activeFile;
-  // }
-
   #detectFileLang(document: vscode.TextDocument): Language.Id | undefined {
     const ext = fileExtFromPath(document.fileName);
     return languageIdFromExt(ext);
@@ -123,19 +115,12 @@ export class FileManager {
     const languageId = editor && this.#detectFileLang(editor.document);
     if (!languageId) {
       this.#activeFile = null;
-      if (!this.#isPinned) this.#events.onActiveFileChanged(null);
-      else
-        // Always send pin state change to update active file info when pinned
-        this.#events.onPinStateChanged(this.#pinnedFile, this.#activeFile);
-
+      this.#events.onActiveFileChanged(null);
       return;
     }
 
     this.#activeFile = this.#createFileState(editor.document, languageId);
-    if (!this.#isPinned) this.#events.onActiveFileChanged(this.#activeFile);
-    else
-      // Always send pin state change to update active file info when pinned
-      this.#events.onPinStateChanged(this.#pinnedFile, this.#activeFile);
+    this.#events.onActiveFileChanged(this.#activeFile);
   }
 
   //#endregion
@@ -145,40 +130,19 @@ export class FileManager {
   #handleDocumentChange(event: vscode.TextDocumentChangeEvent) {
     const filePath = event.document.uri.fsPath;
 
-    // Update active file if this document matches the active file
     if (this.#activeFile && filePath === this.#activeFile.path) {
       this.#activeFile = {
         ...this.#activeFile,
         content: event.document.getText(),
         isDirty: event.document.isDirty,
       };
-
-      if (!this.#isPinned) this.#events.onFileContentChanged(this.#activeFile);
-    }
-
-    // Update pinned file content if this document matches the pinned file
-    if (
-      this.#isPinned &&
-      this.#pinnedFile &&
-      this.#pinnedFilePath === filePath
-    ) {
-      this.#pinnedFile = {
-        ...this.#pinnedFile,
-        content: event.document.getText(),
-        isDirty: event.document.isDirty,
-        // Keep the pinned cursor position unchanged
-        cursor: this.#pinnedCursorPosition || undefined,
-      };
-
-      // Send updated pinned file state
-      this.#events.onPinStateChanged(this.#pinnedFile, this.#activeFile);
+      this.#events.onFileContentChanged(this.#activeFile);
     }
   }
 
   #handleDocumentSave(document: vscode.TextDocument) {
     const filePath = document.uri.fsPath;
 
-    // Update active file if this document matches the active file
     if (this.#activeFile && filePath === this.#activeFile.path) {
       this.#activeFile = {
         ...this.#activeFile,
@@ -186,27 +150,7 @@ export class FileManager {
         isDirty: false,
         lastSaved: new Date(),
       };
-
-      if (!this.#isPinned) this.#events.onFileSaved(this.#activeFile);
-    }
-
-    // Update pinned file save state if this document matches the pinned file
-    if (
-      this.#isPinned &&
-      this.#pinnedFile &&
-      this.#pinnedFilePath === filePath
-    ) {
-      this.#pinnedFile = {
-        ...this.#pinnedFile,
-        content: document.getText(),
-        isDirty: false,
-        lastSaved: new Date(),
-        // Keep the pinned cursor position unchanged
-        cursor: this.#pinnedCursorPosition || undefined,
-      };
-
-      // Send updated pinned file state
-      this.#events.onPinStateChanged(this.#pinnedFile, this.#activeFile);
+      this.#events.onFileSaved(this.#activeFile);
     }
   }
 
@@ -230,9 +174,7 @@ export class FileManager {
 
     this.#activeFile = { ...this.#activeFile, cursor: cursorPosition };
 
-    if (this.#isPinned)
-      this.#events.onPinStateChanged(this.#pinnedFile, this.#activeFile);
-    else this.#events.onCursorPositionChanged(this.#activeFile);
+    this.#events.onCursorPositionChanged(this.#activeFile);
   }
 
   #convertCursorPosition(
@@ -245,48 +187,6 @@ export class FileManager {
   }
 
   //#endregion
-
-  //#region Pinning
-
-  #pinnedFile: SyncFile.State | null = null;
-  #pinnedFilePath: string | null = null;
-  #pinnedCursorPosition: SyncFile.Cursor | null = null;
-  #isPinned: boolean = false;
-
-  pinCurrentFile(): boolean {
-    if (!this.#activeFile) return false;
-
-    this.#pinnedFile = { ...this.#activeFile };
-    this.#pinnedFilePath = this.#activeFile.path;
-    this.#pinnedCursorPosition = this.#activeFile.cursor
-      ? { ...this.#activeFile.cursor }
-      : null;
-    this.#isPinned = true;
-    this.#events.onPinStateChanged(this.#pinnedFile, this.#activeFile);
-    return true;
-  }
-
-  unpinFile(): void {
-    this.#pinnedFile = null;
-    this.#pinnedFilePath = null;
-    this.#pinnedCursorPosition = null;
-    this.#isPinned = false;
-    this.#events.onPinStateChanged(null, this.#activeFile);
-
-    // Send current active file state after unpinning
-    if (this.#activeFile) this.#events.onActiveFileChanged(this.#activeFile);
-  }
-
-  isPinnedState(): boolean {
-    return this.#isPinned;
-  }
-
-  getPinnedFile(): SyncFile.State | null {
-    return this.#pinnedFile;
-  }
-
-  //#endregion
-
   //#region Editing
 
   async addCommentToActiveFile(comment: string): Promise<boolean> {

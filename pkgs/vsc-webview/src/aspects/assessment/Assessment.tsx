@@ -1,3 +1,4 @@
+import { useModelsDev } from "@/aspects/models-dev/Context";
 import type { Prompt, PromptVar } from "@mindrig/types";
 import JsonView, { ShouldExpandNodeInitially } from "@uiw/react-json-view";
 import MarkdownPreview from "@uiw/react-markdown-preview";
@@ -15,7 +16,22 @@ import { extractPromptText, substituteVariables } from "@wrkspc/prompt";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { parseString as parseCsvString } from "smolcsv";
 import { useVsc } from "../vsc/Context";
-import { useModelsDev } from "@/aspects/models-dev/Context";
+import type { ModelStatus } from "./components/ModelStatusDot";
+import { ModelStatusDot } from "./components/ModelStatusDot";
+import {
+  useGatewayModels,
+  type AvailableModel,
+} from "./hooks/useGatewayModels";
+import type { ProviderModelWithScore } from "./modelSorting";
+import {
+  compareProviderModelEntries,
+  computeRecommendationWeightsForProvider,
+  modelKeyFromId,
+  normaliseProviderId,
+  OFFLINE_MODEL_RECOMMENDATIONS,
+  parseLastUpdatedMs,
+  PROVIDER_POPULARITY,
+} from "./modelSorting";
 import {
   loadPromptState,
   PersistedPromptState,
@@ -24,22 +40,6 @@ import {
   ResultsLayout,
   savePromptState,
 } from "./persistence";
-import {
-  useGatewayModels,
-  type AvailableModel,
-} from "./hooks/useGatewayModels";
-import {
-  OFFLINE_MODEL_RECOMMENDATIONS,
-  PROVIDER_POPULARITY,
-  compareProviderModelEntries,
-  computeRecommendationWeightsForProvider,
-  modelKeyFromId,
-  normaliseProviderId,
-  parseLastUpdatedMs,
-} from "./modelSorting";
-import { ModelStatusDot } from "./components/ModelStatusDot";
-import type { ModelStatus } from "./components/ModelStatusDot";
-import type { ProviderModelWithScore } from "./modelSorting";
 
 const shouldExpandNodeInitially: ShouldExpandNodeInitially<object> = (
   isExpanded,
@@ -130,7 +130,7 @@ function providerLabel(providerId: string): string {
 export namespace Assessment {
   export interface Props {
     prompt: Prompt | undefined;
-    vercelGatewayKey: string | null;
+    vercelGatewayKey: string | undefined | null;
     fileContent?: string | undefined;
     promptIndex?: number | null;
   }

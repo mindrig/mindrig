@@ -60,6 +60,20 @@
       ],
       "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
       "preLaunchTask": "vscode#preview:watch"
+    },
+
+    //#endregion
+
+    //#region storybook
+
+    // storybook#dev
+    {
+      "name": "storybook#dev",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:6006",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "storybook#dev"
     }
 
     //#endregion

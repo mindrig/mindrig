@@ -6,9 +6,9 @@ Remove every vestige of the old file-based pin experience from both the webview 
 
 ## Tasks
 
-- [ ] [Purge webview pin state](#purge-webview-pin-state): Delete `pinnedFile`/`isPinned` state, message handlers, and UI controls from `pkgs/vsc-webview/src/app/Index.tsx` and `aspects/file/Header.tsx`.
-- [ ] [Remove extension pin wiring](#remove-extension-pin-wiring): Excise `pinFile`/`unpinFile` message handling from `pkgs/vsc-extension/src/WorkbenchView/Provider.ts` and associated helpers in `FileManager.ts`.
-- [ ] [Clean shared types and tests](#clean-shared-types-and-tests): Update any shared types, mocks, or tests referencing file pinning and ensure the build passes without the legacy code.
+- [x] [Purge webview pin state](#purge-webview-pin-state): Delete `pinnedFile`/`isPinned` state, message handlers, and UI controls from `pkgs/vsc-webview/src/app/Index.tsx` and `aspects/file/Header.tsx`.
+- [x] [Remove extension pin wiring](#remove-extension-pin-wiring): Excise `pinFile`/`unpinFile` message handling from `pkgs/vsc-extension/src/WorkbenchView/Provider.ts` and associated helpers in `FileManager.ts`.
+- [x] [Clean shared types and tests](#clean-shared-types-and-tests): Update any shared types, mocks, or tests referencing file pinning and ensure the build passes without the legacy code.
 
 ### Purge webview pin state
 

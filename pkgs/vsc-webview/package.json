@@ -29,6 +29,7 @@
     "@wrkspc/ds": "workspace:*",
     "@wrkspc/file": "workspace:*",
     "@wrkspc/form": "workspace:*",
+    "@wrkspc/icons": "workspace:*",
     "@wrkspc/lang": "workspace:*",
     "@wrkspc/model": "workspace:*",
     "@wrkspc/prompt": "workspace:*",

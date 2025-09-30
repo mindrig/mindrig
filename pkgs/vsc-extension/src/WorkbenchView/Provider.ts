@@ -139,16 +139,6 @@ export class WorkbenchViewProvider
           type: "activeFileChanged",
           payload: currentFile,
         });
-
-      if (this.#fileManager.isPinnedState())
-        this.#sendMessage({
-          type: "pinStateChanged",
-          payload: {
-            pinnedFile: this.#fileManager.getPinnedFile(),
-            activeFile: this.#fileManager.getCurrentFile(),
-            isPinned: true,
-          },
-        });
     }
 
     this.#sendVercelGatewayKey();
@@ -161,9 +151,7 @@ export class WorkbenchViewProvider
     // Send initial prompts if we have a current file
     if (this.#fileManager) {
       const currentFile = this.#fileManager.getCurrentFile();
-      const pinnedFile = this.#fileManager.getPinnedFile();
-      const targetFile = pinnedFile || currentFile;
-      if (targetFile) this.#parseAndSendPrompts(targetFile);
+      if (currentFile) this.#parseAndSendPrompts(currentFile);
     }
   }
 
@@ -326,12 +314,6 @@ export class WorkbenchViewProvider
           break;
         case "webviewReady":
           this.#handleWebviewReady();
-          break;
-        case "pinFile":
-          this.#handlePinFile();
-          break;
-        case "unpinFile":
-          this.#handleUnpinFile();
           break;
         case "getVercelGatewayKey":
           this.#sendVercelGatewayKey();
@@ -514,18 +496,6 @@ export class WorkbenchViewProvider
             type: "cursorPositionChanged",
             payload: fileState,
           });
-        },
-        onPinStateChanged: (pinnedFile, activeFile) => {
-          this.#sendMessage({
-            type: "pinStateChanged",
-            payload: {
-              pinnedFile,
-              activeFile,
-              isPinned: pinnedFile !== null,
-            },
-          });
-          const targetFile = pinnedFile || activeFile;
-          if (targetFile) this.#parseAndSendPrompts(targetFile);
         },
       })),
     );
@@ -979,18 +949,6 @@ export class WorkbenchViewProvider
     const payload = this.#cloneExecutionPayload(this.#lastExecutionPayload);
     await this.#handleExecutePrompt(payload);
     return true;
-  }
-
-  //#endregion
-
-  //#region Pinning
-
-  #handlePinFile() {
-    this.#fileManager?.pinCurrentFile();
-  }
-
-  #handleUnpinFile() {
-    this.#fileManager?.unpinFile();
   }
 
   //#endregion

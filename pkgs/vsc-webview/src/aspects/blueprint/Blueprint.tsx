@@ -9,19 +9,32 @@ export namespace Blueprint {
   export interface Props {
     file: SyncFile.State;
     prompt: Prompt;
-    showSource: boolean;
-    vercelGatewayKey: string | null;
+    vercelGatewayKey: string | undefined | null;
     promptIndex: number | null;
+    showSource?: boolean;
+    isPromptPinned?: boolean;
   }
 }
 
 export function Blueprint(props: Blueprint.Props) {
-  const { file, prompt, vercelGatewayKey, promptIndex } = props;
+  const {
+    file,
+    prompt,
+    vercelGatewayKey,
+    promptIndex,
+    showSource,
+    isPromptPinned,
+  } = props;
   const { settings } = useSettings();
+  const shouldShowSource =
+    isPromptPinned ||
+    (typeof showSource === "boolean"
+      ? showSource
+      : settings?.playground?.showSource);
 
   return (
     <PanelSection>
-      {settings?.playground?.showSource && (
+      {shouldShowSource && (
         <PromptSource prompt={prompt} content={file.content} />
       )}
 

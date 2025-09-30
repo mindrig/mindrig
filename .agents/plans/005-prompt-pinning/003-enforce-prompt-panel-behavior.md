@@ -6,10 +6,10 @@ Ensure the blueprint always displays the pinned prompt source regardless of user
 
 ## Tasks
 
-- [ ] [Override prompt visibility](#override-prompt-visibility): Update `pkgs/vsc-webview/src/aspects/blueprint/Blueprint.tsx` to show `PromptSource` whenever a prompt is pinned, ignoring `settings.playground.showSource`.
-- [ ] [Stabilize prompt resolution](#stabilize-prompt-resolution): Refine `Index.tsx` logic so the blueprint receives the pinned prompt/file when pinned and reverts to cursor-driven prompts when unpinned.
-- [ ] [Add targeted React tests](#add-targeted-react-tests): Create new tests under `pkgs/vsc-webview/src/__tests__/` using Testing Library + happy-dom that assert the pinned prompt stays visible and updates on select changes.
-- [ ] [Disable flaky suites](#disable-flaky-suites): Skip or comment out the existing webview unit and extension e2e test runners per guidance so only the new targeted tests execute locally/CI.
+- [x] [Override prompt visibility](#override-prompt-visibility): Update `pkgs/vsc-webview/src/aspects/blueprint/Blueprint.tsx` to show `PromptSource` whenever a prompt is pinned, ignoring `settings.playground.showSource`.
+- [x] [Stabilize prompt resolution](#stabilize-prompt-resolution): Refine `Index.tsx` logic so the blueprint receives the pinned prompt/file when pinned and reverts to cursor-driven prompts when unpinned.
+- [x] [Add targeted React tests](#add-targeted-react-tests): Create new tests under `pkgs/vsc-webview/src/__tests__/` using Testing Library + happy-dom that assert the pinned prompt stays visible and updates on select changes.
+- [x] [Disable flaky suites](#disable-flaky-suites): Skip or comment out the existing webview unit and extension e2e test runners per guidance so only the new targeted tests execute locally/CI.
 
 ### Override prompt visibility
 
@@ -67,3 +67,4 @@ None.
 
 - Keep the new tests narrow so they execute quickly and provide precise feedback on the pinned flow.
 - Coordinate with tooling owners before re-enabling the skipped suites in future work.
+- `pnpm --filter @wrkspc/vsc-webview test/unit` currently fails with `vitest: not found` because dependencies are not installed; rerun after bootstrapping node modules if verification is needed.
