@@ -1,21 +1,46 @@
 import { createGateway } from "@ai-sdk/gateway";
 import { VscController } from "@wrkspc/vsc-controller";
 import {
-  AssistantModelMessage,
-  generateText,
-  LanguageModelRequestMetadata,
-  LanguageModelResponseMetadata,
-  UserModelMessage,
+  streamText,
+  type LanguageModelRequestMetadata,
+  type LanguageModelResponseMetadata,
+  type LanguageModelUsage,
+  type StreamTextOnChunkCallback,
+  type StreamTextOnFinishCallback,
+  type ToolSet,
 } from "ai";
 
 type LlmRequest = LanguageModelRequestMetadata;
 
-type LlmMessage = AssistantModelMessage | UserModelMessage;
-
 type LlmResponse = LanguageModelResponseMetadata & {
-  // messages: Array<LlmMessage>;
   body?: unknown;
 };
+
+type StreamChunk = Parameters<StreamTextOnChunkCallback<ToolSet>>[0]["chunk"];
+type StreamFinishEvent = Parameters<StreamTextOnFinishCallback<ToolSet>>[0];
+type OptionalLanguageModelUsage = LanguageModelUsage | undefined;
+
+export interface PromptStreamingHandlers {
+  onChunk?: (chunk: StreamChunk) => void | Promise<void>;
+  onTextDelta?: (delta: string, chunk: StreamChunk) => void | Promise<void>;
+  onError?: (error: unknown) => void | Promise<void>;
+}
+
+export interface ExecutePromptRuntimeOptions {
+  signal?: AbortSignal;
+  streamingHandlers?: PromptStreamingHandlers;
+}
+
+interface PromptRunSummary {
+  text: string | null;
+  usage?: OptionalLanguageModelUsage;
+  totalUsage?: OptionalLanguageModelUsage;
+  request: LlmRequest;
+  response: LlmResponse;
+  steps: StreamFinishEvent["steps"];
+  finishReason?: StreamFinishEvent["finishReason"] | null;
+  warnings?: StreamFinishEvent["warnings"];
+}
 
 export class AIService extends VscController {
   #apiKey: string | null = null;
@@ -56,13 +81,18 @@ export class AIService extends VscController {
       providerOptions?: Record<string, any> | null;
     },
     attachments?: Array<{ name: string; mime: string; dataBase64: string }>,
+    runtimeOptions?: ExecutePromptRuntimeOptions,
   ): Promise<
     | {
         success: true;
         request: LlmRequest;
         response: LlmResponse;
-        usage?: any;
-        totalUsage?: any;
+        usage?: OptionalLanguageModelUsage;
+        totalUsage?: OptionalLanguageModelUsage;
+        text?: string | null;
+        steps?: StreamFinishEvent["steps"];
+        finishReason?: StreamFinishEvent["finishReason"] | null;
+        warnings?: StreamFinishEvent["warnings"];
       }
     | { success: false; error: string }
   > {
@@ -76,10 +106,9 @@ export class AIService extends VscController {
     try {
       const gateway = createGateway({ apiKey: this.#apiKey });
 
-      const hasAttachments =
-        Array.isArray(attachments) && attachments.length > 0;
+      const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
 
-      const genArgs: any = {
+      const streamArgs: any = {
         model: gateway((modelId || "openai/gpt-5-mini") as any),
         maxOutputTokens: options?.maxOutputTokens,
         temperature: options?.temperature,
@@ -100,16 +129,11 @@ export class AIService extends VscController {
           const buf = Buffer.from(att.dataBase64, "base64");
           const mime = att.mime || "application/octet-stream";
 
-          // Prefer native image parts for images
           if (mime.startsWith("image/")) {
             parts.push({ type: "image", image: buf, mediaType: mime });
             continue;
           }
 
-          // For non-image attachments, the Vercel AI Gateway does not support
-          // generic `file` parts (notably application/octet-stream). To avoid
-          // gateway errors, inline text-like files as "text" content and
-          // gracefully omit binary files with a short note.
           let isTextLike =
             mime.startsWith("text/") ||
             [
@@ -161,42 +185,131 @@ export class AIService extends VscController {
             });
           }
         }
-        genArgs.messages = [
+        streamArgs.messages = [
           {
             role: "user",
             content: parts,
           },
         ];
       } else {
-        genArgs.prompt = promptText;
+        streamArgs.prompt = promptText;
       }
 
-      const {
-        text,
-        request,
-        response: { messages, ...response },
-        usage,
-        totalUsage,
-      } = await generateText(genArgs);
+      const handlers = runtimeOptions?.streamingHandlers;
+      const onChunkHandler = handlers?.onChunk;
+      const onTextDeltaHandler = handlers?.onTextDelta;
+      const onStreamingError = handlers?.onError;
+      let collectedText = "";
+      let summary: PromptRunSummary | null = null;
+
+      const stream = streamText({
+        ...streamArgs,
+        abortSignal: runtimeOptions?.signal,
+        onChunk:
+          onChunkHandler || onTextDeltaHandler
+            ? async ({ chunk }: { chunk: StreamChunk }) => {
+                if (onChunkHandler) await onChunkHandler(chunk);
+                if (chunk.type === "text-delta") {
+                  collectedText += chunk.text ?? "";
+                  if (onTextDeltaHandler)
+                    await onTextDeltaHandler(chunk.text ?? "", chunk);
+                }
+              }
+            : undefined,
+        onError: onStreamingError
+          ? async ({ error }) => {
+              await onStreamingError!(error);
+            }
+          : undefined,
+        onFinish: async (event: StreamFinishEvent) => {
+          const { messages: _ignoredMessages, ...responseWithoutMessages } = event.response as any;
+          collectedText = typeof event.text === "string" ? event.text : collectedText;
+          summary = {
+            text:
+              typeof event.text === "string"
+                ? event.text
+                : collectedText.length > 0
+                  ? collectedText
+                  : null,
+            usage: event.usage,
+            totalUsage: event.totalUsage,
+            request: event.request as LlmRequest,
+            response: responseWithoutMessages as LlmResponse,
+            steps: event.steps,
+            finishReason: event.finishReason,
+          };
+          if (event.warnings !== undefined) summary.warnings = event.warnings;
+        },
+      });
+
+      await stream.consumeStream();
+
+      if (!summary) {
+        summary = await (async (): Promise<PromptRunSummary> => {
+          const [request, response, usage, totalUsage, text] = await Promise.all([
+            stream.request.catch(() => null),
+            stream.response.catch(() => null),
+            stream.usage.catch(() => null),
+            stream.totalUsage.catch(() => null),
+            stream.text.catch(() => null),
+          ]);
+
+          let responseWithoutMessages: LlmResponse = (response as LlmResponse) ?? ({} as LlmResponse);
+          if (response && typeof response === "object" && "messages" in (response as any)) {
+            const { messages: _ignored, ...rest } = response as Record<string, unknown>;
+            responseWithoutMessages = rest as LlmResponse;
+          }
+
+          const fallbackSummary: PromptRunSummary = {
+            text:
+              typeof text === "string"
+                ? text
+                : collectedText.length > 0
+                  ? collectedText
+                  : null,
+            usage: (usage as LanguageModelUsage) ?? undefined,
+            totalUsage:
+              (totalUsage as LanguageModelUsage) ??
+              ((usage as LanguageModelUsage) ?? undefined),
+            request: (request as LlmRequest) ?? ({} as LlmRequest),
+            response: responseWithoutMessages,
+            steps: [],
+          };
+
+          return fallbackSummary;
+        })();
+      }
+
+      const normalizedText =
+        typeof summary.text === "string"
+          ? summary.text
+          : collectedText.length > 0
+            ? collectedText
+            : null;
 
       return {
         success: true,
-        request,
-        response,
-        usage,
-        totalUsage,
-        // Include assistant text output so webview can render markdown/raw
-        // without needing to inspect provider-specific response shapes.
-        ...(typeof text === "string" ? { text } : {}),
+        request: summary.request,
+        response: summary.response,
+        usage: summary.usage,
+        totalUsage: summary.totalUsage,
+        ...(typeof normalizedText === "string" ? { text: normalizedText } : {}),
+        steps: summary.steps,
+        ...(summary.finishReason !== undefined
+          ? { finishReason: summary.finishReason }
+          : {}),
+        ...(summary.warnings !== undefined ? { warnings: summary.warnings } : {}),
       };
     } catch (error) {
       console.error("AI Service error:", error);
+
+      const onError = runtimeOptions?.streamingHandlers?.onError;
+      if (onError) await onError(error);
 
       let errorMessage = "Unknown error occurred";
       if (error instanceof Error) {
         errorMessage = error.message;
 
-        // Provide more specific error messages for common issues
         if (
           errorMessage.includes("network socket disconnected") ||
           errorMessage.includes("TLS connection")
@@ -219,9 +332,11 @@ export class AIService extends VscController {
         )
           errorMessage =
             "Server error. The Vercel Gateway service may be temporarily unavailable.";
-      } else {
-        if (typeof error === "string") errorMessage = error;
+      } else if (typeof error === "string") {
+        errorMessage = error;
       }
+
+      if ((error as any)?.name === "AbortError") errorMessage = "Prompt run cancelled.";
 
       return {
         success: false,

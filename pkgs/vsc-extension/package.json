@@ -63,6 +63,12 @@
           "default": false,
           "description": "Show prompt source code in the playground"
         },
+        "mindrig.run.parallel": {
+          "type": "integer",
+          "default": 4,
+          "minimum": 1,
+          "description": "Maximum number of prompt requests to stream in parallel"
+        },
         "mindrig.exampleSetting": {
           "type": "string",
           "default": "default value",
@@ -164,6 +170,8 @@
   "dependencies": {
     "@ai-sdk/gateway": "^1.0.15",
     "ai": "^5.0.28",
+    "nanoid": "^5.0.7",
+    "p-queue": "^8.0.1",
     "yjs": "^13.6.27",
     "@mindrig/parser-wasm": "0.1.0"
   },

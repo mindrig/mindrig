@@ -7,6 +7,8 @@ import userEvent from "@testing-library/user-event";
 import { SyncFile } from "@wrkspc/vsc-sync";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+vi.mock("katex/dist/katex.min.css", () => ({}));
+
 vi.mock("@/aspects/models-dev/Context", () => {
   const fallbackData: Record<string, any> = {
     openai: {

@@ -1,7 +1,6 @@
 import { useModelsDev } from "@/aspects/models-dev/Context";
 import type { Prompt, PromptVar } from "@mindrig/types";
 import JsonView, { ShouldExpandNodeInitially } from "@uiw/react-json-view";
-import MarkdownPreview from "@uiw/react-markdown-preview";
 import { buildRunsAndSettings, computeVariablesFromRow } from "@wrkspc/dataset";
 import { Button, Select } from "@wrkspc/ds";
 import type { AttachmentInput, GenerationOptionsInput } from "@wrkspc/model";
@@ -13,11 +12,19 @@ import {
   providerLogoUrl,
 } from "@wrkspc/model";
 import { extractPromptText, substituteVariables } from "@wrkspc/prompt";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { parseString as parseCsvString } from "smolcsv";
 import { useVsc } from "../vsc/Context";
 import type { ModelStatus } from "./components/ModelStatusDot";
 import { ModelStatusDot } from "./components/ModelStatusDot";
+import { StreamingMarkdown } from "./components/StreamingMarkdown";
 import {
   useGatewayModels,
   type AvailableModel,
@@ -40,6 +47,17 @@ import {
   ResultsLayout,
   savePromptState,
 } from "./persistence";
+import {
+  appendTextChunk,
+  createEmptyStreamingState,
+  type AssessmentStreamingResult,
+  type AssessmentStreamingState,
+  type StreamingRunCompleted,
+  type StreamingRunError,
+  type StreamingRunResultCompleted,
+  type StreamingRunStarted,
+  type StreamingRunUpdate,
+} from "./streamingTypes";
 
 const shouldExpandNodeInitially: ShouldExpandNodeInitially<object> = (
   isExpanded,
@@ -78,30 +96,30 @@ interface ModelConfigErrors {
 
 interface RunResult {
   success: boolean;
+  runId?: string | null;
+  resultId?: string;
   runLabel?: string;
   label?: string;
   prompt?: string | null;
   text?: string | null;
+  textParts?: string[];
+  streaming?: boolean;
+  isLoading?: boolean;
+  nonStreamingNote?: string | null;
   request?: object | null;
   response?: object | null;
   usage?: any;
+  totalUsage?: any;
+  steps?: any;
+  finishReason?: any;
+  warnings?: any;
   error?: string | null;
   model?: {
     key: string;
     id: string | null;
     providerId: string | null;
     label?: string | null;
-    settings?: {
-      options?: GenerationOptionsInput;
-      reasoning?: {
-        enabled: boolean;
-        effort: "low" | "medium" | "high";
-        budgetTokens?: number | "";
-      };
-      providerOptions?: any;
-      tools?: any;
-      attachments?: AttachmentInput[];
-    };
+    settings?: any;
   };
 }
 
@@ -110,6 +128,10 @@ interface ExecutionState {
   results: RunResult[];
   error: string | null;
   timestamp?: number;
+  runId?: string | null;
+  promptId?: string | null;
+  startedAt?: number | null;
+  completedAt?: number | null;
 }
 
 function createModelConfigKey(): string {
@@ -161,6 +183,11 @@ export function Assessment({
     results: [],
     error: null,
   });
+  const [streamingState, setStreamingState] =
+    useState<AssessmentStreamingState>(() => createEmptyStreamingState());
+  const [streamingEnabled, setStreamingEnabled] = useState(true);
+  const [isStopping, setIsStopping] = useState(false);
+  const activeRunIdRef = useRef<string | null>(null);
   const [inputSource, setInputSource] = useState<"manual" | "dataset">(
     "manual",
   );
@@ -175,9 +202,9 @@ export function Assessment({
   const [collapsedResults, setCollapsedResults] = useState<
     Record<number, boolean>
   >({});
-  const [textViewTab, setTextViewTab] = useState<
-    Record<number, "raw" | "markdown">
-  >({});
+  const [viewTab, setViewTab] = useState<Record<number, "rendered" | "raw">>(
+    {},
+  );
   const [expandedRequest, setExpandedRequest] = useState<
     Record<number, boolean>
   >({});
@@ -187,6 +214,136 @@ export function Assessment({
   const [collapsedModelSettings, setCollapsedModelSettings] = useState<
     Record<number, boolean>
   >({});
+  const streamingToggleId = useId();
+  const convertStreamingStateToResults = useCallback(
+    (state: AssessmentStreamingState): RunResult[] => {
+      if (!state.order.length) return [];
+      return state.order.map((resultId) => {
+        const streamingResult = state.results[resultId];
+        if (!streamingResult) {
+          const fallback: RunResult = {
+            success: false,
+            runId: state.runId ?? null,
+            resultId,
+            runLabel: "",
+            label: resultId,
+            prompt: null,
+            text: null,
+            textParts: [],
+            streaming: state.streaming,
+            isLoading: false,
+            nonStreamingNote: null,
+            error: "Result missing",
+          };
+          return fallback;
+        }
+
+        const metadata = streamingResult.metadata ?? {};
+        const assembledText =
+          typeof streamingResult.fullText === "string"
+            ? streamingResult.fullText
+            : streamingResult.textParts.join("");
+
+        const runResult: RunResult = {
+          success:
+            streamingResult.success === null ? true : streamingResult.success,
+          runId: state.runId ?? null,
+          resultId: streamingResult.id,
+          runLabel: streamingResult.runLabel,
+          label: streamingResult.label,
+          prompt: null,
+          text: assembledText.length > 0 ? assembledText : null,
+          textParts: [...streamingResult.textParts],
+          streaming: streamingResult.streaming,
+          isLoading: streamingResult.loading,
+          nonStreamingNote: streamingResult.nonStreamingNote ?? null,
+          error: streamingResult.error,
+          model: {
+            key: streamingResult.model.key,
+            id: streamingResult.model.id,
+            providerId: streamingResult.model.providerId,
+            label: streamingResult.model.label ?? null,
+            settings: streamingResult.model.settings,
+          },
+        };
+
+        if (metadata.request !== undefined)
+          runResult.request = metadata.request ?? null;
+        if (metadata.response !== undefined)
+          runResult.response = metadata.response ?? null;
+        if (metadata.usage !== undefined)
+          runResult.usage = metadata.usage ?? null;
+        if (metadata.totalUsage !== undefined)
+          runResult.totalUsage = metadata.totalUsage ?? null;
+        if (metadata.steps !== undefined)
+          runResult.steps = metadata.steps ?? null;
+        if (metadata.finishReason !== undefined)
+          runResult.finishReason = metadata.finishReason ?? null;
+        if (metadata.warnings !== undefined)
+          runResult.warnings = metadata.warnings ?? null;
+
+        return runResult;
+      });
+    },
+    [],
+  );
+
+  const updateStreamingState = useCallback(
+    (
+      updater: (previous: AssessmentStreamingState) => AssessmentStreamingState,
+      overrides?: Partial<
+        Pick<ExecutionState, "isLoading" | "error" | "timestamp">
+      >,
+    ) => {
+      setStreamingState((prev) => {
+        const next = updater(prev);
+        setExecutionState((prevExec) => {
+          const derivedResults = convertStreamingStateToResults(next);
+          const loadingFromState = next.order.some(
+            (id) => next.results[id]?.loading,
+          );
+          const timestampCandidate =
+            overrides?.timestamp !== undefined
+              ? overrides.timestamp
+              : (next.completedAt ?? prevExec.timestamp);
+
+          const nextExecutionState: ExecutionState = {
+            isLoading:
+              overrides?.isLoading !== undefined
+                ? overrides.isLoading
+                : loadingFromState,
+            results: derivedResults,
+            error: overrides?.error ?? next.error ?? null,
+            runId: next.runId,
+            promptId: next.promptId,
+            startedAt: next.startedAt,
+            completedAt: next.completedAt,
+          };
+
+          if (timestampCandidate !== undefined)
+            nextExecutionState.timestamp = timestampCandidate;
+          else if (prevExec.timestamp !== undefined)
+            nextExecutionState.timestamp = prevExec.timestamp;
+
+          return nextExecutionState;
+        });
+        return next;
+      });
+    },
+    [convertStreamingStateToResults],
+  );
+
+  const resetPerRunUiState = useCallback(() => {
+    setCollapsedResults({});
+    setCollapsedModelSettings({});
+    setExpandedRequest({});
+    setExpandedResponse({});
+    setViewTab({});
+    setActiveResultIndex(0);
+  }, []);
+
+  // Handlers for streaming lifecycle events are defined after promptId is available.
+
   const persistedStateRef = useRef<PersistedPromptState | undefined>(undefined);
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -239,12 +396,313 @@ export function Assessment({
   }, [modelsDevError, modelsDevLoading, modelsErrorRaw, modelsLoading]);
 
   useEffect(() => {
+    vsc.postMessage({ type: "getStreamingPreference" });
+  }, [vsc]);
+
+  useEffect(() => {
     if (resultsLayout !== "vertical") setCollapsedResults({});
   }, [resultsLayout]);
 
   const promptId = prompt
     ? `${prompt.file}:${prompt.span.outer.start}-${prompt.span.outer.end}`
     : null;
+
+  const handleRunStarted = useCallback(
+    (payload: StreamingRunStarted) => {
+      if (payload.promptId !== promptId) return;
+
+      activeRunIdRef.current = payload.runId;
+      resetPerRunUiState();
+      setIsStopping(false);
+
+      const results: Record<string, AssessmentStreamingResult> = {};
+      const nonStreamingCopy =
+        "Streaming is unavailable. Results will appear when the run completes.";
+      const runStreamingEnabled = payload.streaming !== false;
+
+      for (const shell of payload.results) {
+        results[shell.resultId] = {
+          id: shell.resultId,
+          label: shell.label,
+          runLabel: shell.runLabel,
+          model: shell.model,
+          streaming: shell.streaming,
+          textParts: [],
+          fullText: null,
+          success: null,
+          error: null,
+          loading: true,
+          nonStreamingNote:
+            runStreamingEnabled && shell.streaming === false
+              ? nonStreamingCopy
+              : null,
+          metadata: {},
+        };
+      }
+
+      updateStreamingState(
+        () => ({
+          runId: payload.runId,
+          promptId: payload.promptId,
+          streaming: payload.streaming,
+          startedAt: payload.timestamp,
+          completedAt: null,
+          results,
+          order: payload.results
+            .map((r) => r.resultId)
+            .filter((id): id is string => typeof id === "string"),
+          error: null,
+        }),
+        { isLoading: true, error: null, timestamp: payload.timestamp },
+      );
+    },
+    [promptId, resetPerRunUiState, updateStreamingState],
+  );
+
+  const handleRunUpdate = useCallback(
+    (payload: StreamingRunUpdate) => {
+      if (payload.promptId !== promptId) return;
+      if (activeRunIdRef.current && payload.runId !== activeRunIdRef.current)
+        return;
+
+      const resultId = payload.resultId;
+      if (!resultId) return;
+
+      updateStreamingState((prev) => {
+        if (prev.runId && payload.runId && prev.runId !== payload.runId)
+          return prev;
+
+        const target = prev.results[resultId];
+        if (!target) return prev;
+
+        let updated: AssessmentStreamingResult = target;
+        const delta = payload.delta;
+
+        if (delta.type === "text")
+          updated = appendTextChunk(target, delta.text);
+
+        const nextResults = {
+          ...prev.results,
+          [resultId]: updated,
+        };
+
+        return { ...prev, results: nextResults };
+      });
+    },
+    [promptId, updateStreamingState],
+  );
+
+  const handleRunCompleted = useCallback(
+    (payload: StreamingRunCompleted) => {
+      if (payload.promptId !== promptId) return;
+      if (activeRunIdRef.current && payload.runId !== activeRunIdRef.current)
+        return;
+
+      activeRunIdRef.current = null;
+      setIsStopping(false);
+
+      updateStreamingState(
+        (prev) => {
+          if (prev.runId && payload.runId && prev.runId !== payload.runId)
+            return prev;
+
+          const nextResults = { ...prev.results };
+          for (const result of payload.results) {
+            const resultId = result.resultId;
+            if (!resultId) continue;
+            const existing = nextResults[resultId];
+            const baseStreamingFlag = existing?.streaming ?? prev.streaming;
+            const resolvedModel = result.model ?? existing?.model ?? null;
+            if (!resolvedModel) continue;
+            const base: AssessmentStreamingResult = existing
+              ? { ...existing }
+              : {
+                  id: result.resultId,
+                  label: result.label ?? result.resultId,
+                  runLabel: result.runLabel ?? "",
+                  model: resolvedModel,
+                  streaming: baseStreamingFlag ?? true,
+                  textParts: [],
+                  fullText: null,
+                  success: null,
+                  error: null,
+                  loading: true,
+                  nonStreamingNote: null,
+                  metadata: {},
+                };
+
+            const finalText =
+              typeof result.text === "string"
+                ? result.text
+                : (base.fullText ?? null);
+
+            base.fullText = finalText;
+            base.textParts = finalText ? [finalText] : base.textParts;
+            base.success = result.success;
+            base.error = result.error ?? null;
+            base.loading = false;
+
+            const mergedMetadata = {
+              ...(base.metadata ?? {}),
+            } as NonNullable<AssessmentStreamingResult["metadata"]>;
+            if (result.usage !== undefined)
+              mergedMetadata.usage = result.usage ?? null;
+            if (result.totalUsage !== undefined)
+              mergedMetadata.totalUsage = result.totalUsage ?? null;
+            if (result.steps !== undefined)
+              mergedMetadata.steps = result.steps ?? null;
+            if (result.finishReason !== undefined)
+              mergedMetadata.finishReason = result.finishReason ?? null;
+            if (result.warnings !== undefined)
+              mergedMetadata.warnings = result.warnings ?? null;
+            if (result.request !== undefined)
+              mergedMetadata.request = result.request ?? null;
+            if (result.response !== undefined)
+              mergedMetadata.response = result.response ?? null;
+
+            base.metadata = mergedMetadata;
+
+            nextResults[resultId] = base;
+          }
+
+          return {
+            ...prev,
+            runId: null,
+            results: nextResults,
+            completedAt: payload.timestamp,
+            error: payload.success ? null : (prev.error ?? null),
+          };
+        },
+        { isLoading: false, timestamp: payload.timestamp },
+      );
+    },
+    [promptId, updateStreamingState],
+  );
+
+  const handleRunResultCompleted = useCallback(
+    (payload: StreamingRunResultCompleted) => {
+      if (payload.promptId !== promptId) return;
+
+      updateStreamingState((prev) => {
+        if (prev.runId && payload.runId && prev.runId !== payload.runId)
+          return prev;
+
+        const resultId = payload.result.resultId;
+        const existing = prev.results[resultId];
+        if (!existing) return prev;
+
+        const metadata = { ...(existing.metadata ?? {}) };
+        if (payload.result.request !== undefined)
+          metadata.request = payload.result.request ?? null;
+        if (payload.result.response !== undefined)
+          metadata.response = payload.result.response ?? null;
+        if (payload.result.usage !== undefined)
+          metadata.usage = payload.result.usage ?? null;
+        if (payload.result.totalUsage !== undefined)
+          metadata.totalUsage = payload.result.totalUsage ?? null;
+        if (payload.result.steps !== undefined)
+          metadata.steps = payload.result.steps ?? null;
+        if (payload.result.finishReason !== undefined)
+          metadata.finishReason = payload.result.finishReason ?? null;
+        if (payload.result.warnings !== undefined)
+          metadata.warnings = payload.result.warnings ?? null;
+
+        const textProvided = payload.result.text !== undefined;
+        const providedText =
+          textProvided && payload.result.text !== undefined
+            ? payload.result.text
+            : null;
+        const finalText =
+          textProvided && providedText !== null
+            ? providedText
+            : existing.fullText;
+        const nextTextParts =
+          textProvided && providedText !== null
+            ? [providedText]
+            : existing.textParts;
+
+        const nextResults = {
+          ...prev.results,
+          [resultId]: {
+            ...existing,
+            success: payload.result.success,
+            error: payload.result.error ?? null,
+            loading: false,
+            fullText: finalText ?? null,
+            textParts: nextTextParts,
+            metadata,
+          },
+        };
+
+        return { ...prev, results: nextResults };
+      });
+    },
+    [promptId, updateStreamingState],
+  );
+
+  const handleRunError = useCallback(
+    (payload: StreamingRunError) => {
+      if (payload.promptId !== promptId) return;
+
+      if (payload.resultId) {
+        const resultId = payload.resultId;
+        updateStreamingState((prev) => {
+          if (prev.runId && payload.runId && prev.runId !== payload.runId)
+            return prev;
+
+          const target = prev.results[resultId];
+          if (!target) return prev;
+
+          const nextResults = {
+            ...prev.results,
+            [resultId]: {
+              ...target,
+              error: payload.error,
+              loading: false,
+              success: false,
+            },
+          };
+
+          return { ...prev, results: nextResults };
+        });
+      } else {
+        activeRunIdRef.current = null;
+        setIsStopping(false);
+        updateStreamingState(
+          (prev) => {
+            const nextResults: Record<string, AssessmentStreamingResult> = {};
+            for (const [id, value] of Object.entries(prev.results))
+              nextResults[id] = { ...value, loading: false };
+            return {
+              ...prev,
+              runId: null,
+              results: nextResults,
+              error: payload.error,
+              completedAt: payload.timestamp,
+            };
+          },
+          {
+            isLoading: false,
+            error: payload.error,
+            timestamp: payload.timestamp,
+          },
+        );
+      }
+      setIsStopping(false);
+    },
+    [promptId, updateStreamingState],
+  );
+
+  const handleStop = useCallback(() => {
+    const runId =
+      activeRunIdRef.current ??
+      streamingState.runId ??
+      executionState.runId ??
+      null;
+    if (!runId || isStopping) return;
+    setIsStopping(true);
+    vsc.postMessage({ type: "stopPromptRun", payload: { runId } });
+  }, [executionState.runId, isStopping, streamingState.runId, vsc]);
 
   const promptSource = useMemo(
     () => (prompt ? extractPromptText(fileContent, prompt) : ""),
@@ -644,7 +1102,7 @@ export function Assessment({
 
     setCollapsedResults({});
     setCollapsedModelSettings({});
-    setTextViewTab({});
+    setViewTab({});
     setExpandedRequest({});
     setExpandedResponse({});
     setIsHydrated(true);
@@ -997,6 +1455,7 @@ export function Assessment({
     });
 
     setExecutionState({ isLoading: true, results: [], error: null });
+    setIsStopping(false);
     setCollapsedResults({});
     setCollapsedModelSettings({});
     setExpandedRequest({});
@@ -1007,7 +1466,11 @@ export function Assessment({
       promptText,
       variables,
       runs,
-      runSettings,
+      runSettings: {
+        ...runSettings,
+        streaming: { enabled: streamingEnabled },
+      },
+      streamingEnabled,
       models: preparedModels.map((model) => ({
         key: model.key,
         modelId: model.modelId,
@@ -1033,38 +1496,143 @@ export function Assessment({
       results: [],
       error: null,
     });
+    setStreamingState(createEmptyStreamingState());
+    setIsStopping(false);
+    activeRunIdRef.current = null;
     setCollapsedResults({});
     setCollapsedModelSettings({});
     setExpandedRequest({});
     setExpandedResponse({});
+    setViewTab({});
   };
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
-      if (
-        message.type === "promptExecutionResult" &&
-        message.payload?.promptId === promptId
-      ) {
-        const results: RunResult[] = Array.isArray(message.payload.results)
-          ? message.payload.results
-          : [];
-        setExecutionState({
-          isLoading: false,
-          results,
-          error: message.payload.error || null,
-          timestamp: message.payload.timestamp || Date.now(),
-        });
-        setCollapsedResults({});
-        setCollapsedModelSettings({});
-        setExpandedRequest({});
-        setExpandedResponse({});
-        setActiveResultIndex(0);
+      if (!message || typeof message !== "object") return;
+
+      switch (message.type) {
+        case "promptRunStarted":
+          handleRunStarted(message.payload as StreamingRunStarted);
+          break;
+        case "promptRunUpdate":
+          handleRunUpdate(message.payload as StreamingRunUpdate);
+          break;
+        case "promptRunCompleted":
+          handleRunCompleted(message.payload as StreamingRunCompleted);
+          break;
+        case "promptRunError":
+          handleRunError(message.payload as StreamingRunError);
+          break;
+        case "promptRunResultCompleted":
+          handleRunResultCompleted(
+            message.payload as StreamingRunResultCompleted,
+          );
+          break;
+        case "streamingPreference": {
+          const enabledRaw = (message.payload ?? {}).enabled;
+          const enabled = typeof enabledRaw === "boolean" ? enabledRaw : true;
+          setStreamingEnabled(enabled);
+          break;
+        }
+        case "promptExecutionResult": {
+          const payload = message.payload;
+          if (!payload || payload.promptId !== promptId) break;
+
+          const timestamp = payload.timestamp || Date.now();
+          const resultsArray: RunResult[] = Array.isArray(payload.results)
+            ? payload.results
+            : [];
+
+          const currentRunId = activeRunIdRef.current;
+
+          if (payload.runId && currentRunId) {
+            if (payload.runId !== currentRunId) break;
+            activeRunIdRef.current = null;
+            updateStreamingState(
+              (prev) => {
+                const nextResults = { ...prev.results };
+                for (const result of resultsArray) {
+                  const resultId = result.resultId;
+                  if (!resultId) continue;
+                  const existing = nextResults[resultId];
+                  if (!existing) continue;
+                  const finalText =
+                    typeof result.text === "string"
+                      ? result.text
+                      : (existing.fullText ?? null);
+                  const existingMetadata = existing.metadata ?? {};
+                  const mergedMetadata = {
+                    ...existingMetadata,
+                    usage: result.usage ?? existingMetadata.usage,
+                    totalUsage:
+                      result.totalUsage ?? existingMetadata.totalUsage,
+                    steps: result.steps ?? existingMetadata.steps,
+                    finishReason:
+                      result.finishReason ?? existingMetadata.finishReason,
+                    warnings: result.warnings ?? existingMetadata.warnings,
+                    request: result.request ?? existingMetadata.request,
+                    response: result.response ?? existingMetadata.response,
+                  };
+
+                  nextResults[resultId] = {
+                    ...existing,
+                    fullText: finalText,
+                    textParts: finalText ? [finalText] : existing.textParts,
+                    success: result.success,
+                    error: result.error ?? existing.error,
+                    loading: false,
+                    metadata: mergedMetadata,
+                  };
+                }
+
+                return {
+                  ...prev,
+                  results: nextResults,
+                  completedAt: timestamp,
+                  error: payload.error ?? prev.error ?? null,
+                };
+              },
+              {
+                isLoading: false,
+                error: payload.error ?? null,
+                timestamp,
+              },
+            );
+          } else {
+            setExecutionState({
+              isLoading: false,
+              results: resultsArray,
+              error: payload.error || null,
+              timestamp,
+              runId: payload.runId ?? null,
+              promptId: payload.promptId ?? null,
+              startedAt: null,
+              completedAt: timestamp,
+            });
+          }
+
+          resetPerRunUiState();
+          setIsStopping(false);
+          break;
+        }
+        default:
+          break;
       }
     };
+
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [promptId]);
+  }, [
+    handleRunCompleted,
+    handleRunError,
+    handleRunResultCompleted,
+    handleRunStarted,
+    handleRunUpdate,
+    promptId,
+    resetPerRunUiState,
+    updateStreamingState,
+  ]);
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
@@ -1085,6 +1653,12 @@ export function Assessment({
   if (!prompt) return null;
 
   const hasVariables = prompt.vars && prompt.vars.length > 0;
+  const activeRunId = streamingState.runId;
+  const runInFlight =
+    Boolean(activeRunId) || executionState.isLoading || isStopping;
+  const showStopButton = runInFlight;
+  const stopDisabled = isStopping || !activeRunId;
+  const canRunPrompt = canExecute();
 
   const renderResultCard = (result: RunResult, index: number) => {
     if (!result) return null;
@@ -1093,6 +1667,9 @@ export function Assessment({
     const modelEntry = result.model?.id
       ? models.find((model) => model.id === result.model?.id) || null
       : null;
+
+    const isLoading = Boolean(result.isLoading);
+    const showFailureBadge = !isLoading && result.success === false;
 
     const headerTitle =
       result.label ||
@@ -1113,8 +1690,10 @@ export function Assessment({
         }
       : null;
 
-    const textTab = textViewTab[index] ?? "markdown";
     const modelSettingsCollapsed = collapsedModelSettings[index] ?? true;
+
+    const hasPromptContent = typeof result.prompt === "string";
+    const showContentSection = true;
 
     return (
       <div className="border rounded">
@@ -1135,7 +1714,7 @@ export function Assessment({
               </button>
             )}
             <span className="text-sm font-medium">{headerTitle}</span>
-            {!result.success && <span className="text-xs">Failed</span>}
+            {showFailureBadge && <span className="text-xs">Failed</span>}
           </div>
           {executionState.timestamp && (
             <span className="text-xs">
@@ -1145,6 +1724,26 @@ export function Assessment({
         </div>
         {!collapsed && (
           <div className="p-3 space-y-3">
+            {isLoading && !result.error && (
+              <div className="flex items-center gap-2 text-xs text-neutral-500">
+                <span
+                  aria-hidden
+                  className="inline-flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"
+                />
+                <span>
+                  {result.streaming === false
+                    ? "Waiting for result…"
+                    : "Streaming…"}
+                </span>
+              </div>
+            )}
+
+            {result.nonStreamingNote && (
+              <div className="text-xs text-neutral-500">
+                {result.nonStreamingNote}
+              </div>
+            )}
+
             {result.error && (
               <div className="space-y-2">
                 <h5 className="text-sm font-medium">Error</h5>
@@ -1212,9 +1811,9 @@ export function Assessment({
               </div>
             )}
 
-            {(result.text || result.response || result.prompt) && (
+            {showContentSection && (
               <div className="space-y-2">
-                {result.prompt && (
+                {hasPromptContent && (
                   <div className="space-y-1">
                     <h5 className="text-sm font-medium">User Message</h5>
                     <div className="p-3 rounded border">
@@ -1225,77 +1824,99 @@ export function Assessment({
                   </div>
                 )}
                 {(() => {
-                  const text = (result.text ?? "").trim();
+                  const rawText = result.text ?? "";
+                  const textParts = result.textParts ?? [];
+                  const trimmedText = rawText.trim();
+
                   let parsedTextJson: any = null;
-                  if (text)
+                  if (trimmedText)
                     try {
-                      parsedTextJson = JSON.parse(text);
+                      const parsed = JSON.parse(trimmedText);
+                      if (parsed && typeof parsed === "object")
+                        parsedTextJson = parsed;
                     } catch (error) {}
-                  if (parsedTextJson)
-                    return (
-                      <div className="space-y-2">
-                        <div className="p-3 rounded border overflow-auto">
-                          <JsonView
-                            value={parsedTextJson}
-                            displayObjectSize={false}
-                            shouldExpandNodeInitially={
-                              shouldExpandNodeInitially
-                            }
-                          />
+
+                  const isJson = parsedTextJson !== null;
+                  const assembledText =
+                    rawText.length > 0 ? rawText : textParts.join("");
+                  const hasContent = assembledText.length > 0;
+                  const currentView = viewTab[index] ?? "rendered";
+                  const renderedLabel = isJson ? "JSON" : "Rendered";
+
+                  const placeholderCopy = isLoading
+                    ? "Waiting for output…"
+                    : "No output yet.";
+
+                  const handleSetView = (tab: "rendered" | "raw") => {
+                    setViewTab((prev) => ({
+                      ...prev,
+                      [index]: tab,
+                    }));
+                  };
+
+                  const renderedContent = isJson ? (
+                    <div className="overflow-auto">
+                      <JsonView
+                        value={parsedTextJson as object}
+                        displayObjectSize={false}
+                        shouldExpandNodeInitially={shouldExpandNodeInitially}
+                      />
+                    </div>
+                  ) : (
+                    <StreamingMarkdown
+                      text={rawText}
+                      textParts={textParts}
+                      runId={result.runId || null}
+                      resultId={result.resultId || null}
+                      streaming={
+                        Boolean(result.streaming) || isLoading || !hasContent
+                      }
+                      wrapperClassName="streamdown-content prose prose-sm max-w-none"
+                      emptyPlaceholder={
+                        <div className="text-xs text-neutral-500">
+                          {placeholderCopy}
                         </div>
-                        <details className="text-xs">
-                          <summary className="cursor-pointer select-none">
-                            Raw text
-                          </summary>
-                          <pre className="mt-1 p-2 rounded border whitespace-pre-wrap overflow-x-auto text-xs">
-                            {text}
-                          </pre>
-                        </details>
+                      }
+                      allowedLinkPrefixes={["https://", "http://", "mailto:"]}
+                      allowedImagePrefixes={["https://", "http://"]}
+                    />
+                  );
+
+                  const rawContent = hasContent ? (
+                    <pre className="text-xs whitespace-pre-wrap overflow-x-auto">
+                      {assembledText}
+                    </pre>
+                  ) : (
+                    <div className="text-xs text-neutral-500">
+                      {placeholderCopy}
+                    </div>
+                  );
+
+                  return (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <button
+                          type="button"
+                          className={`px-2 py-1 border rounded ${currentView === "rendered" ? "font-semibold" : ""}`}
+                          onClick={() => handleSetView("rendered")}
+                        >
+                          {renderedLabel}
+                        </button>
+                        <button
+                          type="button"
+                          className={`px-2 py-1 border rounded ${currentView === "raw" ? "font-semibold" : ""}`}
+                          onClick={() => handleSetView("raw")}
+                        >
+                          Raw
+                        </button>
                       </div>
-                    );
-                  if (text)
-                    return (
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-xs">
-                          <button
-                            type="button"
-                            className={`px-2 py-1 border rounded ${textTab === "markdown" ? "font-semibold" : ""}`}
-                            onClick={() =>
-                              setTextViewTab((prev) => ({
-                                ...prev,
-                                [index]: "markdown",
-                              }))
-                            }
-                          >
-                            Markdown
-                          </button>
-                          <button
-                            type="button"
-                            className={`px-2 py-1 border rounded ${textTab === "raw" ? "font-semibold" : ""}`}
-                            onClick={() =>
-                              setTextViewTab((prev) => ({
-                                ...prev,
-                                [index]: "raw",
-                              }))
-                            }
-                          >
-                            Raw
-                          </button>
-                        </div>
-                        {textTab === "markdown" ? (
-                          <div className="p-3 rounded border">
-                            <MarkdownPreview source={text} />
-                          </div>
-                        ) : (
-                          <div className="p-3 rounded border">
-                            <pre className="text-xs whitespace-pre-wrap overflow-x-auto">
-                              {text}
-                            </pre>
-                          </div>
-                        )}
+                      <div className="p-3 rounded border">
+                        {currentView === "rendered"
+                          ? renderedContent
+                          : rawContent}
                       </div>
-                    );
-                  return null;
+                    </div>
+                  );
                 })()}
 
                 {result.response && (
@@ -2010,19 +2631,59 @@ export function Assessment({
         </div>
       )}
 
-      <div className="flex gap-2">
-        <button
-          onClick={handleExecute}
-          disabled={executionState.isLoading || !canExecute()}
-          className="px-4 py-2 border text-sm font-medium rounded disabled:opacity-60"
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExecute}
+            disabled={runInFlight || !canRunPrompt}
+            className="px-4 py-2 border text-sm font-medium rounded disabled:opacity-60"
+          >
+            {isStopping
+              ? "Stopping…"
+              : runInFlight
+                ? "Running..."
+                : "Run Prompt"}
+          </button>
+
+          {showStopButton && (
+            <button
+              type="button"
+              onClick={handleStop}
+              disabled={stopDisabled}
+              className="px-3 py-2 border text-sm font-medium rounded disabled:opacity-60"
+            >
+              {isStopping ? "Stopping…" : "Stop"}
+            </button>
+          )}
+        </div>
+
+        <label
+          htmlFor={streamingToggleId}
+          className="flex items-center gap-2 text-sm"
         >
-          {executionState.isLoading ? "Running..." : "Run Prompt"}
-        </button>
+          <input
+            id={streamingToggleId}
+            type="checkbox"
+            className="h-4 w-4"
+            checked={streamingEnabled}
+            disabled={runInFlight}
+            onChange={(event) => {
+              const enabled = event.target.checked;
+              setStreamingEnabled(enabled);
+              vsc.postMessage({
+                type: "setStreamingPreference",
+                payload: { enabled },
+              });
+            }}
+          />
+          Stream output
+        </label>
 
         {(executionState.results.length > 0 || executionState.error) && (
           <button
             onClick={handleClear}
-            className="px-4 py-2 border text-sm font-medium rounded"
+            disabled={runInFlight}
+            className="px-4 py-2 border text-sm font-medium rounded disabled:opacity-60"
           >
             Clear
           </button>

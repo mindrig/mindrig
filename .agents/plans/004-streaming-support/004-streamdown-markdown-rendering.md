@@ -6,11 +6,11 @@ Replace the current markdown rendering stack with Streamdown so result cards can
 
 ## Tasks
 
-- [ ] [Add Streamdown dependency](#add-streamdown-dependency): Install `streamdown` (and peer packages) in the webview package and remove the existing markdown preview dependency.
-- [ ] [Create streaming markdown component](#create-streaming-markdown-component): Build a wrapper component that feeds streaming text updates into Streamdown and exposes a simple API for result cards.
-- [ ] [Integrate component into result rendering](#integrate-component-into-result-rendering): Swap usages of `MarkdownPreview` in `Assessment` with the new Streamdown-based component while preserving the raw-text toggle.
-- [ ] [Align styles and theming](#align-styles-and-theming): Ensure Streamdown output matches existing typography, code block styling, and dark/light themes.
-- [ ] [Verify security and sanitization](#verify-security-and-sanitization): Confirm Streamdown's sanitization covers our needs and document any additional configuration or CSP considerations.
+- [x] [Add Streamdown dependency](#add-streamdown-dependency): Install `streamdown` (and peer packages) in the webview package and remove the existing markdown preview dependency.
+- [x] [Create streaming markdown component](#create-streaming-markdown-component): Build a wrapper component that feeds streaming text updates into Streamdown and exposes a simple API for result cards.
+- [x] [Integrate component into result rendering](#integrate-component-into-result-rendering): Swap usages of `MarkdownPreview` in `Assessment` with the new Streamdown-based component while preserving the raw-text toggle.
+- [x] [Align styles and theming](#align-styles-and-theming): Ensure Streamdown output matches existing typography, code block styling, and dark/light themes.
+- [x] [Verify security and sanitization](#verify-security-and-sanitization): Confirm Streamdown's sanitization covers our needs and document any additional configuration or CSP considerations.
 
 ### Add Streamdown dependency
 
@@ -71,6 +71,10 @@ Ensure rendered content is safe.
 - Review Streamdown's sanitization defaults for script/style stripping and adjust configuration if necessary.
 - Confirm CSP settings in the webview still allow required assets while blocking inline scripts.
 - Document any residual risks or follow-up tasks in the Notes section for Step 5.
+
+#### Notes
+
+- Streamdown already hardens markdown rendering via `harden-react-markdown`; we additionally restricted link and image prefixes to `https://`, `http://`, and `mailto:` to match existing webview CSP expectations.
 
 ## Questions
 

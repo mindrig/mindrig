@@ -4,6 +4,17 @@ import { parsePrompts } from "@mindrig/parser-wasm";
 import { VscController } from "@wrkspc/vsc-controller";
 import { VscSettingsController } from "@wrkspc/vsc-settings";
 import type { SyncFile, SyncMessage, SyncResource } from "@wrkspc/vsc-sync";
+import type {
+  PromptRunCompletedMessage,
+  PromptRunErrorMessage,
+  PromptRunResultCompletedMessage,
+  PromptRunResultData,
+  PromptRunResultShell,
+  PromptRunStartedMessage,
+  PromptRunUpdateMessage,
+} from "@wrkspc/vsc-types";
+import PQueue from "p-queue";
+import { nanoid } from "nanoid";
 import * as vscode from "vscode";
 import { AIService } from "../AIService";
 import { CodeSyncManager } from "../CodeSyncManager";
@@ -26,6 +37,7 @@ interface ExecutePromptPayload {
   promptText: string;
   variables: Record<string, string>;
   promptId: string;
+  streamingEnabled?: boolean;
   modelId?: string | null;
   runs?: Array<{
     label?: string;
@@ -89,6 +101,7 @@ export class WorkbenchViewProvider
   #extensionUri: vscode.Uri;
   #context: vscode.ExtensionContext;
   #manifest: ViteManifest | null | undefined = undefined;
+  #streamingPreferenceKey = "mindrig.workbench.streamingEnabled";
 
   constructor(
     readonly extensionUri: vscode.Uri,
@@ -192,6 +205,7 @@ export class WorkbenchViewProvider
       `script-src ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
       `script-src-elem ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
       `style-src ${webviewSources} ${base} 'unsafe-inline';`,
+      `font-src ${webviewSources} ${base} https: data:;`,
       // TODO: Come up with complete list of authorities rather than slapping global `https:`
       `connect-src ${base} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https: ${wsUri};`,
     ].join(" ");
@@ -216,6 +230,7 @@ export class WorkbenchViewProvider
       `img-src ${webviewSources} https: data:;`,
       `script-src ${webviewSources} 'unsafe-inline';`,
       `style-src ${webviewSources} 'unsafe-inline';`,
+      `font-src ${webviewSources} https: data:;`,
       `connect-src ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https:;`,
     ].join(" ");
 
@@ -324,6 +339,12 @@ export class WorkbenchViewProvider
         case "clearVercelGatewayKey":
           this.#handleClearVercelGatewayKey();
           break;
+        case "getStreamingPreference":
+          this.#handleGetStreamingPreference();
+          break;
+        case "setStreamingPreference":
+          this.#handleSetStreamingPreference((message as any).payload);
+          break;
         case "sync-update":
           this.#handleSyncUpdate(message);
           break;
@@ -335,6 +356,9 @@ export class WorkbenchViewProvider
           break;
         case "executePrompt":
           this.#handleExecutePrompt((message as any).payload);
+          break;
+        case "stopPromptRun":
+          this.#handleStopPromptRun((message as any).payload);
           break;
       }
     });
@@ -716,6 +740,31 @@ export class WorkbenchViewProvider
     await this.#secretManager.clearSecret();
   }
 
+  async #handleGetStreamingPreference() {
+    const enabled =
+      this.#context.globalState.get<boolean>(
+        this.#streamingPreferenceKey,
+        true,
+      ) ?? true;
+    this.#sendMessage({
+      type: "streamingPreference",
+      payload: { enabled },
+    });
+  }
+
+  async #handleSetStreamingPreference(payload: { enabled?: boolean } | undefined) {
+    const enabled =
+      typeof payload?.enabled === "boolean" ? payload.enabled : true;
+    await this.#context.globalState.update(
+      this.#streamingPreferenceKey,
+      enabled,
+    );
+    this.#sendMessage({
+      type: "streamingPreference",
+      payload: { enabled },
+    });
+  }
+
   // Exposed to extension.ts to clear the stored key
   public async clearVercelGatewayKey() {
     await this.#handleClearVercelGatewayKey();
@@ -737,16 +786,47 @@ export class WorkbenchViewProvider
     this.#lastExecutionPayload = this.#cloneExecutionPayload(payload);
     if (!this.#aiService) this.#initializeAIService();
 
-    // Get the current API key from secret manager
+    const runId = nanoid();
+    const promptId = payload.promptId;
+    const now = () => Date.now();
+
+    const sendRunError = (error: string, resultId?: string) => {
+      const payload: PromptRunErrorMessage["payload"] = {
+        runId,
+        promptId,
+        timestamp: now(),
+        error,
+      };
+      if (typeof resultId === "string") payload.resultId = resultId;
+      this.#sendMessage({ type: "promptRunError", payload });
+    };
+
+    const sendRunUpdate = (resultId: string, delta: string) => {
+      const message: PromptRunUpdateMessage = {
+        type: "promptRunUpdate",
+        payload: {
+          runId,
+          promptId,
+          resultId,
+          timestamp: now(),
+          delta: { type: "text", text: delta },
+        },
+      };
+      this.#sendMessage(message);
+    };
+
     if (!this.#secretManager) {
+      const error = "Secret manager not initialized";
+      sendRunError(error);
       this.#sendMessage({
         type: "promptExecutionResult",
         payload: {
           success: false,
-          error: "Secret manager not initialized",
-          promptId: payload.promptId,
-          timestamp: Date.now(),
+          error,
+          promptId,
+          timestamp: now(),
           results: [],
+          runId,
         },
       });
       return;
@@ -754,22 +834,44 @@ export class WorkbenchViewProvider
 
     const apiKey = await this.#secretManager.getSecret();
     if (!apiKey) {
+      const error =
+        "No Vercel Gateway API key configured. Please set your API key in the panel above.";
+      sendRunError(error);
       this.#sendMessage({
         type: "promptExecutionResult",
         payload: {
           success: false,
-          error:
-            "No Vercel Gateway API key configured. Please set your API key in the panel above.",
-          promptId: payload.promptId,
-          timestamp: Date.now(),
+          error,
+          promptId,
+          timestamp: now(),
           results: [],
+          runId,
         },
       });
       return;
     }
 
-    // Set the API key and execute the prompt
     this.#aiService!.setApiKey(apiKey);
+
+    let streamingEnabled: boolean;
+    if (typeof payload.streamingEnabled === "boolean")
+      streamingEnabled = payload.streamingEnabled;
+    else if ((payload.runSettings as any)?.streaming?.enabled !== undefined)
+      streamingEnabled = !!(payload.runSettings as any)?.streaming?.enabled;
+    else
+      streamingEnabled =
+        this.#context.globalState.get<boolean>(
+          this.#streamingPreferenceKey,
+          true,
+        ) ?? true;
+
+    payload.streamingEnabled = streamingEnabled;
+    payload.runSettings = {
+      ...(payload.runSettings ?? {}),
+      streaming: { enabled: streamingEnabled },
+    };
+
+    this.#lastExecutionPayload = this.#cloneExecutionPayload(payload);
 
     try {
       const runs =
@@ -804,135 +906,366 @@ export class WorkbenchViewProvider
               },
             ];
 
-      const aggregatedResults: Array<{
-        success: boolean;
-        request?: unknown;
-        response?: unknown;
-        usage?: unknown;
-        totalUsage?: unknown;
-        text?: string | null;
-        prompt: string | null;
-        label?: string;
-        runLabel?: string;
-        error?: string | null;
-        model: {
-          key: string;
-          id: string | null;
-          providerId: string | null;
-          label?: string | null;
-          settings: {
-            options?: unknown;
-            reasoning?: {
-              enabled: boolean;
-              effort: "low" | "medium" | "high";
-              budgetTokens?: number | "";
-            };
-            providerOptions?: unknown;
-            tools?: unknown;
-            attachments?: Array<{
-              name: string;
-              mime?: string;
-              dataBase64?: string;
-            }>;
-          };
+      type ExecutionJob = {
+        resultId: string;
+        run: (typeof runs)[number];
+        runLabel: string;
+        modelConfig: (typeof models)[number];
+        modelLabel: string;
+        attachments: Array<{ name: string; mime: string; dataBase64: string }>;
+        reasoning: {
+          enabled: boolean;
+          effort: "low" | "medium" | "high";
+          budgetTokens?: number | "";
         };
-      }> = [];
+        shell: PromptRunResultShell;
+      };
+
+      const jobs: ExecutionJob[] = [];
+      const shells: PromptRunResultShell[] = [];
 
       for (const modelConfig of models) {
         const modelLabel = modelConfig.label ?? modelConfig.modelId ?? "Model";
-        const reasoning = modelConfig.reasoning ?? {
-          enabled: false,
-          effort: "medium" as const,
-          budgetTokens: "" as const,
-        };
-        const extras = {
-          tools: modelConfig.tools ?? null,
-          toolChoice: payload.toolChoice,
-          providerOptions: modelConfig.providerOptions ?? null,
-        };
+        const reasoning =
+          modelConfig.reasoning ?? {
+            enabled: false,
+            effort: "medium" as const,
+            budgetTokens: "" as const,
+          };
         const attachments = Array.isArray(modelConfig.attachments)
           ? modelConfig.attachments
           : [];
 
         for (const run of runs) {
           const runLabel = run.label ?? "Run";
-          const result = await this.#aiService!.executePrompt(
-            run.substitutedPrompt,
-            modelConfig.modelId ?? undefined,
-            modelConfig.options,
-            extras,
-            attachments,
-          );
+          const resultId = nanoid();
+          const shell: PromptRunResultShell = {
+            resultId,
+            label: `${modelLabel} • ${runLabel}`,
+            runLabel,
+            model: {
+              key: modelConfig.key,
+              id: modelConfig.modelId ?? null,
+              providerId: modelConfig.providerId ?? null,
+              label: modelConfig.label ?? modelConfig.modelId ?? null,
+              settings: {
+                options: modelConfig.options,
+                reasoning,
+                providerOptions: modelConfig.providerOptions ?? null,
+                tools: modelConfig.tools ?? null,
+                attachments,
+              },
+            },
+            streaming: streamingEnabled,
+          };
 
-          if (result.success)
-            aggregatedResults.push({
-              success: true,
-              request: result.request,
-              response: result.response,
-              usage: (result as any).usage,
-              totalUsage: (result as any).totalUsage,
-              text: (result as any).text,
-              prompt: run.substitutedPrompt,
-              label: `${modelLabel} • ${runLabel}`,
-              runLabel,
-              model: {
-                key: modelConfig.key,
-                id: modelConfig.modelId ?? null,
-                providerId: modelConfig.providerId ?? null,
-                label: modelConfig.label ?? modelConfig.modelId ?? null,
-                settings: {
-                  options: modelConfig.options,
-                  reasoning,
-                  providerOptions: modelConfig.providerOptions ?? null,
-                  tools: modelConfig.tools ?? null,
-                  attachments,
-                },
-              },
-            });
-          else
-            aggregatedResults.push({
-              success: false,
-              error: result.error,
-              prompt: run.substitutedPrompt,
-              label: `${modelLabel} • ${runLabel}`,
-              runLabel,
-              model: {
-                key: modelConfig.key,
-                id: modelConfig.modelId ?? null,
-                providerId: modelConfig.providerId ?? null,
-                label: modelConfig.label ?? modelConfig.modelId ?? null,
-                settings: {
-                  options: modelConfig.options,
-                  reasoning,
-                  providerOptions: modelConfig.providerOptions ?? null,
-                  tools: modelConfig.tools ?? null,
-                  attachments,
-                },
-              },
-            });
+          jobs.push({
+            resultId,
+            run,
+            runLabel,
+            modelConfig,
+            modelLabel,
+            attachments,
+            reasoning,
+            shell,
+          });
+          shells.push(shell);
         }
       }
+
+      const startedMessage: PromptRunStartedMessage = {
+        type: "promptRunStarted",
+        payload: {
+          runId,
+          promptId,
+          timestamp: now(),
+          streaming: streamingEnabled,
+          results: shells,
+          runSettings: payload.runSettings,
+        },
+      };
+      this.#sendMessage(startedMessage);
+
+      if (this.#cancelledRuns.has(runId)) {
+        this.#cancelledRuns.delete(runId);
+        const cancelMessage = "Prompt run cancelled.";
+        sendRunError(cancelMessage);
+
+        const completedMessage: PromptRunCompletedMessage = {
+          type: "promptRunCompleted",
+          payload: {
+            runId,
+            promptId,
+            timestamp: now(),
+            success: false,
+            results: [],
+          },
+        };
+        this.#sendMessage(completedMessage);
+
+        this.#sendMessage({
+          type: "promptExecutionResult",
+          payload: {
+            success: false,
+            error: cancelMessage,
+            results: [],
+            promptId,
+            timestamp: now(),
+            runSettings: payload.runSettings,
+            runId,
+          },
+        });
+        return;
+      }
+
+      const configuration = vscode.workspace.getConfiguration("mindrig");
+      const parallelSetting = configuration.get<number | string>(
+        "run.parallel",
+        4,
+      );
+      const numericParallel =
+        typeof parallelSetting === "number"
+          ? parallelSetting
+          : Number(parallelSetting);
+      const concurrency =
+        Number.isFinite(numericParallel) && numericParallel > 0
+          ? Math.floor(numericParallel)
+          : 1;
+
+      const queue = new PQueue({ concurrency });
+      const resultDataById = new Map<string, PromptRunResultData>();
+
+      const enqueueJob = (job: ExecutionJob) =>
+        queue.add(async () => {
+          if (this.#cancelledRuns.has(runId)) return;
+
+          let streamedText = "";
+          let jobErrorReported = false;
+
+          const streamingHandlers = streamingEnabled
+            ? {
+                onTextDelta: async (delta: string) => {
+                  streamedText += delta;
+                  sendRunUpdate(job.resultId, delta);
+                },
+                onError: async (err: unknown) => {
+                  const message = this.#formatExecutionError(err);
+                  jobErrorReported = true;
+                  sendRunError(message, job.resultId);
+                },
+              }
+            : undefined;
+
+          const extras = {
+            tools: job.modelConfig.tools ?? null,
+            toolChoice: payload.toolChoice,
+            providerOptions: job.modelConfig.providerOptions ?? null,
+          };
+
+          const controller = new AbortController();
+          this.#addRunController(runId, controller);
+
+          const runtimeOptions = {
+            signal: controller.signal,
+            ...(streamingHandlers ? { streamingHandlers } : {}),
+          };
+
+          try {
+            const result = await this.#aiService!.executePrompt(
+              job.run.substitutedPrompt,
+              job.modelConfig.modelId ?? undefined,
+              job.modelConfig.options,
+              extras,
+              job.attachments,
+              runtimeOptions,
+            );
+
+            if (controller.signal.aborted) {
+              this.#cancelledRuns.add(runId);
+              return;
+            }
+
+            if (result.success) {
+              const finalText =
+                typeof result.text === "string"
+                  ? result.text
+                  : streamedText || null;
+
+              const completedResult: PromptRunResultData = {
+                resultId: job.resultId,
+                success: true,
+                prompt: job.run.substitutedPrompt,
+                text: finalText,
+                label: job.shell.label,
+                runLabel: job.runLabel,
+                request: result.request,
+                response: result.response,
+                usage: result.usage,
+                totalUsage: result.totalUsage,
+                steps: (result as any).steps,
+                finishReason: (result as any).finishReason ?? null,
+                warnings: (result as any).warnings,
+                model: job.shell.model,
+              };
+
+              resultDataById.set(job.resultId, completedResult);
+              const resultCompletedMessage: PromptRunResultCompletedMessage = {
+                type: "promptRunResultCompleted",
+                payload: {
+                  runId,
+                  promptId,
+                  timestamp: now(),
+                  result: completedResult,
+                },
+              };
+              this.#sendMessage(resultCompletedMessage);
+            } else {
+              const errorMessage = this.#formatExecutionError(result.error);
+              if (!jobErrorReported) sendRunError(errorMessage, job.resultId);
+
+              const failedResult: PromptRunResultData = {
+                resultId: job.resultId,
+                success: false,
+                prompt: job.run.substitutedPrompt,
+                text: null,
+                label: job.shell.label,
+                runLabel: job.runLabel,
+                error: errorMessage,
+                model: job.shell.model,
+              };
+
+              resultDataById.set(job.resultId, failedResult);
+              const failureMessage: PromptRunResultCompletedMessage = {
+                type: "promptRunResultCompleted",
+                payload: {
+                  runId,
+                  promptId,
+                  timestamp: now(),
+                  result: failedResult,
+                },
+              };
+              this.#sendMessage(failureMessage);
+            }
+          } catch (error) {
+            if (!controller.signal.aborted) {
+              const formatted = this.#formatExecutionError(error);
+              if (!jobErrorReported) sendRunError(formatted, job.resultId);
+
+              const failedResult: PromptRunResultData = {
+                resultId: job.resultId,
+                success: false,
+                prompt: job.run.substitutedPrompt,
+                text: null,
+                label: job.shell.label,
+                runLabel: job.runLabel,
+                error: formatted,
+                model: job.shell.model,
+              };
+
+              resultDataById.set(job.resultId, failedResult);
+              const failureMessage: PromptRunResultCompletedMessage = {
+                type: "promptRunResultCompleted",
+                payload: {
+                  runId,
+                  promptId,
+                  timestamp: now(),
+                  result: failedResult,
+                },
+              };
+              this.#sendMessage(failureMessage);
+            } else {
+              this.#cancelledRuns.add(runId);
+            }
+          } finally {
+            this.#removeRunController(runId, controller);
+          }
+        });
+
+      for (const job of jobs) enqueueJob(job);
+
+      await queue.onIdle();
+
+      const wasCancelled = this.#cancelledRuns.has(runId);
+
+      if (wasCancelled) {
+        const cancelMessage = "Prompt run cancelled.";
+        for (const job of jobs) {
+          if (resultDataById.has(job.resultId)) continue;
+          const cancelledResult: PromptRunResultData = {
+            resultId: job.resultId,
+            success: false,
+            prompt: job.run.substitutedPrompt,
+            text: null,
+            label: job.shell.label,
+            runLabel: job.runLabel,
+            error: cancelMessage,
+            model: job.shell.model,
+          };
+          resultDataById.set(job.resultId, cancelledResult);
+          const cancelledMessage: PromptRunResultCompletedMessage = {
+            type: "promptRunResultCompleted",
+            payload: {
+              runId,
+              promptId,
+              timestamp: now(),
+              result: cancelledResult,
+            },
+          };
+          this.#sendMessage(cancelledMessage);
+        }
+        sendRunError(cancelMessage);
+      }
+
+      const aggregatedResults = jobs
+        .map((job) => resultDataById.get(job.resultId))
+        .filter((result): result is PromptRunResultData => Boolean(result));
+
+      const overallSuccess =
+        aggregatedResults.length > 0 &&
+        aggregatedResults.every((result) => result.success);
+
+      this.#activeRunControllers.delete(runId);
+      this.#cancelledRuns.delete(runId);
+
+      const completedMessage: PromptRunCompletedMessage = {
+        type: "promptRunCompleted",
+        payload: {
+          runId,
+          promptId,
+          timestamp: now(),
+          success: !wasCancelled && overallSuccess,
+          results: aggregatedResults,
+        },
+      };
+      this.#sendMessage(completedMessage);
 
       this.#sendMessage({
         type: "promptExecutionResult",
         payload: {
-          success: aggregatedResults.every((r) => r.success),
+          success: !wasCancelled && overallSuccess,
           results: aggregatedResults,
-          promptId: payload.promptId,
-          timestamp: Date.now(),
+          promptId,
+          timestamp: now(),
           runSettings: payload.runSettings,
+          runId,
         },
       });
     } catch (error) {
       console.error("Error executing prompt:", error);
+      const formatted = this.#formatExecutionError(error);
+      const message = `Unexpected error: ${formatted}`;
+      sendRunError(message);
+      this.#activeRunControllers.delete(runId);
+      this.#cancelledRuns.delete(runId);
       this.#sendMessage({
         type: "promptExecutionResult",
         payload: {
           success: false,
-          error: `Unexpected error: ${error instanceof Error ? error.message : String(error)}`,
-          promptId: payload.promptId,
-          timestamp: Date.now(),
+          error: message,
+          promptId,
+          timestamp: now(),
           results: [],
+          runId,
         },
       });
     }
@@ -951,12 +1284,80 @@ export class WorkbenchViewProvider
     return true;
   }
 
+  #formatExecutionError(error: unknown): string {
+    if (typeof error === "string") {
+      const normalized = error.startsWith("Failed to execute prompt: ")
+        ? error.slice("Failed to execute prompt: ".length)
+        : error;
+      return normalized;
+    }
+
+    if (error instanceof Error) {
+      const message = error.message || "Unknown error occurred";
+
+      if (error.name === "AbortError" || message.toLowerCase().includes("abort"))
+        return "Prompt run cancelled.";
+
+      if (
+        message.includes("network socket disconnected") ||
+        message.includes("TLS connection")
+      )
+        return "Network connectivity issue. Please check your internet connection and try again.";
+
+      if (message.includes("401") || message.toLowerCase().includes("unauthorized"))
+        return "Invalid API key. Please verify your Vercel Gateway API key is correct.";
+
+      if (message.includes("429"))
+        return "Rate limit exceeded. Please wait a moment and try again.";
+
+      if (
+        message.includes("500") ||
+        message.includes("502") ||
+        message.includes("503")
+      )
+        return "Server error. The Vercel Gateway service may be temporarily unavailable.";
+
+      return message;
+    }
+
+    return "Unknown error occurred";
+  }
+
+  #handleStopPromptRun(payload: any) {
+    const runId = typeof payload?.runId === "string" ? payload.runId : null;
+    if (!runId) return;
+
+    const controllers = this.#activeRunControllers.get(runId);
+    if (controllers) {
+      for (const controller of controllers)
+        if (!controller.signal.aborted) controller.abort();
+      this.#activeRunControllers.delete(runId);
+    }
+
+    this.#cancelledRuns.add(runId);
+  }
+
   //#endregion
 
   //#region Code Sync Manager
 
+  #addRunController(runId: string, controller: AbortController) {
+    const existing = this.#activeRunControllers.get(runId);
+    if (existing) existing.add(controller);
+    else this.#activeRunControllers.set(runId, new Set([controller]));
+  }
+
+  #removeRunController(runId: string, controller: AbortController) {
+    const existing = this.#activeRunControllers.get(runId);
+    if (!existing) return;
+    existing.delete(controller);
+    if (existing.size === 0) this.#activeRunControllers.delete(runId);
+  }
+
   #codeSyncManager: CodeSyncManager | null = null;
   #aiService: AIService | null = null;
+  #activeRunControllers: Map<string, Set<AbortController>> = new Map();
+  #cancelledRuns: Set<string> = new Set();
 
   #initializeCodeSyncManager() {
     this.register(

@@ -6,11 +6,11 @@ Add incremental prompt execution to the VS Code workbench so prompt results stre
 
 ## Plan
 
-- [ ] [Refactor Prompt Execution for Streaming](.agents/plans/004-streaming-support/001-prompt-streaming-orchestration.md): Shift the extension's prompt runner to `streamText`, emit run/result identifiers, surface partial payloads, and handle cancellation with graceful fallbacks.
-- [ ] [Revise Webview Result State](.agents/plans/004-streaming-support/002-webview-streaming-state.md): Rebuild assessment state to emit result shells instantly, consume streaming updates, and note non-streaming models while respecting run matrix semantics.
-- [ ] [Add Streaming Controls and Cancellation](.agents/plans/004-streaming-support/003-streaming-controls-stop-run.md): Introduce a default-on streaming checkbox, a run-time stop button, and consistent run button states wired to backend run lifecycle events.
-- [ ] [Adopt Streamdown Markdown Rendering](.agents/plans/004-streaming-support/004-streamdown-markdown-rendering.md): Replace the current markdown renderer with Streamdown to render incremental content and align styling and security.
-- [ ] [Validate and Document Streaming Flow](.agents/plans/004-streaming-support/005-streaming-validation.md): Cover new streaming protocols with automated tests, update specs, and note operational considerations.
+- [x] [Refactor Prompt Execution for Streaming](.agents/plans/004-streaming-support/001-prompt-streaming-orchestration.md): Shift the extension's prompt runner to `streamText`, emit run/result identifiers, surface partial payloads, and handle cancellation with graceful fallbacks.
+- [x] [Revise Webview Result State](.agents/plans/004-streaming-support/002-webview-streaming-state.md): Rebuild assessment state to emit result shells instantly, consume streaming updates, and note non-streaming models while respecting run matrix semantics.
+- [x] [Add Streaming Controls and Cancellation](.agents/plans/004-streaming-support/003-streaming-controls-stop-run.md): Introduce a default-on streaming checkbox, a run-time stop button, and consistent run button states wired to backend run lifecycle events.
+- [x] [Adopt Streamdown Markdown Rendering](.agents/plans/004-streaming-support/004-streamdown-markdown-rendering.md): Replace the current markdown renderer with Streamdown to render incremental content and align styling and security.
+- [x] [Validate and Document Streaming Flow](.agents/plans/004-streaming-support/005-streaming-validation.md): Cover new streaming protocols with automated tests, update specs, and note operational considerations.
 
 ## Steps
 
@@ -18,21 +18,41 @@ Add incremental prompt execution to the VS Code workbench so prompt results stre
 
 Rework `WorkbenchViewProvider.#handleExecutePrompt` and `AIService` so each run assigns a nanoid-based run id and per-result ids, uses `streamText` for enabled runs, forwards `promptRunStarted`, `promptRunUpdate`, `promptRunCompleted`, and `promptRunError` messages to the webview, and tracks cancellable handles keyed by run id. Ensure attachments, dataset runs, and non-streaming fallbacks still succeed when streaming is disabled.
 
+#### Step Status
+
+Extension-side streaming pipeline is live with shared message contracts, cancellation plumbing, and a compatible non-streaming fallback; no remaining deferrals for this step.
+
 ### [Revise Webview Result State](.agents/plans/004-streaming-support/002-webview-streaming-state.md)
 
 Restructure `Assessment` state to create result cards immediately upon run start, show subtle loading indicators, display "model does not support streaming" notes when flagged by the backend, merge streaming deltas into the right card via result ids, and clear state correctly between runs or when streaming is disabled.
+
+#### Step Status
+
+Webview now mirrors the extension's streaming protocol, emitting placeholders, live updates, cancellation handling, and non-streaming notices while maintaining compatibility with the legacy `promptExecutionResult` flow.
 
 ### [Add Streaming Controls and Cancellation](.agents/plans/004-streaming-support/003-streaming-controls-stop-run.md)
 
 Add a default-checked streaming checkbox beside the run button, persist and propagate the choice in run payloads, expose a stop button that cancels active run ids (or discards pending queues when streaming is off), and keep run/stop controls synchronized with backend lifecycle events.
 
+#### Step Status
+
+Workbench controls now surface a persisted streaming toggle, responsive stop button, and synced run states that honor cancellation paths and disabled-streaming fallbacks end to end.
+
 ### [Adopt Streamdown Markdown Rendering](.agents/plans/004-streaming-support/004-streamdown-markdown-rendering.md)
 
 Bring in Streamdown, swap out `@uiw/react-markdown-preview`, set up streaming markdown components for incremental updates, and adjust styling, syntax highlighting, and sanitization to match existing UX expectations.
 
+#### Step Status
+
+Streamdown now renders streamed markdown with restricted link/image prefixes, tailored webview styling, and placeholder handling for in-flight results; no open items remain for this step.
+
 ### [Validate and Document Streaming Flow](.agents/plans/004-streaming-support/005-streaming-validation.md)
 
 Create tests covering streaming messages, cancellation, and non-streaming fallback paths across extension and webview layers; update developer docs/specs with the new message protocol and dependencies; and outline telemetry or logging needed for troubleshooting.
+
+#### Step Status
+
+Extension and webview tests now cover streaming lifecycles, documentation in `docs/contributing/streaming.md` explains the protocol and controls, telemetry/QA follow-ups are captured, and the run pipeline now respects the `mindrig.run.parallel` concurrency limit while emitting per-result completion messages so UI indicators clear promptly (webview test suite still needs the KaTeX CSS loader fix to run end to end).
 
 ## Questions
 

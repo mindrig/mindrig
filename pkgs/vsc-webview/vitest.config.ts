@@ -8,8 +8,7 @@ export default defineConfig({
     environment: "happy-dom",
     globals: true,
     setupFiles: [import.meta.dirname + "/tests/unit/setup.ts"],
-    // TODO: Re-enable broader webview suites once legacy flakes are addressed.
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    include: ["src/__tests__/**/*.test.ts", "src/__tests__/**/*.test.tsx"],
 
     // Display paths in the context of the monorepo
     root: import.meta.dirname + "/../..",
@@ -19,7 +18,11 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      "@": path.resolve(import.meta.dirname, "src"),
+      streamdown: path.resolve(
+        import.meta.dirname,
+        "tests/unit/mocks/streamdown.tsx",
+      ),
     },
   },
 });

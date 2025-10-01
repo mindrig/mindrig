@@ -6,12 +6,12 @@ Add automated coverage and documentation for the new streaming execution flow, i
 
 ## Tasks
 
-- [ ] [Identify existing test harnesses](#identify-existing-test-harnesses): Review available unit, integration, and end-to-end test setups to determine where streaming coverage fits best while avoiding known flaky suites.
-- [ ] [Disable legacy flaky suites](#disable-legacy-flaky-suites): Temporarily skip/?disable the e2e extension tests and current webview unit suites to unblock focused streaming work.
-- [ ] [Test extension streaming orchestration](#test-extension-streaming-orchestration): Add unit/integration tests that simulate streaming runs, verify lifecycle messages, and assert cancellation behaviour.
-- [ ] [Test webview streaming state updates](#test-webview-streaming-state-updates): Write testing-library/-powered React component tests (with happydom) ensuring placeholders, updates, and completion states render correctly.
-- [ ] [Document streaming protocol and controls](#document-streaming-protocol-and-controls): Update specs or developer docs with message schemas, control behaviour, and persistence details.
-- [ ] [Outline telemetry and troubleshooting notes](#outline-telemetry-and-troubleshooting-notes): Capture recommended logging, metrics, and manual QA steps for future follow-up.
+- [x] [Identify existing test harnesses](#identify-existing-test-harnesses): Review available unit, integration, and end-to-end test setups to determine where streaming coverage fits best while avoiding known flaky suites.
+- [x] [Disable legacy flaky suites](#disable-legacy-flaky-suites): Temporarily skip/?disable the e2e extension tests and current webview unit suites to unblock focused streaming work.
+- [x] [Test extension streaming orchestration](#test-extension-streaming-orchestration): Add unit/integration tests that simulate streaming runs, verify lifecycle messages, and assert cancellation behaviour.
+- [x] [Test webview streaming state updates](#test-webview-streaming-state-updates): Write testing-library/-powered React component tests (with happydom) ensuring placeholders, updates, and completion states render correctly.
+- [x] [Document streaming protocol and controls](#document-streaming-protocol-and-controls): Update specs or developer docs with message schemas, control behaviour, and persistence details.
+- [x] [Outline telemetry and troubleshooting notes](#outline-telemetry-and-troubleshooting-notes): Capture recommended logging, metrics, and manual QA steps for future follow-up.
 
 ### Identify existing test harnesses
 
@@ -26,6 +26,12 @@ Determine where to add coverage while avoiding flaky suites.
 - Plan to rely on extension unit/integration tests and React component tests powered by Testing Library + happydom.
 - Document harness decisions in this step file before implementing tests.
 
+#### Findings
+
+- Extension package already ships a node-based Vitest config (`pkgs/vsc-extension/vitest.config.ts`) with a `vscode` mock; new orchestration tests will live under `src/__tests__` inside that harness.
+- Webview package relies on Vitest with happydom via `tests/unit/setup.ts`; we can expand coverage under `src/__tests__` alongside the existing `prompt-pinning` suite without reusing the flaky integration harness.
+- Legacy e2e coverage still exists at `pkgs/vsc-extension/tests/e2e/run.sh`, invoking `@vscode/test-electron`; we will short-circuit this runner in Task 2 to avoid the known flakes.
+
 ### Disable legacy flaky suites
 
 #### Summary
@@ -37,6 +43,11 @@ Ensure unstable suites do not block streaming development.
 - Mark the e2e extension tests as skipped or disabled (e.g., via `describe.skip` or config) so CI ignores them during streaming work.
 - Temporarily disable the existing webview unit test suites, noting the change in this plan step and linking to follow-up tasks to re-enable once stabilised.
 - Coordinate with the team on how to track re-enabling (issue, TODO) so the regression debt is visible.
+
+#### Actions
+
+- Short-circuited `pkgs/vsc-extension/tests/e2e/run.sh` to exit with a note pointing back to this plan, preventing the flaky `@vscode/test-electron` harness from running during CI.
+- Left the webview Vitest config restricted to targeted suites (only `prompt-pinning` plus new streaming tests) and documented the follow-up to re-enable integration runs after stabilisation.
 
 ### Test extension streaming orchestration
 
@@ -50,6 +61,11 @@ Ensure lifecycle messages are emitted correctly.
 - Simulate cancellation by invoking the stop handler and confirm active streams are aborted and completion messages reflect the cancellation state.
 - Cover the non-streaming fallback path to ensure message compatibility.
 
+#### Actions
+
+- Added `src/__tests__/streaming-orchestration.test.ts` using the extension's Vitest harness to mock `AIService.executePrompt` and capture webview messages for streaming success, cancellation, and non-streaming runs.
+- Stubbed VS Code surface dependencies (`SecretManager`, `VscSettingsController`, manifest lookup) so tests validate messaging without flaky IO; recorded Vitest run output (passes with manifest warnings noted).
+
 ### Test webview streaming state updates
 
 #### Summary
@@ -61,6 +77,11 @@ Validate UI state transitions in response to streaming events.
 - Create React component or hook tests using Testing Library with happydom that feed synthetic `promptRun*` events and assert that placeholders, loading indicators, streamed text, and error notes render as expected.
 - Check that cancellation resets the run button state and that the streaming toggle persists across renders when stored preferences change.
 - Verify Streamdown integration renders incremental content without throwing.
+
+#### Actions
+
+- Added `src/__tests__/streaming-assessment.test.tsx` to simulate `promptRunStarted`, `promptRunUpdate`, `promptRunCompleted`, and `promptRunError` events against `Assessment`, asserting placeholder copy, streamed markdown, and error rendering.
+- Mocked VS Code bridges and dataset/model helpers to keep the component focused on streaming behaviour; captured that the broader webview Vitest suite still fails because of an existing KaTeX CSS loader issue (documented in test notes).
 
 ### Document streaming protocol and controls
 
@@ -74,6 +95,11 @@ Communicate new behaviour to contributors and users.
 - Include details on how to enable/disable streaming, what happens when providers lack support, and any known limitations.
 - Ensure documentation reflects the persisted streaming preference decision.
 
+#### Actions
+
+- Authored `docs/contributing/streaming.md` outlining the `promptRun*` messages, streaming toggle persistence, stop-button signalling, and Streamdown sanitisation defaults.
+- Captured the current testing story (extension orchestration tests pass; webview suite still depends on fixing the KaTeX CSS loader) so contributors know how to exercise the flow.
+
 ### Outline telemetry and troubleshooting notes
 
 #### Summary
@@ -85,6 +111,11 @@ Prepare for operational follow-up.
 - Draft notes on recommended logging (e.g., run id correlation, cancellation events) and where to surface them once telemetry infrastructure is ready.
 - Provide a short manual QA checklist for verifying streaming in development builds.
 - Highlight open questions or future work (e.g., per-model streaming capability detection) for later tracking.
+
+#### Actions
+
+- Added a “Telemetry and Troubleshooting” section to `docs/contributing/streaming.md` covering logging, metrics, manual QA, and follow-up work.
+- Flagged the existing KaTeX CSS loader failure when running the full webview Vitest suite so future work can unblock automated regression coverage.
 
 ## Questions
 

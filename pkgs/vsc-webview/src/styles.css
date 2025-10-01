@@ -3,6 +3,7 @@
 @config "../tailwind.config.ts";
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-react-aria-components";
+@source "../node_modules/streamdown/dist/index.js";
 
 @theme {
   /*# Colors */
@@ -117,5 +118,105 @@
 
   .flex > * {
     min-width: 0;
+  }
+}
+
+@layer components {
+  .streamdown-content {
+    color: var(--color-ink);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    max-width: none;
+  }
+
+  .streamdown-content :where(p + p) {
+    margin-top: 0.75rem;
+  }
+
+  .streamdown-content :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--color-ink);
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .streamdown-content pre {
+    background-color: color-mix(
+      in srgb,
+      var(--color-canvas) 88%,
+      var(--color-ink) 12%
+    );
+    border-radius: var(--radius-input);
+    padding: 0.75rem;
+    overflow-x: auto;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+  }
+
+  .streamdown-content code {
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.8125rem;
+    background-color: color-mix(
+      in srgb,
+      var(--color-canvas) 90%,
+      var(--color-ink) 10%
+    );
+    border-radius: var(--radius-input-sm);
+    padding: 0.125rem 0.375rem;
+  }
+
+  .streamdown-content pre code {
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .streamdown-content blockquote {
+    border-left: 3px solid
+      color-mix(in srgb, var(--color-active-border) 60%, transparent);
+    padding-left: 0.75rem;
+    margin: 0.75rem 0;
+    color: var(--color-ink-detail);
+  }
+
+  .streamdown-content a {
+    color: var(--color-active-text);
+    text-decoration: underline;
+    text-decoration-color: color-mix(
+      in srgb,
+      var(--color-active-text) 70%,
+      transparent
+    );
+  }
+
+  .streamdown-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .streamdown-content th,
+  .streamdown-content td {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+
+  .streamdown-content tr:nth-child(even) {
+    background-color: color-mix(
+      in srgb,
+      var(--color-canvas) 95%,
+      var(--color-ink) 5%
+    );
+  }
+
+  .streamdown-content ul,
+  .streamdown-content ol {
+    padding-left: 1.25rem;
+    margin: 0.5rem 0;
+  }
+
+  .streamdown-content li + li {
+    margin-top: 0.25rem;
   }
 }
