@@ -2,11 +2,11 @@
 
 ## Overview
 
-The Mind Control Code extension synchronizes code edits between the VS Code editor and the webview interface, ensuring a seamless user experience.
+The MInd Rig extension synchronizes code edits between the VS Code editor and the webview interface, ensuring a seamless user experience.
 
 ## Problem
 
-One of the main features of the Mind Control Code is the rich prompt editor. It detects prompt strings in the open file with the help of the parser [`./parser/specs/001-parsing.md`](../../parser/specs/001-parsing.md) and exposes them to the prompt editor in the webview. The user then can edit those prompts right in the webview, which introduces the problem of synchronization.
+One of the main features of the MInd Rig is the rich prompt editor. It detects prompt strings in the open file with the help of the parser [`./parser/specs/001-parsing.md`](../../parser/specs/001-parsing.md) and exposes them to the prompt editor in the webview. The user then can edit those prompts right in the webview, which introduces the problem of synchronization.
 
 If the extension were to start messing with the source code, the user would immediately lose full confidence in the product. So it is crucial to maintain a consistent and reliable synchronization between the webview and the editor.
 

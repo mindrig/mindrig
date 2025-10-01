@@ -7,9 +7,15 @@ export default defineConfig({
   test: {
     environment: "happy-dom",
     globals: true,
-    setupFiles: ["./tests/unit/setup.ts"],
+    setupFiles: [import.meta.dirname + "/tests/unit/setup.ts"],
     // TODO: Re-enable broader webview suites once legacy flakes are addressed.
-    include: ["src/__tests__/prompt-pinning.test.tsx"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+
+    // Display paths in the context of the monorepo
+    root: import.meta.dirname + "/../..",
+    dir: import.meta.dirname,
+    // Ignore packages without tests
+    passWithNoTests: true,
   },
   resolve: {
     alias: {

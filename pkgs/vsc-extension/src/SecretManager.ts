@@ -7,7 +7,7 @@ export namespace SecretManager {
 }
 
 export class SecretManager {
-  static readonly #exampleSecretKey = "mindcontrol.exampleSecret";
+  static readonly #exampleSecretKey = "mindrig.exampleSecret";
 
   #secretStorage: vscode.SecretStorage;
   #events: SecretManager.Events;

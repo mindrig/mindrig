@@ -7,6 +7,12 @@ export default defineConfig({
     environment: "node",
     globals: true,
     setupFiles: [],
+
+    // Display paths in the context of the monorepo
+    root: import.meta.dirname + "/../..",
+    dir: import.meta.dirname,
+    // Ignore packages without tests
+    passWithNoTests: true,
   },
   resolve: {
     alias: {

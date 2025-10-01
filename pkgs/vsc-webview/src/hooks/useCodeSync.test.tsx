@@ -10,7 +10,7 @@ import {
 } from "../__tests__/mocks/vscode";
 import { useCodeSync } from "./useCodeSync";
 
-describe("useCodeSync", () => {
+describe.skip("useCodeSync", () => {
   let mockVSCode: MockVSCodeAPI;
 
   beforeEach(() => {

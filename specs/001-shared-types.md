@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Mind Control Code project uses [Genotype](https://github.com/kossnocorp/genotype) to define shared types that are synchronized between TypeScript and Rust code. This ensures type safety across the entire monorepo while maintaining a single source of truth for data structures.
+The MInd Rig project uses [Genotype](https://github.com/kossnocorp/genotype) to define shared types that are synchronized between TypeScript and Rust code. This ensures type safety across the entire monorepo while maintaining a single source of truth for data structures.
 
 ## Architecture
 

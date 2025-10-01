@@ -7,5 +7,6 @@ export default defineConfig({
       resolve(import.meta.dirname, "pkgs/*"),
       resolve(import.meta.dirname, "subs/*/pkgs/*"),
     ],
+    passWithNoTests: true,
   },
 });

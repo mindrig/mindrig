@@ -11,10 +11,10 @@ describe(workbenchWebviewHtml, () => {
             <meta charset="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            <title>Mind Control Code</title>
+            <title>MInd Rig</title>
           </head>
-          <body class="bg-gray-100">
-            <div id="root" class="min-h-screen"></div>
+          <body class="text-ink font-sans font-normal leading-normal">
+            <div id="root"></div>
             <script src="/app.js"></script>
           </body>
         </html>"
@@ -48,10 +48,10 @@ describe(workbenchWebviewHtml, () => {
           </script>
           <script type="module" src="/vite-client.js"></script>
           <link href="/styles.css" rel="stylesheet" />
-          <title>Mind Control Code</title>
+          <title>MInd Rig</title>
         </head>
-        <body class="bg-gray-100">
-          <div id="root" class="min-h-screen"></div>
+        <body class="text-ink font-sans font-normal leading-normal">
+          <div id="root"></div>
           <script src="/app.js"></script>
         </body>
       </html>"
@@ -69,10 +69,10 @@ describe(workbenchWebviewHtml, () => {
             <meta charset="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            <title>Mind Control Code</title>
+            <title>MInd Rig</title>
           </head>
-          <body class="bg-gray-100">
-            <div id="root" class="min-h-screen"></div>
+          <body class="text-ink font-sans font-normal leading-normal">
+            <div id="root"></div>
             <script type="module" src="/app.js"></script>
           </body>
         </html>"
@@ -107,10 +107,10 @@ describe(workbenchWebviewHtml, () => {
             </script>
             <script type="module" src="/vite-client.js"></script>
             <link href="/styles.css" rel="stylesheet" />
-            <title>Mind Control Code</title>
+            <title>MInd Rig</title>
           </head>
-          <body class="bg-gray-100">
-            <div id="root" class="min-h-screen"></div>
+          <body class="text-ink font-sans font-normal leading-normal">
+            <div id="root"></div>
             <script type="module" src="/app.js"></script>
           </body>
         </html>"

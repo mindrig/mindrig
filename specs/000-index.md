@@ -1,6 +1,6 @@
 # Specification Index
 
-This index provides a quick reference to all specifications for the Mind Control Code project.
+This index provides a quick reference to all specifications for the MInd Rig project.
 
 ## Available Specifications
 

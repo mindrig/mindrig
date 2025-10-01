@@ -30,6 +30,7 @@
     "allowImportingTsExtensions": false,
     // Env
     "lib": ["ESNext"],
+    "types": [],
     "jsx": "react-jsx",
     // Checks
     "skipLibCheck": true,

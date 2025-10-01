@@ -38,7 +38,7 @@ export default defineConfig(({ mode }) => {
           format: "es",
         },
       },
-      outDir: "../extension/dist/webview",
+      outDir: "../vsc-extension/dist/webview",
       emptyOutDir: true,
       target: "es2020",
       sourcemap: true,

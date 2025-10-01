@@ -24,7 +24,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@wrkspc/dataset": "workspace:*",
-    "@mindrig/types": "workspace:*"
+    "@mindrig/types": "workspace:*",
+    "@wrkspc/dataset": "workspace:*"
   }
 }

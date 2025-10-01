@@ -70,7 +70,7 @@ export function workbenchWebviewHtml(props: WorkbenchWebviewHtmlProps): string {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ${renderInjects(headInjects)}
-    <title>Mind Control Code</title>
+    <title>MInd Rig</title>
   </head>
   <body class="${bodyCn()}">
     <div id="root"></div>

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Mind Control Code parser extracts prompts from TypeScript/JavaScript source code. It identifies strings that should be treated as prompts based on specific patterns and provides structured output for the VS Code extension.
+The MInd Rig parser extracts prompts from TypeScript/JavaScript source code. It identifies strings that should be treated as prompts based on specific patterns and provides structured output for the VS Code extension.
 
 ## Tech
 

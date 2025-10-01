@@ -12,7 +12,7 @@
         "./scripts/build.sh",
         "./src/**/*.rs"
       ],
-      "outputs": ["./pkg/**"]
+      "outputs": ["./pkg/*"]
     },
 
     "test": {

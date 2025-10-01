@@ -10,15 +10,14 @@ suite("Extension", () => {
 
   test("Extension commands", async function () {
     const allCommands = await vscode.commands.getCommands(true);
-    const extCommands = allCommands.filter((cmd) =>
-      cmd.startsWith("mindcontrol"),
-    );
+    console.log("All commands:", JSON.stringify(allCommands));
+    const extCommands = allCommands.filter((cmd) => cmd.startsWith("mindrig"));
     assert.deepEqual(extCommands, [
-      "mindcontrol.workbench.open",
-      "mindcontrol.workbench.focus",
-      "mindcontrol.workbench.resetViewLocation",
-      "mindcontrol.workbench.toggleVisibility",
-      "mindcontrol.workbench.removeView",
+      "mindrig.playground.open",
+      "mindrig.playground.focus",
+      "mindrig.playground.resetViewLocation",
+      "mindrig.playground.toggleVisibility",
+      "mindrig.playground.removeView",
     ]);
   });
 
@@ -29,27 +28,27 @@ suite("Extension", () => {
 
     await switchToExplorer(page);
 
-    await expect(frame.getByText(/Mind Control Code/)).not.toBeVisible();
-    await vscode.commands.executeCommand("mindcontrol.workbench.open");
-    await expect(frame.getByText(/Mind Control Code/)).toBeVisible();
+    await expect(frame.getByText(/Show Debug/)).not.toBeVisible();
+    await vscode.commands.executeCommand("mindrig.workbench.open");
+    await expect(frame.getByText(/Show Debug/)).toBeVisible();
   });
 
-  test("Mind Control Code tab opens the webview", async function () {
+  test("Mind Rig tab opens the webview", async function () {
     const page = await ensureConnectMainPage();
     const frame = webviewFrameLocator(page);
 
     await switchToExplorer(page);
 
-    await expect(frame.getByText(/Mind Control Code/)).not.toBeVisible();
-    await page.getByRole("tab", { name: "Mind Control Code" }).click();
-    await expect(frame.getByText(/Mind Control Code/)).toBeVisible();
+    await expect(frame.getByText(/Show Debug/)).not.toBeVisible();
+    await page.getByRole("tab", { name: "Mind Rig" }).click();
+    await expect(frame.getByText(/Show Debug/)).toBeVisible();
   });
 });
 
 function webviewFrameLocator(page: playwright.Page): playwright.FrameLocator {
   return page
-    .frameLocator('iframe[src*="mindcontrol.vscode"]')
-    .frameLocator("#active-frame");
+    .frameLocator('iframe[src*="mindrig.vscode"]')
+    .frameLocator("iframe#active-frame");
 }
 
 function switchToExplorer(page: playwright.Page) {
@@ -64,7 +63,7 @@ async function ensureConnectMainPage() {
 
 // TODO: Find a way to type (and verify it) the extension
 function ensureExtension(): vscode.Extension<unknown> {
-  const extension = vscode.extensions.getExtension("mindcontrol.vscode");
+  const extension = vscode.extensions.getExtension("mindrig.vscode");
   assert.ok(extension !== undefined, "Extension should be found");
   return extension;
 }

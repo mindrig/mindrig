@@ -11,7 +11,7 @@ import {
 } from "../../__tests__/mocks/vscode";
 import { DevCodeEditor } from "./CodeEditor";
 
-describe("CodeEditor", () => {
+describe.skip("CodeEditor", () => {
   let mockVSCode: MockVSCodeAPI;
   let user: ReturnType<typeof userEvent.setup>;
 

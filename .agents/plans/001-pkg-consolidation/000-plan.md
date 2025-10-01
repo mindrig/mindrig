@@ -14,7 +14,7 @@ I want to plan package consolidation. I want all the packages to be inside the `
 
 - `./types`: move to `./pkgs/types`, rename to `@wrkspc/types`.
 
-- `./vscode/extension`: move to `./pkgs/vsc-extension`, right now it has the name `vscode` as it is used to build the package id (`mindcontrol.vscode`), so keep it as is for now.
+- `./vscode/extension`: move to `./pkgs/vsc-extension`, right now it has the name `vscode` as it is used to build the package id (`mindrig.vscode`), so keep it as is for now.
 
 - `./vscode/sync`: move to ` ./pkgs/vsc-sync`, rename to `@wrkspc/vsc-sync`.
 

@@ -1,6 +1,6 @@
-# Mind Control Code
+# MInd Rig
 
-Mind Control Code is an editor companion that helps to work on, test (in a playground and using evals) defined in source code. Right now it's in progress, so now all features planned are implemented.
+MInd Rig is an editor companion that helps to work on, test (in a playground and using evals) defined in source code. Right now it's in progress, so now all features planned are implemented.
 
 ## Project Structure
 
@@ -30,7 +30,7 @@ VS Code extension package containing the main extension logic and webview provid
 
 ### [`vscode/webview`](./vscode/webview/)
 
-React webview application that provides the UI for the Mind Control Code panel.
+React webview application that provides the UI for the MInd Rig panel.
 
 **Stack:**
 

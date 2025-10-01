@@ -60,7 +60,7 @@ export interface PersistedPromptState {
   data: PlaygroundState;
 }
 
-const STORAGE_KEY = "mindcontrol.playground.prompts";
+const STORAGE_KEY = "mindrig.playground.prompts";
 
 function readRaw(): PersistedPromptState[] {
   try {

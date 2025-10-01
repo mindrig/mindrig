@@ -20,16 +20,16 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const showWorkbenchDisposable = vscode.commands.registerCommand(
-    "mindcontrol.showWorkbench",
+    "mindrig.showWorkbench",
     () => {
       vscode.commands.executeCommand(
-        "workbench.view.extension.mindcontrol-workbench",
+        "workbench.view.extension.mindrig-playground",
       );
     },
   );
 
   const addItWorksDisposable = vscode.commands.registerCommand(
-    "mindcontrol.addItWorks",
+    "mindrig.addItWorks",
     withActiveEditor(async ({ document }) => {
       const lastLineIdx = document.lineCount - 1;
       const lastLine = document.lineAt(lastLineIdx);
@@ -46,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
     "mindrig.logIn",
     async () => {
       await vscode.commands.executeCommand(
-        "workbench.view.extension.mindcontrol-workbench",
+        "workbench.view.extension.mindrig-playground",
       );
       // Open the Vercel Gateway API Key panel in the webview
       try {
@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
     "mindrig.showProfile",
     async () => {
       await vscode.commands.executeCommand(
-        "workbench.view.extension.mindcontrol-workbench",
+        "workbench.view.extension.mindrig-playground",
       );
       try {
         (webviewProvider as any).openVercelGatewayPanel?.();
@@ -77,10 +77,10 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const runPromptDisposable = vscode.commands.registerCommand(
-    "mindcontrol.runPrompt",
+    "mindrig.runPrompt",
     async () => {
       await vscode.commands.executeCommand(
-        "workbench.view.extension.mindcontrol-workbench",
+        "workbench.view.extension.mindrig-playground",
       );
       const executed = await webviewProvider.runPromptFromCommand();
       if (!executed)

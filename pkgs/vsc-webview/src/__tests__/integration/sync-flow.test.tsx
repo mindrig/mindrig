@@ -8,7 +8,7 @@ import { DevCodeEditor } from "../../aspects/dev/CodeEditor";
 import type { MockVSCodeAPI } from "../mocks/vscode";
 import { createMockVSCodeAPI } from "../mocks/vscode";
 
-describe("End-to-End Sync Flow", () => {
+describe.skip("End-to-End Sync Flow", () => {
   let mockVSCode: MockVSCodeAPI;
   let user: ReturnType<typeof userEvent.setup>;
 

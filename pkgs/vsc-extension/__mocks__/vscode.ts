@@ -6,7 +6,7 @@ import { vi } from "vitest";
 // Mock VS Code API types and functions
 export const extensions = {
   getExtension: vi.fn().mockReturnValue({
-    id: "mindcontrol.vscode",
+    id: "mindrig.vscode",
     extensionUri: { fsPath: "/mock/path" },
     isActive: true,
     activate: vi.fn(),

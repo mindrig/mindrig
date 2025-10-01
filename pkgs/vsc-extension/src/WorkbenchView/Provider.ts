@@ -79,7 +79,7 @@ export class WorkbenchViewProvider
 {
   //#region Static
 
-  public static readonly viewType = "mindcontrol.workbench";
+  public static readonly viewType = "mindrig.playground";
 
   //#endregion
 
@@ -193,7 +193,7 @@ export class WorkbenchViewProvider
       `script-src-elem ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
       `style-src ${webviewSources} ${base} 'unsafe-inline';`,
       // TODO: Come up with complete list of authorities rather than slapping global `https:`
-      `connect-src ${base} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https: ${wsUri}`,
+      `connect-src ${base} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https: ${wsUri};`,
     ].join(" ");
 
     const app = `${base}/src/index.tsx`;

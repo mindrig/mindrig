@@ -6,12 +6,10 @@
     },
 
     "build": {
-      "dependsOn": [
-        "mindrig_parser#build",
-        "@wrkspc/vsc-webview#build"
-      ],
+      "dependsOn": ["mindrig_parser#build", "@wrkspc/vsc-webview#build"],
       "inputs": [
         "$TURBO_DEFAULT$",
+        "./package.json",
         "./tsconfig.json",
         "./src/**/*.ts",
         "!./src/**/*.spec.ts",

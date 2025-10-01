@@ -1,12 +1,12 @@
 {
   "name": "vscode",
-  "publisher": "mindcontrol",
+  "publisher": "mindrig",
   "displayName": "Mind Rig",
   "description": "Mind Rig extension for VS Code",
   "version": "0.1.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mindcontrol/code.git"
+    "url": "https://github.com/mindrig/mindrig.git"
   },
   "engines": {
     "vscode": "^1.99.0"
@@ -28,15 +28,15 @@
     },
     "commands": [
       {
-        "command": "mindcontrol.showWorkbench",
+        "command": "mindrig.showWorkbench",
         "title": "Show Workbench"
       },
       {
-        "command": "mindcontrol.addItWorks",
+        "command": "mindrig.addItWorks",
         "title": "Add 'It works!' comment"
       },
       {
-        "command": "mindcontrol.runPrompt",
+        "command": "mindrig.runPrompt",
         "title": "Run Prompt"
       },
       {
@@ -63,22 +63,22 @@
           "default": false,
           "description": "Show prompt source code in the playground"
         },
-        "mindcontrol.exampleSetting": {
+        "mindrig.exampleSetting": {
           "type": "string",
           "default": "default value",
           "description": "An example setting for demonstration"
         },
-        "mindcontrol.enableFileTracking": {
+        "mindrig.enableFileTracking": {
           "type": "boolean",
           "default": true,
           "description": "Enable tracking of active files"
         },
-        "mindcontrol.showFileContent": {
+        "mindrig.showFileContent": {
           "type": "boolean",
           "default": true,
           "description": "Show file content in the webview"
         },
-        "mindcontrol.autoSaveIndicator": {
+        "mindrig.autoSaveIndicator": {
           "type": "boolean",
           "default": true,
           "description": "Show auto-save indicator in the webview"
@@ -86,9 +86,9 @@
       }
     },
     "views": {
-      "mindcontrol-workbench": [
+      "mindrig-playground": [
         {
-          "id": "mindcontrol.workbench",
+          "id": "mindrig.playground",
           "name": "Playground",
           "when": "true",
           "type": "webview",
@@ -99,7 +99,7 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "mindcontrol-workbench",
+          "id": "mindrig-playground",
           "title": "Mind Rig",
           "icon": "$(mindrig-toolbar-icon)"
         }
@@ -109,28 +109,28 @@
       "view/title": [
         {
           "command": "mindrig.logIn",
-          "when": "view == mindcontrol.workbench && !mindrig.auth.loggedIn",
+          "when": "view == mindrig.playground && !mindrig.auth.loggedIn",
           "group": "navigation"
         },
         {
           "command": "mindrig.showProfile",
-          "when": "view == mindcontrol.workbench && mindrig.auth.loggedIn",
+          "when": "view == mindrig.playground && mindrig.auth.loggedIn",
           "group": "navigation"
         },
         {
           "command": "mindrig.logOut",
-          "when": "view == mindcontrol.workbench"
+          "when": "view == mindrig.playground"
         }
       ],
       "view/item/context": [
         {
-          "command": "mindcontrol.addItWorks",
-          "when": "view == mindcontrol.workbench",
+          "command": "mindrig.addItWorks",
+          "when": "view == mindrig.playground",
           "group": "inline"
         },
         {
-          "command": "mindcontrol.addItWorks",
-          "when": "view == mindcontrol.workbench"
+          "command": "mindrig.addItWorks",
+          "when": "view == mindrig.playground"
         }
       ]
     }
