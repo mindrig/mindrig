@@ -61,9 +61,11 @@ function devAssetResolver(mode: string): PluginOption[] {
   plugins.push({
     name: "asset-resolver-config",
     configResolved(config) {
-      config.experimental.renderBuiltUrl = (path) => {
-        const runtime = `__asset__(${JSON.stringify(path)})`;
-        return { runtime };
+      config.experimental.renderBuiltUrl = (path, { hostType }) => {
+        if (hostType === "js") {
+          const runtime = `__asset__(${JSON.stringify(path)})`;
+        }
+        return { relative: true };
       };
     },
   });
