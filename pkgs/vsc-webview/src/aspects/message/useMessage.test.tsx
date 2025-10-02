@@ -2,12 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { renderHook, render } from "@testing-library/react";
 import type { FC, PropsWithChildren } from "react";
 import type { VscMessage } from "@wrkspc/vsc-message";
-import {
-  MessageProvider,
-  useMessage,
-  useOn,
-  useOnce,
-} from "./messageContext";
+import { MessageProvider, useMessage, useOn, useOnce } from "./messageContext";
 import { VscContext } from "@/aspects/vsc/Context";
 import { createMockVSCodeAPI } from "@/__tests__/mocks/vscode";
 
@@ -37,9 +32,12 @@ describe("message context", () => {
     const { Wrapper } = createWrapper();
     const handler = vi.fn();
 
-    const { unmount } = renderHook(() => {
-      useOn("settings-streaming-state", handler, [handler]);
-    }, { wrapper: Wrapper });
+    const { unmount } = renderHook(
+      () => {
+        useOn("settings-streaming-state", handler, [handler]);
+      },
+      { wrapper: Wrapper },
+    );
 
     const inbound: VscMessage = {
       type: "settings-streaming-state",
@@ -60,9 +58,12 @@ describe("message context", () => {
     const { Wrapper } = createWrapper();
     const handler = vi.fn();
 
-    renderHook(() => {
-      useOnce("settings-streaming-state", handler, [handler]);
-    }, { wrapper: Wrapper });
+    renderHook(
+      () => {
+        useOnce("settings-streaming-state", handler, [handler]);
+      },
+      { wrapper: Wrapper },
+    );
 
     const inbound: VscMessage = {
       type: "settings-streaming-state",

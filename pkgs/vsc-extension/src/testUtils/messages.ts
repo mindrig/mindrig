@@ -27,14 +27,12 @@ function createUri(path: string) {
 }
 
 if (!(VSCode.Uri as any).__mindrig_test_patch) {
-  (VSCode.Uri as any).joinPath = (
-    ...segments: Array<vscode.Uri | string>
-  ) => {
+  (VSCode.Uri as any).joinPath = (...segments: Array<vscode.Uri | string>) => {
     const combined = segments
       .map((segment) =>
         typeof segment === "string"
           ? segment
-          : segment.fsPath ?? segment.toString(),
+          : (segment.fsPath ?? segment.toString()),
       )
       .join("/");
     return createUri(combined);
@@ -69,18 +67,22 @@ export async function createWorkbenchHarness(
       posted.push(message);
       return Promise.resolve(true);
     }),
-    onDidReceiveMessage: vi.fn().mockImplementation((cb: (msg: any) => void) => {
-      handler = cb;
-      return { dispose: vi.fn() };
-    }),
+    onDidReceiveMessage: vi
+      .fn()
+      .mockImplementation((cb: (msg: any) => void) => {
+        handler = cb;
+        return { dispose: vi.fn() };
+      }),
   } as unknown as vscode.Webview;
 
   const webviewView = { webview } as unknown as vscode.WebviewView;
 
   const globalState = {
-    get: vi.fn().mockImplementation(
-      (_key: string, fallback: boolean) => fallback ?? true,
-    ),
+    get: vi
+      .fn()
+      .mockImplementation(
+        (_key: string, fallback: boolean) => fallback ?? true,
+      ),
     update: vi.fn().mockResolvedValue(undefined),
     ...(options.globalState ?? {}),
   } as unknown as vscode.Memento;

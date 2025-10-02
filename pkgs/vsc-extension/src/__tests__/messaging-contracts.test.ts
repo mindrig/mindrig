@@ -49,7 +49,7 @@ const fileManagerHooks: {
 
 vi.mock("../FileManager", () => {
   class MockFileManager {
-    constructor(options: typeof fileManagerHooks["options"]) {
+    constructor(options: (typeof fileManagerHooks)["options"]) {
       if (options) fileManagerHooks.options = options;
       else delete fileManagerHooks.options;
     }

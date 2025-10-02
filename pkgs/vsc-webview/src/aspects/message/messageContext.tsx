@@ -74,7 +74,8 @@ export function MessageProvider({
       type: K,
       handler: VscMessageHandler<K>,
     ): MessageSubscription => {
-      const bucket = handlersRef.current.get(type) ?? new Set<InternalHandler>();
+      const bucket =
+        handlersRef.current.get(type) ?? new Set<InternalHandler>();
       const wrapped: InternalHandler = (incoming) =>
         handler(incoming as Extract<VscMessage, { type: K }>);
 
@@ -85,7 +86,8 @@ export function MessageProvider({
         dispose: () => {
           const listeners = handlersRef.current.get(type);
           listeners?.delete(wrapped);
-          if (listeners && listeners.size === 0) handlersRef.current.delete(type);
+          if (listeners && listeners.size === 0)
+            handlersRef.current.delete(type);
         },
       };
     },
@@ -188,7 +190,9 @@ export function MessageProvider({
     [send, listen, once, useOnHook, useOnceHook],
   );
 
-  return <MessageContext.Provider value={value}>{children}</MessageContext.Provider>;
+  return (
+    <MessageContext.Provider value={value}>{children}</MessageContext.Provider>
+  );
 }
 
 export function useMessage(): MessageContextValue {

@@ -3,7 +3,10 @@ import type * as vscode from "vscode";
 import * as VSCode from "vscode";
 
 import { AIService } from "../AIService";
-import { createWorkbenchHarness, waitForPostedMessage } from "../testUtils/messages";
+import {
+  createWorkbenchHarness,
+  waitForPostedMessage,
+} from "../testUtils/messages";
 
 vi.mock("../SecretManager", () => {
   class MockSecretManager {
@@ -61,8 +64,6 @@ vi.mock("@wrkspc/vsc-settings", () => {
   return { VscSettingsController: MockVscSettingsController };
 });
 
-
-
 describe("WorkbenchViewProvider streaming orchestration", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -79,14 +80,14 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
         runtimeOptions,
       ) => {
         expect(prompt).toBe("Hello world");
-        await runtimeOptions?.streamingHandlers?.onTextDelta?.(
-          "Hello ",
-          { type: "text-delta", text: "Hello " } as any,
-        );
-        await runtimeOptions?.streamingHandlers?.onTextDelta?.(
-          "there!",
-          { type: "text-delta", text: "there!" } as any,
-        );
+        await runtimeOptions?.streamingHandlers?.onTextDelta?.("Hello ", {
+          type: "text-delta",
+          text: "Hello ",
+        } as any);
+        await runtimeOptions?.streamingHandlers?.onTextDelta?.("there!", {
+          type: "text-delta",
+          text: "there!",
+        } as any);
         return {
           success: true,
           text: "Hello there!",
@@ -125,15 +126,16 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
       (msg) => msg.type === "prompt-run-result-complete",
     );
     expect(resultCompletedMessages).toHaveLength(1);
-    expect(resultCompletedMessages[0].payload.result.text).toBe(
-      "Hello there!",
-    );
+    expect(resultCompletedMessages[0].payload.result.text).toBe("Hello there!");
 
     const completed = await waitForPostedMessage(posted, "prompt-run-complete");
     expect(completed?.payload.runId).toBe(runId);
     expect(completed?.payload.success).toBe(true);
 
-    const execution = await waitForPostedMessage(posted, "prompt-run-execution-result");
+    const execution = await waitForPostedMessage(
+      posted,
+      "prompt-run-execution-result",
+    );
     expect(execution?.payload.results[0].text).toBe("Hello there!");
   });
 
@@ -148,14 +150,15 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
         runtimeOptions,
       ) => {
         const signal = runtimeOptions?.signal;
-        await runtimeOptions?.streamingHandlers?.onTextDelta?.(
-          "partial",
-          { type: "text-delta", text: "partial" } as any,
-        );
+        await runtimeOptions?.streamingHandlers?.onTextDelta?.("partial", {
+          type: "text-delta",
+          text: "partial",
+        } as any);
 
         await new Promise<void>((resolve) => {
           if (signal?.aborted) resolve();
-          else signal?.addEventListener("abort", () => resolve(), { once: true });
+          else
+            signal?.addEventListener("abort", () => resolve(), { once: true });
         });
 
         return { success: false, error: "Prompt run cancelled." };
@@ -194,7 +197,8 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     );
     expect(resultCompletedMessages.length).toBeGreaterThan(0);
     const cancelledResult = resultCompletedMessages.find(
-      (msg) => msg.payload.result.resultId && msg.payload.result.success === false,
+      (msg) =>
+        msg.payload.result.resultId && msg.payload.result.success === false,
     );
     expect(cancelledResult?.payload.result.error).toContain("cancelled");
 
@@ -254,7 +258,10 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
 
     const completed = await waitForPostedMessage(posted, "prompt-run-complete");
     expect(completed?.payload.success).toBe(true);
-    const execution = await waitForPostedMessage(posted, "prompt-run-execution-result");
+    const execution = await waitForPostedMessage(
+      posted,
+      "prompt-run-execution-result",
+    );
     expect(execution?.payload.results[0].text).toBe("Full output");
   });
 });
