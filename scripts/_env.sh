@@ -19,6 +19,7 @@ eval "$(mise env -s bash)"
 # Provide base variables
 set_vars() {
   local script_path="$0"
+  root_dir="$(dirname "$0")/.."
   repo_dir="$(dirname "$script_path")/.."
   root_repo_dir="$(realpath "$(git rev-parse --git-common-dir)"/..)"
   wrkspc_name=$(realpath "$root_repo_dir" | xargs basename)

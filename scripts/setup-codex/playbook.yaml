@@ -1,0 +1,25 @@
+---
+- name: Merge Codex configurations
+  hosts: localhost
+  gather_facts: no
+  vars:
+    # NOTE: Should be passed as arguments to `ansible-playbook` command:
+    # global_config: "~/.codex/config.toml"
+    # project_config: "./.codex/config.toml"
+    start_marker: "#@project"
+    end_marker: "#@project-end"
+
+  tasks:
+    - name: Read project config
+      slurp:
+        src: "{{ project_config }}"
+      register: project_content
+
+    - name: Merge project config into global config
+      blockinfile:
+        path: "{{ global_config }}"
+        marker_begin: "{{ start_marker }}"
+        marker_end: "{{ end_marker }}"
+        block: "{{ project_content['content'] | b64decode | trim }}"
+        create: yes
+        backup: yes

@@ -1,16 +1,1 @@
-# Model
-model = "gpt-5-codex"
-model_reasoning_effort = "high"
-model_reasoning_summary = "detailed"
-
-# Sandbox
-
-sandbox_mode = "workspace-write"
-
-[sandbox_workspace_write]
-network_access = true
-
-# Tools
-
-[tools]
-web_search = true
+# Put local MCP servers here.
