@@ -106,7 +106,8 @@ export class AIService extends VscController {
     try {
       const gateway = createGateway({ apiKey: this.#apiKey });
 
-      const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
+      const hasAttachments =
+        Array.isArray(attachments) && attachments.length > 0;
 
       const streamArgs: any = {
         model: gateway((modelId || "openai/gpt-5-mini") as any),
@@ -222,8 +223,10 @@ export class AIService extends VscController {
             }
           : undefined,
         onFinish: async (event: StreamFinishEvent) => {
-          const { messages: _ignoredMessages, ...responseWithoutMessages } = event.response as any;
-          collectedText = typeof event.text === "string" ? event.text : collectedText;
+          const { messages: _ignoredMessages, ...responseWithoutMessages } =
+            event.response as any;
+          collectedText =
+            typeof event.text === "string" ? event.text : collectedText;
           summary = {
             text:
               typeof event.text === "string"
@@ -246,17 +249,26 @@ export class AIService extends VscController {
 
       if (!summary) {
         summary = await (async (): Promise<PromptRunSummary> => {
-          const [request, response, usage, totalUsage, text] = await Promise.all([
-            stream.request.catch(() => null),
-            stream.response.catch(() => null),
-            stream.usage.catch(() => null),
-            stream.totalUsage.catch(() => null),
-            stream.text.catch(() => null),
-          ]);
+          const [request, response, usage, totalUsage, text] =
+            await Promise.all([
+              stream.request.catch(() => null),
+              stream.response.catch(() => null),
+              stream.usage.catch(() => null),
+              stream.totalUsage.catch(() => null),
+              stream.text.catch(() => null),
+            ]);
 
-          let responseWithoutMessages: LlmResponse = (response as LlmResponse) ?? ({} as LlmResponse);
-          if (response && typeof response === "object" && "messages" in (response as any)) {
-            const { messages: _ignored, ...rest } = response as Record<string, unknown>;
+          let responseWithoutMessages: LlmResponse =
+            (response as LlmResponse) ?? ({} as LlmResponse);
+          if (
+            response &&
+            typeof response === "object" &&
+            "messages" in (response as any)
+          ) {
+            const { messages: _ignored, ...rest } = response as Record<
+              string,
+              unknown
+            >;
             responseWithoutMessages = rest as LlmResponse;
           }
 
@@ -270,7 +282,8 @@ export class AIService extends VscController {
             usage: (usage as LanguageModelUsage) ?? undefined,
             totalUsage:
               (totalUsage as LanguageModelUsage) ??
-              ((usage as LanguageModelUsage) ?? undefined),
+              (usage as LanguageModelUsage) ??
+              undefined,
             request: (request as LlmRequest) ?? ({} as LlmRequest),
             response: responseWithoutMessages,
             steps: [],
@@ -298,7 +311,9 @@ export class AIService extends VscController {
         ...(summary.finishReason !== undefined
           ? { finishReason: summary.finishReason }
           : {}),
-        ...(summary.warnings !== undefined ? { warnings: summary.warnings } : {}),
+        ...(summary.warnings !== undefined
+          ? { warnings: summary.warnings }
+          : {}),
       };
     } catch (error) {
       console.error("AI Service error:", error);
@@ -336,7 +351,8 @@ export class AIService extends VscController {
         errorMessage = error;
       }
 
-      if ((error as any)?.name === "AbortError") errorMessage = "Prompt run cancelled.";
+      if ((error as any)?.name === "AbortError")
+        errorMessage = "Prompt run cancelled.";
 
       return {
         success: false,

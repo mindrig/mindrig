@@ -703,9 +703,9 @@ export function Assessment({
       if (payload.promptId !== promptId) return;
 
       const timestamp = payload.timestamp || Date.now();
-      const resultsArray = (Array.isArray(payload.results)
-        ? payload.results
-        : []) as RunResult[];
+      const resultsArray = (
+        Array.isArray(payload.results) ? payload.results : []
+      ) as RunResult[];
 
       const currentRunId = activeRunIdRef.current;
 
@@ -723,7 +723,7 @@ export function Assessment({
               const finalText =
                 typeof result.text === "string"
                   ? result.text
-                  : existing.fullText ?? null;
+                  : (existing.fullText ?? null);
               const existingMetadata = existing.metadata ?? {};
               const mergedMetadata = {
                 ...existingMetadata,
@@ -777,7 +777,13 @@ export function Assessment({
       resetPerRunUiState();
       setIsStopping(false);
     },
-    [promptId, resetPerRunUiState, setExecutionState, setIsStopping, updateStreamingState],
+    [
+      promptId,
+      resetPerRunUiState,
+      setExecutionState,
+      setIsStopping,
+      updateStreamingState,
+    ],
   );
 
   useOn(
@@ -1032,9 +1038,10 @@ export function Assessment({
 
   const handleDatasetLoad = useCallback(
     async (
-      payload: Extract<VscMessageDataset, { type: "dataset-csv-load" }>[
-        "payload"
-      ],
+      payload: Extract<
+        VscMessageDataset,
+        { type: "dataset-csv-load" }
+      >["payload"],
     ) => {
       if (payload.status === "error") {
         console.error("CSV load error", payload.error);
@@ -1068,9 +1075,10 @@ export function Assessment({
 
   const handleAttachmentsLoad = useCallback(
     (
-      payload: Extract<VscMessageAttachments, { type: "attachments-load" }>[
-        "payload"
-      ],
+      payload: Extract<
+        VscMessageAttachments,
+        { type: "attachments-load" }
+      >["payload"],
     ) => {
       if (payload.status === "error") {
         console.error("Attachments load error", payload.error);
@@ -1645,11 +1653,13 @@ export function Assessment({
         tools: model.caps.supportsTools ? (model.parsedTools ?? null) : null,
         providerOptions: model.providerOptions ?? null,
         reasoning: model.reasoning,
-        attachments: model.filteredAttachments.map(({ name, mime, dataBase64 }) => ({
-          name: name ?? "",
-          mime: mime ?? "application/octet-stream",
-          dataBase64: dataBase64 ?? "",
-        })),
+        attachments: model.filteredAttachments.map(
+          ({ name, mime, dataBase64 }) => ({
+            name: name ?? "",
+            mime: mime ?? "application/octet-stream",
+            dataBase64: dataBase64 ?? "",
+          }),
+        ),
       })),
     };
 

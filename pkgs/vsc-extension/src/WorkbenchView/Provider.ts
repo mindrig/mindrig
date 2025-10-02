@@ -816,7 +816,9 @@ export class WorkbenchViewProvider
     });
   }
 
-  async #handleSetVercelGatewayKey(vercelGatewayKey: AuthVercelGatewaySetPayload) {
+  async #handleSetVercelGatewayKey(
+    vercelGatewayKey: AuthVercelGatewaySetPayload,
+  ) {
     if (!this.#secretManager) return;
     await this.#secretManager.setSecret(vercelGatewayKey);
   }
@@ -839,7 +841,8 @@ export class WorkbenchViewProvider
   }
 
   async #handleSetStreamingPreference(payload: SettingsStreamingSetPayload) {
-    const enabled = typeof payload?.enabled === "boolean" ? payload.enabled : true;
+    const enabled =
+      typeof payload?.enabled === "boolean" ? payload.enabled : true;
     await this.#context.globalState.update(
       this.#streamingPreferenceKey,
       enabled,

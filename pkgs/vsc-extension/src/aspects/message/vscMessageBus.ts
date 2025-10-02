@@ -35,7 +35,10 @@ export class VscMessageBus implements Disposable {
         try {
           handler(message as never);
         } catch (error) {
-          console.error(`VscMessageBus handler for ${message.type} threw an error`, error);
+          console.error(
+            `VscMessageBus handler for ${message.type} threw an error`,
+            error,
+          );
         }
       }
     });

@@ -2,8 +2,7 @@ import { useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { Streamdown, type StreamdownProps } from "streamdown";
 
-interface StreamingMarkdownProps
-  extends Omit<StreamdownProps, "children"> {
+interface StreamingMarkdownProps extends Omit<StreamdownProps, "children"> {
   text?: string | null;
   textParts?: string[];
   runId?: string | null;
@@ -53,8 +52,7 @@ export function StreamingMarkdown({
   }, [runId, resultId]);
 
   useEffect(() => {
-    if (latestContent !== undefined && onRawChange)
-      onRawChange(latestContent);
+    if (latestContent !== undefined && onRawChange) onRawChange(latestContent);
   }, [latestContent, onRawChange]);
 
   const defaultOrigin = useMemo(() => {
@@ -72,9 +70,7 @@ export function StreamingMarkdown({
         <Streamdown
           key={streamKey}
           {...(className ? { className } : {})}
-          {...(allowedImagePrefixes
-            ? { allowedImagePrefixes }
-            : {})}
+          {...(allowedImagePrefixes ? { allowedImagePrefixes } : {})}
           {...(allowedLinkPrefixes ? { allowedLinkPrefixes } : {})}
           defaultOrigin={defaultOrigin}
           {...(controls !== undefined ? { controls } : {})}

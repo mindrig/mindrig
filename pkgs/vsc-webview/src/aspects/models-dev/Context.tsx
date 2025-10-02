@@ -65,7 +65,9 @@ export function ModelsDevProvider(props: React.PropsWithChildren) {
       (resolve, reject) => {
         const subscription = listen(
           "models-dev-response",
-          (message: Extract<VscMessageModels, { type: "models-dev-response" }>) => {
+          (
+            message: Extract<VscMessageModels, { type: "models-dev-response" }>,
+          ) => {
             cleanup();
             const payload = message.payload;
             if (payload.status === "ok") resolve(payload.data);

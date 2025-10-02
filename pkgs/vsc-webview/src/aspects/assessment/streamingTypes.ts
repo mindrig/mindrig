@@ -32,7 +32,18 @@ export interface AssessmentStreamingResult {
   error: string | null;
   loading: boolean;
   nonStreamingNote?: string | null;
-  metadata?: Partial<Pick<StreamingResultData, "usage" | "totalUsage" | "steps" | "finishReason" | "warnings" | "request" | "response">>;
+  metadata?: Partial<
+    Pick<
+      StreamingResultData,
+      | "usage"
+      | "totalUsage"
+      | "steps"
+      | "finishReason"
+      | "warnings"
+      | "request"
+      | "response"
+    >
+  >;
 }
 
 export interface AssessmentStreamingState {
@@ -73,7 +84,10 @@ export interface StreamingUpdateContext {
   payload: StreamingRunUpdate;
 }
 
-export function appendTextChunk(result: AssessmentStreamingResult, chunk: string) {
+export function appendTextChunk(
+  result: AssessmentStreamingResult,
+  chunk: string,
+) {
   if (chunk.length === 0) return result;
   const parts = result.textParts.concat(chunk);
   return {

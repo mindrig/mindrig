@@ -208,7 +208,9 @@ describe("prompt pinning", () => {
     );
 
     await waitFor(() => {
-      expect(postMessage).toHaveBeenCalledWith({ type: "lifecycle-webview-ready" });
+      expect(postMessage).toHaveBeenCalledWith({
+        type: "lifecycle-webview-ready",
+      });
     });
 
     const pinButton = () =>

@@ -124,7 +124,10 @@ describe("VscMessageBus", () => {
     const outbound: VscMessage = { type: "auth-vercel-gateway-get" };
     await bus.send(outbound);
 
-    expect(logger).toHaveBeenCalledWith({ direction: "out", message: outbound });
+    expect(logger).toHaveBeenCalledWith({
+      direction: "out",
+      message: outbound,
+    });
 
     const inbound: VscMessage = {
       type: "auth-vercel-gateway-state",
