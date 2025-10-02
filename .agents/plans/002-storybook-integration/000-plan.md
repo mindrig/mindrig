@@ -4,7 +4,7 @@
 
 Introduce Storybook to the monorepo using a new `pkgs/storybook` workspace package that aggregates stories from `pkgs/vsc-webview` and `subs/ds/pkgs/ui`, aligns with Turborepo guidance, updates contributor docs, and ensures the static build outputs to `pkgs/storybook/dist` after validation.
 
-## Plan
+## Steps
 
 - [x] [Assess Workspace Requirements](.agents/plans/002-storybook-integration/001-assess-workspace.md): Confirm tooling, package manager configuration, and existing component setup to scope Storybook dependencies and targets.
 - [x] [Scaffold Storybook Package](.agents/plans/002-storybook-integration/002-scaffold-storybook.md): Create `pkgs/storybook` with Storybook boilerplate following Turborepo recommendations while adapting paths and scripts to the `pkgs` namespace.
@@ -12,8 +12,6 @@ Introduce Storybook to the monorepo using a new `pkgs/storybook` workspace packa
 - [ ] [Author Sample Stories](.agents/plans/002-storybook-integration/004-sample-stories.md): Draft example stories for `Button` and `FileLabel` components to validate Storybook rendering and establish conventions.
 - [ ] [Update Contributor Docs](.agents/plans/002-storybook-integration/005-update-docs.md): Refresh `docs/contributing/pkgs.md` with Storybook usage, scripts, and package details scoped to `pkgs/storybook`.
 - [ ] [Build & Verify Static Output](.agents/plans/002-storybook-integration/006-static-build-verify.md): Configure build pipeline, produce static assets in `pkgs/storybook/dist`, and document manual verification steps.
-
-## Steps
 
 ### [Assess Workspace Requirements](.agents/plans/002-storybook-integration/001-assess-workspace.md)
 

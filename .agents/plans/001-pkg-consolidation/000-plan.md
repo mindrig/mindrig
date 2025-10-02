@@ -39,15 +39,13 @@ The npm packages and crates are located in [`./pkgs`](./pkgs) directory:
  ...
 ```
 
-## Plan
+## Steps
 
 - [x] [Inventory existing packages](./001-inventory-existing-packages.md): Catalog current packages in `./pkgs` and legacy locations, noting names, visibility, and manifest metadata.
 - [x] [Relocate legacy packages](./002-relocate-legacy-packages.md): Move remaining legacy folders into `./pkgs` with correct directory slugs and resolve any duplicates or conflicts.
 - [x] [Normalize package manifests](./003-normalize-package-manifests.md): Update package manifests (`package.json`, `Cargo.toml`, etc.) with new names, privacy flags, and workspace settings.
 - [x] [Update dependency references](./004-update-dependency-references.md): Adjust internal imports, workspace references, build tooling, and scripts to reference the renamed packages.
 - [x] [Document and verify](./005-document-and-verify.md): Refresh contributor docs, add package list entries, ensure naming schema guidance is present, and validate via `pnpm install`.
-
-## Steps
 
 ### [Inventory existing packages](./001-inventory-existing-packages.md)
 

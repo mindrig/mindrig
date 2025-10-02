@@ -4,14 +4,12 @@
 
 Improve the VS Code webview model selection experience by sourcing models.dev metadata via a shared React context that relies on SWR for caching, applying last-updated ordering with manual recommendation fallbacks, and preserving existing provider popularity behaviour.
 
-## Plan
+## Steps
 
 - [x] [Define Models.dev Context](.agents/plans/003-model-sorting/001-models-dev-context.md): Establish a reusable hook and provider that exposes models.dev data with SWR-based caching and offline defaults.
 - [x] [Adopt SWR for Model Fetching](.agents/plans/003-model-sorting/002-swr-model-fetch.md): Replace imperative model loading in `Assessment` with SWR hooks, wiring status flags needed by the UI.
 - [x] [Revise Sorting and Recommendations](.agents/plans/003-model-sorting/003-model-sorting-logic.md): Update model grouping logic to prefer last-updated timestamps and use manual recommendation weights as secondary ordering.
 - [x] [Add Loading Status Indicator](.agents/plans/003-model-sorting/004-model-status-indicator.md): Surface a color-dot indicator near the model selector to reflect loading and error states.
-
-## Steps
 
 ### [Define Models.dev Context](.agents/plans/003-model-sorting/001-models-dev-context.md)
 
