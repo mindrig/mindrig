@@ -1,11 +1,11 @@
-import { useVsc } from "@/aspects/vsc/Context";
+import { useMessage, useOn } from "@/aspects/message/messageContext";
 import type { SyncResource } from "@wrkspc/vsc-sync";
 import {
   applyCodeChanges,
   computeTextChanges,
   VscMessageSync,
 } from "@wrkspc/vsc-sync";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as Y from "yjs";
 
 export namespace UseCodeSync {
@@ -24,12 +24,12 @@ export namespace UseCodeSync {
       selectionStart?: number,
       selectionEnd?: number,
     ) => void;
-    handleSyncMessage: (message: any) => void;
+    handleSyncMessage: (message: VscMessageSync) => void;
   }
 }
 
 export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
-  const { vsc } = useVsc();
+  const { send } = useMessage();
   const { debounceMs = 100, resource } = props;
   const [content, setContent] = useState<string>("");
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -39,6 +39,23 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
   const isApplyingLocalUIRef = useRef(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastKnownContentRef = useRef<string>("");
+
+  const targetResource = useMemo<SyncResource>(
+    () => resource ?? { type: "code", path: "" },
+    [resource],
+  );
+
+  const isTargetResource = useCallback(
+    (incoming: SyncResource) => {
+      if (incoming.type !== targetResource.type) return false;
+
+      if ("path" in incoming && "path" in targetResource)
+        return incoming.path === targetResource.path;
+
+      return JSON.stringify(incoming) === JSON.stringify(targetResource);
+    },
+    [targetResource],
+  );
 
   // Initialize Yjs document
   useEffect(() => {
@@ -70,10 +87,10 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
       );
       const message: VscMessageSync.Update = {
         type: "sync-update",
-        resource: resource ?? { type: "code", path: "" },
+        resource: targetResource,
         payload: { update: Array.from(update) },
       };
-      vsc.postMessage(message);
+      send(message);
     };
 
     doc.on("update", updateHandler);
@@ -81,9 +98,9 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
     // Request initial sync from extension
     const message: VscMessageSync.Init = {
       type: "sync-init",
-      resource: resource ?? { type: "code", path: "" },
+      resource: targetResource,
     };
-    vsc.postMessage(message);
+    send(message);
 
     return () => {
       if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
@@ -92,7 +109,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
       doc.off("update", updateHandler);
       doc.destroy();
     };
-  }, [vsc, debounceMs, resource]);
+  }, [send, debounceMs, targetResource]);
 
   const updateContent = useCallback(
     (newContent: string, _selectionStart?: number, _selectionEnd?: number) => {
@@ -149,6 +166,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
 
   const handleSyncMessage = useCallback(
     (message: VscMessageSync) => {
+      if (!isTargetResource(message.resource)) return;
       if (!docRef.current || !textRef.current) return;
 
       try {
@@ -178,10 +196,10 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
 
             const responseMessage: VscMessageSync.StateVector = {
               type: "sync-state-vector",
-              resource: resource ?? { type: "code", path: "" },
+              resource: targetResource,
               payload: { stateVector: Array.from(update) },
             };
-            vsc.postMessage(responseMessage);
+            send(responseMessage);
             break;
           }
 
@@ -193,8 +211,11 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
         setIsConnected(false);
       }
     },
-    [vsc, resource],
+    [isTargetResource, send, targetResource],
   );
+
+  useOn("sync-update", handleSyncMessage, [handleSyncMessage]);
+  useOn("sync-state-vector", handleSyncMessage, [handleSyncMessage]);
 
   return {
     content,

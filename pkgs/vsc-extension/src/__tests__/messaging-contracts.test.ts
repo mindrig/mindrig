@@ -50,7 +50,8 @@ const fileManagerHooks: {
 vi.mock("../FileManager", () => {
   class MockFileManager {
     constructor(options: typeof fileManagerHooks["options"]) {
-      fileManagerHooks.options = options ?? undefined;
+      if (options) fileManagerHooks.options = options;
+      else delete fileManagerHooks.options;
     }
 
     dispose() {}
@@ -115,10 +116,10 @@ describe("WorkbenchViewProvider messaging contracts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     codeSyncHooks.appliedUpdates = [];
-    codeSyncHooks.lastRequestedStateVector = undefined;
-    codeSyncHooks.lastStateVector = undefined;
-    codeSyncHooks.lastSetDocument = undefined;
-    fileManagerHooks.options = undefined;
+    delete codeSyncHooks.lastRequestedStateVector;
+    delete codeSyncHooks.lastStateVector;
+    delete codeSyncHooks.lastSetDocument;
+    delete fileManagerHooks.options;
   });
 
   it("responds to sync-init with current state vector", async () => {
@@ -183,16 +184,18 @@ describe("WorkbenchViewProvider messaging contracts", () => {
     fileManagerHooks.options?.onActiveFileChanged?.(fileState);
     await flush();
 
-    const update = {
+    const syncMessage = {
       type: "sync-update",
       resource: { type: "code", path: fileState.path },
       payload: { update: [7, 8, 9] },
     };
-    receive(update);
+    receive(syncMessage);
 
     await flush();
 
     expect(codeSyncHooks.appliedUpdates).toHaveLength(1);
-    expect(Array.from(codeSyncHooks.appliedUpdates[0])).toEqual([7, 8, 9]);
+    const [appliedUpdate] = codeSyncHooks.appliedUpdates;
+    expect(appliedUpdate).toBeDefined();
+    expect(Array.from(appliedUpdate!)).toEqual([7, 8, 9]);
   });
 });

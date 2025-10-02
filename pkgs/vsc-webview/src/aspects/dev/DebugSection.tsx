@@ -9,7 +9,7 @@ export namespace DevDebug {
     prompts: Prompt[];
     fileState: SyncFile.State | null;
     activeFile: SyncFile.State | null;
-    onSyncMessage: (handler: (message: any) => void) => void;
+    onSyncMessage?: (handler: (message: any) => void) => void;
   }
 }
 
@@ -35,7 +35,7 @@ export function DevDebug(props: DevDebug.Props) {
           {(activeFile?.path || fileState?.path) && (
             <DevCodeEditor
               resourcePath={(activeFile?.path || fileState?.path)!}
-              onSyncMessage={onSyncMessage}
+              {...(onSyncMessage ? { onSyncMessage } : {})}
             />
           )}
 

@@ -8,7 +8,7 @@ export default defineConfig({
     environment: "happy-dom",
     globals: true,
     setupFiles: [import.meta.dirname + "/tests/unit/setup.ts"],
-    include: ["src/__tests__/**/*.test.ts", "src/__tests__/**/*.test.tsx"],
+    include: ["src/**/*.test.ts?(x)", "src/**/test.ts?(x)"],
 
     // Display paths in the context of the monorepo
     root: import.meta.dirname + "/../..",

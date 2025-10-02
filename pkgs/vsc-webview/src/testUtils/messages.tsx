@@ -1,6 +1,7 @@
 import { render, RenderResult } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { vi } from "vitest";
+import { MessageProvider } from "../aspects/message/messageContext";
 import { VscContext } from "../aspects/vsc/Context";
 
 export interface MockVscApi {
@@ -22,7 +23,9 @@ export function renderWithVsc<T>(
   mock: MockVscApi,
 ): RenderResult {
   return render(
-    <VscContext.Provider value={{ vsc: mock }}>{element}</VscContext.Provider>,
+    <VscContext.Provider value={{ vsc: mock }}>
+      <MessageProvider>{element}</MessageProvider>
+    </VscContext.Provider>,
   );
 }
 

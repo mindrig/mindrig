@@ -1,6 +1,6 @@
 import { VscSettings } from "@wrkspc/vsc-settings";
-import { createContext, useContext, useEffect, useState } from "react";
-import { useVsc } from "../vsc/Context";
+import { createContext, useContext, useState } from "react";
+import { useOn } from "@/aspects/message/messageContext";
 
 export namespace SettingsContext {
   export interface Value {
@@ -13,22 +13,17 @@ export const SettingsContext = createContext<SettingsContext.Value | undefined>(
 );
 
 export function SettingsProvider(props: React.PropsWithChildren) {
-  const { vsc } = useVsc();
   const [settings, setSettings] = useState<VscSettings>(
     window.initialState?.settings || {},
   );
 
-  useEffect(() => {
-    const messageHandler = (event: MessageEvent) => {
-      const message = event.data;
-      if (message.type !== "settingsUpdated") return;
-      const settings = message.payload as VscSettings;
-      setSettings(settings);
-    };
-
-    window.addEventListener("message", messageHandler);
-    return () => window.removeEventListener("message", messageHandler);
-  }, [vsc]);
+  useOn(
+    "settings-update",
+    (message) => {
+      setSettings(message.payload);
+    },
+    [setSettings],
+  );
 
   return (
     <SettingsContext.Provider value={{ settings }}>

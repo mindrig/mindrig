@@ -11,7 +11,7 @@ Establish a single, typed messaging contract for the VS Code extension and webvi
 - [ ] [Refactor Vsc Sync Package](./003-refactor-vsc-sync.md): Rename and adjust `@wrkspc/vsc-sync` message exports to the new `VscMessageSync` convention without altering behavior.
 - [ ] [Introduce Vsc Message Package](./004-introduce-vsc-message.md): Create `@wrkspc/vsc-message` with domain modules that union `VscMessageSync` and higher-level messages into a single `VscMessage` type.
 - [x] [Extension Message Infrastructure](./005-extension-message-infrastructure.md): Implement typed message aspects/controllers in the extension that send and subscribe using the consolidated `VscMessage` API.
-- [ ] [Webview Refactor](./006-webview-refactor.md): Replace webview messaging hacks with a `useMessage` hook and typed helpers while updating components and tests.
+- [x] [Webview Refactor](./006-webview-refactor.md): Replace webview messaging hacks with a `useMessage` hook and typed helpers while updating components and tests.
 
 ## Steps
 
@@ -63,6 +63,11 @@ Implement a message aspect within `pkgs/vsc-extension` that centralizes sending/
 ### [Webview Refactor](./006-webview-refactor.md)
 
 Introduce a `useMessage` hook and related utilities in `pkgs/vsc-webview` that consume `VscMessage`. Refactor components to subscribe and dispatch through the new hook, remove custom hacks, and align tests with the new helpers while keeping baseline side effects intact.
+
+#### Step Status
+
+- Completed October 2, 2025: Added a shared `MessageProvider`, converted sync/settings/models contexts to `useOn`/`useOnce`, and migrated assessment/prompt flows to kebab-case messages with typed payloads and outbound `send` calls.
+- Updated docs (`docs/contributing/streaming.md`) and webview tests (`streaming-assessment`, `prompt-pinning`) to cover the new contracts and ensure harnesses wrap components with the provider.
 
 ## Questions
 

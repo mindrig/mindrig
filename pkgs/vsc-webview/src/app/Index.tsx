@@ -1,8 +1,10 @@
+import { useMessage, useOn } from "@/aspects/message/messageContext";
 import { useVsc } from "@/aspects/vsc/Context";
 import { Prompt } from "@mindrig/types";
 import { findPromptAtCursor } from "@wrkspc/prompt";
 import { SyncFile } from "@wrkspc/vsc-sync";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { VscMessagePrompts } from "@wrkspc/vsc-message";
 import { AuthVercel } from "../aspects/auth/Vercel";
 import { Blueprint } from "../aspects/blueprint/Blueprint";
 import { DevDebug } from "../aspects/dev/DebugSection";
@@ -22,6 +24,7 @@ type WebviewState = {
 
 export function Index() {
   const { vsc } = useVsc();
+  const { send } = useMessage();
   const [fileState, setFileState] = useState<SyncFile.State | null>(null);
   const [activeFile, setActiveFile] = useState<SyncFile.State | null>(null);
   const [vercelGatewayKey, setVercelGatewayKey] = useState<
@@ -38,9 +41,6 @@ export function Index() {
       return persisted.pinnedPrompt ?? null;
     },
   );
-  const [syncMessageHandler, setSyncMessageHandler] = useState<
-    ((message: any) => void) | null
-  >(null);
   const [vercelPanelOpenSignal, setVercelPanelOpenSignal] = useState(0);
   const persistPinnedPrompt = useCallback(
     (next: PinnedPromptState | null) => {
@@ -69,96 +69,19 @@ export function Index() {
   );
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      const message = event.data;
-      switch (message.type) {
-        case "activeFileChanged":
-          setFileState(message.payload);
-          setActiveFile(message.payload);
-          refreshPinnedFile(message.payload);
-          break;
-        case "fileContentChanged":
-          setFileState(message.payload);
-          setActiveFile(message.payload);
-          refreshPinnedFile(message.payload);
-          break;
-        case "fileSaved":
-          setFileState(message.payload);
-          setActiveFile(message.payload);
-          refreshPinnedFile(message.payload);
-          break;
-        case "cursorPositionChanged":
-          setFileState(message.payload);
-          setActiveFile(message.payload);
-          refreshPinnedFile(message.payload);
-          break;
-        case "vercelGatewayKeyChanged":
-          setVercelGatewayKey(message.payload.vercelGatewayKey);
-          break;
-        case "openVercelGatewayPanel":
-          setVercelPanelOpenSignal((n) => n + 1);
-          break;
-        case "promptsChanged":
-          setPrompts(message.payload.prompts);
-          setParseStatus(message.payload.parseStatus || "success");
-          setParseError(message.payload.parseError || null);
-          if (
-            pinnedPrompt &&
-            pinnedPrompt.promptIndex !== null &&
-            activeFile &&
-            (pinnedPrompt.filePath ?? pinnedPrompt.prompt.file) ===
-              activeFile.path
-          ) {
-            const updatedPrompt =
-              message.payload.prompts?.[pinnedPrompt.promptIndex];
-            if (updatedPrompt) {
-              persistPinnedPrompt({
-                ...pinnedPrompt,
-                prompt: clonePrompt(updatedPrompt),
-              });
-            }
-          }
-          break;
-        case "sync-update":
-        case "sync-state-vector":
-          if (syncMessageHandler) syncMessageHandler(message);
-          break;
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    vsc.postMessage({ type: "webviewReady" });
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, [
-    vsc,
-    syncMessageHandler,
-    refreshPinnedFile,
-    pinnedPrompt,
-    persistPinnedPrompt,
-    activeFile,
-  ]);
+    send({ type: "lifecycle-webview-ready" });
+  }, [send]);
 
   const handleVercelGatewayKeyChange = (vercelGatewayKey: string) => {
-    vsc.postMessage({
-      type: "setVercelGatewayKey",
+    send({
+      type: "auth-vercel-gateway-set",
       payload: vercelGatewayKey,
     });
   };
 
   const handleClearVercelGatewayKey = () => {
-    vsc.postMessage({ type: "clearVercelGatewayKey" });
+    send({ type: "auth-vercel-gateway-clear" });
   };
-
-  const handleSyncMessageCallback = useCallback(
-    (handler: (message: any) => void) => {
-      setSyncMessageHandler(() => handler);
-    },
-    [],
-  );
 
   const targetFile = activeFile;
   const [cursorPromptIdx, cursorPrompt] = useMemo(() => {
@@ -205,8 +128,8 @@ export function Index() {
       const selectedPrompt = prompts[index];
       if (!selectedPrompt) return;
 
-      vsc.postMessage({
-        type: "revealPrompt",
+      send({
+        type: "prompts-reveal",
         payload: {
           file: selectedPrompt.file,
           selection: {
@@ -237,7 +160,7 @@ export function Index() {
     },
     [
       prompts,
-      vsc,
+      send,
       isPromptPinned,
       activeFile,
       fileState,
@@ -246,6 +169,98 @@ export function Index() {
     ],
   );
 
+  const applyFileState = useCallback(
+    (next: SyncFile.State | null) => {
+      setFileState(next);
+      setActiveFile(next);
+      refreshPinnedFile(next);
+    },
+    [refreshPinnedFile],
+  );
+
+  const handlePromptsChange = useCallback(
+    (
+      payload: Extract<
+        VscMessagePrompts,
+        { type: "prompts-change" }
+      >["payload"],
+    ) => {
+      setPrompts(payload.prompts ?? []);
+      setParseStatus(payload.parseStatus ?? "success");
+      setParseError((payload.parseError as string | undefined) ?? null);
+
+      if (
+        pinnedPrompt &&
+        pinnedPrompt.promptIndex !== null &&
+        activeFile &&
+        (pinnedPrompt.filePath ?? pinnedPrompt.prompt.file) === activeFile.path
+      ) {
+        const updatedPrompt = payload.prompts?.[pinnedPrompt.promptIndex];
+        if (updatedPrompt)
+          persistPinnedPrompt({
+            ...pinnedPrompt,
+            prompt: clonePrompt(updatedPrompt),
+          });
+      }
+    },
+    [activeFile, pinnedPrompt, persistPinnedPrompt],
+  );
+
+  useOn(
+    "file-active-change",
+    (message) => {
+      applyFileState(message.payload ?? null);
+    },
+    [applyFileState],
+  );
+
+  useOn(
+    "file-content-change",
+    (message) => {
+      applyFileState(message.payload ?? null);
+    },
+    [applyFileState],
+  );
+
+  useOn(
+    "file-save",
+    (message) => {
+      applyFileState(message.payload ?? null);
+    },
+    [applyFileState],
+  );
+
+  useOn(
+    "file-cursor-change",
+    (message) => {
+      applyFileState(message.payload ?? null);
+    },
+    [applyFileState],
+  );
+
+  useOn(
+    "auth-vercel-gateway-state",
+    (message) => {
+      setVercelGatewayKey(message.payload.vercelGatewayKey);
+    },
+    [],
+  );
+
+  useOn(
+    "auth-panel-open",
+    () => {
+      setVercelPanelOpenSignal((n) => n + 1);
+    },
+    [],
+  );
+
+  useOn(
+    "prompts-change",
+    (message) => {
+      handlePromptsChange(message.payload);
+    },
+    [handlePromptsChange],
+  );
   return (
     <Layout>
       <div className="flex flex-col gap-2">
@@ -280,7 +295,6 @@ export function Index() {
           prompts={prompts}
           fileState={fileState}
           activeFile={activeFile}
-          onSyncMessage={handleSyncMessageCallback}
         />
       </div>
     </Layout>

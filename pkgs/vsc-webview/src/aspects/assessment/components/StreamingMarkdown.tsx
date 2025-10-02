@@ -71,11 +71,13 @@ export function StreamingMarkdown({
       {hasContent ? (
         <Streamdown
           key={streamKey}
-          className={className}
-          allowedImagePrefixes={allowedImagePrefixes}
-          allowedLinkPrefixes={allowedLinkPrefixes}
+          {...(className ? { className } : {})}
+          {...(allowedImagePrefixes
+            ? { allowedImagePrefixes }
+            : {})}
+          {...(allowedLinkPrefixes ? { allowedLinkPrefixes } : {})}
           defaultOrigin={defaultOrigin}
-          controls={controls ?? false}
+          {...(controls !== undefined ? { controls } : {})}
           {...streamdownProps}
         >
           {latestContent}
