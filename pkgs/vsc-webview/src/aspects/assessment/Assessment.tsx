@@ -21,7 +21,7 @@ import {
   useState,
 } from "react";
 import { parseString as parseCsvString } from "smolcsv";
-import { useVsc } from "../vsc/Context";
+import { useMessage, useOn } from "@/aspects/message/messageContext";
 import type { ModelStatus } from "./components/ModelStatusDot";
 import { ModelStatusDot } from "./components/ModelStatusDot";
 import { StreamingMarkdown } from "./components/StreamingMarkdown";
@@ -30,6 +30,11 @@ import {
   type AvailableModel,
 } from "./hooks/useGatewayModels";
 import type { ProviderModelWithScore } from "./modelSorting";
+import type {
+  VscMessageAttachments,
+  VscMessageDataset,
+  VscMessagePromptRun,
+} from "@wrkspc/vsc-message";
 import {
   compareProviderModelEntries,
   computeRecommendationWeightsForProvider,
@@ -164,7 +169,7 @@ export function Assessment({
   fileContent,
   promptIndex = null,
 }: Assessment.Props) {
-  const { vsc } = useVsc();
+  const { send } = useMessage();
   const [modelConfigs, setModelConfigs] = useState<ModelConfigState[]>([]);
   const [expandedModelKey, setExpandedModelKey] = useState<string | null>(null);
   const [modelErrors, setModelErrors] = useState<
@@ -396,8 +401,8 @@ export function Assessment({
   }, [modelsDevError, modelsDevLoading, modelsErrorRaw, modelsLoading]);
 
   useEffect(() => {
-    vsc.postMessage({ type: "getStreamingPreference" });
-  }, [vsc]);
+    send({ type: "settings-streaming-get" });
+  }, [send]);
 
   useEffect(() => {
     if (resultsLayout !== "vertical") setCollapsedResults({});
@@ -693,6 +698,145 @@ export function Assessment({
     [promptId, updateStreamingState],
   );
 
+  const handleExecutionResult = useCallback(
+    (payload: VscMessagePromptRun.ExecutionResult["payload"]) => {
+      if (payload.promptId !== promptId) return;
+
+      const timestamp = payload.timestamp || Date.now();
+      const resultsArray = (Array.isArray(payload.results)
+        ? payload.results
+        : []) as RunResult[];
+
+      const currentRunId = activeRunIdRef.current;
+
+      if (payload.runId && currentRunId) {
+        if (payload.runId !== currentRunId) return;
+        activeRunIdRef.current = null;
+        updateStreamingState(
+          (prev) => {
+            const nextResults = { ...prev.results };
+            for (const result of resultsArray) {
+              const resultId = result.resultId;
+              if (!resultId) continue;
+              const existing = nextResults[resultId];
+              if (!existing) continue;
+              const finalText =
+                typeof result.text === "string"
+                  ? result.text
+                  : existing.fullText ?? null;
+              const existingMetadata = existing.metadata ?? {};
+              const mergedMetadata = {
+                ...existingMetadata,
+                usage: result.usage ?? existingMetadata.usage,
+                totalUsage: result.totalUsage ?? existingMetadata.totalUsage,
+                steps: result.steps ?? existingMetadata.steps,
+                finishReason:
+                  result.finishReason ?? existingMetadata.finishReason,
+                warnings: result.warnings ?? existingMetadata.warnings,
+                request: result.request ?? existingMetadata.request,
+                response: result.response ?? existingMetadata.response,
+              };
+
+              nextResults[resultId] = {
+                ...existing,
+                fullText: finalText ?? null,
+                textParts: finalText ? [finalText] : existing.textParts,
+                success: result.success,
+                error: result.error ?? existing.error,
+                loading: false,
+                metadata: mergedMetadata,
+              };
+            }
+
+            return {
+              ...prev,
+              results: nextResults,
+              completedAt: timestamp,
+              error: payload.error ?? prev.error ?? null,
+            };
+          },
+          {
+            isLoading: false,
+            error: payload.error ?? null,
+            timestamp,
+          },
+        );
+      } else {
+        setExecutionState({
+          isLoading: false,
+          results: resultsArray,
+          error: payload.error || null,
+          timestamp,
+          runId: payload.runId ?? null,
+          promptId: payload.promptId ?? null,
+          startedAt: null,
+          completedAt: timestamp,
+        });
+      }
+
+      resetPerRunUiState();
+      setIsStopping(false);
+    },
+    [promptId, resetPerRunUiState, setExecutionState, setIsStopping, updateStreamingState],
+  );
+
+  useOn(
+    "prompt-run-start",
+    (message) => {
+      handleRunStarted(message.payload);
+    },
+    [handleRunStarted],
+  );
+
+  useOn(
+    "prompt-run-update",
+    (message) => {
+      handleRunUpdate(message.payload);
+    },
+    [handleRunUpdate],
+  );
+
+  useOn(
+    "prompt-run-complete",
+    (message) => {
+      handleRunCompleted(message.payload);
+    },
+    [handleRunCompleted],
+  );
+
+  useOn(
+    "prompt-run-error",
+    (message) => {
+      handleRunError(message.payload);
+    },
+    [handleRunError],
+  );
+
+  useOn(
+    "prompt-run-result-complete",
+    (message) => {
+      handleRunResultCompleted(message.payload);
+    },
+    [handleRunResultCompleted],
+  );
+
+  useOn(
+    "prompt-run-execution-result",
+    (message) => {
+      handleExecutionResult(message.payload);
+    },
+    [handleExecutionResult],
+  );
+
+  useOn(
+    "settings-streaming-state",
+    (message) => {
+      const enabledRaw = message.payload.enabled;
+      setStreamingEnabled(typeof enabledRaw === "boolean" ? enabledRaw : true);
+    },
+    [setStreamingEnabled],
+  );
+
   const handleStop = useCallback(() => {
     const runId =
       activeRunIdRef.current ??
@@ -701,8 +845,8 @@ export function Assessment({
       null;
     if (!runId || isStopping) return;
     setIsStopping(true);
-    vsc.postMessage({ type: "stopPromptRun", payload: { runId } });
-  }, [executionState.runId, isStopping, streamingState.runId, vsc]);
+    send({ type: "prompt-run-stop", payload: { runId } });
+  }, [executionState.runId, isStopping, send, streamingState.runId]);
 
   const promptSource = useMemo(
     () => (prompt ? extractPromptText(fileContent, prompt) : ""),
@@ -886,17 +1030,103 @@ export function Assessment({
     [],
   );
 
+  const handleDatasetLoad = useCallback(
+    async (
+      payload: Extract<VscMessageDataset, { type: "dataset-csv-load" }>[
+        "payload"
+      ],
+    ) => {
+      if (payload.status === "error") {
+        console.error("CSV load error", payload.error);
+        return;
+      }
+
+      try {
+        const rows = await parseCsvString(payload.content);
+        if (!rows || rows.length === 0) {
+          setCsvHeader(null);
+          setCsvRows([]);
+          setCsvPath(payload.path || null);
+          setSelectedRowIdx(null);
+          return;
+        }
+
+        const [header, ...data] = rows;
+        setCsvHeader(header ?? null);
+        setCsvRows(data);
+        setCsvPath(payload.path || null);
+        setSelectedRowIdx(null);
+      } catch (error) {
+        console.error(
+          "Failed to parse CSV",
+          JSON.stringify({ error: String(error) }),
+        );
+      }
+    },
+    [],
+  );
+
+  const handleAttachmentsLoad = useCallback(
+    (
+      payload: Extract<VscMessageAttachments, { type: "attachments-load" }>[
+        "payload"
+      ],
+    ) => {
+      if (payload.status === "error") {
+        console.error("Attachments load error", payload.error);
+        return;
+      }
+
+      const items = Array.isArray(payload.items) ? payload.items : [];
+      const attachments: AttachmentInput[] = items.map((item) => ({
+        path: item.path,
+        name: item.name,
+        mime: item.mime,
+        dataBase64: item.dataBase64,
+      }));
+
+      const targetKey =
+        attachmentTargetKeyRef.current ||
+        activeModelKey ||
+        modelConfigs[0]?.key;
+      if (!targetKey) return;
+
+      updateModelConfig(targetKey, (config) => ({
+        ...config,
+        attachments,
+      }));
+      attachmentTargetKeyRef.current = null;
+    },
+    [activeModelKey, modelConfigs, updateModelConfig],
+  );
+
+  useOn(
+    "dataset-csv-load",
+    (message) => {
+      void handleDatasetLoad(message.payload);
+    },
+    [handleDatasetLoad],
+  );
+
+  useOn(
+    "attachments-load",
+    (message) => {
+      handleAttachmentsLoad(message.payload);
+    },
+    [handleAttachmentsLoad],
+  );
+
   const requestAttachments = useCallback(
     (config: ModelConfigState | null) => {
       if (!config) return;
       const caps = getModelCapabilities(config);
       attachmentTargetKeyRef.current = config.key;
-      vsc.postMessage({
-        type: "requestAttachmentPick",
+      send({
+        type: "attachments-request",
         payload: { imagesOnly: caps.supportsImages && !caps.supportsFiles },
       });
     },
-    [getModelCapabilities, vsc],
+    [getModelCapabilities, send],
   );
 
   const clearAttachments = useCallback(
@@ -1192,72 +1422,6 @@ export function Assessment({
     );
   }, [isHydrated, models]);
 
-  useEffect(() => {
-    const handleCsv = async (event: MessageEvent) => {
-      const message = event.data;
-      if (message.type !== "csvFileLoaded") return;
-      if (message.payload?.error) {
-        console.error("CSV load error", message.payload.error);
-        return;
-      }
-      const content: string = message.payload.content;
-      try {
-        const rows = await parseCsvString(content);
-        if (!rows || rows.length === 0) {
-          setCsvHeader(null);
-          setCsvRows([]);
-          setCsvPath(message.payload.path || null);
-          setSelectedRowIdx(null);
-          return;
-        }
-        const [header, ...data] = rows;
-        setCsvHeader(header!);
-        setCsvRows(data);
-        setCsvPath(message.payload.path || null);
-        setSelectedRowIdx(null);
-      } catch (error) {
-        console.error(
-          "Failed to parse CSV",
-          JSON.stringify({ error: String(error) }),
-        );
-      }
-    };
-    window.addEventListener("message", handleCsv);
-    return () => window.removeEventListener("message", handleCsv);
-  }, []);
-
-  useEffect(() => {
-    const handle = (event: MessageEvent) => {
-      const message = event.data;
-      if (message.type !== "attachmentsLoaded") return;
-      if (message.payload?.error) {
-        console.error("Attachments load error", message.payload.error);
-        return;
-      }
-      const items: any[] = Array.isArray(message.payload?.items)
-        ? message.payload.items
-        : [];
-      const attachments: AttachmentInput[] = items.map((item) => ({
-        path: item.path,
-        name: item.name,
-        mime: item.mime,
-        dataBase64: item.dataBase64,
-      }));
-      const targetKey =
-        attachmentTargetKeyRef.current ||
-        activeModelKey ||
-        modelConfigs[0]?.key;
-      if (!targetKey) return;
-      updateModelConfig(targetKey, (config) => ({
-        ...config,
-        attachments,
-      }));
-      attachmentTargetKeyRef.current = null;
-    };
-    window.addEventListener("message", handle);
-    return () => window.removeEventListener("message", handle);
-  }, [activeModelKey, modelConfigs, updateModelConfig]);
-
   const usingCsv = useMemo(
     () => !!csvHeader && csvRows.length > 0,
     [csvHeader, csvRows],
@@ -1293,7 +1457,7 @@ export function Assessment({
   };
 
   const handleLoadCsv = () => {
-    vsc.postMessage({ type: "requestCsvPick" });
+    send({ type: "dataset-csv-request" });
   };
 
   const handleClearCsv = () => {
@@ -1342,6 +1506,7 @@ export function Assessment({
 
   const handleExecute = () => {
     if (!prompt || !canExecute()) return;
+    if (!promptId) return;
 
     const promptText = extractPromptText(fileContent, prompt);
     const { runs, runSettings } = buildRunsAndSettings({
@@ -1476,19 +1641,31 @@ export function Assessment({
         modelId: model.modelId,
         providerId: model.providerId,
         label: model.label ?? model.modelId,
-        options: model.generationOptions,
+        options: model.generationOptions as unknown as Record<string, unknown>,
         tools: model.caps.supportsTools ? (model.parsedTools ?? null) : null,
         providerOptions: model.providerOptions ?? null,
         reasoning: model.reasoning,
-        attachments: model.filteredAttachments,
+        attachments: model.filteredAttachments.map(({ name, mime, dataBase64 }) => ({
+          name: name ?? "",
+          mime: mime ?? "application/octet-stream",
+          dataBase64: dataBase64 ?? "",
+        })),
       })),
     };
 
-    vsc.postMessage({ type: "executePrompt", payload });
+    send({ type: "prompt-run-execute", payload });
   };
 
   const handleExecuteRef = useRef<() => void>(() => {});
   handleExecuteRef.current = handleExecute;
+
+  useOn(
+    "prompts-execute-from-command",
+    () => {
+      handleExecuteRef.current();
+    },
+    [],
+  );
 
   const handleClear = () => {
     setExecutionState({
@@ -1505,143 +1682,6 @@ export function Assessment({
     setExpandedResponse({});
     setViewTab({});
   };
-
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      const message = event.data;
-      if (!message || typeof message !== "object") return;
-
-      switch (message.type) {
-        case "promptRunStarted":
-          handleRunStarted(message.payload as StreamingRunStarted);
-          break;
-        case "promptRunUpdate":
-          handleRunUpdate(message.payload as StreamingRunUpdate);
-          break;
-        case "promptRunCompleted":
-          handleRunCompleted(message.payload as StreamingRunCompleted);
-          break;
-        case "promptRunError":
-          handleRunError(message.payload as StreamingRunError);
-          break;
-        case "promptRunResultCompleted":
-          handleRunResultCompleted(
-            message.payload as StreamingRunResultCompleted,
-          );
-          break;
-        case "streamingPreference": {
-          const enabledRaw = (message.payload ?? {}).enabled;
-          const enabled = typeof enabledRaw === "boolean" ? enabledRaw : true;
-          setStreamingEnabled(enabled);
-          break;
-        }
-        case "promptExecutionResult": {
-          const payload = message.payload;
-          if (!payload || payload.promptId !== promptId) break;
-
-          const timestamp = payload.timestamp || Date.now();
-          const resultsArray: RunResult[] = Array.isArray(payload.results)
-            ? payload.results
-            : [];
-
-          const currentRunId = activeRunIdRef.current;
-
-          if (payload.runId && currentRunId) {
-            if (payload.runId !== currentRunId) break;
-            activeRunIdRef.current = null;
-            updateStreamingState(
-              (prev) => {
-                const nextResults = { ...prev.results };
-                for (const result of resultsArray) {
-                  const resultId = result.resultId;
-                  if (!resultId) continue;
-                  const existing = nextResults[resultId];
-                  if (!existing) continue;
-                  const finalText =
-                    typeof result.text === "string"
-                      ? result.text
-                      : (existing.fullText ?? null);
-                  const existingMetadata = existing.metadata ?? {};
-                  const mergedMetadata = {
-                    ...existingMetadata,
-                    usage: result.usage ?? existingMetadata.usage,
-                    totalUsage:
-                      result.totalUsage ?? existingMetadata.totalUsage,
-                    steps: result.steps ?? existingMetadata.steps,
-                    finishReason:
-                      result.finishReason ?? existingMetadata.finishReason,
-                    warnings: result.warnings ?? existingMetadata.warnings,
-                    request: result.request ?? existingMetadata.request,
-                    response: result.response ?? existingMetadata.response,
-                  };
-
-                  nextResults[resultId] = {
-                    ...existing,
-                    fullText: finalText,
-                    textParts: finalText ? [finalText] : existing.textParts,
-                    success: result.success,
-                    error: result.error ?? existing.error,
-                    loading: false,
-                    metadata: mergedMetadata,
-                  };
-                }
-
-                return {
-                  ...prev,
-                  results: nextResults,
-                  completedAt: timestamp,
-                  error: payload.error ?? prev.error ?? null,
-                };
-              },
-              {
-                isLoading: false,
-                error: payload.error ?? null,
-                timestamp,
-              },
-            );
-          } else {
-            setExecutionState({
-              isLoading: false,
-              results: resultsArray,
-              error: payload.error || null,
-              timestamp,
-              runId: payload.runId ?? null,
-              promptId: payload.promptId ?? null,
-              startedAt: null,
-              completedAt: timestamp,
-            });
-          }
-
-          resetPerRunUiState();
-          setIsStopping(false);
-          break;
-        }
-        default:
-          break;
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [
-    handleRunCompleted,
-    handleRunError,
-    handleRunResultCompleted,
-    handleRunStarted,
-    handleRunUpdate,
-    promptId,
-    resetPerRunUiState,
-    updateStreamingState,
-  ]);
-
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      if (event.data?.type !== "executePromptFromCommand") return;
-      handleExecuteRef.current();
-    };
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
-  }, []);
 
   useEffect(() => {
     setActiveResultIndex((idx) => {
@@ -2670,8 +2710,8 @@ export function Assessment({
             onChange={(event) => {
               const enabled = event.target.checked;
               setStreamingEnabled(enabled);
-              vsc.postMessage({
-                type: "setStreamingPreference",
+              send({
+                type: "settings-streaming-set",
                 payload: { enabled },
               });
             }}

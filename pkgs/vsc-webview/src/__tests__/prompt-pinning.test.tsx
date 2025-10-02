@@ -1,5 +1,6 @@
 import { Index } from "@/app/Index";
 import { SettingsContext } from "@/aspects/settings/Context";
+import { MessageProvider } from "@/aspects/message/messageContext";
 import { VscContext } from "@/aspects/vsc/Context";
 import { Prompt } from "@mindrig/types";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
@@ -198,14 +199,16 @@ describe("prompt pinning", () => {
 
     render(
       <VscContext.Provider value={{ vsc }}>
-        <SettingsContext.Provider value={{ settings: options.settings }}>
-          <Index />
-        </SettingsContext.Provider>
+        <MessageProvider>
+          <SettingsContext.Provider value={{ settings: options.settings }}>
+            <Index />
+          </SettingsContext.Provider>
+        </MessageProvider>
       </VscContext.Provider>,
     );
 
     await waitFor(() => {
-      expect(postMessage).toHaveBeenCalledWith({ type: "webviewReady" });
+      expect(postMessage).toHaveBeenCalledWith({ type: "lifecycle-webview-ready" });
     });
 
     const pinButton = () =>
@@ -223,13 +226,13 @@ describe("prompt pinning", () => {
 
   function dispatchActiveFileChanged(file: SyncFile.State) {
     act(() => {
-      window.postMessage({ type: "activeFileChanged", payload: file }, "*");
+      window.postMessage({ type: "file-active-change", payload: file }, "*");
     });
   }
 
   function dispatchPromptsChanged(prompts: Prompt[]) {
     act(() => {
-      window.postMessage({ type: "promptsChanged", payload: { prompts } }, "*");
+      window.postMessage({ type: "prompts-change", payload: { prompts } }, "*");
     });
   }
 

@@ -13,8 +13,8 @@ import {
   modelsDotdevUrl,
   setModelsDevData,
 } from "@wrkspc/model";
-import { useVsc } from "@/aspects/vsc/Context";
-import type { Vsc } from "@/aspects/vsc/api";
+import { useMessage } from "@/aspects/message/messageContext";
+import type { VscMessageModels } from "@wrkspc/vsc-message";
 import {
   FALLBACK_MODELS_DEV_DATA,
   MODELS_DEV_REVALIDATE_OPTIONS,
@@ -55,66 +55,56 @@ const ModelsDevContext = createContext<ModelsDevContextValue | undefined>(
   undefined,
 );
 
-async function fetchModelsDev(
-  vsc: Vsc.Api | undefined,
-): Promise<ModelDotdev.ModelsDev.Data> {
-  if (typeof window === "undefined") return FALLBACK_MODELS_DEV_DATA;
+export function ModelsDevProvider(props: React.PropsWithChildren) {
+  const { send, listen } = useMessage();
 
-  if (!vsc?.postMessage) {
-    const response = await fetch(modelsDotdevUrl());
-    if (!response.ok)
-      throw new Error(`Failed to fetch models.dev: ${response.status}`);
-    return (await response.json()) as ModelDotdev.ModelsDev.Data;
-  }
+  const fetchModelsDev = useCallback(async () => {
+    if (typeof window === "undefined") return FALLBACK_MODELS_DEV_DATA;
 
-  return new Promise<ModelDotdev.ModelsDev.Data>((resolve, reject) => {
-    let settled = false;
-    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const responsePromise = new Promise<ModelDotdev.ModelsDev.Data>(
+      (resolve, reject) => {
+        const subscription = listen(
+          "models-dev-response",
+          (message: Extract<VscMessageModels, { type: "models-dev-response" }>) => {
+            cleanup();
+            const payload = message.payload;
+            if (payload.status === "ok") resolve(payload.data);
+            else reject(new Error(payload.error ?? "Unknown models.dev error"));
+          },
+        );
 
-    const cleanup = () => {
-      if (timeout) clearTimeout(timeout);
-      window.removeEventListener("message", handleMessage);
-    };
+        const timeoutId = setTimeout(() => {
+          cleanup();
+          reject(new Error("Timed out fetching models.dev data"));
+        }, 5000);
 
-    const handleMessage = (event: MessageEvent) => {
-      const message = event.data;
-      if (!message || message.type !== "modelsDev") return;
-      settled = true;
-      cleanup();
-      if (message.payload?.data) {
-        resolve(message.payload.data as ModelDotdev.ModelsDev.Data);
-      } else {
-        const errorMessage =
-          message.payload?.error || "Unknown models.dev error";
-        reject(new Error(errorMessage));
-      }
-    };
+        const cleanup = () => {
+          clearTimeout(timeoutId);
+          subscription.dispose();
+        };
 
-    window.addEventListener("message", handleMessage);
+        try {
+          send({ type: "models-dev-get" });
+        } catch (error) {
+          cleanup();
+          reject(error instanceof Error ? error : new Error(String(error)));
+        }
+      },
+    );
 
     try {
-      vsc.postMessage({ type: "getModelsDev" });
+      return await responsePromise;
     } catch (error) {
-      cleanup();
-      reject(error instanceof Error ? error : new Error(String(error)));
-      return;
+      const response = await fetch(modelsDotdevUrl());
+      if (!response.ok)
+        throw new Error(`Failed to fetch models.dev: ${response.status}`);
+      return (await response.json()) as ModelDotdev.ModelsDev.Data;
     }
-
-    timeout = setTimeout(() => {
-      if (!settled) {
-        cleanup();
-        reject(new Error("Timed out fetching models.dev data"));
-      }
-    }, 5000);
-  });
-}
-
-export function ModelsDevProvider(props: React.PropsWithChildren) {
-  const { vsc } = useVsc();
+  }, [listen, send]);
 
   const { data, error, isValidating, isLoading, mutate } = useSWR(
     SWR_KEY,
-    () => fetchModelsDev(vsc),
+    fetchModelsDev,
     {
       fallbackData: FALLBACK_MODELS_DEV_DATA,
       keepPreviousData: true,

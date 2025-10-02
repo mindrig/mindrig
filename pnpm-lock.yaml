@@ -515,6 +515,9 @@ importers:
       '@wrkspc/prompt':
         specifier: workspace:*
         version: link:../prompt
+      '@wrkspc/vsc-message':
+        specifier: workspace:*
+        version: link:../vsc-message
       '@wrkspc/vsc-settings':
         specifier: workspace:*
         version: link:../vsc-settings

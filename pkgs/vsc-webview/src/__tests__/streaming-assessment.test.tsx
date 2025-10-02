@@ -164,7 +164,7 @@ describe("Assessment streaming UI", () => {
 
     await waitFor(() => {
       expect(mockVsc.postMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "getStreamingPreference" }),
+        expect.objectContaining({ type: "settings-streaming-get" }),
       );
     });
   });
@@ -177,7 +177,7 @@ describe("Assessment streaming UI", () => {
 
     await act(async () => {
       window.postMessage({
-        type: "streamingPreference",
+        type: "settings-streaming-state",
         payload: { enabled: false },
       });
     });
@@ -190,7 +190,7 @@ describe("Assessment streaming UI", () => {
 
     expect(mockVsc.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: "setStreamingPreference",
+        type: "settings-streaming-set",
         payload: { enabled: true },
       }),
     );
@@ -204,7 +204,7 @@ describe("Assessment streaming UI", () => {
 
     await act(async () => {
       window.postMessage({
-        type: "promptRunStarted",
+        type: "prompt-run-start",
         payload: {
           runId,
           promptId,
@@ -228,7 +228,7 @@ describe("Assessment streaming UI", () => {
 
     await act(async () => {
       window.postMessage({
-        type: "promptRunUpdate",
+        type: "prompt-run-update",
         payload: {
           runId,
           promptId,
@@ -243,7 +243,7 @@ describe("Assessment streaming UI", () => {
 
     await act(async () => {
       window.postMessage({
-        type: "promptRunResultCompleted",
+        type: "prompt-run-result-complete",
         payload: {
           runId,
           promptId,
@@ -271,7 +271,7 @@ describe("Assessment streaming UI", () => {
 
     await act(async () => {
       window.postMessage({
-        type: "promptRunCompleted",
+        type: "prompt-run-complete",
         payload: {
           runId,
           promptId,
@@ -303,7 +303,7 @@ describe("Assessment streaming UI", () => {
 
     await act(async () => {
       window.postMessage({
-        type: "promptRunStarted",
+        type: "prompt-run-start",
         payload: {
           runId,
           promptId,
@@ -331,7 +331,7 @@ describe("Assessment streaming UI", () => {
 
     await act(async () => {
       window.postMessage({
-        type: "promptRunResultCompleted",
+        type: "prompt-run-result-complete",
         payload: {
           runId,
           promptId,
@@ -366,7 +366,7 @@ describe("Assessment streaming UI", () => {
 
     await act(async () => {
       window.postMessage({
-        type: "promptRunStarted",
+        type: "prompt-run-start",
         payload: {
           runId,
           promptId,
@@ -388,7 +388,7 @@ describe("Assessment streaming UI", () => {
 
     await act(async () => {
       window.postMessage({
-        type: "promptRunError",
+        type: "prompt-run-error",
         payload: {
           runId,
           promptId,
@@ -401,7 +401,7 @@ describe("Assessment streaming UI", () => {
 
     await act(async () => {
       window.postMessage({
-        type: "promptRunResultCompleted",
+        type: "prompt-run-result-complete",
         payload: {
           runId,
           promptId,
