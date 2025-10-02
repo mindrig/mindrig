@@ -6,7 +6,7 @@ Establish a single, typed messaging contract for the VS Code extension and webvi
 
 ## Plan
 
-- [ ] [Map Existing Messages](./001-map-existing-messages.md): Catalog every extension↔webview message, its payload shape, and runtime side effects to inform the unified schema.
+- [x] [Map Existing Messages](./001-map-existing-messages.md): Catalog every extension↔webview message, its payload shape, and runtime side effects to inform the unified schema.
 - [ ] [Baseline Message Tests](./002-baseline-message-tests.md): Add regression tests and helpers that capture current message-driven behaviors in extension and webview before refactoring.
 - [ ] [Refactor Vsc Sync Package](./003-refactor-vsc-sync.md): Rename and adjust `@wrkspc/vsc-sync` message exports to the new `VscMessageSync` convention without altering behavior.
 - [ ] [Introduce Vsc Message Package](./004-introduce-vsc-message.md): Create `@wrkspc/vsc-message` with domain modules that union `VscMessageSync` and higher-level messages into a single `VscMessage` type.
@@ -18,6 +18,11 @@ Establish a single, typed messaging contract for the VS Code extension and webvi
 ### [Map Existing Messages](./001-map-existing-messages.md)
 
 Survey both codebases (`pkgs/vsc-extension`, `pkgs/vsc-webview`, related packages) to inventory all `postMessage` and message handling sites, recording direction, payload, and dependencies. Group messages by domain (sync, file, prompts, settings, auth, etc.), note any inconsistent naming, and identify shared payload structures that may belong in `@wrkspc/vsc-types`. Produce a canonical list and target naming scheme (kebab-case prefixes) that will guide later steps.
+
+#### Step Status
+
+- Completed October 2, 2025: Cataloged extension and webview producers/subscribers, shared type overlaps, and a bidirectional message matrix in `.agents/plans/006-messages-consolidation/artifacts/messages-inventory.md`.
+- Noted unused-but-supported inbound types (`addItWorks`, `getVercelGatewayKey`) for follow-up during consolidation; no other blockers identified.
 
 ### [Baseline Message Tests](./002-baseline-message-tests.md)
 

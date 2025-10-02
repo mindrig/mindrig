@@ -6,13 +6,13 @@ Inventory every extension ↔ webview message, its payload, and runtime side eff
 
 ## Tasks
 
-- [ ] [Capture extension message producers](#capture-extension-message-producers): Document all places the extension posts messages to the webview and the payload shapes they emit.
-- [ ] [Capture webview message producers](#capture-webview-message-producers): Document all places the webview posts messages back to the extension and the payload shapes they emit.
-- [ ] [Audit webview message subscriptions](#audit-webview-message-subscriptions): List every `window.addEventListener`/`useVsc` subscription and note expected payload requirements.
-- [ ] [Audit extension message subscriptions](#audit-extension-message-subscriptions): Enumerate every `onDidReceiveMessage`/`subscribe` handler the extension uses to consume webview messages and the associated contracts.
-- [ ] [Survey shared type definitions](#survey-shared-type-definitions): Record message-related types already exposed from `@wrkspc/vsc-sync`, `@wrkspc/vsc-types`, or ad-hoc modules.
-- [ ] [Correlate message pairs and domains](#correlate-message-pairs-and-domains): Cross-reference senders with receivers, tagging their direction, domain, and any side effects or dependencies.
-- [ ] [Publish canonical inventory artifact](#publish-canonical-inventory-artifact): Summarize the finalized matrix and open questions for downstream refactors.
+- [x] [Capture extension message producers](#capture-extension-message-producers): Document all places the extension posts messages to the webview and the payload shapes they emit.
+- [x] [Capture webview message producers](#capture-webview-message-producers): Document all places the webview posts messages back to the extension and the payload shapes they emit.
+- [x] [Audit webview message subscriptions](#audit-webview-message-subscriptions): List every `window.addEventListener`/`useVsc` subscription and note expected payload requirements.
+- [x] [Audit extension message subscriptions](#audit-extension-message-subscriptions): Enumerate every `onDidReceiveMessage`/`subscribe` handler the extension uses to consume webview messages and the associated contracts.
+- [x] [Survey shared type definitions](#survey-shared-type-definitions): Record message-related types already exposed from `@wrkspc/vsc-sync`, `@wrkspc/vsc-types`, or ad-hoc modules.
+- [x] [Correlate message pairs and domains](#correlate-message-pairs-and-domains): Cross-reference senders with receivers, tagging their direction, domain, and any side effects or dependencies.
+- [x] [Publish canonical inventory artifact](#publish-canonical-inventory-artifact): Summarize the finalized matrix and open questions for downstream refactors.
 
 ### Capture extension message producers
 
