@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts?(x)", "src/**/test.ts?(x)"],
 
     // Display paths in the context of the monorepo
     root: import.meta.dirname + "/../..",
