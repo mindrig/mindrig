@@ -124,7 +124,7 @@ describe("WorkbenchViewProvider messaging contracts", () => {
   it("responds to sync-init with current state vector", async () => {
     const { receive, posted, flush } = await createWorkbenchHarness();
 
-    receive({ type: "webviewReady" });
+    receive({ type: "lifecycle-webview-ready" });
 
     const fileState = {
       path: "/workspace/file.ts",
@@ -153,7 +153,7 @@ describe("WorkbenchViewProvider messaging contracts", () => {
     const { receive, posted, flush, context } = await createWorkbenchHarness();
 
     receive({
-      type: "setStreamingPreference",
+      type: "settings-streaming-set",
       payload: { enabled: false },
     });
 
@@ -164,7 +164,7 @@ describe("WorkbenchViewProvider messaging contracts", () => {
       false,
     );
 
-    const echo = posted.find((msg) => msg.type === "streamingPreference");
+    const echo = posted.find((msg) => msg.type === "settings-streaming-state");
     expect(echo).toBeTruthy();
     expect(echo?.payload.enabled).toBe(false);
   });
@@ -172,7 +172,7 @@ describe("WorkbenchViewProvider messaging contracts", () => {
   it("applies inbound sync updates to the code manager", async () => {
     const { receive, flush } = await createWorkbenchHarness();
 
-    receive({ type: "webviewReady" });
+    receive({ type: "lifecycle-webview-ready" });
 
     const fileState = {
       path: "/workspace/file.ts",

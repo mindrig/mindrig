@@ -1,18 +1,13 @@
 import type { Prompt } from "@mindrig/types";
 
 export type VscMessagePrompts =
-  | VscMessagePrompts.Changed
+  | VscMessagePrompts.Change
   | VscMessagePrompts.ExecuteFromCommand
   | VscMessagePrompts.Reveal;
 
 export namespace VscMessagePrompts {
-  export type Type =
-    | "prompts-changed"
-    | "prompt-execute-from-command"
-    | "prompt-reveal";
-
-  export interface Changed {
-    type: "prompts-changed";
+  export interface Change {
+    type: "prompts-change";
     payload: {
       prompts: Prompt[];
       parseStatus?: "success" | "error";
@@ -21,12 +16,12 @@ export namespace VscMessagePrompts {
   }
 
   export interface ExecuteFromCommand {
-    type: "prompt-execute-from-command";
+    type: "prompts-execute-from-command";
     payload?: undefined;
   }
 
   export interface Reveal {
-    type: "prompt-reveal";
+    type: "prompts-reveal";
     payload: {
       file: string;
       selection: {

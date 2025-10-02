@@ -1,17 +1,23 @@
 import { AssetResolver } from "@/aspects/asset";
+import { VscMessageBus } from "@/aspects/message";
 import { setAuthContext } from "@/auth";
 import { parsePrompts } from "@mindrig/parser-wasm";
 import { VscController } from "@wrkspc/vsc-controller";
 import { VscSettingsController } from "@wrkspc/vsc-settings";
 import type { SyncFile, SyncResource, VscMessageSync } from "@wrkspc/vsc-sync";
 import type {
-  PromptRunCompletedMessage,
-  PromptRunErrorMessage,
-  PromptRunResultCompletedMessage,
+  VscMessage,
+  VscMessageAuth,
+  VscMessageAttachments,
+  VscMessageDataset,
+  VscMessageModels,
+  VscMessagePrompts,
+  VscMessagePromptRun,
+  VscMessageSettings,
+} from "@wrkspc/vsc-message";
+import type {
   PromptRunResultData,
   PromptRunResultShell,
-  PromptRunStartedMessage,
-  PromptRunUpdateMessage,
 } from "@wrkspc/vsc-types";
 import PQueue from "p-queue";
 import { nanoid } from "nanoid";
@@ -33,57 +39,78 @@ export interface ViteManifestEntry {
   assets?: string[];
 }
 
-interface ExecutePromptPayload {
-  promptText: string;
-  variables: Record<string, string>;
-  promptId: string;
-  streamingEnabled?: boolean;
-  modelId?: string | null;
-  runs?: Array<{
-    label?: string;
-    variables: Record<string, string>;
-    substitutedPrompt: string;
-  }>;
-  models?: Array<{
-    key: string;
-    modelId: string | null;
-    providerId?: string | null;
-    label?: string | null;
-    options?: {
-      maxOutputTokens?: number;
-      temperature?: number;
-      topP?: number;
-      topK?: number;
-      presencePenalty?: number;
-      frequencyPenalty?: number;
-      stopSequences?: string[];
-      seed?: number;
-    };
-    tools?: any | null;
-    providerOptions?: any | null;
-    attachments?: Array<{ name: string; mime: string; dataBase64: string }>;
-    reasoning?: {
-      enabled: boolean;
-      effort: "low" | "medium" | "high";
-      budgetTokens?: number | "";
-    };
-  }>;
-  options?: {
-    maxOutputTokens?: number;
-    temperature?: number;
-    topP?: number;
-    topK?: number;
-    presencePenalty?: number;
-    frequencyPenalty?: number;
-    stopSequences?: string[];
-    seed?: number;
-  };
-  tools?: any | null;
-  toolChoice?: any;
-  providerOptions?: any | null;
-  attachments?: Array<{ name: string; mime: string; dataBase64: string }>;
-  runSettings?: any;
-}
+type PromptRunExecuteMessage = Extract<
+  VscMessagePromptRun,
+  { type: "prompt-run-execute" }
+>;
+
+type PromptRunStopMessage = Extract<
+  VscMessagePromptRun,
+  { type: "prompt-run-stop" }
+>;
+
+type PromptRunStartMessage = Extract<
+  VscMessagePromptRun,
+  { type: "prompt-run-start" }
+>;
+
+type PromptRunUpdateMessage = Extract<
+  VscMessagePromptRun,
+  { type: "prompt-run-update" }
+>;
+
+type PromptRunResultCompleteMessage = Extract<
+  VscMessagePromptRun,
+  { type: "prompt-run-result-complete" }
+>;
+
+type PromptRunCompleteMessage = Extract<
+  VscMessagePromptRun,
+  { type: "prompt-run-complete" }
+>;
+
+type PromptRunErrorMessage = Extract<
+  VscMessagePromptRun,
+  { type: "prompt-run-error" }
+>;
+
+type PromptRunExecutionResultMessage = Extract<
+  VscMessagePromptRun,
+  { type: "prompt-run-execution-result" }
+>;
+
+type ExecutePromptPayload = PromptRunExecuteMessage["payload"];
+type StopPromptRunPayload = PromptRunStopMessage["payload"];
+
+type AttachmentsRequestPayload = Extract<
+  VscMessageAttachments,
+  { type: "attachments-request" }
+>["payload"];
+
+type PromptsRevealPayload = Extract<
+  VscMessagePrompts,
+  { type: "prompts-reveal" }
+>["payload"];
+
+type DatasetCsvLoadMessage = Extract<
+  VscMessageDataset,
+  { type: "dataset-csv-load" }
+>;
+
+type ModelsDevResponseMessage = Extract<
+  VscMessageModels,
+  { type: "models-dev-response" }
+>;
+
+type AuthVercelGatewaySetPayload = Extract<
+  VscMessageAuth,
+  { type: "auth-vercel-gateway-set" }
+>["payload"];
+
+type SettingsStreamingSetPayload = Extract<
+  VscMessageSettings,
+  { type: "settings-streaming-set" }
+>["payload"];
 
 export class WorkbenchViewProvider
   extends VscController
@@ -121,8 +148,10 @@ export class WorkbenchViewProvider
   //#region Webview
 
   #webview: vscode.Webview | null = null;
+  #messageBus: VscMessageBus | null = null;
   #currentResourcePath: string | null = null;
   #pendingOpenVercelPanel = false;
+  #lastAttachmentPickImagesOnly = false;
   #lastExecutionPayload: ExecutePromptPayload | null = null;
 
   resolveWebviewView(
@@ -136,6 +165,15 @@ export class WorkbenchViewProvider
     };
 
     this.#webview = webviewView.webview;
+    const messageBus = new VscMessageBus(this.#webview, {
+      debug: process.env.MINDRIG_DEBUG_MESSAGES === "true",
+      onUnhandledMessage: (raw) => {
+        console.warn("Received unknown webview message", raw);
+      },
+    });
+    this.#messageBus = messageBus;
+    this.register(messageBus);
+
     this.#setupMessageHandling();
     this.#registerSettings();
     this.#initializeSecretManager();
@@ -149,7 +187,7 @@ export class WorkbenchViewProvider
       const currentFile = this.#fileManager.getCurrentFile();
       if (currentFile)
         this.#sendMessage({
-          type: "activeFileChanged",
+          type: "file-active-change",
           payload: currentFile,
         });
     }
@@ -157,7 +195,7 @@ export class WorkbenchViewProvider
     this.#sendVercelGatewayKey();
 
     if (this.#pendingOpenVercelPanel) {
-      this.#sendMessage({ type: "openVercelGatewayPanel" });
+      this.#sendMessage({ type: "auth-panel-open" });
       this.#pendingOpenVercelPanel = false;
     }
 
@@ -302,66 +340,99 @@ export class WorkbenchViewProvider
   //#region Messages
 
   #setupMessageHandling() {
-    if (!this.#webview) return;
+    if (!this.#messageBus) return;
 
-    // TODO:
-    this.#webview.onDidReceiveMessage((message: VscMessageSync | any) => {
-      switch (message.type) {
-        case "addItWorks":
-          this.#handleAddItWorks();
-          break;
-        case "revealPrompt":
-          this.#handleRevealPrompt((message as any).payload);
-          break;
-        case "requestCsvPick":
-          this.#handleRequestCsvPick();
-          break;
-        case "requestAttachmentPick":
-          // remember filter preference for this pick operation
-          try {
-            (this as any).lastAttachmentPickImagesOnly = !!(message as any)
-              .payload?.imagesOnly;
-          } catch {}
-          this.#handleRequestAttachmentPick();
-          break;
-        case "getModelsDev":
-          this.#handleGetModelsDev();
-          break;
-        case "webviewReady":
-          this.#handleWebviewReady();
-          break;
-        case "getVercelGatewayKey":
-          this.#sendVercelGatewayKey();
-          break;
-        case "setVercelGatewayKey":
-          this.#handleSetVercelGatewayKey((message as any).payload);
-          break;
-        case "clearVercelGatewayKey":
-          this.#handleClearVercelGatewayKey();
-          break;
-        case "getStreamingPreference":
-          this.#handleGetStreamingPreference();
-          break;
-        case "setStreamingPreference":
-          this.#handleSetStreamingPreference((message as any).payload);
-          break;
-        case "sync-update":
-          this.#handleSyncUpdate(message);
-          break;
-        case "sync-state-vector":
-          this.#handleSyncStateVector(message);
-          break;
-        case "sync-init":
-          this.#handleRequestSync();
-          break;
-        case "executePrompt":
-          this.#handleExecutePrompt((message as any).payload);
-          break;
-        case "stopPromptRun":
-          this.#handleStopPromptRun((message as any).payload);
-          break;
-      }
-    });
+    this.register(
+      this.#messageBus.on("dev-add-it-works", () => this.#handleAddItWorks()),
+    );
+
+    this.register(
+      this.#messageBus.on("prompts-reveal", (message) =>
+        this.#handleRevealPrompt(message.payload),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("dataset-csv-request", () =>
+        this.#handleRequestCsvPick(),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("attachments-request", ({ payload }) => {
+        const requestPayload: AttachmentsRequestPayload = payload;
+        this.#lastAttachmentPickImagesOnly = !!requestPayload?.imagesOnly;
+        this.#handleRequestAttachmentPick();
+      }),
+    );
+
+    this.register(
+      this.#messageBus.on("models-dev-get", () => this.#handleGetModelsDev()),
+    );
+
+    this.register(
+      this.#messageBus.on("lifecycle-webview-ready", () =>
+        this.#handleWebviewReady(),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("auth-vercel-gateway-get", () =>
+        this.#sendVercelGatewayKey(),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("auth-vercel-gateway-set", (message) =>
+        this.#handleSetVercelGatewayKey(message.payload),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("auth-vercel-gateway-clear", () =>
+        this.#handleClearVercelGatewayKey(),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("settings-streaming-get", () =>
+        this.#handleGetStreamingPreference(),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("settings-streaming-set", (message) =>
+        this.#handleSetStreamingPreference(message.payload),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("sync-update", (message) =>
+        this.#handleSyncUpdate(message),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("sync-state-vector", (message) =>
+        this.#handleSyncStateVector(message),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("sync-init", () => this.#handleRequestSync()),
+    );
+
+    this.register(
+      this.#messageBus.on("prompt-run-execute", (message) =>
+        this.#handleExecutePrompt(message.payload),
+      ),
+    );
+
+    this.register(
+      this.#messageBus.on("prompt-run-stop", (message) =>
+        this.#handleStopPromptRun(message.payload),
+      ),
+    );
   }
 
   // Cache for models.dev data
@@ -374,29 +445,36 @@ export class WorkbenchViewProvider
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         this.#modelsDevCache = await resp.json();
       }
-      this.#sendMessage({
-        type: "modelsDev",
-        payload: { data: this.#modelsDevCache },
-      });
+      const success: ModelsDevResponseMessage = {
+        type: "models-dev-response",
+        payload: { status: "ok", data: this.#modelsDevCache },
+      };
+      this.#sendMessage(success);
     } catch (error) {
       console.error("Failed to fetch models.dev data:", error);
-      this.#sendMessage({
-        type: "modelsDev",
+      const failure: ModelsDevResponseMessage = {
+        type: "models-dev-response",
         payload: {
+          status: "error",
           error: error instanceof Error ? error.message : String(error),
         },
-      });
+      };
+      this.#sendMessage(failure);
     }
   }
 
-  #sendMessage(message: any) {
-    if (this.#webview) this.#webview.postMessage(message);
+  #sendMessage<Message extends VscMessage>(message: Message) {
+    if (this.#messageBus) {
+      void this.#messageBus.send(message);
+      return;
+    }
+
+    if (this.#webview) {
+      void this.#webview.postMessage(message);
+    }
   }
 
-  async #handleRevealPrompt(payload: {
-    file: string;
-    selection: { start: number; end: number };
-  }) {
+  async #handleRevealPrompt(payload: PromptsRevealPayload) {
     try {
       const uri = vscode.Uri.file(payload.file);
       const doc = await vscode.workspace.openTextDocument(uri);
@@ -424,7 +502,7 @@ export class WorkbenchViewProvider
 
   // Exposed to extension.ts to open the API key panel
   public openVercelGatewayPanel() {
-    if (this.#webview) this.#sendMessage({ type: "openVercelGatewayPanel" });
+    if (this.#webview) this.#sendMessage({ type: "auth-panel-open" });
     else this.#pendingOpenVercelPanel = true;
   }
 
@@ -437,7 +515,7 @@ export class WorkbenchViewProvider
   #parseAndSendPrompts(fileState: SyncFile.State) {
     if (!["ts", "js", "py"].includes(fileState.languageId)) {
       this.#sendMessage({
-        type: "promptsChanged",
+        type: "prompts-change",
         payload: { prompts: [] },
       });
       return;
@@ -450,7 +528,7 @@ export class WorkbenchViewProvider
         // Cache successful prompts
         this.#cachedPrompts = parseResult.prompts;
         this.#sendMessage({
-          type: "promptsChanged",
+          type: "prompts-change",
           payload: {
             prompts: parseResult.prompts,
             parseStatus: "success",
@@ -460,7 +538,7 @@ export class WorkbenchViewProvider
         console.error("Parser returned error:", parseResult.error);
         // Keep existing cached prompts but set status to error
         this.#sendMessage({
-          type: "promptsChanged",
+          type: "prompts-change",
           payload: {
             prompts: this.#cachedPrompts,
             parseStatus: "error",
@@ -472,7 +550,7 @@ export class WorkbenchViewProvider
       // Keep existing cached prompts but set status to error
       console.error("Failed to parse prompts:", error);
       this.#sendMessage({
-        type: "promptsChanged",
+        type: "prompts-change",
         payload: {
           prompts: this.#cachedPrompts,
           parseStatus: "error",
@@ -493,7 +571,7 @@ export class WorkbenchViewProvider
       (this.#fileManager = new FileManager({
         onActiveFileChanged: (fileState) => {
           this.#sendMessage({
-            type: "activeFileChanged",
+            type: "file-active-change",
             payload: fileState,
           });
           if (fileState) {
@@ -503,7 +581,7 @@ export class WorkbenchViewProvider
         },
         onFileContentChanged: (fileState) => {
           this.#sendMessage({
-            type: "fileContentChanged",
+            type: "file-content-change",
             payload: fileState,
           });
           this.#parseAndSendPrompts(fileState);
@@ -511,13 +589,13 @@ export class WorkbenchViewProvider
         },
         onFileSaved: (fileState) => {
           this.#sendMessage({
-            type: "fileSaved",
+            type: "file-save",
             payload: fileState,
           });
         },
         onCursorPositionChanged: (fileState) => {
           this.#sendMessage({
-            type: "cursorPositionChanged",
+            type: "file-cursor-change",
             payload: fileState,
           });
         },
@@ -535,21 +613,25 @@ export class WorkbenchViewProvider
       if (!uri) return;
       const data = await vscode.workspace.fs.readFile(uri);
       const content = new TextDecoder("utf-8").decode(data);
-      this.#sendMessage({
-        type: "csvFileLoaded",
+      const success: DatasetCsvLoadMessage = {
+        type: "dataset-csv-load",
         payload: {
+          status: "ok",
           path: uri.fsPath,
           content,
         },
-      });
+      };
+      this.#sendMessage(success);
     } catch (error) {
       console.error("CSV selection failed:", error);
-      this.#sendMessage({
-        type: "csvFileLoaded",
+      const failure: DatasetCsvLoadMessage = {
+        type: "dataset-csv-load",
         payload: {
+          status: "error",
           error: error instanceof Error ? error.message : String(error),
         },
-      });
+      };
+      this.#sendMessage(failure);
     }
   }
 
@@ -626,7 +708,7 @@ export class WorkbenchViewProvider
 
   async #handleRequestAttachmentPick() {
     try {
-      const imagesOnly = (this as any).lastAttachmentPickImagesOnly ?? false;
+      const imagesOnly = this.#lastAttachmentPickImagesOnly;
       const uris = await vscode.window.showOpenDialog({
         canSelectMany: true,
         openLabel: "Attach",
@@ -654,12 +736,16 @@ export class WorkbenchViewProvider
         const mime = this.#guessMimeFromName(name);
         items.push({ path: uri.fsPath, name, mime, dataBase64: base64 });
       }
-      this.#sendMessage({ type: "attachmentsLoaded", payload: { items } });
+      this.#sendMessage({
+        type: "attachments-load",
+        payload: { status: "ok", items },
+      });
     } catch (error) {
       console.error("Attachment selection failed:", error);
       this.#sendMessage({
-        type: "attachmentsLoaded",
+        type: "attachments-load",
         payload: {
+          status: "error",
           error: error instanceof Error ? error.message : String(error),
         },
       });
@@ -690,7 +776,7 @@ export class WorkbenchViewProvider
     this.register(
       (this.#settings = new VscSettingsController({
         onUpdate: (settings) => {
-          this.#sendMessage({ type: "settingsUpdated", payload: settings });
+          this.#sendMessage({ type: "settings-update", payload: settings });
         },
       })),
     );
@@ -709,7 +795,7 @@ export class WorkbenchViewProvider
           setAuthContext({ loggedIn: !!secret });
 
           this.#sendMessage({
-            type: "vercelGatewayKeyChanged",
+            type: "auth-vercel-gateway-state",
             payload: { vercelGatewayKey: secret || null },
           });
         },
@@ -725,12 +811,12 @@ export class WorkbenchViewProvider
     if (!this.#secretManager) return;
     const secret = await this.#secretManager.getSecret();
     this.#sendMessage({
-      type: "vercelGatewayKeyChanged",
+      type: "auth-vercel-gateway-state",
       payload: { vercelGatewayKey: secret || null },
     });
   }
 
-  async #handleSetVercelGatewayKey(vercelGatewayKey: string) {
+  async #handleSetVercelGatewayKey(vercelGatewayKey: AuthVercelGatewaySetPayload) {
     if (!this.#secretManager) return;
     await this.#secretManager.setSecret(vercelGatewayKey);
   }
@@ -747,22 +833,19 @@ export class WorkbenchViewProvider
         true,
       ) ?? true;
     this.#sendMessage({
-      type: "streamingPreference",
+      type: "settings-streaming-state",
       payload: { enabled },
     });
   }
 
-  async #handleSetStreamingPreference(
-    payload: { enabled?: boolean } | undefined,
-  ) {
-    const enabled =
-      typeof payload?.enabled === "boolean" ? payload.enabled : true;
+  async #handleSetStreamingPreference(payload: SettingsStreamingSetPayload) {
+    const enabled = typeof payload?.enabled === "boolean" ? payload.enabled : true;
     await this.#context.globalState.update(
       this.#streamingPreferenceKey,
       enabled,
     );
     this.#sendMessage({
-      type: "streamingPreference",
+      type: "settings-streaming-state",
       payload: { enabled },
     });
   }
@@ -800,12 +883,12 @@ export class WorkbenchViewProvider
         error,
       };
       if (typeof resultId === "string") payload.resultId = resultId;
-      this.#sendMessage({ type: "promptRunError", payload });
+      this.#sendMessage({ type: "prompt-run-error", payload });
     };
 
     const sendRunUpdate = (resultId: string, delta: string) => {
       const message: PromptRunUpdateMessage = {
-        type: "promptRunUpdate",
+        type: "prompt-run-update",
         payload: {
           runId,
           promptId,
@@ -821,7 +904,7 @@ export class WorkbenchViewProvider
       const error = "Secret manager not initialized";
       sendRunError(error);
       this.#sendMessage({
-        type: "promptExecutionResult",
+        type: "prompt-run-execution-result",
         payload: {
           success: false,
           error,
@@ -840,7 +923,7 @@ export class WorkbenchViewProvider
         "No Vercel Gateway API key configured. Please set your API key in the panel above.";
       sendRunError(error);
       this.#sendMessage({
-        type: "promptExecutionResult",
+        type: "prompt-run-execution-result",
         payload: {
           success: false,
           error,
@@ -974,8 +1057,8 @@ export class WorkbenchViewProvider
         }
       }
 
-      const startedMessage: PromptRunStartedMessage = {
-        type: "promptRunStarted",
+      const startedMessage: PromptRunStartMessage = {
+        type: "prompt-run-start",
         payload: {
           runId,
           promptId,
@@ -992,8 +1075,8 @@ export class WorkbenchViewProvider
         const cancelMessage = "Prompt run cancelled.";
         sendRunError(cancelMessage);
 
-        const completedMessage: PromptRunCompletedMessage = {
-          type: "promptRunCompleted",
+        const completedMessage: PromptRunCompleteMessage = {
+          type: "prompt-run-complete",
           payload: {
             runId,
             promptId,
@@ -1005,7 +1088,7 @@ export class WorkbenchViewProvider
         this.#sendMessage(completedMessage);
 
         this.#sendMessage({
-          type: "promptExecutionResult",
+          type: "prompt-run-execution-result",
           payload: {
             success: false,
             error: cancelMessage,
@@ -1110,8 +1193,8 @@ export class WorkbenchViewProvider
               };
 
               resultDataById.set(job.resultId, completedResult);
-              const resultCompletedMessage: PromptRunResultCompletedMessage = {
-                type: "promptRunResultCompleted",
+              const resultCompletedMessage: PromptRunResultCompleteMessage = {
+                type: "prompt-run-result-complete",
                 payload: {
                   runId,
                   promptId,
@@ -1136,8 +1219,8 @@ export class WorkbenchViewProvider
               };
 
               resultDataById.set(job.resultId, failedResult);
-              const failureMessage: PromptRunResultCompletedMessage = {
-                type: "promptRunResultCompleted",
+              const failureMessage: PromptRunResultCompleteMessage = {
+                type: "prompt-run-result-complete",
                 payload: {
                   runId,
                   promptId,
@@ -1164,8 +1247,8 @@ export class WorkbenchViewProvider
               };
 
               resultDataById.set(job.resultId, failedResult);
-              const failureMessage: PromptRunResultCompletedMessage = {
-                type: "promptRunResultCompleted",
+              const failureMessage: PromptRunResultCompleteMessage = {
+                type: "prompt-run-result-complete",
                 payload: {
                   runId,
                   promptId,
@@ -1203,8 +1286,8 @@ export class WorkbenchViewProvider
             model: job.shell.model,
           };
           resultDataById.set(job.resultId, cancelledResult);
-          const cancelledMessage: PromptRunResultCompletedMessage = {
-            type: "promptRunResultCompleted",
+          const cancelledMessage: PromptRunResultCompleteMessage = {
+            type: "prompt-run-result-complete",
             payload: {
               runId,
               promptId,
@@ -1228,8 +1311,8 @@ export class WorkbenchViewProvider
       this.#activeRunControllers.delete(runId);
       this.#cancelledRuns.delete(runId);
 
-      const completedMessage: PromptRunCompletedMessage = {
-        type: "promptRunCompleted",
+      const completedMessage: PromptRunCompleteMessage = {
+        type: "prompt-run-complete",
         payload: {
           runId,
           promptId,
@@ -1241,7 +1324,7 @@ export class WorkbenchViewProvider
       this.#sendMessage(completedMessage);
 
       this.#sendMessage({
-        type: "promptExecutionResult",
+        type: "prompt-run-execution-result",
         payload: {
           success: !wasCancelled && overallSuccess,
           results: aggregatedResults,
@@ -1259,7 +1342,7 @@ export class WorkbenchViewProvider
       this.#activeRunControllers.delete(runId);
       this.#cancelledRuns.delete(runId);
       this.#sendMessage({
-        type: "promptExecutionResult",
+        type: "prompt-run-execution-result",
         payload: {
           success: false,
           error: message,
@@ -1274,7 +1357,7 @@ export class WorkbenchViewProvider
 
   async runPromptFromCommand(): Promise<boolean> {
     if (!this.#webview) return false;
-    this.#sendMessage({ type: "executePromptFromCommand" });
+    this.#sendMessage({ type: "prompts-execute-from-command" });
     return true;
   }
 
@@ -1330,7 +1413,7 @@ export class WorkbenchViewProvider
     return "Unknown error occurred";
   }
 
-  #handleStopPromptRun(payload: any) {
+  #handleStopPromptRun(payload: StopPromptRunPayload) {
     const runId = typeof payload?.runId === "string" ? payload.runId : null;
     if (!runId) return;
 
