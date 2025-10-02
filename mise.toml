@@ -3,8 +3,10 @@
 node = { version = "lts", postinstall = "corepack enable" }
 rust = "stable"
 "cargo:genotype_cli" = "latest"
-# Python
-uv = "0.8.15"
+uv = "0.8.15"                                               # Python
+# TODO: Consider moving this to Mothership image, so tools like `dasel` can be installed.
+# Alternatively write a Playbook to install it from GitHub releases.
+go = "latest"
 
 # Cargo
 "cargo:cargo-nextest" = "latest"
@@ -22,7 +24,8 @@ uv = "0.8.15"
 # TODO: Will include with latest Mothership image, so can remove after updating
 "cargo:jaq" = "latest"
 "npm:turbo" = "latest"
-"npm:prettier" = "latest" # Code formatter
+"npm:prettier" = "latest"                  # Code formatter
+"go:github.com/tomwright/dasel/v3/cmd/dasel" = "master" # JSON/YAML/TOML processor
 
 [env]
 _.python.venv = { path = ".venv", create = true }

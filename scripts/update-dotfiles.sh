@@ -10,9 +10,9 @@ echo -e "⚡️ Updating dotfiles\n"
 echo -e "🌀 Applying latest chezmoi config\n"
 
 if chezmoi update --force; then
-  echo ""
+  echo
   "$root_dir/scripts/setup-codex.sh"
 else
-  echo ""
+  echo
   echo "🟠 No chezmoi or dotfiles setup found, ignoring"
 fi

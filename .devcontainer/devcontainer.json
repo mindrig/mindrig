@@ -33,6 +33,10 @@
     "ghcr.io/devcontainers-extra/features/vscode-cli:1": {}
   },
 
+  "containerEnv": {
+    "DEVCONTAINER": "true"
+  },
+
   "customizations": {
     "vscode": {
       "extensions": [
