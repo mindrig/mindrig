@@ -4,22 +4,20 @@
 
 Establish a single, typed messaging contract for the VS Code extension and webview by consolidating scattered message definitions, introducing domain-focused unions, and equipping both sides with typed send/subscribe APIs backed by comprehensive tests.
 
-## Plan
+## Steps
 
 - [x] [Map Existing Messages](./001-map-existing-messages.md): Catalog every extension↔webview message, its payload shape, and runtime side effects to inform the unified schema.
-- [ ] [Baseline Message Tests](./002-baseline-message-tests.md): Add regression tests and helpers that capture current message-driven behaviors in extension and webview before refactoring.
-- [ ] [Refactor Vsc Sync Package](./003-refactor-vsc-sync.md): Rename and adjust `@wrkspc/vsc-sync` message exports to the new `VscMessageSync` convention without altering behavior.
-- [ ] [Introduce Vsc Message Package](./004-introduce-vsc-message.md): Create `@wrkspc/vsc-message` with domain modules that union `VscMessageSync` and higher-level messages into a single `VscMessage` type.
+- [x] [Baseline Message Tests](./002-baseline-message-tests.md): Add regression tests and helpers that capture current message-driven behaviors in extension and webview before refactoring.
+- [x] [Refactor Vsc Sync Package](./003-refactor-vsc-sync.md): Rename and adjust `@wrkspc/vsc-sync` message exports to the new `VscMessageSync` convention without altering behavior.
+- [x] [Introduce Vsc Message Package](./004-introduce-vsc-message.md): Create `@wrkspc/vsc-message` with domain modules that union `VscMessageSync` and higher-level messages into a single `VscMessage` type.
 - [x] [Extension Message Infrastructure](./005-extension-message-infrastructure.md): Implement typed message aspects/controllers in the extension that send and subscribe using the consolidated `VscMessage` API.
 - [x] [Webview Refactor](./006-webview-refactor.md): Replace webview messaging hacks with a `useMessage` hook and typed helpers while updating components and tests.
-
-## Steps
 
 ### [Map Existing Messages](./001-map-existing-messages.md)
 
 Survey both codebases (`pkgs/vsc-extension`, `pkgs/vsc-webview`, related packages) to inventory all `postMessage` and message handling sites, recording direction, payload, and dependencies. Group messages by domain (sync, file, prompts, settings, auth, etc.), note any inconsistent naming, and identify shared payload structures that may belong in `@wrkspc/vsc-types`. Produce a canonical list and target naming scheme (kebab-case prefixes) that will guide later steps.
 
-#### Step Status
+#### Status
 
 - Completed October 2, 2025: Cataloged extension and webview producers/subscribers, shared type overlaps, and a bidirectional message matrix in `.agents/plans/006-messages-consolidation/artifacts/messages-inventory.md`.
 - Noted unused-but-supported inbound types (`addItWorks`, `getVercelGatewayKey`) for follow-up during consolidation; no other blockers identified.
@@ -28,32 +26,32 @@ Survey both codebases (`pkgs/vsc-extension`, `pkgs/vsc-webview`, related package
 
 Design test helpers
 
-#### Step Status
+#### Status
 
 - Completed October 2, 2025: Added extension/webview message regression suites with shared harness utilities (`pkgs/vsc-extension/src/__tests__/messaging-contracts.test.ts`, `pkgs/vsc-webview/src/__tests__/streaming-assessment.test.tsx`).
 - Introduced reusable helpers in `pkgs/vsc-extension/src/testUtils/messages.ts` and `pkgs/vsc-webview/src/testUtils/messages.tsx`; documented commands in `test-plan.md` for CI coverage. that simulate VS Code messaging for both extension and webview. Add regression tests covering current side effects (e.g., document sync, prompt execution, settings updates, secrets management) without changing implementation yet. Ensure tests assert on message type strings, payload shapes, and resulting state changes so refactors can be validated.
 
 ### [Refactor Vsc Sync Package](./003-refactor-vsc-sync.md)
 
-#### Step Status
+Update `pkgs/vsc-sync` to rename `SyncMessage` namespace/types to `VscMessageSync`, adjust exports/imports, enforce kebab-case `type` values, and document usage. Confirm existing sync logic and upcoming tests rely on the updated names without altering payload semantics or Yjs integration.
+
+#### Status
 
 - Completed October 2, 2025: Renamed sync messages to `VscMessageSync`, restructured module exports under `src/messages/`, and realigned extension/webview consumers with passing tests.
 
-Update `pkgs/vsc-sync` to rename `SyncMessage` namespace/types to `VscMessageSync`, adjust exports/imports, enforce kebab-case `type` values, and document usage. Confirm existing sync logic and upcoming tests rely on the updated names without altering payload semantics or Yjs integration.
-
 ### [Introduce Vsc Message Package](./004-introduce-vsc-message.md)
 
-#### Step Status
+Create `pkgs/vsc-message` with domain-specific modules (e.g., `VscMessageFile`, `VscMessagePrompts`) that define typed message variants plus matching namespaces. Compose these into a root `VscMessage` union that also includes `VscMessageSync`. Extract any cross-package payload types into `@wrkspc/vsc-types` only when necessary. Provide clear entry points for consuming packages.
+
+#### Status
 
 - Completed October 2, 2025: Scaffolded the `@wrkspc/vsc-message` package, modelled domain unions with kebab-case type strings, composed them with `VscMessageSync`, and added guard tests.
-
-Create `pkgs/vsc-message` with domain-specific modules (e.g., `VscMessageFile`, `VscMessagePrompts`) that define typed message variants plus matching namespaces. Compose these into a root `VscMessage` union that also includes `VscMessageSync`. Extract any cross-package payload types into `@wrkspc/vsc-types` only when necessary. Provide clear entry points for consuming packages.
 
 ### [Extension Message Infrastructure](./005-extension-message-infrastructure.md)
 
 Implement a message aspect within `pkgs/vsc-extension` that centralizes sending/receiving of `VscMessage` variants, splitting responsibilities into controllers similar to `VscSettingsController`. Update command handlers and services to use the typed API and ensure existing and new tests cover extension-side message flows.
 
-#### Step Status
+#### Status
 
 - Completed October 2, 2025: Added `VscMessageBus` (`pkgs/vsc-extension/src/aspects/message/vscMessageBus.ts`), rewired `WorkbenchViewProvider` to use the typed unions from `@wrkspc/vsc-message`, and normalized message names across prompt, settings, auth, attachment, and sync controllers.
 - Updated extension unit coverage (`messaging-contracts.test.ts`, `streaming-orchestration.test.ts`) to the new `prompt-run-*`/`settings-*` types and added `vscMessageBus.test.ts` to exercise logging, one-shot handlers, and invalid payload handling.
@@ -64,7 +62,7 @@ Implement a message aspect within `pkgs/vsc-extension` that centralizes sending/
 
 Introduce a `useMessage` hook and related utilities in `pkgs/vsc-webview` that consume `VscMessage`. Refactor components to subscribe and dispatch through the new hook, remove custom hacks, and align tests with the new helpers while keeping baseline side effects intact.
 
-#### Step Status
+#### Status
 
 - Completed October 2, 2025: Added a shared `MessageProvider`, converted sync/settings/models contexts to `useOn`/`useOnce`, and migrated assessment/prompt flows to kebab-case messages with typed payloads and outbound `send` calls.
 - Updated docs (`docs/contributing/streaming.md`) and webview tests (`streaming-assessment`, `prompt-pinning`) to cover the new contracts and ensure harnesses wrap components with the provider.
