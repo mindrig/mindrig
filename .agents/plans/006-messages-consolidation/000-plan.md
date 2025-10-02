@@ -43,6 +43,10 @@ Update `pkgs/vsc-sync` to rename `SyncMessage` namespace/types to `VscMessageSyn
 
 ### [Introduce Vsc Message Package](./004-introduce-vsc-message.md)
 
+#### Step Status
+
+- Completed October 2, 2025: Scaffolded the `@wrkspc/vsc-message` package, modelled domain unions with kebab-case type strings, composed them with `VscMessageSync`, and added guard tests.
+
 Create `pkgs/vsc-message` with domain-specific modules (e.g., `VscMessageFile`, `VscMessagePrompts`) that define typed message variants plus matching namespaces. Compose these into a root `VscMessage` union that also includes `VscMessageSync`. Extract any cross-package payload types into `@wrkspc/vsc-types` only when necessary. Provide clear entry points for consuming packages.
 
 ### [Extension Message Infrastructure](./005-extension-message-infrastructure.md)

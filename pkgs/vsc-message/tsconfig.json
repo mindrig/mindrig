@@ -1,0 +1,22 @@
+{
+  "include": ["./*.ts", "./src/**/*.ts", "./src/**/*.tsx"],
+  "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@": ["./src"]
+    },
+    "target": "esnext",
+    "noEmit": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "allowImportingTsExtensions": false,
+    "lib": ["ESNext"],
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true
+  }
+}
