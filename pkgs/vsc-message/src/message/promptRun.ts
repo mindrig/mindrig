@@ -11,24 +11,14 @@ import type {
 export type VscMessagePromptRun =
   | VscMessagePromptRun.Execute
   | VscMessagePromptRun.Stop
-  | VscMessagePromptRun.Started
+  | VscMessagePromptRun.Start
   | VscMessagePromptRun.Update
-  | VscMessagePromptRun.ResultCompleted
-  | VscMessagePromptRun.Completed
+  | VscMessagePromptRun.ResultComplete
+  | VscMessagePromptRun.Complete
   | VscMessagePromptRun.Error
   | VscMessagePromptRun.ExecutionResult;
 
 export namespace VscMessagePromptRun {
-  export type Type =
-    | "prompt-run-execute"
-    | "prompt-run-stop"
-    | "prompt-run-started"
-    | "prompt-run-update"
-    | "prompt-run-result-completed"
-    | "prompt-run-completed"
-    | "prompt-run-error"
-    | "prompt-run-execution-result";
-
   export interface Execute {
     type: "prompt-run-execute";
     payload: ExecutePayload;
@@ -41,8 +31,8 @@ export namespace VscMessagePromptRun {
     };
   }
 
-  export interface Started {
-    type: "prompt-run-started";
+  export interface Start {
+    type: "prompt-run-start";
     payload: PromptRunStartedPayload;
   }
 
@@ -51,13 +41,13 @@ export namespace VscMessagePromptRun {
     payload: PromptRunUpdatePayload;
   }
 
-  export interface ResultCompleted {
-    type: "prompt-run-result-completed";
+  export interface ResultComplete {
+    type: "prompt-run-result-complete";
     payload: PromptRunResultCompletedPayload;
   }
 
-  export interface Completed {
-    type: "prompt-run-completed";
+  export interface Complete {
+    type: "prompt-run-complete";
     payload: PromptRunCompletedPayload;
   }
 
@@ -68,15 +58,7 @@ export namespace VscMessagePromptRun {
 
   export interface ExecutionResult {
     type: "prompt-run-execution-result";
-    payload: {
-      success: boolean;
-      promptId: string;
-      timestamp: number;
-      runId: string;
-      runSettings?: unknown;
-      results: PromptRunResultData[];
-      error?: string;
-    };
+    payload: ExecutionResultPayload;
   }
 
   export interface ExecutePayload {
@@ -113,7 +95,16 @@ export namespace VscMessagePromptRun {
     runSettings?: Record<string, unknown>;
   }
 
-  export interface ResultShell extends PromptRunResultShell {}
+  export interface ExecutionResultPayload {
+    success: boolean;
+    promptId: string;
+    timestamp: number;
+    runId: string;
+    runSettings?: unknown;
+    results: PromptRunResultData[];
+    error?: string;
+  }
 
+  export interface ResultShell extends PromptRunResultShell {}
   export interface ResultData extends PromptRunResultData {}
 }

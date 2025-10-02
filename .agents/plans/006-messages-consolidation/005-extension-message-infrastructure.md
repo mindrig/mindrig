@@ -6,11 +6,11 @@ Adopt the consolidated message unions inside the VS Code extension by introducin
 
 ## Tasks
 
-- [ ] [Design extension messaging aspect](#design-extension-messaging-aspect): Plan how controllers interact with the new typed bus.
-- [ ] [Implement typed message bus wrapper](#implement-typed-message-bus-wrapper): Build utilities for sending and subscribing to `VscMessage` unions.
-- [ ] [Migrate existing controllers](#migrate-existing-controllers): Update extension features to rely on the new infrastructure.
-- [ ] [Backfill tests and diagnostics](#backfill-tests-and-diagnostics): Ensure messaging flows are validated and observable.
-- [ ] [Document extension adoption](#document-extension-adoption): Share migration guidance for future contributors.
+- [x] [Design extension messaging aspect](#design-extension-messaging-aspect): Plan how controllers interact with the new typed bus.
+- [x] [Implement typed message bus wrapper](#implement-typed-message-bus-wrapper): Build utilities for sending and subscribing to `VscMessage` unions.
+- [x] [Migrate existing controllers](#migrate-existing-controllers): Update extension features to rely on the new infrastructure.
+- [x] [Backfill tests and diagnostics](#backfill-tests-and-diagnostics): Ensure messaging flows are validated and observable.
+- [x] [Document extension adoption](#document-extension-adoption): Share migration guidance for future contributors.
 
 ### Design extension messaging aspect
 

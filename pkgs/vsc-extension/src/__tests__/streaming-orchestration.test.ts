@@ -99,7 +99,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     const { receive, posted, flush } = await createWorkbenchHarness();
 
     receive({
-      type: "executePrompt",
+      type: "prompt-run-execute",
       payload: {
         promptText: "Hello world",
         variables: {},
@@ -110,30 +110,30 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
 
     await flush();
 
-    const started = await waitForPostedMessage(posted, "promptRunStarted");
+    const started = await waitForPostedMessage(posted, "prompt-run-start");
     expect(started).toBeTruthy();
     const runId = started?.payload.runId;
     expect(runId).toBeTruthy();
 
-    const updates = posted.filter((msg) => msg.type === "promptRunUpdate");
+    const updates = posted.filter((msg) => msg.type === "prompt-run-update");
     expect(updates).toHaveLength(2);
     expect(updates[0].payload.delta.text).toBe("Hello ");
     expect(updates[1].payload.delta.text).toBe("there!");
 
-    await waitForPostedMessage(posted, "promptRunResultCompleted");
+    await waitForPostedMessage(posted, "prompt-run-result-complete");
     const resultCompletedMessages = posted.filter(
-      (msg) => msg.type === "promptRunResultCompleted",
+      (msg) => msg.type === "prompt-run-result-complete",
     );
     expect(resultCompletedMessages).toHaveLength(1);
     expect(resultCompletedMessages[0].payload.result.text).toBe(
       "Hello there!",
     );
 
-    const completed = await waitForPostedMessage(posted, "promptRunCompleted");
+    const completed = await waitForPostedMessage(posted, "prompt-run-complete");
     expect(completed?.payload.runId).toBe(runId);
     expect(completed?.payload.success).toBe(true);
 
-    const execution = await waitForPostedMessage(posted, "promptExecutionResult");
+    const execution = await waitForPostedMessage(posted, "prompt-run-execution-result");
     expect(execution?.payload.results[0].text).toBe("Hello there!");
   });
 
@@ -165,7 +165,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     const { receive, posted, flush } = await createWorkbenchHarness();
 
     receive({
-      type: "executePrompt",
+      type: "prompt-run-execute",
       payload: {
         promptText: "Cancel me",
         variables: {},
@@ -176,21 +176,21 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
 
     await flush();
 
-    const started = await waitForPostedMessage(posted, "promptRunStarted");
+    const started = await waitForPostedMessage(posted, "prompt-run-start");
     const runId = started?.payload.runId;
     expect(runId).toBeTruthy();
 
-    receive({ type: "stopPromptRun", payload: { runId } });
+    receive({ type: "prompt-run-stop", payload: { runId } });
 
     await flush();
 
-    const error = await waitForPostedMessage(posted, "promptRunError");
+    const error = await waitForPostedMessage(posted, "prompt-run-error");
     expect(error?.payload.error).toContain("cancelled");
     expect(error?.payload.runId).toBe(runId);
 
-    await waitForPostedMessage(posted, "promptRunResultCompleted");
+    await waitForPostedMessage(posted, "prompt-run-result-complete");
     const resultCompletedMessages = posted.filter(
-      (msg) => msg.type === "promptRunResultCompleted",
+      (msg) => msg.type === "prompt-run-result-complete",
     );
     expect(resultCompletedMessages.length).toBeGreaterThan(0);
     const cancelledResult = resultCompletedMessages.find(
@@ -198,7 +198,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     );
     expect(cancelledResult?.payload.result.error).toContain("cancelled");
 
-    const completed = await waitForPostedMessage(posted, "promptRunCompleted");
+    const completed = await waitForPostedMessage(posted, "prompt-run-complete");
     expect(completed?.payload.success).toBe(false);
   });
 
@@ -227,7 +227,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     const { receive, posted, flush } = await createWorkbenchHarness();
 
     receive({
-      type: "executePrompt",
+      type: "prompt-run-execute",
       payload: {
         promptText: "Non streaming",
         variables: {},
@@ -239,22 +239,22 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     await flush();
 
     expect(execSpy).toHaveBeenCalled();
-    const updates = posted.filter((msg) => msg.type === "promptRunUpdate");
+    const updates = posted.filter((msg) => msg.type === "prompt-run-update");
     expect(updates).toHaveLength(0);
 
-    const started = await waitForPostedMessage(posted, "promptRunStarted");
+    const started = await waitForPostedMessage(posted, "prompt-run-start");
     expect(started?.payload.streaming).toBe(false);
 
-    await waitForPostedMessage(posted, "promptRunResultCompleted");
+    await waitForPostedMessage(posted, "prompt-run-result-complete");
     const resultCompletedMessages = posted.filter(
-      (msg) => msg.type === "promptRunResultCompleted",
+      (msg) => msg.type === "prompt-run-result-complete",
     );
     expect(resultCompletedMessages).toHaveLength(1);
     expect(resultCompletedMessages[0].payload.result.success).toBe(true);
 
-    const completed = await waitForPostedMessage(posted, "promptRunCompleted");
+    const completed = await waitForPostedMessage(posted, "prompt-run-complete");
     expect(completed?.payload.success).toBe(true);
-    const execution = await waitForPostedMessage(posted, "promptExecutionResult");
+    const execution = await waitForPostedMessage(posted, "prompt-run-execution-result");
     expect(execution?.payload.results[0].text).toBe("Full output");
   });
 });

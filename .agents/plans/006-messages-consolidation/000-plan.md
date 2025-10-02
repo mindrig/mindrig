@@ -10,7 +10,7 @@ Establish a single, typed messaging contract for the VS Code extension and webvi
 - [ ] [Baseline Message Tests](./002-baseline-message-tests.md): Add regression tests and helpers that capture current message-driven behaviors in extension and webview before refactoring.
 - [ ] [Refactor Vsc Sync Package](./003-refactor-vsc-sync.md): Rename and adjust `@wrkspc/vsc-sync` message exports to the new `VscMessageSync` convention without altering behavior.
 - [ ] [Introduce Vsc Message Package](./004-introduce-vsc-message.md): Create `@wrkspc/vsc-message` with domain modules that union `VscMessageSync` and higher-level messages into a single `VscMessage` type.
-- [ ] [Extension Message Infrastructure](./005-extension-message-infrastructure.md): Implement typed message aspects/controllers in the extension that send and subscribe using the consolidated `VscMessage` API.
+- [x] [Extension Message Infrastructure](./005-extension-message-infrastructure.md): Implement typed message aspects/controllers in the extension that send and subscribe using the consolidated `VscMessage` API.
 - [ ] [Webview Refactor](./006-webview-refactor.md): Replace webview messaging hacks with a `useMessage` hook and typed helpers while updating components and tests.
 
 ## Steps
@@ -52,6 +52,13 @@ Create `pkgs/vsc-message` with domain-specific modules (e.g., `VscMessageFile`, 
 ### [Extension Message Infrastructure](./005-extension-message-infrastructure.md)
 
 Implement a message aspect within `pkgs/vsc-extension` that centralizes sending/receiving of `VscMessage` variants, splitting responsibilities into controllers similar to `VscSettingsController`. Update command handlers and services to use the typed API and ensure existing and new tests cover extension-side message flows.
+
+#### Step Status
+
+- Completed October 2, 2025: Added `VscMessageBus` (`pkgs/vsc-extension/src/aspects/message/vscMessageBus.ts`), rewired `WorkbenchViewProvider` to use the typed unions from `@wrkspc/vsc-message`, and normalized message names across prompt, settings, auth, attachment, and sync controllers.
+- Updated extension unit coverage (`messaging-contracts.test.ts`, `streaming-orchestration.test.ts`) to the new `prompt-run-*`/`settings-*` types and added `vscMessageBus.test.ts` to exercise logging, one-shot handlers, and invalid payload handling.
+- Declared cross-package dependencies (`@mindrig/types`, `@wrkspc/model`, `@wrkspc/vsc-settings`) in `@wrkspc/vsc-message` and validated the package with `pnpm -F @wrkspc/vsc-message types`.
+- Authored `docs/architecture/messages.md` with integration guidance, debugging notes, and test commands for future controllers.
 
 ### [Webview Refactor](./006-webview-refactor.md)
 

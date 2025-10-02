@@ -17,6 +17,9 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@mindrig/types": "workspace:*",
+    "@wrkspc/model": "workspace:*",
+    "@wrkspc/vsc-settings": "workspace:*",
     "@wrkspc/vsc-sync": "workspace:*",
     "@wrkspc/vsc-types": "workspace:*"
   },
