@@ -40,6 +40,12 @@ If none of the specific jobs fits the user request, identify the job as [Fixer](
 
 ## General Guidelines
 
+Refer to language/domain-specific style guides for detailed instructions:
+
+- [Monorepo Structure](./docs/styleguides/monorepo.md) when working on a new package or moving files.
+- [TypeScript Style Guide](./docs/styleguides/typescript.md) when working on TypeScript code.
+- [Rust Style Guide](./docs/styleguides/rust.md) when working on Rust code.
+
 ### File Naming
 
 - Use lowercase kebab-case for markdown documents, assets, and config files.
