@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This script merges global and local Codex config and expands necessary
+# environment variables (as they aren't supported yet: https://github.com/openai/codex/issues/2680).
+
 source "$(dirname "$0")/_env.sh"
 
 echo -e "⚡️ Setting up Codex\n"

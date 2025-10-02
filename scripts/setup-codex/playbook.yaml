@@ -1,5 +1,5 @@
 ---
-- name: Merge Codex configurations
+- name: Apply project Codex configurations
   hosts: localhost
   gather_facts: no
   vars:
@@ -20,6 +20,19 @@
         path: "{{ global_config }}"
         marker_begin: "{{ start_marker }}"
         marker_end: "{{ end_marker }}"
-        block: "{{ project_content['content'] | b64decode | trim }}"
+        block: "{{ project_content['content'] | b64decode }}"
         create: yes
         backup: yes
+
+    - name: Read merged config
+      slurp:
+        src: "{{ global_config }}"
+      register: merged_content
+
+    - name: Expand ${HOME} in merged config
+      copy:
+        dest: "{{ global_config | expanduser }}"
+        content: >-
+          {{ merged_content['content'] | b64decode | regex_replace('\$\{HOME\}', lookup('env','HOME')) }}
+        backup: yes
+        mode: "0644"
