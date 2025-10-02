@@ -6,11 +6,11 @@ Add safety nets that capture current extension↔webview messaging behavior befo
 
 ## Tasks
 
-- [ ] [Prioritize behaviors for coverage](#prioritize-behaviors-for-coverage): Decide which message flows must be locked down ahead of refactors.
-- [ ] [Author extension messaging tests](#author-extension-messaging-tests): Create Jest/Vitest suites that simulate webview messaging and verify extension side effects.
-- [ ] [Author webview messaging tests](#author-webview-messaging-tests): Add React-focused tests that exercise message handlers and resulting UI state updates.
-- [ ] [Extract reusable test harness utilities](#extract-reusable-test-harness-utilities): Factor common message send/receive helpers into shared modules.
-- [ ] [Integrate suites into CI](#integrate-suites-into-ci): Ensure the new tests run in existing pipelines and document how to execute them locally.
+- [x] [Prioritize behaviors for coverage](#prioritize-behaviors-for-coverage): Decide which message flows must be locked down ahead of refactors.
+- [x] [Author extension messaging tests](#author-extension-messaging-tests): Create Jest/Vitest suites that simulate webview messaging and verify extension side effects.
+- [x] [Author webview messaging tests](#author-webview-messaging-tests): Add React-focused tests that exercise message handlers and resulting UI state updates.
+- [x] [Extract reusable test harness utilities](#extract-reusable-test-harness-utilities): Factor common message send/receive helpers into shared modules.
+- [x] [Integrate suites into CI](#integrate-suites-into-ci): Ensure the new tests run in existing pipelines and document how to execute them locally.
 
 ### Prioritize behaviors for coverage
 

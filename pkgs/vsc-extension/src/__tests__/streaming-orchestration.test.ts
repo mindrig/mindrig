@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type * as vscode from "vscode";
 import * as VSCode from "vscode";
 
-import { WorkbenchViewProvider } from "../WorkbenchView/Provider";
 import { AIService } from "../AIService";
+import { createWorkbenchHarness, waitForPostedMessage } from "../testUtils/messages";
 
 vi.mock("../SecretManager", () => {
   class MockSecretManager {
@@ -61,107 +61,7 @@ vi.mock("@wrkspc/vsc-settings", () => {
   return { VscSettingsController: MockVscSettingsController };
 });
 
-function createUri(path: string) {
-  const joined = path.replace(/\/+/g, "/");
-  return {
-    fsPath: joined,
-    toString: () => joined,
-  } as unknown as vscode.Uri;
-}
 
-(VSCode.Uri as any).joinPath = (...segments: Array<vscode.Uri | string>) => {
-  const combined = segments
-    .map((segment) =>
-      typeof segment === "string"
-        ? segment
-        : segment.fsPath ?? segment.toString(),
-    )
-    .join("/");
-  return createUri(combined);
-};
-
-(VSCode.workspace as any).fs = {
-  readFile: vi.fn().mockRejectedValue(new Error("missing")),
-};
-
-(VSCode.workspace as any).onDidChangeConfiguration = vi
-  .fn()
-  .mockReturnValue({ dispose: vi.fn() });
-
-(VSCode.workspace as any).getConfiguration = vi.fn().mockReturnValue({
-  get: vi.fn((key: string, fallback: unknown) => {
-    if (key === "run.parallel") return 4;
-    return fallback;
-  }),
-  update: vi.fn(),
-});
-
-async function setupProvider() {
-  const posted: any[] = [];
-  let handler: ((message: any) => void) | undefined;
-
-  const webview = {
-    options: {} as vscode.WebviewOptions,
-    html: "",
-    asWebviewUri: (uri: vscode.Uri) => uri,
-    postMessage: vi.fn().mockImplementation((message: any) => {
-      posted.push(message);
-      return Promise.resolve(true);
-    }),
-    onDidReceiveMessage: vi.fn().mockImplementation((cb: (msg: any) => void) => {
-      handler = cb;
-      return { dispose: vi.fn() };
-    }),
-  } as unknown as vscode.Webview;
-
-  const webviewView = { webview } as unknown as vscode.WebviewView;
-
-  const globalState = {
-    get: vi.fn().mockImplementation((_key: string, fallback: boolean) => fallback ?? true),
-    update: vi.fn(),
-  } as unknown as vscode.Memento;
-
-  const secrets = {
-    get: vi.fn().mockResolvedValue("test-api-key"),
-    store: vi.fn().mockResolvedValue(undefined),
-    delete: vi.fn().mockResolvedValue(undefined),
-  } as unknown as vscode.SecretStorage;
-
-  const context = {
-    globalState,
-    secrets,
-    subscriptions: [],
-  } as unknown as vscode.ExtensionContext;
-
-  const provider = new WorkbenchViewProvider(
-    VSCode.Uri.parse("file:///extension"),
-    false,
-    context,
-  );
-
-  provider.resolveWebviewView(webviewView, {} as any, {} as any);
-
-  const receive = (message: any) => {
-    if (!handler) throw new Error("webview handler not registered");
-    handler(message);
-  };
-
-  const flush = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await Promise.resolve();
-  };
-
-  return { provider, posted, receive, flush };
-}
-
-async function waitForMessage(posted: any[], type: string, attempts = 10) {
-  for (let i = 0; i < attempts; i++) {
-    const found = posted.find((msg) => msg.type === type);
-    if (found) return found;
-    await new Promise((resolve) => setTimeout(resolve, 0));
-  }
-  return undefined;
-}
 
 describe("WorkbenchViewProvider streaming orchestration", () => {
   beforeEach(() => {
@@ -196,7 +96,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
       },
     );
 
-    const { receive, posted, flush } = await setupProvider();
+    const { receive, posted, flush } = await createWorkbenchHarness();
 
     receive({
       type: "executePrompt",
@@ -210,7 +110,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
 
     await flush();
 
-    const started = await waitForMessage(posted, "promptRunStarted");
+    const started = await waitForPostedMessage(posted, "promptRunStarted");
     expect(started).toBeTruthy();
     const runId = started?.payload.runId;
     expect(runId).toBeTruthy();
@@ -220,7 +120,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     expect(updates[0].payload.delta.text).toBe("Hello ");
     expect(updates[1].payload.delta.text).toBe("there!");
 
-    await waitForMessage(posted, "promptRunResultCompleted");
+    await waitForPostedMessage(posted, "promptRunResultCompleted");
     const resultCompletedMessages = posted.filter(
       (msg) => msg.type === "promptRunResultCompleted",
     );
@@ -229,11 +129,11 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
       "Hello there!",
     );
 
-    const completed = await waitForMessage(posted, "promptRunCompleted");
+    const completed = await waitForPostedMessage(posted, "promptRunCompleted");
     expect(completed?.payload.runId).toBe(runId);
     expect(completed?.payload.success).toBe(true);
 
-    const execution = await waitForMessage(posted, "promptExecutionResult");
+    const execution = await waitForPostedMessage(posted, "promptExecutionResult");
     expect(execution?.payload.results[0].text).toBe("Hello there!");
   });
 
@@ -262,7 +162,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
       },
     );
 
-    const { receive, posted, flush } = await setupProvider();
+    const { receive, posted, flush } = await createWorkbenchHarness();
 
     receive({
       type: "executePrompt",
@@ -276,7 +176,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
 
     await flush();
 
-    const started = await waitForMessage(posted, "promptRunStarted");
+    const started = await waitForPostedMessage(posted, "promptRunStarted");
     const runId = started?.payload.runId;
     expect(runId).toBeTruthy();
 
@@ -284,11 +184,11 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
 
     await flush();
 
-    const error = await waitForMessage(posted, "promptRunError");
+    const error = await waitForPostedMessage(posted, "promptRunError");
     expect(error?.payload.error).toContain("cancelled");
     expect(error?.payload.runId).toBe(runId);
 
-    await waitForMessage(posted, "promptRunResultCompleted");
+    await waitForPostedMessage(posted, "promptRunResultCompleted");
     const resultCompletedMessages = posted.filter(
       (msg) => msg.type === "promptRunResultCompleted",
     );
@@ -298,7 +198,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     );
     expect(cancelledResult?.payload.result.error).toContain("cancelled");
 
-    const completed = await waitForMessage(posted, "promptRunCompleted");
+    const completed = await waitForPostedMessage(posted, "promptRunCompleted");
     expect(completed?.payload.success).toBe(false);
   });
 
@@ -324,7 +224,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
         },
       );
 
-    const { receive, posted, flush } = await setupProvider();
+    const { receive, posted, flush } = await createWorkbenchHarness();
 
     receive({
       type: "executePrompt",
@@ -342,19 +242,19 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     const updates = posted.filter((msg) => msg.type === "promptRunUpdate");
     expect(updates).toHaveLength(0);
 
-    const started = await waitForMessage(posted, "promptRunStarted");
+    const started = await waitForPostedMessage(posted, "promptRunStarted");
     expect(started?.payload.streaming).toBe(false);
 
-    await waitForMessage(posted, "promptRunResultCompleted");
+    await waitForPostedMessage(posted, "promptRunResultCompleted");
     const resultCompletedMessages = posted.filter(
       (msg) => msg.type === "promptRunResultCompleted",
     );
     expect(resultCompletedMessages).toHaveLength(1);
     expect(resultCompletedMessages[0].payload.result.success).toBe(true);
 
-    const completed = await waitForMessage(posted, "promptRunCompleted");
+    const completed = await waitForPostedMessage(posted, "promptRunCompleted");
     expect(completed?.payload.success).toBe(true);
-    const execution = await waitForMessage(posted, "promptExecutionResult");
+    const execution = await waitForPostedMessage(posted, "promptExecutionResult");
     expect(execution?.payload.results[0].text).toBe("Full output");
   });
 });

@@ -26,7 +26,12 @@ Survey both codebases (`pkgs/vsc-extension`, `pkgs/vsc-webview`, related package
 
 ### [Baseline Message Tests](./002-baseline-message-tests.md)
 
-Design test helpers that simulate VS Code messaging for both extension and webview. Add regression tests covering current side effects (e.g., document sync, prompt execution, settings updates, secrets management) without changing implementation yet. Ensure tests assert on message type strings, payload shapes, and resulting state changes so refactors can be validated.
+Design test helpers
+
+#### Step Status
+
+- Completed October 2, 2025: Added extension/webview message regression suites with shared harness utilities (`pkgs/vsc-extension/src/__tests__/messaging-contracts.test.ts`, `pkgs/vsc-webview/src/__tests__/streaming-assessment.test.tsx`).
+- Introduced reusable helpers in `pkgs/vsc-extension/src/testUtils/messages.ts` and `pkgs/vsc-webview/src/testUtils/messages.tsx`; documented commands in `test-plan.md` for CI coverage. that simulate VS Code messaging for both extension and webview. Add regression tests covering current side effects (e.g., document sync, prompt execution, settings updates, secrets management) without changing implementation yet. Ensure tests assert on message type strings, payload shapes, and resulting state changes so refactors can be validated.
 
 ### [Refactor Vsc Sync Package](./003-refactor-vsc-sync.md)
 
