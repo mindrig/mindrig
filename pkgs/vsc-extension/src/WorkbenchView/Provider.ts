@@ -3,7 +3,7 @@ import { setAuthContext } from "@/auth";
 import { parsePrompts } from "@mindrig/parser-wasm";
 import { VscController } from "@wrkspc/vsc-controller";
 import { VscSettingsController } from "@wrkspc/vsc-settings";
-import type { SyncFile, SyncMessage, SyncResource } from "@wrkspc/vsc-sync";
+import type { SyncFile, SyncResource, VscMessageSync } from "@wrkspc/vsc-sync";
 import type {
   PromptRunCompletedMessage,
   PromptRunErrorMessage,
@@ -305,7 +305,7 @@ export class WorkbenchViewProvider
     if (!this.#webview) return;
 
     // TODO:
-    this.#webview.onDidReceiveMessage((message: SyncMessage | any) => {
+    this.#webview.onDidReceiveMessage((message: VscMessageSync | any) => {
       switch (message.type) {
         case "addItWorks":
           this.#handleAddItWorks();
@@ -752,7 +752,9 @@ export class WorkbenchViewProvider
     });
   }
 
-  async #handleSetStreamingPreference(payload: { enabled?: boolean } | undefined) {
+  async #handleSetStreamingPreference(
+    payload: { enabled?: boolean } | undefined,
+  ) {
     const enabled =
       typeof payload?.enabled === "boolean" ? payload.enabled : true;
     await this.#context.globalState.update(
@@ -926,12 +928,11 @@ export class WorkbenchViewProvider
 
       for (const modelConfig of models) {
         const modelLabel = modelConfig.label ?? modelConfig.modelId ?? "Model";
-        const reasoning =
-          modelConfig.reasoning ?? {
-            enabled: false,
-            effort: "medium" as const,
-            budgetTokens: "" as const,
-          };
+        const reasoning = modelConfig.reasoning ?? {
+          enabled: false,
+          effort: "medium" as const,
+          budgetTokens: "" as const,
+        };
         const attachments = Array.isArray(modelConfig.attachments)
           ? modelConfig.attachments
           : [];
@@ -1295,7 +1296,10 @@ export class WorkbenchViewProvider
     if (error instanceof Error) {
       const message = error.message || "Unknown error occurred";
 
-      if (error.name === "AbortError" || message.toLowerCase().includes("abort"))
+      if (
+        error.name === "AbortError" ||
+        message.toLowerCase().includes("abort")
+      )
         return "Prompt run cancelled.";
 
       if (
@@ -1304,7 +1308,10 @@ export class WorkbenchViewProvider
       )
         return "Network connectivity issue. Please check your internet connection and try again.";
 
-      if (message.includes("401") || message.toLowerCase().includes("unauthorized"))
+      if (
+        message.includes("401") ||
+        message.toLowerCase().includes("unauthorized")
+      )
         return "Invalid API key. Please verify your Vercel Gateway API key is correct.";
 
       if (message.includes("429"))
@@ -1368,7 +1375,7 @@ export class WorkbenchViewProvider
         },
         onRemoteChange: (update: Uint8Array) => {
           // Send update to webview
-          const message: SyncMessage.Update = {
+          const message: VscMessageSync.Update = {
             type: "sync-update",
             resource: this.#currentResource(),
             payload: { update: Array.from(update) },
@@ -1379,7 +1386,7 @@ export class WorkbenchViewProvider
     );
   }
 
-  #handleSyncUpdate(message: SyncMessage.Update) {
+  #handleSyncUpdate(message: VscMessageSync.Update) {
     if (!this.#codeSyncManager) return;
 
     console.log(
@@ -1391,13 +1398,13 @@ export class WorkbenchViewProvider
     this.#codeSyncManager.applyRemoteUpdate(update, true);
   }
 
-  #handleSyncStateVector(message: SyncMessage.StateVector) {
+  #handleSyncStateVector(message: VscMessageSync.StateVector) {
     if (!this.#codeSyncManager) return;
 
     const stateVector = new Uint8Array(message.payload.stateVector);
     const update = this.#codeSyncManager.getUpdate(stateVector);
 
-    const responseMsg: SyncMessage.Update = {
+    const responseMsg: VscMessageSync.Update = {
       type: "sync-update",
       resource: this.#currentResource(),
       payload: { update: Array.from(update) },
@@ -1410,7 +1417,7 @@ export class WorkbenchViewProvider
 
     const stateVector = this.#codeSyncManager.getStateVector();
 
-    const message: SyncMessage.StateVector = {
+    const message: VscMessageSync.StateVector = {
       type: "sync-state-vector",
       resource: this.#currentResource(),
       payload: { stateVector: Array.from(stateVector) },

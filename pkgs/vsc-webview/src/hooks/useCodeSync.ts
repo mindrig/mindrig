@@ -3,7 +3,7 @@ import type { SyncResource } from "@wrkspc/vsc-sync";
 import {
   applyCodeChanges,
   computeTextChanges,
-  SyncMessage,
+  VscMessageSync,
 } from "@wrkspc/vsc-sync";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as Y from "yjs";
@@ -68,7 +68,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
         "Webview sending sync update to extension",
         JSON.stringify({ updateSize: update.length }),
       );
-      const message: SyncMessage.Update = {
+      const message: VscMessageSync.Update = {
         type: "sync-update",
         resource: resource ?? { type: "code", path: "" },
         payload: { update: Array.from(update) },
@@ -79,7 +79,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
     doc.on("update", updateHandler);
 
     // Request initial sync from extension
-    const message: SyncMessage.Init = {
+    const message: VscMessageSync.Init = {
       type: "sync-init",
       resource: resource ?? { type: "code", path: "" },
     };
@@ -148,7 +148,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
   );
 
   const handleSyncMessage = useCallback(
-    (message: SyncMessage) => {
+    (message: VscMessageSync) => {
       if (!docRef.current || !textRef.current) return;
 
       try {
@@ -176,7 +176,7 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
             const stateVector = new Uint8Array(message.payload.stateVector);
             const update = Y.encodeStateAsUpdate(docRef.current, stateVector);
 
-            const responseMessage: SyncMessage.StateVector = {
+            const responseMessage: VscMessageSync.StateVector = {
               type: "sync-state-vector",
               resource: resource ?? { type: "code", path: "" },
               payload: { stateVector: Array.from(update) },

@@ -6,11 +6,11 @@ Rename existing sync message types to the `VscMessageSync` naming scheme, organi
 
 ## Tasks
 
-- [ ] [Audit current sync exports](#audit-current-sync-exports): Understand how `@wrkspc/vsc-sync` currently structures message types and utilities.
-- [ ] [Apply VscMessageSync naming](#apply-vscmessagesync-naming): Rename interfaces, enums, and namespaces to the new prefix convention.
-- [ ] [Restructure module layout](#restructure-module-layout): Group sync message types into domain modules with a root barrel export.
-- [ ] [Update consumers and tests](#update-consumers-and-tests): Adjust all imports and assertions in dependent packages to the new naming.
-- [ ] [Verify build and package metadata](#verify-build-and-package-metadata): Ensure package configuration reflects the refactor and publishes the expected entry points.
+- [x] [Audit current sync exports](#audit-current-sync-exports): Understand how `@wrkspc/vsc-sync` currently structures message types and utilities.
+- [x] [Apply VscMessageSync naming](#apply-vscmessagesync-naming): Rename interfaces, enums, and namespaces to the new prefix convention.
+- [x] [Restructure module layout](#restructure-module-layout): Group sync message types into domain modules with a root barrel export.
+- [x] [Update consumers and tests](#update-consumers-and-tests): Adjust all imports and assertions in dependent packages to the new naming.
+- [x] [Verify build and package metadata](#verify-build-and-package-metadata): Ensure package configuration reflects the refactor and publishes the expected entry points.
 
 ### Audit current sync exports
 
