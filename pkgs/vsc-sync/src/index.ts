@@ -1,4 +1,4 @@
 export * from "./file.js";
-export * from "./message.js";
+export * from "./messages/index.js";
 export * from "./resource.js";
 export * from "./text.js";

@@ -35,6 +35,10 @@ Design test helpers
 
 ### [Refactor Vsc Sync Package](./003-refactor-vsc-sync.md)
 
+#### Step Status
+
+- Completed October 2, 2025: Renamed sync messages to `VscMessageSync`, restructured module exports under `src/messages/`, and realigned extension/webview consumers with passing tests.
+
 Update `pkgs/vsc-sync` to rename `SyncMessage` namespace/types to `VscMessageSync`, adjust exports/imports, enforce kebab-case `type` values, and document usage. Confirm existing sync logic and upcoming tests rely on the updated names without altering payload semantics or Yjs integration.
 
 ### [Introduce Vsc Message Package](./004-introduce-vsc-message.md)
