@@ -6,11 +6,11 @@ Create `@wrkspc/vsc-message` to define higher-level message unions that wrap `Vs
 
 ## Tasks
 
-- [ ] [Design package API surface](#design-package-api-surface): Decide on exported unions, namespaces, and helper utilities.
-- [ ] [Scaffold package structure](#scaffold-package-structure): Add the new workspace package with build scripts, tsconfig, and lint/test setup.
-- [ ] [Implement domain modules](#implement-domain-modules): Define message unions and payload types grouped by feature area.
-- [ ] [Unify with VscMessageSync](#unify-with-vscmessagesync): Import the sync union and expose a master `VscMessage` type.
-- [ ] [Add validation tests and docs](#add-validation-tests-and-docs): Ensure type-level expectations are covered and document usage guidelines.
+- [x] [Design package API surface](#design-package-api-surface): Decide on exported unions, namespaces, and helper utilities.
+- [x] [Scaffold package structure](#scaffold-package-structure): Add the new workspace package with build scripts, tsconfig, and lint/test setup.
+- [x] [Implement domain modules](#implement-domain-modules): Define message unions and payload types grouped by feature area.
+- [x] [Unify with VscMessageSync](#unify-with-vscmessagesync): Import the sync union and expose a master `VscMessage` type.
+- [x] [Add validation tests and docs](#add-validation-tests-and-docs): Ensure type-level expectations are covered and document usage guidelines.
 
 ### Design package API surface
 
