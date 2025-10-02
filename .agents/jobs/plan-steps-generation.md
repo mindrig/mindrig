@@ -18,3 +18,66 @@ Use the following algorithm to generate plan step files `.agents/plans/{{plan_in
 7. Wait for all the questions to be answered before proceeding to the next step. If any question is still marked as "TODO", do not proceed until it is resolved. Skip "TBD" questions.
 8. For each step, document any additional notes or considerations relevant to the step in the step file. Use notes for context or assumptions, not as substitutes for actionable tasks.
 9. Wait for explicit user instructions to proceed to the next job, [Plan Review](./plan-review.md).
+
+## Details
+
+### Step File Template
+
+Use user instructions with any additional context from the plan file and generate step files using the following template:
+
+```md
+# {{step_title}}
+
+## Brief
+
+{{step_brief}}
+
+## Tasks
+
+- [ ] {{task_n_title}}: {{task_n_summary}}
+
+{{remaining_tasks_todos}}
+
+### {{task_n_title}}
+
+{{task_n_description}}
+
+#### Notes
+
+{{task_n_notes}}
+
+{{remaining_tasks_sections}}
+
+## Questions
+
+### {{question_n_title}}
+
+{{question_n_details}}
+
+#### Answer
+
+{{question_n_answer}}
+
+## Notes
+
+{{step_notes}}
+
+## ADRs
+
+None.
+```
+
+Where:
+
+- `{{step_title}}`: The title of the step, corresponding to the step title in the plan file Steps TODO list.
+- `{{step_brief}}`: A brief specification of the step, summarizing its objectives and requirements.
+- `{{task_n_title}}`: A short, descriptive title of the task.
+- `{{task_n_summary}}`: A one-sentence summary of the task.
+- `{{task_n_description}}`: A detailed description of the task, outlining the specific actions to be taken.
+- `{{task_n_notes}}`: Any additional notes or context relevant to the task.
+- `{{question_n_title}}`: A concise title for each question that needs to be answered to complete the step planning.
+- `{{question_n_details}}`: A detailed description of the question, providing context and any relevant information.
+- `{{question_n_answer}}`: The answer to the question, based on user input or explanations if the answer is not known.
+- `{{step_notes}}`: Any additional notes or considerations relevant to the step.
+
+Fill in ADRs section only during the execution job, use "None." as a placeholder.
