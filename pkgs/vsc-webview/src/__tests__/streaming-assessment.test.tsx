@@ -1,8 +1,12 @@
 import type { Prompt } from "@mindrig/types";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Assessment } from "../aspects/assessment/Assessment";
-import { VscContext } from "../aspects/vsc/Context";
+import {
+  clearVscMocks,
+  createMockVscApi,
+  renderWithVsc,
+} from "../testUtils/messages";
 
 vi.mock("../aspects/assessment/hooks/useGatewayModels", () => ({
   useGatewayModels: () => ({
@@ -110,11 +114,7 @@ vi.mock("../aspects/assessment/components/StreamingMarkdown", () => ({
   ),
 }));
 
-const mockVsc = {
-  postMessage: vi.fn(),
-  getState: vi.fn(),
-  setState: vi.fn(),
-};
+const mockVsc = createMockVscApi();
 
 const prompt: Prompt = {
   file: "/tmp/prompt.md",
@@ -143,21 +143,57 @@ const modelInfo = {
 };
 
 function renderAssessment() {
-  return render(
-    <VscContext.Provider value={{ vsc: mockVsc }}>
-      <Assessment
-        prompt={prompt}
-        vercelGatewayKey={null}
-        fileContent={"Prompt body"}
-        promptIndex={0}
-      />
-    </VscContext.Provider>,
+  return renderWithVsc(
+    <Assessment
+      prompt={prompt}
+      vercelGatewayKey={null}
+      fileContent={"Prompt body"}
+      promptIndex={0}
+    />,
+    mockVsc,
   );
 }
 
 describe("Assessment streaming UI", () => {
   beforeEach(() => {
-    mockVsc.postMessage.mockReset();
+    clearVscMocks(mockVsc);
+  });
+
+  it("requests the streaming preference on mount", async () => {
+    renderAssessment();
+
+    await waitFor(() => {
+      expect(mockVsc.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "getStreamingPreference" }),
+      );
+    });
+  });
+
+  it("syncs streaming toggle state with extension messages", async () => {
+    renderAssessment();
+
+    const toggle = await screen.findByLabelText(/Stream output/i);
+    expect(toggle).toBeChecked();
+
+    await act(async () => {
+      window.postMessage({
+        type: "streamingPreference",
+        payload: { enabled: false },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Stream output/i)).not.toBeChecked();
+    });
+
+    fireEvent.click(screen.getByLabelText(/Stream output/i));
+
+    expect(mockVsc.postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "setStreamingPreference",
+        payload: { enabled: true },
+      }),
+    );
   });
 
   it("renders streamed markdown updates", async () => {
