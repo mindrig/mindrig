@@ -270,6 +270,9 @@ importers:
       '@mindrig/parser-wasm':
         specifier: workspace:*
         version: link:../parser/pkg
+      '@wrkspc/model':
+        specifier: workspace:*
+        version: link:../model
       '@wrkspc/vsc-message':
         specifier: workspace:*
         version: link:../vsc-message

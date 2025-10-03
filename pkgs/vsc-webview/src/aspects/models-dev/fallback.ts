@@ -18,7 +18,7 @@ function modelsWithMetadata(
   }, {});
 }
 
-export const FALLBACK_MODELS_DEV_DATA: ModelDotdev.Response = {
+export const FALLBACK_MODELS_DEV_DATA = {
   openai: {
     id: "openai",
     name: "OpenAI",
@@ -162,7 +162,7 @@ export const FALLBACK_MODELS_DEV_DATA: ModelDotdev.Response = {
       },
     ]),
   },
-} as unknown as ModelDotdev.Response;
+} as const;
 
 export const MODELS_DEV_REVALIDATE_OPTIONS = {
   revalidateOnFocus: false,

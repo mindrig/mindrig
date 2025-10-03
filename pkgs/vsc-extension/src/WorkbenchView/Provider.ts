@@ -26,6 +26,7 @@ import { AIService } from "../AIService";
 import { CodeSyncManager } from "../CodeSyncManager";
 import { FileManager } from "../FileManager";
 import { SecretManager } from "../SecretManager";
+import { ModelsDataController } from "../ModelsDataController";
 import { resolveDevServerUri } from "../devServer";
 import { WorkbenchWebviewHtmlUris, workbenchWebviewHtml } from "./html";
 
@@ -97,11 +98,6 @@ type DatasetCsvLoadMessage = Extract<
   { type: "dataset-csv-load" }
 >;
 
-type ModelsDevResponseMessage = Extract<
-  VscMessageModels,
-  { type: "models-dev-response" }
->;
-
 type AuthVercelGatewaySetPayload = Extract<
   VscMessageAuth,
   { type: "auth-vercel-gateway-set" }
@@ -153,6 +149,9 @@ export class WorkbenchViewProvider
   #pendingOpenVercelPanel = false;
   #lastAttachmentPickImagesOnly = false;
   #lastExecutionPayload: ExecutePromptPayload | null = null;
+  #gatewaySaving = false;
+  #gatewayEditable = true;
+  #modelsDataController: ModelsDataController | null = null;
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -193,6 +192,7 @@ export class WorkbenchViewProvider
     }
 
     this.#sendVercelGatewayKey();
+    void this.#modelsDataController?.refresh();
 
     if (this.#pendingOpenVercelPanel) {
       this.#sendMessage({ type: "auth-panel-open" });
@@ -367,10 +367,6 @@ export class WorkbenchViewProvider
     );
 
     this.register(
-      this.#messageBus.on("models-dev-get", () => this.#handleGetModelsDev()),
-    );
-
-    this.register(
       this.#messageBus.on("lifecycle-webview-ready", () =>
         this.#handleWebviewReady(),
       ),
@@ -433,34 +429,6 @@ export class WorkbenchViewProvider
         this.#handleStopPromptRun(message.payload),
       ),
     );
-  }
-
-  // Cache for models.dev data
-  #modelsDevCache: any | null = null;
-
-  async #handleGetModelsDev() {
-    try {
-      if (!this.#modelsDevCache) {
-        const resp = await fetch("https://models.dev/api.json");
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        this.#modelsDevCache = await resp.json();
-      }
-      const success: ModelsDevResponseMessage = {
-        type: "models-dev-response",
-        payload: { status: "ok", data: this.#modelsDevCache },
-      };
-      this.#sendMessage(success);
-    } catch (error) {
-      console.error("Failed to fetch models.dev data:", error);
-      const failure: ModelsDevResponseMessage = {
-        type: "models-dev-response",
-        payload: {
-          status: "error",
-          error: error instanceof Error ? error.message : String(error),
-        },
-      };
-      this.#sendMessage(failure);
-    }
   }
 
   #sendMessage<Message extends VscMessage>(message: Message) {
@@ -788,43 +756,134 @@ export class WorkbenchViewProvider
 
   #secretManager: SecretManager | null = null;
 
+  #maskSecret(secret: string | null | undefined): string | null {
+    if (!secret) return null;
+    if (secret.length <= 4) return "*".repeat(secret.length);
+    const prefix = secret.slice(0, 4);
+    const suffix = secret.slice(-2);
+    return `${prefix}...${suffix}`;
+  }
+
+  async #publishGatewayState(options?: { secret?: string | null }) {
+    if (!this.#messageBus) return;
+
+    let secret = options?.secret ?? null;
+    if (options?.secret === undefined && this.#secretManager) {
+      secret = (await this.#secretManager.getSecret()) ?? null;
+    }
+
+    const hasKey = Boolean(secret);
+    if (!hasKey) this.#gatewayEditable = true;
+
+    const message: Extract<
+      VscMessageAuth,
+      { type: "auth-vercel-gateway-state" }
+    > = {
+      type: "auth-vercel-gateway-state",
+      payload: {
+        maskedKey: this.#maskSecret(secret),
+        hasKey,
+        readOnly: hasKey ? !this.#gatewayEditable : false,
+        isSaving: this.#gatewaySaving,
+      },
+    };
+
+    this.#sendMessage(message);
+  }
+
+  #ensureModelsDataController() {
+    if (
+      this.#modelsDataController ||
+      !this.#messageBus ||
+      !this.#secretManager
+    ) {
+      return;
+    }
+
+    const controller = new ModelsDataController({
+      messageBus: this.#messageBus,
+      secretManager: this.#secretManager,
+      gatewayOrigin: import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN,
+    });
+
+    this.register(controller);
+    this.#modelsDataController = controller;
+    void controller.refresh();
+  }
+
   #initializeSecretManager() {
     this.register(
       (this.#secretManager = new SecretManager(this.#context.secrets, {
         onSecretChanged: (secret) => {
-          setAuthContext({ loggedIn: !!secret });
+          const normalized = secret ?? null;
+          setAuthContext({ loggedIn: !!normalized });
 
-          this.#sendMessage({
-            type: "auth-vercel-gateway-state",
-            payload: { vercelGatewayKey: secret || null },
-          });
+          this.#gatewayEditable = !normalized;
+          this.#gatewaySaving = true;
+          void this.#publishGatewayState({ secret: normalized });
+
+          const refreshPromise = this.#modelsDataController?.handleSecretChanged();
+
+          if (refreshPromise) {
+            refreshPromise
+              .then(() => {
+                const status = this.#modelsDataController?.getLastGatewayStatus();
+                this.#gatewaySaving = false;
+                this.#gatewayEditable =
+                  status?.status === "error" || !normalized;
+                void this.#publishGatewayState({ secret: normalized });
+              })
+              .catch((error) => {
+                console.error(
+                  "Failed to refresh gateway models after secret change:",
+                  error,
+                );
+                this.#gatewaySaving = false;
+                this.#gatewayEditable = true;
+                void this.#publishGatewayState({ secret: normalized });
+              });
+          } else {
+            this.#gatewaySaving = false;
+            this.#gatewayEditable = !normalized;
+            void this.#publishGatewayState({ secret: normalized });
+          }
         },
       })),
     );
 
-    this.#secretManager.getSecret().then((secret) => {
-      setAuthContext({ loggedIn: !!secret });
-    });
+    this.#ensureModelsDataController();
+
+    if (this.#secretManager) {
+      this.#secretManager.getSecret().then((secret) => {
+        const normalized = secret ?? null;
+        setAuthContext({ loggedIn: !!normalized });
+        this.#gatewayEditable = !normalized;
+        this.#gatewaySaving = false;
+        this.#ensureModelsDataController();
+        void this.#publishGatewayState({ secret: normalized });
+      });
+    }
   }
 
   async #sendVercelGatewayKey() {
-    if (!this.#secretManager) return;
-    const secret = await this.#secretManager.getSecret();
-    this.#sendMessage({
-      type: "auth-vercel-gateway-state",
-      payload: { vercelGatewayKey: secret || null },
-    });
+    await this.#publishGatewayState();
   }
 
   async #handleSetVercelGatewayKey(
     vercelGatewayKey: AuthVercelGatewaySetPayload,
   ) {
     if (!this.#secretManager) return;
+    this.#gatewaySaving = true;
+    this.#gatewayEditable = false;
+    void this.#publishGatewayState({ secret: vercelGatewayKey });
     await this.#secretManager.setSecret(vercelGatewayKey);
   }
 
   async #handleClearVercelGatewayKey() {
     if (!this.#secretManager) return;
+    this.#gatewaySaving = true;
+    this.#gatewayEditable = true;
+    void this.#publishGatewayState({ secret: null });
     await this.#secretManager.clearSecret();
   }
 

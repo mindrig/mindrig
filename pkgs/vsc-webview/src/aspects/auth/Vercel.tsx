@@ -1,66 +1,152 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export namespace AuthVercel {
   export interface Props {
-    vercelGatewayKey: string | null;
-    onVercelGatewayKeyChange: (key: string) => void;
-    onClearVercelGatewayKey: () => void;
+    maskedKey: string | null;
+    hasKey: boolean;
+    readOnly: boolean;
+    isSaving: boolean;
+    errorMessage?: string | null;
+    onSave: (key: string) => void;
+    onClear: () => void;
     openSignal?: number;
+    onOpenChange?: (open: boolean) => void;
   }
 }
 
 export function AuthVercel(props: AuthVercel.Props) {
   const {
-    vercelGatewayKey,
-    onVercelGatewayKeyChange,
-    onClearVercelGatewayKey,
+    maskedKey,
+    hasKey,
+    readOnly,
+    isSaving,
+    errorMessage = null,
+    onSave,
+    onClear,
     openSignal = 0,
+    onOpenChange,
   } = props;
   const [inputValue, setInputValue] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
-  const [hasKey, setHasKey] = useState(false);
+  const [isEditing, setIsEditing] = useState(!hasKey);
+
+  const updateExpanded = useCallback(
+    (next: boolean) => {
+      setIsExpanded(next);
+      onOpenChange?.(next);
+    },
+    [onOpenChange],
+  );
 
   useEffect(() => {
-    setInputValue(vercelGatewayKey || "");
-    setHasKey(!!vercelGatewayKey);
-  }, [vercelGatewayKey]);
+    if (!hasKey) {
+      updateExpanded(true);
+      setIsEditing(true);
+      setInputValue("");
+    }
+  }, [hasKey, updateExpanded]);
+
+  useEffect(() => {
+    if (hasKey && !readOnly) {
+      updateExpanded(true);
+      setIsEditing(true);
+    }
+  }, [hasKey, readOnly, updateExpanded]);
 
   // Open on explicit signal from extension commands
   useEffect(() => {
-    if (openSignal > 0) setIsExpanded(true);
-  }, [openSignal]);
+    if (openSignal > 0) {
+      updateExpanded(true);
+      if (!readOnly) setIsEditing(true);
+    }
+  }, [openSignal, readOnly, updateExpanded]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      updateExpanded(true);
+      setIsEditing(true);
+    }
+  }, [errorMessage, updateExpanded]);
+
+  useEffect(() => {
+    if (hasKey && !isSaving && !errorMessage) {
+      updateExpanded(false);
+      setIsEditing(false);
+      setInputValue("");
+    }
+  }, [errorMessage, hasKey, isSaving, updateExpanded]);
+
+  const canEdit = isEditing || !readOnly;
 
   const handleSave = () => {
-    if (inputValue.trim()) {
-      setHasKey(true);
-      onVercelGatewayKeyChange(inputValue.trim());
-      setIsExpanded(false);
-    }
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+    onSave(trimmed);
+    if (!hasKey) updateExpanded(false);
+    setInputValue("");
   };
 
   const handleClear = () => {
-    setHasKey(false);
-    onClearVercelGatewayKey();
+    onClear();
     setInputValue("");
-    setIsExpanded(false);
+    updateExpanded(false);
+    setIsEditing(true);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSave();
-    else if (e.key === "Escape") setIsExpanded(false);
+    else if (e.key === "Escape") updateExpanded(false);
   };
+
+  const handleUpdate = () => {
+    updateExpanded(true);
+    setIsEditing(true);
+    setInputValue("");
+  };
+
+  const disableInputs = isSaving || (!canEdit && hasKey);
+  const resolvedMasked = maskedKey ?? "No key configured";
+
+  const showForm = isExpanded || !hasKey;
 
   return (
     <div className="space-y-3">
-      {/* API Key Form (no topbar) */}
-      {isExpanded && (
+      {!showForm && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">Vercel Gateway API Key</p>
+            <p className="font-mono text-gray-900">{resolvedMasked}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleUpdate}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
+              disabled={isSaving}
+            >
+              Update
+            </button>
+            <button
+              onClick={handleClear}
+              className="px-3 py-2 text-sm border border-red-600 text-red-600 rounded-lg hover:border-red-700 hover:text-red-700 transition-colors"
+              disabled={isSaving}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showForm && (
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-gray-800">
               Vercel Gateway API Key
             </h3>
             <button
-              onClick={() => setIsExpanded(false)}
+              onClick={() => {
+                updateExpanded(false);
+                setIsEditing(false);
+              }}
               className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
               title="Close"
             >
@@ -88,18 +174,23 @@ export function AuthVercel(props: AuthVercel.Props) {
               placeholder="Enter your Vercel Gateway API key..."
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               autoFocus
+              disabled={disableInputs}
             />
+            {errorMessage && (
+              <p className="text-sm text-red-600">{errorMessage}</p>
+            )}
             <div className="flex justify-between items-center">
               <button
                 onClick={handleSave}
-                disabled={!inputValue.trim()}
+                disabled={!inputValue.trim() || isSaving}
                 className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save
+                {isSaving ? "Saving..." : "Save"}
               </button>
               <button
                 onClick={handleClear}
                 className="px-3 py-2 border border-red-600 text-red-600 text-sm rounded-lg hover:border-red-700 hover:text-red-700 transition-colors duration-200 bg-transparent"
+                disabled={isSaving}
               >
                 Clear
               </button>

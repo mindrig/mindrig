@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("katex/dist/katex.min.css", () => ({}));
 
-vi.mock("@/aspects/models-dev/Context", () => {
+vi.mock("@/aspects/models/Context", () => {
   const fallbackData: Record<string, any> = {
     openai: {
       id: "openai",
@@ -44,7 +44,23 @@ vi.mock("@/aspects/models-dev/Context", () => {
     (value ?? "").toLowerCase();
 
   const stub = {
-    data: fallbackData,
+    gateway: undefined,
+    gatewayModels: [],
+    gatewayError: null,
+    dotDev: { status: "ok", data: fallbackData } as const,
+    dotDevData: fallbackData,
+    dotDevError: null,
+    isDotDevFallback: true,
+    isLoading: false,
+    keyStatus: {
+      status: "idle" as const,
+      message: null,
+      source: "fallback" as const,
+      fallbackUsed: false,
+      userAttempted: false,
+      checkedAt: undefined,
+    },
+    retry: vi.fn(),
     providers,
     modelsByProvider,
     getProvider: (providerId: string | null | undefined) =>
@@ -63,17 +79,11 @@ vi.mock("@/aspects/models-dev/Context", () => {
       supportsFiles: false,
       supportsTools: false,
       supportsReasoning: false,
-      provider: "openai",
     }),
-    isLoading: false,
-    isValidating: false,
-    isFallback: true,
-    error: null,
-    mutate: vi.fn(),
   } as const;
 
   return {
-    useModelsDev: () => stub,
+    useModels: () => stub,
   };
 });
 

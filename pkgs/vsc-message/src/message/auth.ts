@@ -3,6 +3,7 @@ export type VscMessageAuth =
   | VscMessageAuth.VercelSet
   | VscMessageAuth.VercelClear
   | VscMessageAuth.VercelState
+  | VscMessageAuth.VercelStatus
   | VscMessageAuth.PanelOpen;
 
 export namespace VscMessageAuth {
@@ -24,7 +25,22 @@ export namespace VscMessageAuth {
   export interface VercelState {
     type: "auth-vercel-gateway-state";
     payload: {
-      vercelGatewayKey: string | null;
+      maskedKey: string | null;
+      hasKey: boolean;
+      readOnly: boolean;
+      isSaving: boolean;
+    };
+  }
+
+  export interface VercelStatus {
+    type: "auth-vercel-gateway-status";
+    payload: {
+      status: "idle" | "ok" | "error";
+      message?: string;
+      checkedAt?: number;
+      source: "user" | "fallback";
+      fallbackUsed: boolean;
+      userAttempted: boolean;
     };
   }
 

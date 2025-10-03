@@ -1,5 +1,5 @@
 import { useMessage, useOn } from "@/aspects/message/messageContext";
-import { useModelsDev } from "@/aspects/models-dev/Context";
+import { useModels } from "@/aspects/models/Context";
 import type { Prompt, PromptVar } from "@mindrig/types";
 import JsonView, { ShouldExpandNodeInitially } from "@uiw/react-json-view";
 import { buildRunsAndSettings, computeVariablesFromRow } from "@wrkspc/dataset";
@@ -30,10 +30,7 @@ import { parseString as parseCsvString } from "smolcsv";
 import type { ModelStatus } from "./components/ModelStatusDot";
 import { ModelStatusDot } from "./components/ModelStatusDot";
 import { StreamingMarkdown } from "./components/StreamingMarkdown";
-import {
-  useGatewayModels,
-  type AvailableModel,
-} from "./hooks/useGatewayModels";
+import type { AvailableModel } from "@/aspects/models/Context";
 import type { ProviderModelWithScore } from "./modelSorting";
 import {
   compareProviderModelEntries,
@@ -353,18 +350,17 @@ export function Assessment({
   const [isHydrated, setIsHydrated] = useState(false);
 
   const {
-    models: gatewayModels,
+    gateway,
+    gatewayModels,
+    gatewayError,
+    dotDevError,
+    isDotDevFallback: modelsDevFallback,
     isLoading: modelsLoading,
-    error: modelsErrorRaw,
-  } = useGatewayModels(vercelGatewayKey);
-
-  const {
-    getModel: getModelsDevMeta,
     providers: modelsDevProviders,
-    isFallback: modelsDevFallback,
-    isLoading: modelsDevLoading,
-    error: modelsDevError,
-  } = useModelsDev();
+    modelsByProvider,
+    getModel: getModelsDevMeta,
+  } = useModels();
+  const modelsDevLoading = modelsLoading;
 
   const manualModelFallback = useMemo<AvailableModel[]>(() => {
     return Object.entries(OFFLINE_MODEL_RECOMMENDATIONS).flatMap(
@@ -388,17 +384,15 @@ export function Assessment({
   }, [gatewayModels, manualModelFallback]);
 
   const modelsError = useMemo(() => {
-    if (!modelsErrorRaw) return null;
-    return modelsErrorRaw instanceof Error
-      ? modelsErrorRaw.message
-      : String(modelsErrorRaw);
-  }, [modelsErrorRaw]);
+    if (gateway?.response.status === "error") return gateway.response.message;
+    return null;
+  }, [gateway]);
 
   const modelStatus = useMemo<ModelStatus>(() => {
-    if (modelsErrorRaw || modelsDevError) return "error";
-    if (modelsLoading || modelsDevLoading) return "loading";
+    if (gateway?.response.status === "error" || dotDevError) return "error";
+    if (modelsLoading) return "loading";
     return "success";
-  }, [modelsDevError, modelsDevLoading, modelsErrorRaw, modelsLoading]);
+  }, [dotDevError, gateway, modelsLoading]);
 
   useEffect(() => {
     send({ type: "settings-streaming-get" });
@@ -897,7 +891,7 @@ export function Assessment({
     });
   }, [models, modelsDevProviders]);
 
-  const modelsByProvider = useMemo(() => {
+  const groupedModelsByProvider = useMemo(() => {
     const grouped: Record<string, ProviderModelWithScore[]> = {};
 
     for (const model of models) {
@@ -949,13 +943,13 @@ export function Assessment({
   const getModelsForProvider = useCallback(
     (providerId: string | null) => {
       const providerKey = normaliseProviderId(providerId);
-      const list = modelsByProvider[providerKey] ?? [];
+      const list = groupedModelsByProvider[providerKey] ?? [];
       return list.map((entry) => ({
         id: entry.id,
         label: entry.name || entry.id,
       }));
     },
-    [modelsByProvider],
+    [groupedModelsByProvider],
   );
 
   const activeModelKey = expandedModelKey ?? modelConfigs[0]?.key ?? null;
