@@ -12,7 +12,7 @@ Refactor the monolithic `Assessment.tsx` component into a modular assessment exp
 - [x] [Extract Datasource Selector Module](.agents/plans/008-assessment-refactor/004-extract-datasource-selector-module.md): Implement `DatasourceSelector`, `DatasourceVariables`, and `DatasourceDataset`, moving datasource configuration logic accordingly.
 - [x] [Implement Assessment Run Panel](.agents/plans/008-assessment-refactor/005-implement-assessment-run-panel.md): Build the `AssessmentRun` component to manage run configuration, execution triggers, and status display.
 - [x] [Implement Results Module](.agents/plans/008-assessment-refactor/006-implement-results-module.md): Create `Results`, `Result`, `ResultSettings`, `ResultRequest`, `ResultMessages`, `ResultMessage`, and `ResultResponse` components and migrate rendering logic.
-- [ ] [Integrate Shared State](.agents/plans/008-assessment-refactor/007-integrate-shared-state.md): Consolidate data management, context providers, and service APIs to minimize prop drilling across the new structure.
+- [x] [Integrate Shared State](.agents/plans/008-assessment-refactor/007-integrate-shared-state.md): Consolidate data management, context providers, and service APIs to minimize prop drilling across the new structure.
 - [ ] [Build Testing Strategy](.agents/plans/008-assessment-refactor/008-build-testing-strategy.md): Design and implement React Testing Library coverage for new components and critical interactions.
 - [ ] [Cleanup and Docs](.agents/plans/008-assessment-refactor/009-cleanup-and-docs.md): Remove dead code, update imports, document the new structure, and validate regressions.
 
@@ -70,7 +70,7 @@ Refactor state management to minimize prop chains, introduce contexts or hooks a
 
 #### Status
 
-TODO
+DONE – introduced datasource/results context providers, moved CSV handlers into `useAssessmentDatasourceState`, rewired `Assessment.tsx` to compose provider values, and ran targeted unit tests. Global `pnpm lint` still fails on pre-existing `messageContext` hook violations; noted for cleanup.
 
 ### [Build Testing Strategy](.agents/plans/008-assessment-refactor/008-build-testing-strategy.md)
 

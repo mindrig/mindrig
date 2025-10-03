@@ -1,7 +1,7 @@
 import { useMessage, useOn } from "@/aspects/message/messageContext";
 import { useModels } from "@/aspects/models/Context";
 import type { Prompt } from "@mindrig/types";
-import { buildRunsAndSettings, computeVariablesFromRow } from "@wrkspc/dataset";
+import { buildRunsAndSettings } from "@wrkspc/dataset";
 import type { AttachmentInput, GenerationOptionsInput } from "@wrkspc/model";
 import {
   selectedModelCapabilities as capsForEntry,
@@ -57,6 +57,11 @@ import {
 } from "./streamingTypes";
 import { AssessmentRun } from "./Run";
 import type { RunResult } from "./types";
+import { AssessmentDatasourceProvider, useAssessmentDatasourceState } from "./hooks/useAssessmentDatasource";
+import {
+  AssessmentResultsProvider,
+  useAssessmentResultsViewState,
+} from "./hooks/useAssessmentResultsView";
 import { Results } from "@/aspects/result";
 import {
   ModelSetups,
@@ -113,12 +118,6 @@ export function Assessment({
   const { send } = useMessage();
   const attachmentTargetKeyRef = useRef<string | null>(null);
 
-  const [variables, setVariables] = useState<Record<string, string>>({});
-  const [csvPath, setCsvPath] = useState<string | null>(null);
-  const [csvHeader, setCsvHeader] = useState<string[] | null>(null);
-  const [csvRows, setCsvRows] = useState<string[][]>([]);
-  const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
-
   const [executionState, setExecutionState] = useState<ExecutionState>({
     isLoading: false,
     results: [],
@@ -129,32 +128,55 @@ export function Assessment({
   const [streamingEnabled, setStreamingEnabled] = useState(true);
   const [isStopping, setIsStopping] = useState(false);
   const activeRunIdRef = useRef<string | null>(null);
-  const [inputSource, setInputSource] = useState<"manual" | "dataset">(
-    "manual",
-  );
-  const [datasetMode, setDatasetMode] = useState<"row" | "range" | "all">(
-    "row",
-  );
-  const [rangeStart, setRangeStart] = useState<string>("");
-  const [rangeEnd, setRangeEnd] = useState<string>("");
+  const promptVariables = useMemo(() => prompt?.vars ?? [], [prompt]);
+  const datasourceState = useAssessmentDatasourceState({
+    promptVariables,
+    onRequestCsv: () => send({ type: "dataset-csv-request" }),
+  });
+  const {
+    inputSource,
+    setInputSource,
+    datasetMode,
+    setDatasetMode,
+    variables,
+    setVariables: setVariablesState,
+    csvPath,
+    setCsvPath,
+    csvHeader,
+    setCsvHeader,
+    csvRows,
+    setCsvRows,
+    selectedRowIdx,
+    setSelectedRowIdx,
+    rangeStart,
+    setRangeStart,
+    rangeEnd,
+    setRangeEnd,
+    handleVariableChange,
+    handleSelectRow,
+    handleLoadCsv,
+    handleClearCsv,
+    usingCsv,
+    csvFileLabel,
+  } = datasourceState;
 
-  const [resultsLayout, setResultsLayout] = useState<ResultsLayout>("vertical");
-  const [activeResultIndex, setActiveResultIndex] = useState(0);
-  const [collapsedResults, setCollapsedResults] = useState<
-    Record<number, boolean>
-  >({});
-  const [viewTab, setViewTab] = useState<Record<number, "rendered" | "raw">>(
-    {},
-  );
-  const [expandedRequest, setExpandedRequest] = useState<
-    Record<number, boolean>
-  >({});
-  const [expandedResponse, setExpandedResponse] = useState<
-    Record<number, boolean>
-  >({});
-  const [collapsedModelSettings, setCollapsedModelSettings] = useState<
-    Record<number, boolean>
-  >({});
+  const resultsView = useAssessmentResultsViewState();
+  const {
+    layout: resultsLayout,
+    setLayout: setResultsLayout,
+    collapsedResults,
+    setCollapsedResults,
+    collapsedModelSettings,
+    setCollapsedModelSettings,
+    requestExpanded: expandedRequest,
+    setRequestExpanded: setExpandedRequest,
+    responseExpanded: expandedResponse,
+    setResponseExpanded: setExpandedResponse,
+    viewTabs,
+    setViewTabs,
+    activeResultIndex,
+    setActiveResultIndex,
+  } = resultsView;
   const streamingToggleId = useId();
   const convertStreamingStateToResults = useCallback(
     (state: AssessmentStreamingState): RunResult[] => {
@@ -226,7 +248,7 @@ export function Assessment({
         return runResult;
       });
     },
-    [],
+    [setCsvHeader, setCsvRows, setCsvPath, setSelectedRowIdx],
   );
 
   const updateStreamingState = useCallback(
@@ -279,9 +301,16 @@ export function Assessment({
     setCollapsedModelSettings({});
     setExpandedRequest({});
     setExpandedResponse({});
-    setViewTab({});
+    setViewTabs({});
     setActiveResultIndex(0);
-  }, []);
+  }, [
+    setActiveResultIndex,
+    setCollapsedModelSettings,
+    setCollapsedResults,
+    setExpandedRequest,
+    setExpandedResponse,
+    setViewTabs,
+  ]);
 
   // Handlers for streaming lifecycle events are defined after promptId is available.
 
@@ -339,7 +368,7 @@ export function Assessment({
 
   useEffect(() => {
     if (resultsLayout !== "vertical") setCollapsedResults({});
-  }, [resultsLayout]);
+  }, [resultsLayout, setCollapsedResults]);
 
   const promptId = prompt
     ? `${prompt.file}:${prompt.span.outer.start}-${prompt.span.outer.end}`
@@ -991,7 +1020,7 @@ export function Assessment({
         );
       }
     },
-    [],
+    [setCsvHeader, setCsvRows, setCsvPath, setSelectedRowIdx],
   );
 
   const handleAttachmentsLoad = useCallback(
@@ -1108,7 +1137,7 @@ export function Assessment({
           : null,
       );
       replaceAllErrors({});
-      setVariables(data.variables ?? {});
+      setVariablesState(data.variables ?? {});
       if (data.csv) {
         setCsvPath(data.csv.path || null);
         setCsvHeader(data.csv.header || null);
@@ -1150,7 +1179,7 @@ export function Assessment({
       replaceAllConfigs([]);
       setExpandedKey(null);
       replaceAllErrors({});
-      setVariables(nextVariables);
+      setVariablesState(nextVariables);
       setCsvPath(null);
       setCsvHeader(null);
       setCsvRows([]);
@@ -1166,11 +1195,35 @@ export function Assessment({
 
     setCollapsedResults({});
     setCollapsedModelSettings({});
-    setViewTab({});
+    setViewTabs({});
     setExpandedRequest({});
     setExpandedResponse({});
     setIsHydrated(true);
-  }, [promptId, promptMeta, prompt]);
+  }, [
+    promptId,
+    promptMeta,
+    prompt,
+    replaceAllConfigs,
+    setExpandedKey,
+    replaceAllErrors,
+    setVariablesState,
+    setCsvPath,
+    setCsvHeader,
+    setCsvRows,
+    setSelectedRowIdx,
+    setInputSource,
+    setDatasetMode,
+    setRangeStart,
+    setRangeEnd,
+    setExecutionState,
+    setResultsLayout,
+    setActiveResultIndex,
+    setCollapsedResults,
+    setCollapsedModelSettings,
+    setExpandedRequest,
+    setExpandedResponse,
+    setViewTabs,
+  ]);
 
   useEffect(() => {
     if (!promptMeta || !isHydrated) return;
@@ -1265,67 +1318,10 @@ export function Assessment({
     replaceAllConfigs,
   ]);
 
-  const usingCsv = useMemo(
-    () => !!csvHeader && csvRows.length > 0,
-    [csvHeader, csvRows],
-  );
-
   const headersToUse = useMemo(() => {
     if (!usingCsv) return null;
     return csvHeader!;
   }, [usingCsv, csvHeader]);
-
-  const csvFileLabel = useMemo(() => {
-    if (!csvPath) return null;
-    const base = csvPath.split(/[/\\]/).pop() || csvPath;
-    return base;
-  }, [csvPath]);
-
-  const computeVariablesFromRowCb = useCallback(
-    (row: string[]) => computeVariablesFromRow(row, headersToUse, prompt?.vars),
-    [prompt, headersToUse],
-  );
-
-  const handleSelectRow = (index: number | null) => {
-    if (
-      index === null ||
-      Number.isNaN(index) ||
-      index < 0 ||
-      index >= csvRows.length
-    ) {
-      setSelectedRowIdx(null);
-      return;
-    }
-    setSelectedRowIdx(index);
-    const row = csvRows[index];
-    if (!row) return;
-    const mapped = computeVariablesFromRowCb(row);
-    setVariables(mapped);
-  };
-
-  const handleVariableChange = (varName: string, value: string) => {
-    setVariables((prev) => ({ ...prev, [varName]: value }));
-  };
-
-  const handleLoadCsv = () => {
-    send({ type: "dataset-csv-request" });
-  };
-
-  const handleClearCsv = () => {
-    setCsvPath(null);
-    setCsvHeader(null);
-    setCsvRows([]);
-    setSelectedRowIdx(null);
-    setInputSource("manual");
-    setDatasetMode("row");
-    setRangeStart("");
-    setRangeEnd("");
-    const nextVariables: Record<string, string> = {};
-    prompt?.vars?.forEach((variable) => {
-      nextVariables[variable.exp] = "";
-    });
-    setVariables(nextVariables);
-  };
 
   const canExecute = () => {
     if (!prompt?.vars) return true;
@@ -1525,9 +1521,9 @@ export function Assessment({
     activeRunIdRef.current = null;
     setCollapsedResults({});
     setCollapsedModelSettings({});
-    setExpandedRequest({});
-    setExpandedResponse({});
-    setViewTab({});
+    setRequestExpanded({});
+    setResponseExpanded({});
+    setViewTabs({});
   };
 
   useEffect(() => {
@@ -1535,9 +1531,7 @@ export function Assessment({
       if (executionState.results.length === 0) return 0;
       return Math.min(idx, executionState.results.length - 1);
     });
-  }, [executionState.results.length]);
-
-  if (!prompt) return null;
+  }, [executionState.results.length, setActiveResultIndex]);
 
   const activeRunId = streamingState.runId;
   const runInFlight =
@@ -1546,7 +1540,131 @@ export function Assessment({
   const stopDisabled = isStopping || !activeRunId;
   const canRunPrompt = canExecute();
 
-  return (
+  const datasourceContextValue = useMemo(
+    () => ({
+      promptVariables,
+      inputSource,
+      setInputSource,
+      datasetMode,
+      setDatasetMode,
+      variables,
+      setVariables: setVariablesState,
+      csvPath,
+      setCsvPath,
+      csvHeader,
+      setCsvHeader,
+      csvRows,
+      setCsvRows,
+      selectedRowIdx,
+      setSelectedRowIdx,
+      rangeStart,
+      setRangeStart,
+      rangeEnd,
+      setRangeEnd,
+      handleVariableChange,
+      handleSelectRow,
+      handleLoadCsv,
+      handleClearCsv,
+      usingCsv,
+      csvFileLabel,
+    }),
+    [
+      promptVariables,
+      inputSource,
+      setInputSource,
+      datasetMode,
+      setDatasetMode,
+      variables,
+      setVariablesState,
+      csvPath,
+      setCsvPath,
+      csvHeader,
+      setCsvHeader,
+      csvRows,
+      setCsvRows,
+      selectedRowIdx,
+      setSelectedRowIdx,
+      rangeStart,
+      setRangeStart,
+      rangeEnd,
+      setRangeEnd,
+      handleVariableChange,
+      handleSelectRow,
+      handleLoadCsv,
+      handleClearCsv,
+      usingCsv,
+      csvFileLabel,
+    ],
+  );
+
+  const resultsContextValue = useMemo(
+    () => ({
+      results: executionState.results,
+      models,
+      timestamp: executionState.timestamp,
+      layout: resultsLayout,
+      onLayoutChange: setResultsLayout,
+      collapsedResults,
+      onToggleCollapse: (index: number) =>
+        setCollapsedResults((prev) => ({
+          ...prev,
+          [index]: !(prev[index] ?? false),
+        })),
+      collapsedModelSettings,
+      onToggleModelSettings: (index: number) =>
+        setCollapsedModelSettings((prev) => ({
+          ...prev,
+          [index]: !(prev[index] ?? true),
+        })),
+      requestExpanded: expandedRequest,
+      onToggleRequest: (index: number) =>
+        setRequestExpanded((prev) => ({
+          ...prev,
+          [index]: !prev[index],
+        })),
+      responseExpanded: expandedResponse,
+      onToggleResponse: (index: number) =>
+        setResponseExpanded((prev) => ({
+          ...prev,
+          [index]: !prev[index],
+        })),
+      viewTabs,
+      onChangeView: (index: number, view: "rendered" | "raw") =>
+        setViewTabs((prev) => ({
+          ...prev,
+          [index]: view,
+        })),
+      activeResultIndex,
+      onActiveResultIndexChange: (index: number) =>
+        setActiveResultIndex((prev) => {
+          if (executionState.results.length === 0) return 0;
+          const maxIndex = executionState.results.length - 1;
+          const next = Math.max(0, Math.min(index, maxIndex));
+          return next;
+        }),
+    }),
+    [
+      executionState.results,
+      executionState.timestamp,
+      models,
+      resultsLayout,
+      setResultsLayout,
+      collapsedResults,
+      setCollapsedResults,
+      collapsedModelSettings,
+      setCollapsedModelSettings,
+      expandedRequest,
+      setExpandedRequest,
+      expandedResponse,
+      setExpandedResponse,
+      viewTabs,
+      setViewTabs,
+      activeResultIndex,
+      setActiveResultIndex,
+    ],
+  );
+
+  return !prompt ? null : (
     <div className="flex flex-col gap-2">
       <ModelSetups
         status={modelStatus}
@@ -1576,27 +1694,9 @@ export function Assessment({
         addDisabled={modelsLoading && models.length === 0}
       />
 
-      <DatasourceSelector
-        inputSource={inputSource}
-        promptVariables={prompt?.vars ?? []}
-        variables={variables}
-        datasetMode={datasetMode}
-        csvRows={csvRows}
-        csvHeader={csvHeader}
-        csvFileLabel={csvFileLabel}
-        selectedRowIdx={selectedRowIdx}
-        rangeStart={rangeStart}
-        rangeEnd={rangeEnd}
-        usingCsv={usingCsv}
-        onInputSourceChange={setInputSource}
-        onVariableChange={handleVariableChange}
-        onDatasetModeChange={setDatasetMode}
-        onSelectRow={handleSelectRow}
-        onRangeStartChange={setRangeStart}
-        onRangeEndChange={setRangeEnd}
-        onLoadCsv={handleLoadCsv}
-        onClearCsv={handleClearCsv}
-      />
+      <AssessmentDatasourceProvider value={datasourceContextValue}>
+        <DatasourceSelector />
+      </AssessmentDatasourceProvider>
 
       <AssessmentRun
         canRunPrompt={canRunPrompt}
@@ -1615,50 +1715,9 @@ export function Assessment({
         onStreamingToggle={handleStreamingToggle}
       />
 
-      <Results
-        results={executionState.results}
-        layout={resultsLayout}
-        onLayoutChange={setResultsLayout}
-        collapsedResults={collapsedResults}
-        onToggleCollapse={(index) =>
-          setCollapsedResults((prev) => ({
-            ...prev,
-            [index]: !(prev[index] ?? false),
-          }))
-        }
-        collapsedModelSettings={collapsedModelSettings}
-        onToggleModelSettings={(index) =>
-          setCollapsedModelSettings((prev) => ({
-            ...prev,
-            [index]: !(prev[index] ?? true),
-          }))
-        }
-        requestExpanded={expandedRequest}
-        onToggleRequest={(index) =>
-          setExpandedRequest((prev) => ({
-            ...prev,
-            [index]: !prev[index],
-          }))
-        }
-        responseExpanded={expandedResponse}
-        onToggleResponse={(index) =>
-          setExpandedResponse((prev) => ({
-            ...prev,
-            [index]: !prev[index],
-          }))
-        }
-        viewTabs={viewTab}
-        onChangeView={(index, next) =>
-          setViewTab((prev) => ({
-            ...prev,
-            [index]: next,
-          }))
-        }
-        activeResultIndex={activeResultIndex}
-        onActiveResultIndexChange={setActiveResultIndex}
-        timestamp={executionState.timestamp}
-        models={models}
-      />
+      <AssessmentResultsProvider value={resultsContextValue}>
+        <Results />
+      </AssessmentResultsProvider>
 
       {executionState.error && (
         <div className="space-y-2">

@@ -5,6 +5,11 @@ import { describe, expect, it, vi } from "vitest";
 import type { ResultsLayout } from "@/aspects/assessment/persistence";
 import type { RunResult } from "@/aspects/assessment/types";
 
+import {
+  AssessmentResultsProvider,
+  type ResultsContextValue,
+} from "@/aspects/assessment/hooks/useAssessmentResultsView";
+
 import { Results } from "../Results";
 
 const baseResult: RunResult = {
@@ -46,9 +51,11 @@ const models = [
 ] as any;
 
 describe("Results", () => {
-  const renderComponent = (overrides: Partial<Parameters<typeof Results>[0]> = {}) => {
-    const props: Parameters<typeof Results>[0] = {
+  const renderComponent = (overrides: Partial<ResultsContextValue> = {}) => {
+    const value: ResultsContextValue = {
       results: [baseResult],
+      models,
+      timestamp: 0,
       layout: "vertical" satisfies ResultsLayout,
       onLayoutChange: vi.fn(),
       collapsedResults: {},
@@ -63,11 +70,13 @@ describe("Results", () => {
       onChangeView: vi.fn(),
       activeResultIndex: 0,
       onActiveResultIndexChange: vi.fn(),
-      timestamp: 0,
-      models,
       ...overrides,
     };
-    return render(<Results {...props} />);
+    return render(
+      <AssessmentResultsProvider value={value}>
+        <Results />
+      </AssessmentResultsProvider>,
+    );
   };
 
   it("renders result content in vertical layout", () => {
