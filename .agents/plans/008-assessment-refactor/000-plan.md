@@ -6,7 +6,7 @@ Refactor the monolithic `Assessment.tsx` component into a modular assessment exp
 
 ## Steps
 
-- [ ] [Baseline Assessment Component](.agents/plans/008-assessment-refactor/001-baseline-assessment-component.md): Inventory current responsibilities, state, and data flows inside `Assessment.tsx` to understand required behavior and dependencies.
+- [x] [Baseline Assessment Component](.agents/plans/008-assessment-refactor/001-baseline-assessment-component.md): Inventory current responsibilities, state, and data flows inside `Assessment.tsx` to understand required behavior and dependencies.
 - [ ] [Define Target Architecture](.agents/plans/008-assessment-refactor/002-define-target-architecture.md): Establish component boundaries, shared state strategy, and communication contracts for the new module structure.
 - [ ] [Extract Model Setup Module](.agents/plans/008-assessment-refactor/003-extract-model-setup-module.md): Implement `ModelSetups`, `ModelSetup`, `ModelSelector`, and `ModelSettings` components and migrate related logic.
 - [ ] [Extract Datasource Selector Module](.agents/plans/008-assessment-refactor/004-extract-datasource-selector-module.md): Implement `DatasourceSelector`, `DatasourceVariables`, and `DatasourceDataset`, moving datasource configuration logic accordingly.
@@ -22,7 +22,7 @@ Capture a feature-by-feature map of `Assessment.tsx`, including state hooks, eff
 
 #### Status
 
-TODO
+DONE – catalogued component structure, state/effect map, dependency inventory, and UI responsibilities for `Assessment.tsx`.
 
 ### [Define Target Architecture](.agents/plans/008-assessment-refactor/002-define-target-architecture.md)
 
