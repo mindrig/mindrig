@@ -8,7 +8,7 @@ Refactor the monolithic `Assessment.tsx` component into a modular assessment exp
 
 - [x] [Baseline Assessment Component](.agents/plans/008-assessment-refactor/001-baseline-assessment-component.md): Inventory current responsibilities, state, and data flows inside `Assessment.tsx` to understand required behavior and dependencies.
 - [x] [Define Target Architecture](.agents/plans/008-assessment-refactor/002-define-target-architecture.md): Establish component boundaries, shared state strategy, and communication contracts for the new module structure.
-- [ ] [Extract Model Setup Module](.agents/plans/008-assessment-refactor/003-extract-model-setup-module.md): Implement `ModelSetups`, `ModelSetup`, `ModelSelector`, and `ModelSettings` components and migrate related logic.
+- [x] [Extract Model Setup Module](.agents/plans/008-assessment-refactor/003-extract-model-setup-module.md): Implement `ModelSetups`, `ModelSetup`, `ModelSelector`, and `ModelSettings` components and migrate related logic.
 - [ ] [Extract Datasource Selector Module](.agents/plans/008-assessment-refactor/004-extract-datasource-selector-module.md): Implement `DatasourceSelector`, `DatasourceVariables`, and `DatasourceDataset`, moving datasource configuration logic accordingly.
 - [ ] [Implement Assessment Run Panel](.agents/plans/008-assessment-refactor/005-implement-assessment-run-panel.md): Build the `AssessmentRun` component to manage run configuration, execution triggers, and status display.
 - [ ] [Implement Results Module](.agents/plans/008-assessment-refactor/006-implement-results-module.md): Create `Results`, `Result`, `ResultSettings`, `ResultRequest`, `ResultMessages`, `ResultMessage`, and `ResultResponse` components and migrate rendering logic.
@@ -38,7 +38,7 @@ Split model-related logic into the new components, centralizing provider/model s
 
 #### Status
 
-TODO
+DONE – extracted model UI into dedicated components, centralised state via `useModelSetupsState`, rewired `Assessment.tsx`, and added RTL coverage.
 
 ### [Extract Datasource Selector Module](.agents/plans/008-assessment-refactor/004-extract-datasource-selector-module.md)
 
