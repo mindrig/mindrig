@@ -3,9 +3,9 @@ import { useModels } from "@/aspects/models/Context";
 import { useVsc } from "@/aspects/vsc/Context";
 import { Prompt } from "@mindrig/types";
 import { findPromptAtCursor } from "@wrkspc/prompt";
+import type { VscMessagePrompts } from "@wrkspc/vsc-message";
 import { SyncFile } from "@wrkspc/vsc-sync";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { VscMessagePrompts } from "@wrkspc/vsc-message";
 import { AuthVercel } from "../aspects/auth/Vercel";
 import { Blueprint } from "../aspects/blueprint/Blueprint";
 import { DevDebug } from "../aspects/dev/DebugSection";
@@ -23,17 +23,27 @@ type WebviewState = {
   pinnedPrompt?: PinnedPromptState | null;
 };
 
+interface GatewaySecretState {
+  maskedKey: string | null;
+  hasKey: boolean;
+  readOnly: boolean;
+  isSaving: boolean;
+  isResolved: boolean;
+}
+
 export function Index() {
   const { vsc } = useVsc();
   const { send } = useMessage();
   const [fileState, setFileState] = useState<SyncFile.State | null>(null);
   const [activeFile, setActiveFile] = useState<SyncFile.State | null>(null);
-  const [gatewaySecretState, setGatewaySecretState] = useState({
-    maskedKey: null as string | null,
-    hasKey: false,
-    readOnly: false,
-    isSaving: false,
-  });
+  const [gatewaySecretState, setGatewaySecretState] =
+    useState<GatewaySecretState>(() => ({
+      maskedKey: null,
+      hasKey: false,
+      readOnly: false,
+      isSaving: false,
+      isResolved: false,
+    }));
   const { keyStatus, retry, gatewayError } = useModels();
   const [isGatewayFormOpen, setIsGatewayFormOpen] = useState(false);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -260,11 +270,11 @@ export function Index() {
         hasKey: message.payload.hasKey,
         readOnly: message.payload.readOnly,
         isSaving: message.payload.isSaving,
+        isResolved: true,
       });
     },
     [],
   );
-
 
   useOn(
     "auth-panel-open",
@@ -315,11 +325,14 @@ export function Index() {
         <AuthVercel
           maskedKey={gatewaySecretState.maskedKey}
           hasKey={gatewaySecretState.hasKey}
+          isResolved={gatewaySecretState.isResolved}
           readOnly={gatewaySecretState.readOnly}
           isSaving={gatewaySecretState.isSaving}
           errorMessage={
             keyStatus.status === "error"
-              ? keyStatus.message ?? gatewayError ?? "Failed to validate Vercel Gateway key."
+              ? (keyStatus.message ??
+                gatewayError ??
+                "Failed to validate Vercel Gateway key.")
               : null
           }
           onSave={handleVercelGatewayKeyChange}
