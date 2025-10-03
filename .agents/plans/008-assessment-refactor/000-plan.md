@@ -7,7 +7,7 @@ Refactor the monolithic `Assessment.tsx` component into a modular assessment exp
 ## Steps
 
 - [x] [Baseline Assessment Component](.agents/plans/008-assessment-refactor/001-baseline-assessment-component.md): Inventory current responsibilities, state, and data flows inside `Assessment.tsx` to understand required behavior and dependencies.
-- [ ] [Define Target Architecture](.agents/plans/008-assessment-refactor/002-define-target-architecture.md): Establish component boundaries, shared state strategy, and communication contracts for the new module structure.
+- [x] [Define Target Architecture](.agents/plans/008-assessment-refactor/002-define-target-architecture.md): Establish component boundaries, shared state strategy, and communication contracts for the new module structure.
 - [ ] [Extract Model Setup Module](.agents/plans/008-assessment-refactor/003-extract-model-setup-module.md): Implement `ModelSetups`, `ModelSetup`, `ModelSelector`, and `ModelSettings` components and migrate related logic.
 - [ ] [Extract Datasource Selector Module](.agents/plans/008-assessment-refactor/004-extract-datasource-selector-module.md): Implement `DatasourceSelector`, `DatasourceVariables`, and `DatasourceDataset`, moving datasource configuration logic accordingly.
 - [ ] [Implement Assessment Run Panel](.agents/plans/008-assessment-refactor/005-implement-assessment-run-panel.md): Build the `AssessmentRun` component to manage run configuration, execution triggers, and status display.
@@ -30,7 +30,7 @@ Design the module layout, shared contexts, and data flow contracts between new c
 
 #### Status
 
-TODO
+DONE – documented component hierarchy, state ownership plan, cross-module contracts, and async/error flow alignment.
 
 ### [Extract Model Setup Module](.agents/plans/008-assessment-refactor/003-extract-model-setup-module.md)
 
