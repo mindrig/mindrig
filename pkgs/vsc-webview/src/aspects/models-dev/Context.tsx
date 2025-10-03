@@ -1,3 +1,11 @@
+import { useMessage } from "@/aspects/message/messageContext";
+import {
+  ModelDotdev,
+  getModelCapabilities,
+  modelsDotdevUrl,
+  setModelsDevData,
+} from "@wrkspc/model";
+import type { VscMessageModels } from "@wrkspc/vsc-message";
 import {
   createContext,
   useCallback,
@@ -5,16 +13,8 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import useSWR from "swr";
 import type { KeyedMutator } from "swr";
-import {
-  ModelDotdev,
-  getModelCapabilities,
-  modelsDotdevUrl,
-  setModelsDevData,
-} from "@wrkspc/model";
-import { useMessage } from "@/aspects/message/messageContext";
-import type { VscMessageModels } from "@wrkspc/vsc-message";
+import useSWR from "swr";
 import {
   FALLBACK_MODELS_DEV_DATA,
   MODELS_DEV_REVALIDATE_OPTIONS,
@@ -22,24 +22,24 @@ import {
 
 const SWR_KEY = "models.dev";
 
-function normalise(value: string | null | undefined): string {
-  return (value ?? "").toLowerCase();
+function normalise(value: string | null | undefined): ModelDotdev.ModelId {
+  return (value ?? "").toLowerCase() as ModelDotdev.ModelId;
 }
 
 export interface ModelsDevContextValue {
-  data: ModelDotdev.ModelsDev.Data;
-  providers: Record<string, ModelDotdev.ModelsDev.Provider>;
+  data: ModelDotdev.Response;
+  providers: Record<string, ModelDotdev.Provider>;
   modelsByProvider: Record<
     string,
-    Record<string, ModelDotdev.ModelsDev.ModelMeta & { id: string }>
+    Record<string, ModelDotdev.Meta & { id: string }>
   >;
   getProvider: (
     providerId: string | null | undefined,
-  ) => ModelDotdev.ModelsDev.Provider | undefined;
+  ) => ModelDotdev.Provider | undefined;
   getModel: (
     providerId: string | null | undefined,
     modelId: string | null | undefined,
-  ) => (ModelDotdev.ModelsDev.ModelMeta & { id: string }) | undefined;
+  ) => (ModelDotdev.Meta & { id: string }) | undefined;
   getCapabilities: (
     providerId: string | null | undefined,
     modelId: string | null | undefined,
@@ -48,7 +48,7 @@ export interface ModelsDevContextValue {
   isValidating: boolean;
   isFallback: boolean;
   error: unknown;
-  mutate: KeyedMutator<ModelDotdev.ModelsDev.Data>;
+  mutate: KeyedMutator<ModelDotdev.Response>;
 }
 
 const ModelsDevContext = createContext<ModelsDevContextValue | undefined>(
@@ -61,7 +61,7 @@ export function ModelsDevProvider(props: React.PropsWithChildren) {
   const fetchModelsDev = useCallback(async () => {
     if (typeof window === "undefined") return FALLBACK_MODELS_DEV_DATA;
 
-    const responsePromise = new Promise<ModelDotdev.ModelsDev.Data>(
+    const responsePromise = new Promise<ModelDotdev.Response>(
       (resolve, reject) => {
         const subscription = listen(
           "models-dev-response",
@@ -100,7 +100,7 @@ export function ModelsDevProvider(props: React.PropsWithChildren) {
       const response = await fetch(modelsDotdevUrl());
       if (!response.ok)
         throw new Error(`Failed to fetch models.dev: ${response.status}`);
-      return (await response.json()) as ModelDotdev.ModelsDev.Data;
+      return (await response.json()) as ModelDotdev.Response;
     }
   }, [listen, send]);
 
@@ -123,13 +123,14 @@ export function ModelsDevProvider(props: React.PropsWithChildren) {
 
   const providers = useMemo(() => {
     const source = data ?? FALLBACK_MODELS_DEV_DATA;
-    return Object.entries(source).reduce<
-      Record<string, ModelDotdev.ModelsDev.Provider>
-    >((acc, [key, provider]) => {
-      const id = normalise(provider?.id ?? key);
-      acc[id] = { ...provider, id: provider?.id ?? key };
-      return acc;
-    }, {});
+    return Object.entries(source).reduce<Record<string, ModelDotdev.Provider>>(
+      (acc, [key, provider]) => {
+        const id = normalise(provider?.id ?? key);
+        acc[id] = { ...provider, id: provider?.id ?? key };
+        return acc;
+      },
+      {},
+    );
   }, [data]);
 
   const modelsByProvider = useMemo(() => {
@@ -139,9 +140,10 @@ export function ModelsDevProvider(props: React.PropsWithChildren) {
         const providerId = normalise(provider?.id ?? key);
         const models = provider?.models ?? {};
         result[providerId] = Object.entries(models).reduce<
-          Record<string, ModelDotdev.ModelsDev.ModelMeta & { id: string }>
+          Record<string, ModelDotdev.Meta & { id: ModelDotdev.ModelId }>
         >((acc, [modelKey, meta]) => {
           const id = normalise(modelKey);
+          // @ts-expect-error -- TODO: Fix when refactoring models source
           acc[id] = { id: modelKey, ...(meta ?? {}) };
           return acc;
         }, {});

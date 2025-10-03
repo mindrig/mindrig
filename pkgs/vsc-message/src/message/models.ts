@@ -21,7 +21,7 @@ export namespace VscMessageModels {
 
   export interface DevResponsePayloadOk {
     status: "ok";
-    data: ModelDotdev.ModelsDev.Data;
+    data: ModelDotdev.Response;
   }
 
   export interface DevResponsePayloadError {

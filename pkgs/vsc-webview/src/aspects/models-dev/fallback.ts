@@ -8,20 +8,17 @@ interface FallbackModelInput {
 
 function modelsWithMetadata(
   models: FallbackModelInput[],
-): Record<string, ModelDotdev.ModelsDev.ModelMeta> {
-  return models.reduce<Record<string, ModelDotdev.ModelsDev.ModelMeta>>(
-    (acc, model) => {
-      acc[model.id] = {
-        ...(model.name ? { name: model.name } : {}),
-        last_updated: model.last_updated,
-      } as ModelDotdev.ModelsDev.ModelMeta;
-      return acc;
-    },
-    {},
-  );
+): Record<string, ModelDotdev.Meta> {
+  return models.reduce<Record<string, ModelDotdev.Meta>>((acc, model) => {
+    acc[model.id] = {
+      ...(model.name ? { name: model.name } : {}),
+      last_updated: model.last_updated,
+    } as ModelDotdev.Meta;
+    return acc;
+  }, {});
 }
 
-export const FALLBACK_MODELS_DEV_DATA: ModelDotdev.ModelsDev.Data = {
+export const FALLBACK_MODELS_DEV_DATA: ModelDotdev.Response = {
   openai: {
     id: "openai",
     name: "OpenAI",
@@ -165,7 +162,7 @@ export const FALLBACK_MODELS_DEV_DATA: ModelDotdev.ModelsDev.Data = {
       },
     ]),
   },
-};
+} as unknown as ModelDotdev.Response;
 
 export const MODELS_DEV_REVALIDATE_OPTIONS = {
   revalidateOnFocus: false,

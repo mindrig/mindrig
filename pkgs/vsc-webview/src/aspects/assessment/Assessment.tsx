@@ -1,3 +1,4 @@
+import { useMessage, useOn } from "@/aspects/message/messageContext";
 import { useModelsDev } from "@/aspects/models-dev/Context";
 import type { Prompt, PromptVar } from "@mindrig/types";
 import JsonView, { ShouldExpandNodeInitially } from "@uiw/react-json-view";
@@ -12,6 +13,11 @@ import {
   providerLogoUrl,
 } from "@wrkspc/model";
 import { extractPromptText, substituteVariables } from "@wrkspc/prompt";
+import type {
+  VscMessageAttachments,
+  VscMessageDataset,
+  VscMessagePromptRun,
+} from "@wrkspc/vsc-message";
 import {
   useCallback,
   useEffect,
@@ -21,7 +27,6 @@ import {
   useState,
 } from "react";
 import { parseString as parseCsvString } from "smolcsv";
-import { useMessage, useOn } from "@/aspects/message/messageContext";
 import type { ModelStatus } from "./components/ModelStatusDot";
 import { ModelStatusDot } from "./components/ModelStatusDot";
 import { StreamingMarkdown } from "./components/StreamingMarkdown";
@@ -30,11 +35,6 @@ import {
   type AvailableModel,
 } from "./hooks/useGatewayModels";
 import type { ProviderModelWithScore } from "./modelSorting";
-import type {
-  VscMessageAttachments,
-  VscMessageDataset,
-  VscMessagePromptRun,
-} from "@wrkspc/vsc-message";
 import {
   compareProviderModelEntries,
   computeRecommendationWeightsForProvider,
@@ -2082,31 +2082,6 @@ export function Assessment({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium">Model</label>
-                    <select
-                      className="min-w-[200px] px-3 py-1.5 border rounded text-sm"
-                      value={config.modelId ?? ""}
-                      onChange={(event) =>
-                        handleModelChange(config, event.target.value || null)
-                      }
-                      disabled={modelOptions.length === 0}
-                    >
-                      <option value="" disabled>
-                        Select model
-                      </option>
-                      {modelOptions.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-
-                    {errors.model && (
-                      <span className="text-xs">{errors.model}</span>
-                    )}
-                  </div>
-
                   {logoUrl && (
                     <img
                       src={logoUrl}

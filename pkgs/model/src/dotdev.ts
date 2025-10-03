@@ -3,6 +3,165 @@ export function modelsDotdevUrl(): string {
 }
 
 export namespace ModelDotdev {
+  // TODO: Refactor when updated schema is published: https://github.com/sst/models.dev/blob/dev/packages/core/src/schema.ts
+
+  // NOTE: Get up-to-date ids using command:
+  //     curl --silent https://models.dev/api.json | jaq -r '[keys[] | "\"\(.)\""] | join(" | ")'
+  export type ProviderId =
+    | "alibaba"
+    | "alibaba-cn"
+    | "amazon-bedrock"
+    | "anthropic"
+    | "azure"
+    | "baseten"
+    | "cerebras"
+    | "chutes"
+    | "cloudflare-workers-ai"
+    | "cortecs"
+    | "deepinfra"
+    | "deepseek"
+    | "fastrouter"
+    | "fireworks-ai"
+    | "github-copilot"
+    | "github-models"
+    | "google"
+    | "google-vertex"
+    | "google-vertex-anthropic"
+    | "groq"
+    | "huggingface"
+    | "inception"
+    | "inference"
+    | "llama"
+    | "lmstudio"
+    | "lucidquery"
+    | "mistral"
+    | "modelscope"
+    | "moonshotai"
+    | "moonshotai-cn"
+    | "morph"
+    | "nvidia"
+    | "openai"
+    | "opencode"
+    | "openrouter"
+    | "perplexity"
+    | "requesty"
+    | "submodel"
+    | "synthetic"
+    | "togetherai"
+    | "upstage"
+    | "v0"
+    | "venice"
+    | "vercel"
+    | "wandb"
+    | "xai"
+    | "zai"
+    | "zai-coding-plan"
+    | "zhipuai"
+    | "zhipuai-coding-plan";
+
+  export interface Provider {
+    /** Provider id. */
+    id: ProviderId;
+    /** Display name of the provider. */
+    name: string;
+    /** AI SDK Package name. */
+    npm: string;
+    /** Environment variable keys used for auth. */
+    env: string[];
+    /** OpenAI-compatible API endpoint. Required only when using
+     * `@ai-sdk/openai-compatible` as the npm package. */
+    api?: string;
+    /** Link to the provider's documentation. */
+    doc: string;
+    /** Provider models. */
+    models: Record<string, Model>;
+  }
+
+  export type ModelId = string & { [modelIdBrand]: true };
+  declare const modelIdBrand: unique symbol;
+
+  export interface Model {
+    /** Model id. */
+    id: ModelId;
+    /** Display name of the model. */
+    name: string;
+    /** Supports file attachments. */
+    attachment: boolean;
+    /** Supports advanced reasoning. */
+    reasoning: boolean;
+    /** Supports temperature setting. */
+    temperature: boolean;
+    /** Supports tool calling. */
+    tool_call: boolean;
+    /** Knowledge cut-off in `YYYY-MM` or `YYYY-MM-DD`. */
+    knowledge?: string;
+    /** First public release date in `YYYY-MM` or `YYYY-MM-DD`. */
+    release_date: string;
+    /** Most recent update date in `YYYY-MM` or `YYYY-MM-DD`. */
+    last_updated: string;
+    /** Model cost. */
+    cost: ModelCost;
+    /** Model limit. */
+    limit: ModelLimit;
+    /** Supported modalities. */
+    modalities: Modalities;
+    /** Open weights model. */
+    open_weights: boolean;
+    /** Experimental model. */
+    experimental?: boolean;
+  }
+
+  export interface ModelCost {
+    /** Cost per million input tokens (USD). */
+    input: number;
+    /** Cost per million output tokens (USD). */
+    output: number;
+    /** Cost per million reasoning tokens (USD). */
+    reasoning?: number;
+    /** Cost per million cached read tokens (USD). */
+    cache_read?: number;
+    /** Cost per million cached write tokens (USD). */
+    cache_write?: number;
+    /** Cost per million audio input tokens, if billed separately (USD). */
+    input_audio?: number;
+    /** Cost per million audio output tokens, if billed separately (USD). */
+    output_audio?: number;
+  }
+
+  export interface ModelLimit {
+    /** Maximum context window (tokens). */
+    context: number;
+    /** Maximum output tokens. */
+    output: number;
+  }
+
+  export interface Modalities {
+    input: ModalityInput[];
+    output: ModalityOutput[];
+  }
+
+  export type ModalityInput = "text" | "image" | "audio" | "video" | "pdf";
+
+  export type ModalityOutput = "text";
+
+  export type Response = Record<ProviderId, Provider>;
+
+  export interface Meta {
+    modalities?: Modalities;
+    attachment?: boolean;
+    tool_call?: boolean;
+    reasoning?: boolean;
+    name?: string;
+    release_date?: string;
+    last_updated?: string;
+    knowledge?: string;
+    open_weights?: boolean;
+    temperature?: boolean;
+    cost?: Record<string, unknown>;
+    limit?: Record<string, unknown>;
+    [key: string]: unknown;
+  }
+
   export interface Capabilities {
     supportsImages: boolean;
     supportsVideo: boolean;
@@ -10,47 +169,11 @@ export namespace ModelDotdev {
     supportsTools: boolean;
     supportsReasoning: boolean;
   }
-
-  export namespace ModelsDev {
-    export interface Modalities {
-      input?: string[];
-      output?: string[];
-    }
-
-    export interface ModelMeta {
-      modalities?: Modalities;
-      attachment?: boolean;
-      tool_call?: boolean;
-      reasoning?: boolean;
-      name?: string;
-      release_date?: string;
-      last_updated?: string;
-      knowledge?: string;
-      open_weights?: boolean;
-      temperature?: boolean;
-      cost?: Record<string, unknown>;
-      limit?: Record<string, unknown>;
-      [key: string]: unknown;
-    }
-
-    export interface Provider {
-      id: string;
-      models: Record<string, ModelMeta>;
-      name?: string;
-      api?: string;
-      doc?: string;
-      env?: string[];
-      npm?: string;
-      [key: string]: unknown;
-    }
-
-    export type Data = Record<string, Provider>;
-  }
 }
 
-let MODELS_DEV_CACHE: ModelDotdev.ModelsDev.Data | null = null;
+let MODELS_DEV_CACHE: ModelDotdev.Response | null = null;
 
-export function setModelsDevData(data: ModelDotdev.ModelsDev.Data | null) {
+export function setModelsDevData(data: ModelDotdev.Response | null) {
   MODELS_DEV_CACHE = data;
 }
 
