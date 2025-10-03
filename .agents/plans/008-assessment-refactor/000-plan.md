@@ -11,7 +11,7 @@ Refactor the monolithic `Assessment.tsx` component into a modular assessment exp
 - [x] [Extract Model Setup Module](.agents/plans/008-assessment-refactor/003-extract-model-setup-module.md): Implement `ModelSetups`, `ModelSetup`, `ModelSelector`, and `ModelSettings` components and migrate related logic.
 - [x] [Extract Datasource Selector Module](.agents/plans/008-assessment-refactor/004-extract-datasource-selector-module.md): Implement `DatasourceSelector`, `DatasourceVariables`, and `DatasourceDataset`, moving datasource configuration logic accordingly.
 - [x] [Implement Assessment Run Panel](.agents/plans/008-assessment-refactor/005-implement-assessment-run-panel.md): Build the `AssessmentRun` component to manage run configuration, execution triggers, and status display.
-- [ ] [Implement Results Module](.agents/plans/008-assessment-refactor/006-implement-results-module.md): Create `Results`, `Result`, `ResultSettings`, `ResultRequest`, `ResultMessages`, `ResultMessage`, and `ResultResponse` components and migrate rendering logic.
+- [x] [Implement Results Module](.agents/plans/008-assessment-refactor/006-implement-results-module.md): Create `Results`, `Result`, `ResultSettings`, `ResultRequest`, `ResultMessages`, `ResultMessage`, and `ResultResponse` components and migrate rendering logic.
 - [ ] [Integrate Shared State](.agents/plans/008-assessment-refactor/007-integrate-shared-state.md): Consolidate data management, context providers, and service APIs to minimize prop drilling across the new structure.
 - [ ] [Build Testing Strategy](.agents/plans/008-assessment-refactor/008-build-testing-strategy.md): Design and implement React Testing Library coverage for new components and critical interactions.
 - [ ] [Cleanup and Docs](.agents/plans/008-assessment-refactor/009-cleanup-and-docs.md): Remove dead code, update imports, document the new structure, and validate regressions.
@@ -62,7 +62,7 @@ Build out the results presentation stack, ensuring reusable result item composit
 
 #### Status
 
-TODO
+DONE – introduced the results component stack, migrated rendering logic from `Assessment.tsx`, and added RTL coverage for layout and view interactions.
 
 ### [Integrate Shared State](.agents/plans/008-assessment-refactor/007-integrate-shared-state.md)
 

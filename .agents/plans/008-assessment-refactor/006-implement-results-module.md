@@ -6,13 +6,13 @@ Build the results presentation stack (`Results`, `Result`, `ResultSettings`, `Re
 
 ## Tasks
 
-- [ ] Scaffold Results Components: Create all result-related files with exports and prop interfaces.
-- [ ] Extract Results Rendering Logic: Move list rendering, ordering, and layout responsibilities into `Results`.
-- [ ] Implement Result Composition: Assemble `Result` to coordinate subcomponents and shared controls.
-- [ ] Port Subcomponents: Fill `ResultSettings`, `ResultRequest`, `ResultMessages`, `ResultMessage`, and `ResultResponse` with migrated logic.
-- [ ] Wire Data Flow: Ensure results state, message details, and metadata flow via props/context per architecture.
-- [ ] Replace in Assessment: Use the new results module within `Assessment.tsx`, pruning legacy code.
-- [ ] Test Result Presentation: Add RTL tests covering result list rendering, message toggles, and JSON/Markdown/Raw switching.
+- [x] Scaffold Results Components: Create all result-related files with exports and prop interfaces.
+- [x] Extract Results Rendering Logic: Move list rendering, ordering, and layout responsibilities into `Results`.
+- [x] Implement Result Composition: Assemble `Result` to coordinate subcomponents and shared controls.
+- [x] Port Subcomponents: Fill `ResultSettings`, `ResultRequest`, `ResultMessages`, `ResultMessage`, and `ResultResponse` with migrated logic.
+- [x] Wire Data Flow: Ensure results state, message details, and metadata flow via props/context per architecture.
+- [x] Replace in Assessment: Use the new results module within `Assessment.tsx`, pruning legacy code.
+- [x] Test Result Presentation: Add RTL tests covering result list rendering, message toggles, and JSON/Markdown/Raw switching.
 
 ### Scaffold Results Components
 
@@ -20,7 +20,7 @@ Create files under `src/aspects/result/` for each component, defining typed prop
 
 #### Notes
 
-Reuse shared types for result data to prevent duplication.
+Added `src/aspects/result/` components and exported them via `index.ts`; shared `RunResult` type now lives in `src/aspects/assessment/types.ts`.
 
 ### Extract Results Rendering Logic
 
@@ -28,7 +28,7 @@ Relocate list mapping, empty-state handling, and layout wrappers from `Assessmen
 
 #### Notes
 
-Maintain pagination or virtualisation behaviors if present.
+`Results.tsx` owns layout switching (vertical/horizontal/carousel) and result mapping logic previously embedded in `Assessment.tsx`.
 
 ### Implement Result Composition
 
@@ -36,7 +36,7 @@ Construct the `Result` component to combine settings, request, messages, and res
 
 #### Notes
 
-Expose callbacks for actions (e.g., re-run, copy) so the parent can hook into them later.
+`Result.tsx` orchestrates subcomponents and surfaces collapse/toggle callbacks provided by the parent.
 
 ### Port Subcomponents
 
@@ -44,7 +44,7 @@ Populate each subcomponent with the JSX and logic previously inlined, ensuring t
 
 #### Notes
 
-For `ResultMessage`, include the label prop to distinguish user vs. assistant messages while reusing the same component.
+Dedicated subcomponents (`ResultSettings`, `ResultRequest`, `ResultMessages`, `ResultMessage`, `ResultResponse`, `PricingInfo`) encapsulate the prior inline sections and maintain existing UX.
 
 ### Wire Data Flow
 
@@ -52,7 +52,7 @@ Hook up the props or context needed to populate results, message lists, and meta
 
 #### Notes
 
-Consider memoization or derived data hooks to keep rendering performant after extraction.
+Data flow now passes through structured props from `Assessment.tsx`, keeping state centralized while avoiding prop drilling beyond the new module boundary.
 
 ### Replace in Assessment
 
@@ -60,7 +60,7 @@ Swap the original results section in `Assessment.tsx` with the new `Results` com
 
 #### Notes
 
-Verify TypeScript and linting succeed after refactor.
+`Assessment.tsx` now consumes `<Results>` with state callbacks, eliminating the monolithic `renderResultCard` helper and legacy pricing helper.
 
 ### Test Result Presentation
 
@@ -68,7 +68,7 @@ Author RTL tests that verify result lists render correctly, message toggles work
 
 #### Notes
 
-Mock complex data structures to exercise edge cases (empty messages, error responses).
+Added `Results.test.tsx` covering layout changes, view toggles, collapse callbacks, and carousel navigation.
 
 ## Questions
 
