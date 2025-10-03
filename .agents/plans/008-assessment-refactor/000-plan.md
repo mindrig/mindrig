@@ -9,7 +9,7 @@ Refactor the monolithic `Assessment.tsx` component into a modular assessment exp
 - [x] [Baseline Assessment Component](.agents/plans/008-assessment-refactor/001-baseline-assessment-component.md): Inventory current responsibilities, state, and data flows inside `Assessment.tsx` to understand required behavior and dependencies.
 - [x] [Define Target Architecture](.agents/plans/008-assessment-refactor/002-define-target-architecture.md): Establish component boundaries, shared state strategy, and communication contracts for the new module structure.
 - [x] [Extract Model Setup Module](.agents/plans/008-assessment-refactor/003-extract-model-setup-module.md): Implement `ModelSetups`, `ModelSetup`, `ModelSelector`, and `ModelSettings` components and migrate related logic.
-- [ ] [Extract Datasource Selector Module](.agents/plans/008-assessment-refactor/004-extract-datasource-selector-module.md): Implement `DatasourceSelector`, `DatasourceVariables`, and `DatasourceDataset`, moving datasource configuration logic accordingly.
+- [x] [Extract Datasource Selector Module](.agents/plans/008-assessment-refactor/004-extract-datasource-selector-module.md): Implement `DatasourceSelector`, `DatasourceVariables`, and `DatasourceDataset`, moving datasource configuration logic accordingly.
 - [ ] [Implement Assessment Run Panel](.agents/plans/008-assessment-refactor/005-implement-assessment-run-panel.md): Build the `AssessmentRun` component to manage run configuration, execution triggers, and status display.
 - [ ] [Implement Results Module](.agents/plans/008-assessment-refactor/006-implement-results-module.md): Create `Results`, `Result`, `ResultSettings`, `ResultRequest`, `ResultMessages`, `ResultMessage`, and `ResultResponse` components and migrate rendering logic.
 - [ ] [Integrate Shared State](.agents/plans/008-assessment-refactor/007-integrate-shared-state.md): Consolidate data management, context providers, and service APIs to minimize prop drilling across the new structure.
@@ -46,7 +46,7 @@ Move datasource logic into `DatasourceSelector` tabs and their subcomponents, ha
 
 #### Status
 
-TODO
+DONE – extracted datasource UI into dedicated components, rewired `Assessment.tsx`, and added RTL coverage for variables, dataset workflows, and source toggling.
 
 ### [Implement Assessment Run Panel](.agents/plans/008-assessment-refactor/005-implement-assessment-run-panel.md)
 
