@@ -1,7 +1,6 @@
 import { useMessage, useOn } from "@/aspects/message/messageContext";
 import { useModels } from "@/aspects/models/Context";
 import type { Prompt } from "@mindrig/types";
-import JsonView, { ShouldExpandNodeInitially } from "@uiw/react-json-view";
 import { buildRunsAndSettings, computeVariablesFromRow } from "@wrkspc/dataset";
 import type { AttachmentInput, GenerationOptionsInput } from "@wrkspc/model";
 import {
@@ -26,7 +25,6 @@ import {
 } from "react";
 import { parseString as parseCsvString } from "smolcsv";
 import type { ModelStatus } from "./components/ModelStatusDot";
-import { StreamingMarkdown } from "./components/StreamingMarkdown";
 import type { AvailableModel } from "@/aspects/models/Context";
 import type { ProviderModelWithScore } from "./modelSorting";
 import {
@@ -58,6 +56,8 @@ import {
   type StreamingRunUpdate,
 } from "./streamingTypes";
 import { AssessmentRun } from "./Run";
+import type { RunResult } from "./types";
+import { Results } from "@/aspects/result";
 import {
   ModelSetups,
   type ModelCapabilities,
@@ -68,47 +68,6 @@ import {
   useModelSetupsState,
 } from "@/aspects/model/Setups";
 import { DatasourceSelector } from "@/aspects/datasource/Selector";
-
-const shouldExpandNodeInitially: ShouldExpandNodeInitially<object> = (
-  isExpanded,
-  props,
-) => {
-  const { value, level } = props;
-  const isArray = Array.isArray(value);
-  const isObject = typeof value === "object" && value !== null && !isArray;
-  if (isArray) return isExpanded || (Array.isArray(value) && value.length > 5);
-  if (isObject && level > 3) return true;
-  return isExpanded;
-};
-
-interface RunResult {
-  success: boolean;
-  runId?: string | null;
-  resultId?: string;
-  runLabel?: string;
-  label?: string;
-  prompt?: string | null;
-  text?: string | null;
-  textParts?: string[];
-  streaming?: boolean;
-  isLoading?: boolean;
-  nonStreamingNote?: string | null;
-  request?: object | null;
-  response?: object | null;
-  usage?: any;
-  totalUsage?: any;
-  steps?: any;
-  finishReason?: any;
-  warnings?: any;
-  error?: string | null;
-  model?: {
-    key: string;
-    id: string | null;
-    providerId: string | null;
-    label?: string | null;
-    settings?: any;
-  };
-}
 
 interface ExecutionState {
   isLoading: boolean;
@@ -1587,304 +1546,6 @@ export function Assessment({
   const stopDisabled = isStopping || !activeRunId;
   const canRunPrompt = canExecute();
 
-  const renderResultCard = (result: RunResult, index: number) => {
-    if (!result) return null;
-    const isVerticalLayout = resultsLayout === "vertical";
-    const collapsed = isVerticalLayout ? !!collapsedResults[index] : false;
-    const modelEntry = result.model?.id
-      ? models.find((model) => model.id === result.model?.id) || null
-      : null;
-
-    const isLoading = Boolean(result.isLoading);
-    const showFailureBadge = !isLoading && result.success === false;
-
-    const headerTitle =
-      result.label ||
-      [result.model?.label ?? result.model?.id, result.runLabel]
-        .filter(Boolean)
-        .join(" • ") ||
-      `Result ${index + 1}`;
-
-    const modelSettingsPayload = result.model?.settings
-      ? {
-          id: result.model.id,
-          provider: result.model.providerId,
-          options: result.model.settings.options,
-          reasoning: result.model.settings.reasoning,
-          providerOptions: result.model.settings.providerOptions,
-          tools: result.model.settings.tools,
-          attachments: result.model.settings.attachments,
-        }
-      : null;
-
-    const modelSettingsCollapsed = collapsedModelSettings[index] ?? true;
-
-    const hasPromptContent = typeof result.prompt === "string";
-    const showContentSection = true;
-
-    return (
-      <div className="border rounded">
-        <div className="flex items-center justify-between px-3 py-2 border-b">
-          <div className="flex items-center gap-2">
-            {isVerticalLayout && (
-              <button
-                className="px-2 py-1 border rounded text-xs"
-                onClick={() =>
-                  setCollapsedResults((prev) => ({
-                    ...prev,
-                    [index]: !collapsed,
-                  }))
-                }
-                title={collapsed ? "Expand" : "Collapse"}
-              >
-                {collapsed ? "+" : "–"}
-              </button>
-            )}
-            <span className="text-sm font-medium">{headerTitle}</span>
-            {showFailureBadge && <span className="text-xs">Failed</span>}
-          </div>
-          {executionState.timestamp && (
-            <span className="text-xs">
-              {new Date(executionState.timestamp).toLocaleString()}
-            </span>
-          )}
-        </div>
-        {!collapsed && (
-          <div className="p-3 space-y-3">
-            {isLoading && !result.error && (
-              <div className="flex items-center gap-2 text-xs text-neutral-500">
-                <span
-                  aria-hidden
-                  className="inline-flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"
-                />
-                <span>
-                  {result.streaming === false
-                    ? "Waiting for result…"
-                    : "Streaming…"}
-                </span>
-              </div>
-            )}
-
-            {result.nonStreamingNote && (
-              <div className="text-xs text-neutral-500">
-                {result.nonStreamingNote}
-              </div>
-            )}
-
-            {result.error && (
-              <div className="space-y-2">
-                <h5 className="text-sm font-medium">Error</h5>
-                <div className="p-3 rounded border">
-                  <pre className="text-sm whitespace-pre-wrap">
-                    {result.error}
-                  </pre>
-                </div>
-              </div>
-            )}
-
-            {modelSettingsPayload && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h5 className="text-sm font-medium">Model Settings</h5>
-                  <button
-                    className="text-xs hover:underline"
-                    onClick={() =>
-                      setCollapsedModelSettings((prev) => ({
-                        ...prev,
-                        [index]: !(prev[index] ?? true),
-                      }))
-                    }
-                  >
-                    {modelSettingsCollapsed ? "Show settings" : "Hide settings"}
-                  </button>
-                </div>
-                {!modelSettingsCollapsed && (
-                  <div className="p-3 rounded border overflow-auto">
-                    <JsonView
-                      value={modelSettingsPayload as object}
-                      displayObjectSize={false}
-                      shouldExpandNodeInitially={shouldExpandNodeInitially}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {result.request && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h5 className="text-sm font-medium">Request</h5>
-                  <button
-                    className="text-xs hover:underline"
-                    onClick={() =>
-                      setExpandedRequest((prev) => ({
-                        ...prev,
-                        [index]: !prev[index],
-                      }))
-                    }
-                  >
-                    {expandedRequest[index] ? "Hide request" : "Show request"}
-                  </button>
-                </div>
-                {expandedRequest[index] && (
-                  <div className="p-3 rounded border overflow-auto">
-                    <JsonView
-                      value={result.request as object}
-                      displayObjectSize={false}
-                      shouldExpandNodeInitially={shouldExpandNodeInitially}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {showContentSection && (
-              <div className="space-y-2">
-                {hasPromptContent && (
-                  <div className="space-y-1">
-                    <h5 className="text-sm font-medium">User Message</h5>
-                    <div className="p-3 rounded border">
-                      <pre className="text-xs whitespace-pre-wrap overflow-x-auto">
-                        {result.prompt}
-                      </pre>
-                    </div>
-                  </div>
-                )}
-                {(() => {
-                  const rawText = result.text ?? "";
-                  const textParts = result.textParts ?? [];
-                  const trimmedText = rawText.trim();
-
-                  let parsedTextJson: any = null;
-                  if (trimmedText)
-                    try {
-                      const parsed = JSON.parse(trimmedText);
-                      if (parsed && typeof parsed === "object")
-                        parsedTextJson = parsed;
-                    } catch (error) {}
-
-                  const isJson = parsedTextJson !== null;
-                  const assembledText =
-                    rawText.length > 0 ? rawText : textParts.join("");
-                  const hasContent = assembledText.length > 0;
-                  const currentView = viewTab[index] ?? "rendered";
-                  const renderedLabel = isJson ? "JSON" : "Rendered";
-
-                  const placeholderCopy = isLoading
-                    ? "Waiting for output…"
-                    : "No output yet.";
-
-                  const handleSetView = (tab: "rendered" | "raw") => {
-                    setViewTab((prev) => ({
-                      ...prev,
-                      [index]: tab,
-                    }));
-                  };
-
-                  const renderedContent = isJson ? (
-                    <div className="overflow-auto">
-                      <JsonView
-                        value={parsedTextJson as object}
-                        displayObjectSize={false}
-                        shouldExpandNodeInitially={shouldExpandNodeInitially}
-                      />
-                    </div>
-                  ) : (
-                    <StreamingMarkdown
-                      text={rawText}
-                      textParts={textParts}
-                      runId={result.runId || null}
-                      resultId={result.resultId || null}
-                      streaming={
-                        Boolean(result.streaming) || isLoading || !hasContent
-                      }
-                      wrapperClassName="streamdown-content prose prose-sm max-w-none"
-                      emptyPlaceholder={
-                        <div className="text-xs text-neutral-500">
-                          {placeholderCopy}
-                        </div>
-                      }
-                      allowedLinkPrefixes={["https://", "http://", "mailto:"]}
-                      allowedImagePrefixes={["https://", "http://"]}
-                    />
-                  );
-
-                  const rawContent = hasContent ? (
-                    <pre className="text-xs whitespace-pre-wrap overflow-x-auto">
-                      {assembledText}
-                    </pre>
-                  ) : (
-                    <div className="text-xs text-neutral-500">
-                      {placeholderCopy}
-                    </div>
-                  );
-
-                  return (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-xs">
-                        <button
-                          type="button"
-                          className={`px-2 py-1 border rounded ${currentView === "rendered" ? "font-semibold" : ""}`}
-                          onClick={() => handleSetView("rendered")}
-                        >
-                          {renderedLabel}
-                        </button>
-                        <button
-                          type="button"
-                          className={`px-2 py-1 border rounded ${currentView === "raw" ? "font-semibold" : ""}`}
-                          onClick={() => handleSetView("raw")}
-                        >
-                          Raw
-                        </button>
-                      </div>
-                      <div className="p-3 rounded border">
-                        {currentView === "rendered"
-                          ? renderedContent
-                          : rawContent}
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {result.response && (
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <h6 className="text-xs font-medium">Response JSON</h6>
-                      <button
-                        className="text-xs hover:underline"
-                        onClick={() =>
-                          setExpandedResponse((prev) => ({
-                            ...prev,
-                            [index]: !prev[index],
-                          }))
-                        }
-                      >
-                        {expandedResponse[index]
-                          ? "Hide response"
-                          : "Show response"}
-                      </button>
-                    </div>
-                    {expandedResponse[index] && (
-                      <div className="p-3 rounded border overflow-auto">
-                        <JsonView
-                          value={result.response as object}
-                          displayObjectSize={false}
-                          shouldExpandNodeInitially={shouldExpandNodeInitially}
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <PricingInfo usage={result.usage} modelEntry={modelEntry} />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="flex flex-col gap-2">
       <ModelSetups
@@ -1954,102 +1615,50 @@ export function Assessment({
         onStreamingToggle={handleStreamingToggle}
       />
 
-      {executionState.results.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h5 className="text-sm font-medium">Results</h5>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setResultsLayout("vertical")}
-                className={`px-2 py-1 text-xs font-medium rounded border ${resultsLayout === "vertical" ? "font-semibold" : ""}`}
-              >
-                Vertical
-              </button>
-              <button
-                type="button"
-                onClick={() => setResultsLayout("horizontal")}
-                className={`px-2 py-1 text-xs font-medium rounded border ${resultsLayout === "horizontal" ? "font-semibold" : ""}`}
-              >
-                Horizontal
-              </button>
-              <button
-                type="button"
-                onClick={() => setResultsLayout("carousel")}
-                className={`px-2 py-1 text-xs font-medium rounded border ${resultsLayout === "carousel" ? "font-semibold" : ""}`}
-              >
-                Carousel
-              </button>
-            </div>
-          </div>
-
-          {resultsLayout === "horizontal" && (
-            <div className="flex gap-3 overflow-x-auto pb-1">
-              {executionState.results.map((result, index) => (
-                <div
-                  key={index}
-                  className="min-w-[360px] max-w-[480px] flex-shrink-0"
-                >
-                  {renderResultCard(result, index)}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {resultsLayout === "vertical" && (
-            <div className="space-y-3">
-              {executionState.results.map((result, index) => (
-                <div key={index}>{renderResultCard(result, index)}</div>
-              ))}
-            </div>
-          )}
-
-          {resultsLayout === "carousel" &&
-            executionState.results.length > 0 && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs">
-                    Result {activeResultIndex + 1} of{" "}
-                    {executionState.results.length}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setActiveResultIndex((index) => Math.max(index - 1, 0))
-                      }
-                      disabled={activeResultIndex === 0}
-                      className="h-7 w-7 inline-flex items-center justify-center border rounded disabled:opacity-50"
-                    >
-                      ◀
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setActiveResultIndex((index) =>
-                          Math.min(
-                            index + 1,
-                            executionState.results.length - 1,
-                          ),
-                        )
-                      }
-                      disabled={
-                        activeResultIndex === executionState.results.length - 1
-                      }
-                      className="h-7 w-7 inline-flex items-center justify-center border rounded disabled:opacity-50"
-                    >
-                      ▶
-                    </button>
-                  </div>
-                </div>
-                {renderResultCard(
-                  executionState.results[activeResultIndex]!,
-                  activeResultIndex,
-                )}
-              </div>
-            )}
-        </div>
-      )}
+      <Results
+        results={executionState.results}
+        layout={resultsLayout}
+        onLayoutChange={setResultsLayout}
+        collapsedResults={collapsedResults}
+        onToggleCollapse={(index) =>
+          setCollapsedResults((prev) => ({
+            ...prev,
+            [index]: !(prev[index] ?? false),
+          }))
+        }
+        collapsedModelSettings={collapsedModelSettings}
+        onToggleModelSettings={(index) =>
+          setCollapsedModelSettings((prev) => ({
+            ...prev,
+            [index]: !(prev[index] ?? true),
+          }))
+        }
+        requestExpanded={expandedRequest}
+        onToggleRequest={(index) =>
+          setExpandedRequest((prev) => ({
+            ...prev,
+            [index]: !prev[index],
+          }))
+        }
+        responseExpanded={expandedResponse}
+        onToggleResponse={(index) =>
+          setExpandedResponse((prev) => ({
+            ...prev,
+            [index]: !prev[index],
+          }))
+        }
+        viewTabs={viewTab}
+        onChangeView={(index, next) =>
+          setViewTab((prev) => ({
+            ...prev,
+            [index]: next,
+          }))
+        }
+        activeResultIndex={activeResultIndex}
+        onActiveResultIndexChange={setActiveResultIndex}
+        timestamp={executionState.timestamp}
+        models={models}
+      />
 
       {executionState.error && (
         <div className="space-y-2">
@@ -2061,32 +1670,6 @@ export function Assessment({
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function PricingInfo(props: { usage: any; modelEntry: AvailableModel | null }) {
-  const { usage, modelEntry } = props;
-  if (!usage || !modelEntry?.pricing) return null;
-  const inputPerToken = Number(modelEntry.pricing.input || 0);
-  const outputPerToken = Number((modelEntry.pricing as any).output || 0);
-  const inputTokens =
-    usage.inputTokens ?? usage.input ?? usage.promptTokens ?? 0;
-  const outputTokens =
-    usage.outputTokens ?? usage.output ?? usage.completionTokens ?? 0;
-  const inputCost = inputTokens * inputPerToken;
-  const outputCost = outputTokens * outputPerToken;
-  const total = inputCost + outputCost;
-  return (
-    <div className="text-xs">
-      <div className="inline-flex items-center gap-2 px-2 py-1 border rounded">
-        <span className="font-medium">Estimated cost:</span>
-        <span>${total.toFixed(6)}</span>
-        <span>
-          (in: {inputTokens} • ${inputCost.toFixed(6)}, out: {outputTokens} • $
-          {outputCost.toFixed(6)})
-        </span>
-      </div>
     </div>
   );
 }
