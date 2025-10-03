@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export namespace AuthVercel {
   export interface Props {
     maskedKey: string | null;
     hasKey: boolean;
+    isResolved: boolean;
     readOnly: boolean;
     isSaving: boolean;
     errorMessage?: string | null;
@@ -18,6 +19,7 @@ export function AuthVercel(props: AuthVercel.Props) {
   const {
     maskedKey,
     hasKey,
+    isResolved,
     readOnly,
     isSaving,
     errorMessage = null,
@@ -26,96 +28,135 @@ export function AuthVercel(props: AuthVercel.Props) {
     openSignal = 0,
     onOpenChange,
   } = props;
-  const [inputValue, setInputValue] = useState("");
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isEditing, setIsEditing] = useState(!hasKey);
 
-  const updateExpanded = useCallback(
-    (next: boolean) => {
-      setIsExpanded(next);
-      onOpenChange?.(next);
+  const [inputValue, setInputValue] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [pendingAutoHide, setPendingAutoHide] = useState(false);
+  const [pendingOpen, setPendingOpen] = useState(false);
+
+  const resolvedVisible = isVisible && isResolved;
+  const showForm = resolvedVisible && isEditing;
+  const showSummary = resolvedVisible && hasKey && !isEditing;
+
+  const notifyVisibility = useCallback(
+    (open: boolean) => {
+      onOpenChange?.(open);
     },
     [onOpenChange],
   );
 
   useEffect(() => {
-    if (!hasKey) {
-      updateExpanded(true);
-      setIsEditing(true);
-      setInputValue("");
-    }
-  }, [hasKey, updateExpanded]);
+    notifyVisibility(resolvedVisible);
+  }, [resolvedVisible, notifyVisibility]);
 
   useEffect(() => {
-    if (hasKey && !readOnly) {
-      updateExpanded(true);
-      setIsEditing(true);
-    }
-  }, [hasKey, readOnly, updateExpanded]);
-
-  // Open on explicit signal from extension commands
-  useEffect(() => {
-    if (openSignal > 0) {
-      updateExpanded(true);
-      if (!readOnly) setIsEditing(true);
-    }
-  }, [openSignal, readOnly, updateExpanded]);
+    if (isResolved) return;
+    setIsVisible(false);
+    setIsEditing(false);
+    setPendingAutoHide(false);
+    setPendingOpen(false);
+  }, [isResolved]);
 
   useEffect(() => {
-    if (errorMessage) {
-      updateExpanded(true);
-      setIsEditing(true);
-    }
-  }, [errorMessage, updateExpanded]);
+    if (!isResolved) return;
 
-  useEffect(() => {
-    if (hasKey && !isSaving && !errorMessage) {
-      updateExpanded(false);
+    if (hasKey) {
       setIsEditing(false);
-      setInputValue("");
+      if (pendingAutoHide && !isSaving && !errorMessage) {
+        setIsVisible(false);
+        setIsEditing(false);
+        setPendingAutoHide(false);
+      }
+      return;
     }
-  }, [errorMessage, hasKey, isSaving, updateExpanded]);
 
-  const canEdit = isEditing || !readOnly;
+    setIsEditing(true);
+    if (pendingAutoHide) setPendingAutoHide(false);
+    setInputValue("");
+  }, [hasKey, isSaving, errorMessage, pendingAutoHide, isResolved]);
+
+  useEffect(() => {
+    if (!isResolved || !errorMessage) return;
+    setIsVisible(true);
+    setIsEditing(true);
+  }, [errorMessage, isResolved]);
+
+  const openPanel = useCallback(() => {
+    if (!isResolved) return;
+    setIsVisible(true);
+    setIsEditing(!hasKey);
+    setPendingAutoHide(false);
+  }, [hasKey, isResolved]);
+
+  useEffect(() => {
+    if (openSignal === 0) return;
+    if (!isResolved) {
+      setPendingOpen(true);
+      return;
+    }
+    openPanel();
+    setPendingOpen(false);
+  }, [openSignal, isResolved, openPanel]);
+
+  useEffect(() => {
+    if (!isResolved || !pendingOpen) return;
+    openPanel();
+    setPendingOpen(false);
+  }, [isResolved, pendingOpen, openPanel]);
+
+  const disableInputs = useMemo(() => {
+    if (!isResolved) return true;
+    if (pendingAutoHide && !isSaving && !errorMessage) return true;
+    if (!hasKey) return isSaving;
+    if (readOnly) return true;
+    return isSaving;
+  }, [hasKey, isSaving, readOnly, isResolved, pendingAutoHide, errorMessage]);
 
   const handleSave = () => {
     const trimmed = inputValue.trim();
     if (!trimmed) return;
     onSave(trimmed);
-    if (!hasKey) updateExpanded(false);
     setInputValue("");
+    setPendingAutoHide(true);
   };
 
   const handleClear = () => {
     onClear();
-    setInputValue("");
-    updateExpanded(false);
+    setIsVisible(true);
     setIsEditing(true);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSave();
-    else if (e.key === "Escape") updateExpanded(false);
+    setPendingAutoHide(false);
+    setPendingOpen(false);
+    setInputValue("");
   };
 
   const handleUpdate = () => {
-    updateExpanded(true);
     setIsEditing(true);
+    setPendingAutoHide(false);
     setInputValue("");
   };
 
-  const disableInputs = isSaving || (!canEdit && hasKey);
-  const resolvedMasked = maskedKey ?? "No key configured";
+  const handleClose = () => {
+    setIsVisible(false);
+    setIsEditing(false);
+    setPendingAutoHide(false);
+    setPendingOpen(false);
+  };
 
-  const showForm = isExpanded || !hasKey;
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") handleSave();
+    if (e.key === "Escape") handleClose();
+  };
+
+  if (!resolvedVisible) return null;
 
   return (
     <div className="space-y-3">
-      {!showForm && (
+      {showSummary && (
         <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between">
-          <div>
+          <div className="space-y-1">
             <p className="text-sm text-gray-600">Vercel Gateway API Key</p>
-            <p className="font-mono text-gray-900">{resolvedMasked}</p>
+            <p className="font-mono text-gray-900">{maskedKey ?? "••••"}</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -132,6 +173,13 @@ export function AuthVercel(props: AuthVercel.Props) {
             >
               Clear
             </button>
+            <button
+              onClick={handleClose}
+              className="px-2 py-2 text-sm text-gray-500 hover:text-gray-700"
+              disabled={isSaving}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
@@ -143,10 +191,7 @@ export function AuthVercel(props: AuthVercel.Props) {
               Vercel Gateway API Key
             </h3>
             <button
-              onClick={() => {
-                updateExpanded(false);
-                setIsEditing(false);
-              }}
+              onClick={handleClose}
               className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
               title="Close"
             >
@@ -169,7 +214,7 @@ export function AuthVercel(props: AuthVercel.Props) {
             <input
               type="password"
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={(event) => setInputValue(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Enter your Vercel Gateway API key..."
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
