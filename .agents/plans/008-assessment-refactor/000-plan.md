@@ -13,7 +13,7 @@ Refactor the monolithic `Assessment.tsx` component into a modular assessment exp
 - [x] [Implement Assessment Run Panel](.agents/plans/008-assessment-refactor/005-implement-assessment-run-panel.md): Build the `AssessmentRun` component to manage run configuration, execution triggers, and status display.
 - [x] [Implement Results Module](.agents/plans/008-assessment-refactor/006-implement-results-module.md): Create `Results`, `Result`, `ResultSettings`, `ResultRequest`, `ResultMessages`, `ResultMessage`, and `ResultResponse` components and migrate rendering logic.
 - [x] [Integrate Shared State](.agents/plans/008-assessment-refactor/007-integrate-shared-state.md): Consolidate data management, context providers, and service APIs to minimize prop drilling across the new structure.
-- [ ] [Build Testing Strategy](.agents/plans/008-assessment-refactor/008-build-testing-strategy.md): Design and implement React Testing Library coverage for new components and critical interactions.
+- [x] [Build Testing Strategy](.agents/plans/008-assessment-refactor/008-build-testing-strategy.md): Design and implement React Testing Library coverage for new components and critical interactions.
 - [ ] [Cleanup and Docs](.agents/plans/008-assessment-refactor/009-cleanup-and-docs.md): Remove dead code, update imports, document the new structure, and validate regressions.
 
 ### [Baseline Assessment Component](.agents/plans/008-assessment-refactor/001-baseline-assessment-component.md)
@@ -78,7 +78,7 @@ Outline and implement component-level and integration tests using React Testing 
 
 #### Status
 
-TODO
+DONE – introduced shared testing helpers, expanded component coverage (result subcomponents, datasource modes), and added `AssessmentSharedState.test.tsx` to validate persistence wiring; lint still blocked by legacy `messageContext` rules.
 
 ### [Cleanup and Docs](.agents/plans/008-assessment-refactor/009-cleanup-and-docs.md)
 

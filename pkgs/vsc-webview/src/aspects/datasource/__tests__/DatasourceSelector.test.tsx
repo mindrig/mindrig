@@ -1,10 +1,11 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { AssessmentDatasourceProvider } from "@/aspects/assessment/hooks/useAssessmentDatasource";
+
 import {
-  AssessmentDatasourceProvider,
-  type DatasourceContextValue,
-} from "@/aspects/assessment/hooks/useAssessmentDatasource";
+  createDatasourceContextValue,
+} from "@/testUtils/assessment";
 
 import { DatasourceDataset } from "../Dataset";
 import { DatasourceSelector } from "../Selector";
@@ -107,6 +108,30 @@ describe("DatasourceDataset", () => {
     expect(onModeChange).toHaveBeenCalledWith("row");
   });
 
+  it("summarises run count when all rows selected", () => {
+    render(
+      <DatasourceDataset
+        usingCsv
+        csvFileLabel="runs.csv"
+        csvRows={[["1"], ["2"], ["3"]]}
+        headers={null}
+        datasetMode="all"
+        selectedRowIdx={null}
+        rangeStart=""
+        rangeEnd=""
+        onDatasetModeChange={vi.fn()}
+        onSelectRow={vi.fn()}
+        onRangeStartChange={vi.fn()}
+        onRangeEndChange={vi.fn()}
+        onLoadCsv={vi.fn()}
+        onClearCsv={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("All rows will run (3)."))
+      .toBeInTheDocument();
+  });
+
   it("shows helper message when CSV absent", () => {
     render(
       <DatasourceDataset
@@ -136,33 +161,10 @@ describe("DatasourceDataset", () => {
 describe("DatasourceSelector", () => {
   it("notifies when input source toggles", () => {
     const setInputSource = vi.fn();
-    const value: DatasourceContextValue = {
-      promptVariables: [],
+    const value = createDatasourceContextValue({
       inputSource: "manual",
       setInputSource,
-      datasetMode: "row",
-      setDatasetMode: vi.fn(),
-      variables: {},
-      setVariables: vi.fn(),
-      csvPath: null,
-      setCsvPath: vi.fn(),
-      csvHeader: null,
-      setCsvHeader: vi.fn(),
-      csvRows: [],
-      setCsvRows: vi.fn(),
-      selectedRowIdx: null,
-      setSelectedRowIdx: vi.fn(),
-      rangeStart: "",
-      setRangeStart: vi.fn(),
-      rangeEnd: "",
-      setRangeEnd: vi.fn(),
-      handleVariableChange: vi.fn(),
-      handleSelectRow: vi.fn(),
-      handleLoadCsv: vi.fn(),
-      handleClearCsv: vi.fn(),
-      usingCsv: false,
-      csvFileLabel: null,
-    };
+    });
 
     render(
       <AssessmentDatasourceProvider value={value}>

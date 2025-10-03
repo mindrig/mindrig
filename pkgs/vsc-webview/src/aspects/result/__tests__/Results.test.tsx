@@ -1,45 +1,24 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import type { ResultsLayout } from "@/aspects/assessment/persistence";
-import type { RunResult } from "@/aspects/assessment/types";
-
+import type { ResultsContextValue } from "@/aspects/assessment/hooks/useAssessmentResultsView";
 import {
-  AssessmentResultsProvider,
-  type ResultsContextValue,
-} from "@/aspects/assessment/hooks/useAssessmentResultsView";
+  createRunResult,
+  renderWithAssessmentProviders,
+} from "@/testUtils/assessment";
 
 import { Results } from "../Results";
 
-const baseResult: RunResult = {
-  success: true,
+const baseResult = createRunResult({
   runId: "run-1",
   resultId: "res-1",
   label: "Result 1",
   text: "Hello world",
-  textParts: [],
-  streaming: false,
-  isLoading: false,
-  nonStreamingNote: null,
   request: { foo: "bar" },
   response: { baz: "qux" },
-  usage: { inputTokens: 10, outputTokens: 20 },
-  error: null,
-  model: {
-    key: "model-key",
-    id: "model-1",
-    providerId: "openai",
-    label: "Model 1",
-    settings: {
-      options: {},
-      reasoning: {},
-      providerOptions: {},
-      tools: null,
-      attachments: [],
-    },
-  },
-};
+});
 
 const models = [
   {
@@ -52,31 +31,21 @@ const models = [
 
 describe("Results", () => {
   const renderComponent = (overrides: Partial<ResultsContextValue> = {}) => {
-    const value: ResultsContextValue = {
-      results: [baseResult],
-      models,
-      timestamp: 0,
-      layout: "vertical" satisfies ResultsLayout,
-      onLayoutChange: vi.fn(),
-      collapsedResults: {},
-      onToggleCollapse: vi.fn(),
-      collapsedModelSettings: {},
-      onToggleModelSettings: vi.fn(),
-      requestExpanded: {},
-      onToggleRequest: vi.fn(),
-      responseExpanded: {},
-      onToggleResponse: vi.fn(),
-      viewTabs: {},
-      onChangeView: vi.fn(),
-      activeResultIndex: 0,
-      onActiveResultIndexChange: vi.fn(),
-      ...overrides,
-    };
-    return render(
-      <AssessmentResultsProvider value={value}>
-        <Results />
-      </AssessmentResultsProvider>,
-    );
+    return renderWithAssessmentProviders(<Results />, {
+      results: {
+        results: [baseResult],
+        models,
+        layout: "vertical" satisfies ResultsLayout,
+        onLayoutChange: vi.fn(),
+        onToggleCollapse: vi.fn(),
+        onToggleModelSettings: vi.fn(),
+        onToggleRequest: vi.fn(),
+        onToggleResponse: vi.fn(),
+        onChangeView: vi.fn(),
+        onActiveResultIndexChange: vi.fn(),
+        ...overrides,
+      },
+    });
   };
 
   it("renders result content in vertical layout", () => {
