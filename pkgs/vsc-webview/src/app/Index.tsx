@@ -1,4 +1,5 @@
 import { useMessage, useOn } from "@/aspects/message/messageContext";
+import { useModels } from "@/aspects/models/Context";
 import { useVsc } from "@/aspects/vsc/Context";
 import { Prompt } from "@mindrig/types";
 import { findPromptAtCursor } from "@wrkspc/prompt";
@@ -27,9 +28,14 @@ export function Index() {
   const { send } = useMessage();
   const [fileState, setFileState] = useState<SyncFile.State | null>(null);
   const [activeFile, setActiveFile] = useState<SyncFile.State | null>(null);
-  const [vercelGatewayKey, setVercelGatewayKey] = useState<
-    string | null | undefined
-  >(undefined);
+  const [gatewaySecretState, setGatewaySecretState] = useState({
+    maskedKey: null as string | null,
+    hasKey: false,
+    readOnly: false,
+    isSaving: false,
+  });
+  const { keyStatus, retry, gatewayError } = useModels();
+  const [isGatewayFormOpen, setIsGatewayFormOpen] = useState(false);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [parseStatus, setParseStatus] = useState<"success" | "error">(
     "success",
@@ -82,6 +88,14 @@ export function Index() {
   const handleClearVercelGatewayKey = () => {
     send({ type: "auth-vercel-gateway-clear" });
   };
+
+  const shouldShowGatewayErrorBanner =
+    keyStatus.status === "error" && !isGatewayFormOpen;
+
+  const gatewayErrorMessage =
+    gatewayError ??
+    keyStatus.message ??
+    "Failed to validate Vercel Gateway key. Please retry or update your credentials.";
 
   const targetFile = activeFile;
   const [cursorPromptIdx, cursorPrompt] = useMemo(() => {
@@ -241,10 +255,16 @@ export function Index() {
   useOn(
     "auth-vercel-gateway-state",
     (message) => {
-      setVercelGatewayKey(message.payload.vercelGatewayKey);
+      setGatewaySecretState({
+        maskedKey: message.payload.maskedKey ?? null,
+        hasKey: message.payload.hasKey,
+        readOnly: message.payload.readOnly,
+        isSaving: message.payload.isSaving,
+      });
     },
     [],
   );
+
 
   useOn(
     "auth-panel-open",
@@ -264,11 +284,48 @@ export function Index() {
   return (
     <Layout>
       <div className="flex flex-col gap-2">
+        {shouldShowGatewayErrorBanner && (
+          <div className="flex flex-col gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-1">
+              <div className="font-semibold text-red-700">
+                Vercel Gateway error
+              </div>
+              <div className="text-red-600">{gatewayErrorMessage}</div>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <button
+                onClick={retry}
+                className="rounded-lg border border-red-500 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
+              >
+                Retry
+              </button>
+              <button
+                onClick={() => {
+                  setIsGatewayFormOpen(true);
+                  setVercelPanelOpenSignal((n) => n + 1);
+                }}
+                className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        )}
+
         <AuthVercel
-          vercelGatewayKey={vercelGatewayKey ?? null}
-          onVercelGatewayKeyChange={handleVercelGatewayKeyChange}
-          onClearVercelGatewayKey={handleClearVercelGatewayKey}
+          maskedKey={gatewaySecretState.maskedKey}
+          hasKey={gatewaySecretState.hasKey}
+          readOnly={gatewaySecretState.readOnly}
+          isSaving={gatewaySecretState.isSaving}
+          errorMessage={
+            keyStatus.status === "error"
+              ? keyStatus.message ?? gatewayError ?? "Failed to validate Vercel Gateway key."
+              : null
+          }
+          onSave={handleVercelGatewayKeyChange}
+          onClear={handleClearVercelGatewayKey}
           openSignal={vercelPanelOpenSignal}
+          onOpenChange={setIsGatewayFormOpen}
         />
 
         <FileHeader
@@ -285,7 +342,7 @@ export function Index() {
           <Blueprint
             file={displayFile}
             prompt={resolvedPrompt}
-            vercelGatewayKey={vercelGatewayKey}
+            vercelGatewayKey={null}
             promptIndex={resolvedPromptIndex ?? null}
             isPromptPinned={isPromptPinned}
           />

@@ -53,7 +53,12 @@ describe("VscMessageBus", () => {
 
     const inbound: VscMessage = {
       type: "auth-vercel-gateway-state",
-      payload: { vercelGatewayKey: "token" },
+      payload: {
+        maskedKey: "token",
+        hasKey: true,
+        readOnly: true,
+        isSaving: false,
+      },
     };
 
     webview.__listeners.forEach((listener) => listener(inbound));
@@ -70,11 +75,21 @@ describe("VscMessageBus", () => {
 
     const first: VscMessage = {
       type: "auth-vercel-gateway-state",
-      payload: { vercelGatewayKey: "secret" },
+      payload: {
+        maskedKey: "secret",
+        hasKey: true,
+        readOnly: true,
+        isSaving: false,
+      },
     };
     const second: VscMessage = {
       type: "auth-vercel-gateway-state",
-      payload: { vercelGatewayKey: null },
+      payload: {
+        maskedKey: null,
+        hasKey: false,
+        readOnly: false,
+        isSaving: false,
+      },
     };
 
     webview.__listeners.forEach((listener) => listener(first));
@@ -93,7 +108,12 @@ describe("VscMessageBus", () => {
 
     const inbound: VscMessage = {
       type: "auth-vercel-gateway-state",
-      payload: { vercelGatewayKey: "token" },
+      payload: {
+        maskedKey: "token",
+        hasKey: true,
+        readOnly: true,
+        isSaving: false,
+      },
     };
 
     webview.__listeners.forEach((listener) => listener(inbound));
@@ -131,7 +151,12 @@ describe("VscMessageBus", () => {
 
     const inbound: VscMessage = {
       type: "auth-vercel-gateway-state",
-      payload: { vercelGatewayKey: "token" },
+      payload: {
+        maskedKey: "token",
+        hasKey: true,
+        readOnly: true,
+        isSaving: false,
+      },
     };
 
     webview.__listeners.forEach((listener) => listener(inbound));

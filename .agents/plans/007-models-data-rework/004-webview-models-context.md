@@ -6,12 +6,12 @@ Introduce a unified models context in the webview that consumes extension messag
 
 ## Tasks
 
-- [ ] Scaffold models context: Create provider/hook structure mirroring settings context.
-- [ ] Consume controller messages: Subscribe to new models/key status messages and manage state.
-- [ ] Update consumers: Refactor assessment, blueprint, and related components to use new context.
-- [ ] Implement error UI: Display top-level gateway errors with retry/update buttons and inline form messaging.
-- [ ] Adjust selectors and warnings: Disable provider/model pickers on gateway errors and show models.dev warning logic.
-- [ ] Update secret form integration: Make field read-only, show saving state, and handle inline errors when open.
+- [x] Scaffold models context: Create provider/hook structure mirroring settings context.
+- [x] Consume controller messages: Subscribe to new models/key status messages and manage state.
+- [x] Update consumers: Refactor assessment, blueprint, and related components to use new context.
+- [x] Implement error UI: Display top-level gateway errors with retry/update buttons and inline form messaging.
+- [x] Adjust selectors and warnings: Disable provider/model pickers on gateway errors and show models.dev warning logic.
+- [x] Update secret form integration: Make field read-only, show saving state, and handle inline errors when open.
 
 ### Scaffold models context
 
@@ -23,7 +23,8 @@ Lay the groundwork for the new context module.
 
 #### Notes
 
-None.
+- Added `pkgs/vsc-webview/src/aspects/models/Context.tsx` exposing `ModelsProvider`/`useModels` with unified `{ gateway, dotDev, keyStatus, retry }` state.
+
 
 ### Consume controller messages
 
@@ -35,7 +36,8 @@ Wire the context to listen for combined responses and key status events.
 
 #### Notes
 
-None.
+- Context listens for `models-data-response` and `auth-vercel-gateway-status`, normalises fallback data, and calls `setModelsDevData` for capability helpers (`pkgs/vsc-webview/src/aspects/models/Context.tsx`).
+
 
 ### Update consumers
 
@@ -47,7 +49,9 @@ Refactor downstream components to rely on the new context.
 
 #### Notes
 
-None.
+- Root app now wraps children with `ModelsProvider` instead of the legacy SWR provider (`pkgs/vsc-webview/src/app/Context.tsx`).
+- `Assessment.tsx` and `Index.tsx` consume `useModels`, dropping `useGatewayModels`/`useModelsDev`; tests updated to mock the new hook.
+
 
 ### Implement error UI
 
@@ -59,7 +63,8 @@ Enhance the UI to surface key errors and retry/update actions.
 
 #### Notes
 
-None.
+- `Index.tsx` shows a red banner when `keyStatus.status === "error"`, wiring `Retry` to `models-data-get` and `Update` to open the secret form; errors now flow inline into `AuthVercel`.
+
 
 ### Adjust selectors and warnings
 
@@ -71,7 +76,8 @@ Apply gateway error state to disable model picking and coordinate models.dev war
 
 #### Notes
 
-None.
+- Provider/model selects consult context state: disables when `gateway.response.status === "error"` and suppresses models.dev warning while gateway unavailable (`pkgs/vsc-webview/src/aspects/assessment/Assessment.tsx`).
+
 
 ### Update secret form integration
 
@@ -83,7 +89,7 @@ Align secret input behavior with new read-only and saving requirements.
 
 #### Notes
 
-None.
+- Secret form tracks open state via `onOpenChange`, honours read-only masking, and hides the banner while expanded (`pkgs/vsc-webview/src/aspects/auth/Vercel.tsx`, `pkgs/vsc-webview/src/app/Index.tsx`).
 
 ## Questions
 
@@ -91,7 +97,7 @@ None.
 
 ## Notes
 
-- Coordinate with design tokens to keep banners/buttons consistent with existing styles.
+- Coordinated banner/button styling with existing DS primitives; legacy `useModelsDev` now proxies the new context and can be removed once external imports migrate.
 
 ## ADRs
 

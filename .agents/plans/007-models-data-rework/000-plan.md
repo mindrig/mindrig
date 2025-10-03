@@ -6,11 +6,11 @@ Unify models data access by moving Vercel Gateway lookups to the extension/serve
 
 ## Steps
 
-- [ ] [Audit Current Models Data Flow](./001-audit-current-flows.md): Catalogue existing gateway/models.dev fetch paths, message contracts, and caching behaviors to identify migration touchpoints.
-- [ ] [Build ModelsDataController Backend](./002-models-data-controller.md): Implement an extension-side controller that orchestrates server-side Vercel Gateway requests, models.dev fetches, caching, and fallback/error states.
-- [ ] [Revise Secret Messaging & Key Status](./003-secret-messaging-update.md): Mask the stored gateway secret in messages, add key status reporting, and coordinate retry/error handling between extension and webview.
-- [ ] [Refactor Webview Models Context & UI](./004-webview-models-context.md): Introduce a combined models context, disable selectors on gateway failures, and surface retry/update UX aligned with key status messages.
-- [ ] [Regression Tests & Documentation](./005-qa-and-notes.md): Update automated tests and docs to cover the new data flow, fallback logic, and user-facing behaviors.
+- [x] [Audit Current Models Data Flow](./001-audit-current-flows.md): Catalogue existing gateway/models.dev fetch paths, message contracts, and caching behaviors to identify migration touchpoints.
+- [x] [Build ModelsDataController Backend](./002-models-data-controller.md): Implement an extension-side controller that orchestrates server-side Vercel Gateway requests, models.dev fetches, caching, and fallback/error states.
+- [x] [Revise Secret Messaging & Key Status](./003-secret-messaging-update.md): Mask the stored gateway secret in messages, add key status reporting, and coordinate retry/error handling between extension and webview.
+- [x] [Refactor Webview Models Context & UI](./004-webview-models-context.md): Introduce a combined models context, disable selectors on gateway failures, and surface retry/update UX aligned with key status messages.
+- [x] [Regression Tests & Documentation](./005-qa-and-notes.md): Update automated tests and docs to cover the new data flow, fallback logic, and user-facing behaviors.
 
 ### [Audit Current Models Data Flow](./001-audit-current-flows.md)
 
@@ -18,7 +18,12 @@ Inventory how the extension, webview, and gateway wrapper currently interact, in
 
 #### Status
 
-TODO
+Completed – documented extension fetch/caching paths, webview consumers, message contracts, and supporting utilities; no open questions or deferrals.
+
+- [x] Catalogue extension data paths
+- [x] Trace webview consumption
+- [x] Record message contracts
+- [x] Summarize shared utilities
 
 ### [Build ModelsDataController Backend](./002-models-data-controller.md)
 
@@ -26,7 +31,13 @@ Create a `ModelsDataController` extending the shared controller base that perfor
 
 #### Status
 
-TODO
+Completed – controller now owns gateway/models.dev fetches with TTL caching, unified messaging, and key status propagation; Workbench provider delegates all lookups while maintaining legacy responses.
+
+- [x] Scaffold controller class and lifecycle wiring
+- [x] Implement gateway fetch with user/fallback flow
+- [x] Consolidate models.dev caching in controller
+- [x] Emit models-data/key-status messages
+- [x] Integrate controller into provider bootstrap
 
 ### [Revise Secret Messaging & Key Status](./003-secret-messaging-update.md)
 
@@ -34,7 +45,13 @@ Adjust extension messaging so the webview receives a masked secret snapshot and 
 
 #### Status
 
-TODO
+Completed – gateway secrets are now masked/read-only by default, dedicated key status messages report user-scope errors, and the webview secret form reflects saving/retry flows.
+
+- [x] Define masked secret + masking helper
+- [x] Update auth messages with masked payload + read-only flags
+- [x] Emit key status events from ModelsDataController
+- [x] Coordinate retry lifecycle and saving toggles
+- [x] Refresh webview secret form for inline errors/saving states
 
 ### [Refactor Webview Models Context & UI](./004-webview-models-context.md)
 
@@ -42,7 +59,14 @@ Replace the existing models.dev and gateway hooks with a new context that consum
 
 #### Status
 
-TODO
+Completed – the webview now relies on `useModels` for combined gateway/dotdev data, surfaces banner retry/update controls, and disables selectors when gateway responses fail.
+
+- [x] Scaffold models context provider/hook
+- [x] Stream controller responses & key status into context state
+- [x] Migrate assessment/blueprint consumers to the new context
+- [x] Add gateway error banner with retry/update actions
+- [x] Disable selectors & gate models.dev warning on gateway failures
+- [x] Synchronise secret form state with masked read-only UX
 
 ### [Regression Tests & Documentation](./005-qa-and-notes.md)
 
@@ -50,7 +74,13 @@ Update or add extension/webview unit tests (including messaging bus tests) and i
 
 #### Status
 
-TODO
+Completed – regression coverage now spans controller fallbacks, the new webview context, and documentation/manual QA guidance.
+
+- [x] Extension tests for ModelsDataController fallback + status messaging
+- [x] Webview tests updated for context, banner, and disabled selectors
+- [x] Shared messaging test expectations refreshed for masked payloads
+- [x] Manual QA checklist captured for gateway success/failure flows
+- [x] Architecture doc amended with combined models messages
 
 ## Questions
 

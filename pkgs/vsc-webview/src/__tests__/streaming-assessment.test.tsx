@@ -8,24 +8,36 @@ import {
   renderWithVsc,
 } from "../testUtils/messages";
 
-vi.mock("../aspects/assessment/hooks/useGatewayModels", () => ({
-  useGatewayModels: () => ({
-    models: [],
+vi.mock("../aspects/models/Context", () => ({
+  useModels: () => ({
+    gateway: undefined,
+    gatewayModels: [],
+    gatewayError: null,
+    dotDev: undefined,
+    dotDevData: {},
+    dotDevError: null,
+    isDotDevFallback: false,
     isLoading: false,
-    isValidating: false,
-    error: null,
-    isFallback: false,
-    mutate: vi.fn(),
-  }),
-}));
-
-vi.mock("../aspects/models-dev/Context", () => ({
-  useModelsDev: () => ({
+    keyStatus: {
+      status: "idle",
+      message: null,
+      source: "fallback",
+      fallbackUsed: false,
+      userAttempted: false,
+      checkedAt: undefined,
+    },
+    retry: vi.fn(),
+    providers: {},
+    modelsByProvider: {},
+    getProvider: vi.fn(),
     getModel: vi.fn(),
-    providers: [],
-    isFallback: false,
-    isLoading: false,
-    error: null,
+    getCapabilities: vi.fn(() => ({
+      supportsImages: false,
+      supportsVideo: false,
+      supportsFiles: false,
+      supportsTools: false,
+      supportsReasoning: false,
+    })),
   }),
 }));
 

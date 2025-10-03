@@ -1,8 +1,10 @@
-import type { ModelDotdev } from "@wrkspc/model";
+import type { ModelDotdev, ModelGateway } from "@wrkspc/model";
 
 export type VscMessageModels =
   | VscMessageModels.DevGet
-  | VscMessageModels.DevResponse;
+  | VscMessageModels.DevResponse
+  | VscMessageModels.DataGet
+  | VscMessageModels.DataResponse;
 
 export namespace VscMessageModels {
   export interface DevGet {
@@ -14,6 +16,17 @@ export namespace VscMessageModels {
     type: "models-dev-response";
     payload: DevResponsePayload;
   }
+
+  export interface DataGet {
+    type: "models-data-get";
+    payload?: undefined;
+  }
+
+  export interface DataResponse {
+    type: "models-data-response";
+    payload: DataResponsePayload;
+  }
+
 
   export type DevResponsePayload =
     | DevResponsePayloadOk
@@ -28,4 +41,10 @@ export namespace VscMessageModels {
     status: "error";
     error: string;
   }
+
+  export interface DataResponsePayload {
+    gateway: ModelGateway.Response | undefined;
+    dotDev: ModelDotdev.Response | undefined;
+  }
+
 }

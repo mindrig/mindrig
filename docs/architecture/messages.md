@@ -16,19 +16,24 @@ const bus = new VscMessageBus(webview, {
 });
 
 const dispose = bus.on("auth-vercel-gateway-state", (message) => {
-  console.log(message.payload.vercelGatewayKey);
+  console.log(message.payload.maskedKey);
 });
 
-const outbound: VscMessage = { type: "prompts-execute-from-command" };
+const status = bus.on("auth-vercel-gateway-status", (message) => {
+  console.log(message.payload.status, message.payload.message);
+});
+
+const outbound: VscMessage = { type: "models-data-get" };
 await bus.send(outbound);
 
 dispose.dispose();
+status.dispose();
 ```
 
 The provider keeps a single bus per webview, registers handlers for the active aspects (prompts, sync, attachments, and so on), and disposes it alongside the view. Debug logging can be toggled by setting `MINDRIG_DEBUG_MESSAGES=true` before activating the extension; the flag instructs the bus to warn about malformed payloads while also piping events through the optional `logger` callback for diagnostics or telemetry.
 
 ## Controller Integration and Tests
 
-Controllers interact with the bus instead of calling `webview.postMessage` directly. For example, the workbench provider reacts to `settings-streaming-set` by persisting the preference and echoing a `settings-streaming-state` message, and it publishes prompt lifecycle events (`prompt-run-start`, `prompt-run-update`, `prompt-run-complete`, and related execution results) through the same facade. Unit tests exercise these flows via the `createWorkbenchHarness` helper, while `vscMessageBus.test.ts` covers subscription lifecycles, one-shot handlers, logging hooks, and invalid payload handling.
+Controllers interact with the bus instead of calling `webview.postMessage` directly. For example, the workbench provider reacts to `settings-streaming-set` by persisting the preference and echoing a `settings-streaming-state` message, and it publishes prompt lifecycle events (`prompt-run-start`, `prompt-run-update`, `prompt-run-complete`, and related execution results) through the same facade. The new `ModelsDataController` also emits `models-data-response` with `{ gateway, dotDev }` payloads in addition to `auth-vercel-gateway-status` updates after each user-scoped fetch attempt. Unit tests exercise these flows via the `createWorkbenchHarness` helper, while `vscMessageBus.test.ts` covers subscription lifecycles, one-shot handlers, logging hooks, and invalid payload handling.
 
 All new tests live beside the source (`src/aspects/message/vscMessageBus.test.ts`, `src/__tests__/*`), aligning with the updated Vitest include rules. Run `pnpm --filter vscode test/unit` to validate extension messaging.

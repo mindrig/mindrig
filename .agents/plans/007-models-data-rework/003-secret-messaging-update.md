@@ -6,11 +6,11 @@ Update extension↔webview messaging so secrets remain masked, key status is rep
 
 ## Tasks
 
-- [ ] Define masked secret format: Decide how to represent stored keys and masking logic for outbound messages.
-- [ ] Update auth messages: Adjust `auth-vercel-gateway-*` handlers to send masked secrets and read-only flags.
-- [ ] Implement key status messaging: Add new message types for success/failure after user-scoped fetch attempts.
-- [ ] Coordinate retry lifecycle: Ensure retry requests trigger controller refresh and clear/restore disabled states.
-- [ ] Adjust secret form behavior: Update extension responses to toggle saving states and re-enable inputs after errors.
+- [x] Define masked secret format: Decide how to represent stored keys and masking logic for outbound messages.
+- [x] Update auth messages: Adjust `auth-vercel-gateway-*` handlers to send masked secrets and read-only flags.
+- [x] Implement key status messaging: Add new message types for success/failure after user-scoped fetch attempts.
+- [x] Coordinate retry lifecycle: Ensure retry requests trigger controller refresh and clear/restore disabled states.
+- [x] Adjust secret form behavior: Update extension responses to toggle saving states and re-enable inputs after errors.
 
 ### Define masked secret format
 
@@ -22,7 +22,8 @@ Create a consistent representation for secrets shared with the webview.
 
 #### Notes
 
-None.
+- Added `WorkbenchView.Provider.#maskSecret` to standardize masking (`prefix...suffix`), ensuring no raw key ever leaves the extension (`pkgs/vsc-extension/src/WorkbenchView/Provider.ts`).
+
 
 ### Update auth messages
 
@@ -34,7 +35,9 @@ Modify message handlers sending secret data to the webview.
 
 #### Notes
 
-None.
+- Reworked `auth-vercel-gateway-state` payload to `{ maskedKey, hasKey, readOnly, isSaving }` and introduced `auth-vercel-gateway-status` in `@wrkspc/vsc-message` (`pkgs/vsc-message/src/message/auth.ts`).
+- Provider now publishes gateway state via `#publishGatewayState`, toggling read-only + saving flags while storing secrets (`pkgs/vsc-extension/src/WorkbenchView/Provider.ts`).
+
 
 ### Implement key status messaging
 
@@ -46,7 +49,9 @@ Provide dedicated feedback on gateway lookup success/failure.
 
 #### Notes
 
-None.
+- `ModelsDataController` now tracks user attempts/fallbacks, broadcasting `auth-vercel-gateway-status` with `status`, `message`, `source`, `fallbackUsed`, and `userAttempted` metadata (`pkgs/vsc-extension/src/ModelsDataController.ts`).
+- Provider consults `getLastGatewayStatus()` when secrets change to decide whether to unlock the form after failures (`pkgs/vsc-extension/src/WorkbenchView/Provider.ts`).
+
 
 ### Coordinate retry lifecycle
 
@@ -58,7 +63,9 @@ Ensure retry actions behave consistently across extension and webview.
 
 #### Notes
 
-None.
+- Secret set/clear flows set `#gatewaySaving` and reissue state snapshots before/after controller refresh, guaranteeing the webview sees disabled inputs while fetches run (`pkgs/vsc-extension/src/WorkbenchView/Provider.ts`).
+- Gateway status events cover fallback/error outcomes so retries simply trigger `models-data-get` (already handled by the controller) without extra wiring.
+
 
 ### Adjust secret form behavior
 
@@ -70,7 +77,8 @@ Align UI state transitions with new messaging protocol.
 
 #### Notes
 
-None.
+- Webview `AuthVercel` presents a masked summary view with "Update" + "Clear" actions, opens editable forms on errors, and shows inline validation tied to `isSaving`/`errorMessage` props (`pkgs/vsc-webview/src/aspects/auth/Vercel.tsx`).
+- `Index.tsx` maintains derived gateway secret/status state, passing masked data to the form while withholding the raw key from downstream components (`pkgs/vsc-webview/src/app/Index.tsx`).
 
 ## Questions
 
@@ -78,7 +86,7 @@ None.
 
 ## Notes
 
-- Coordinate message type updates with `@wrkspc/vsc-message` to keep typings accurate.
+- Top-level gateway error banner will be wired through the new models context in Step 004; current changes focus on secret panel UX and backend messaging.
 
 ## ADRs
 

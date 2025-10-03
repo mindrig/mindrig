@@ -173,6 +173,7 @@
     "nanoid": "^5.0.7",
     "p-queue": "^8.0.1",
     "yjs": "^13.6.27",
+    "@wrkspc/model": "workspace:*",
     "@mindrig/parser-wasm": "0.1.0",
     "@wrkspc/vsc-message": "workspace:*"
   },

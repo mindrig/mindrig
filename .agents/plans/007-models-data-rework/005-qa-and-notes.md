@@ -6,11 +6,11 @@ Add or update automated tests, manual verification notes, and documentation to c
 
 ## Tasks
 
-- [ ] Extend extension tests: Add coverage for controller fallbacks, key status messaging, and masked secrets.
-- [ ] Extend webview tests: Update mocks and UI tests for new context, error banners, and selector states.
-- [ ] Update shared package tests: Adjust `@wrkspc/vsc-message` and related type checks to reflect new message payloads.
-- [ ] Document manual verification: Outline QA checklist for gateway success/failure, retry, and secret updates.
-- [ ] Update internal docs: Refresh relevant markdown (e.g., feature docs, troubleshooting) describing new flow.
+- [x] Extend extension tests: Add coverage for controller fallbacks, key status messaging, and masked secrets.
+- [x] Extend webview tests: Update mocks and UI tests for new context, error banners, and selector states.
+- [x] Update shared package tests: Adjust `@wrkspc/vsc-message` and related type checks to reflect new message payloads.
+- [x] Document manual verification: Outline QA checklist for gateway success/failure, retry, and secret updates.
+- [x] Update internal docs: Refresh relevant markdown (e.g., feature docs, troubleshooting) describing new flow.
 
 ### Extend extension tests
 
@@ -22,7 +22,10 @@ Ensure automated coverage of backend behaviors.
 
 #### Notes
 
-None.
+- Manual QA checklist recorded:
+  - Seed extension with/without gateway key and observe masked state + read-only lock.
+  - Intentionally fail the user-scoped fetch (invalid key) to verify fallback data, banner retry/update controls, and inline form error.
+  - Clear key to confirm UI re-enables input and banner disappears once resolved.
 
 ### Extend webview tests
 
@@ -34,7 +37,7 @@ Adapt existing webview testing to new context and UI.
 
 #### Notes
 
-None.
+- `docs/architecture/messages.md` now documents `models-data-get/response` and the masked `auth-vercel-gateway-*` payloads.
 
 ### Update shared package tests
 
@@ -46,7 +49,7 @@ Keep shared message/type packages aligned.
 
 #### Notes
 
-None.
+- Added `models-data-controller.test.ts` covering user success, fallback, and key status emission (`pkgs/vsc-extension/src/__tests__/models-data-controller.test.ts`).
 
 ### Document manual verification
 
@@ -58,7 +61,7 @@ Create a concise checklist for QA/UX validation.
 
 #### Notes
 
-None.
+- Updated Vitest suites mock `useModels`; added assertions for selector disablement and banner retry controls (`streaming-assessment.test.tsx`, `prompt-pinning.test.tsx`).
 
 ### Update internal docs
 
@@ -70,7 +73,7 @@ Refresh knowledge base or readmes.
 
 #### Notes
 
-None.
+- `vscMessageBus.test.ts` expectations now cover masked secret payloads and new status message wiring.
 
 ## Questions
 
