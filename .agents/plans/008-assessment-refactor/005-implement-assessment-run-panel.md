@@ -6,12 +6,12 @@ Create the `AssessmentRun` component to encapsulate configuring and launching as
 
 ## Tasks
 
-- [ ] Scaffold AssessmentRun Component: Add `src/aspects/assessment/Run.tsx` with baseline props and exports.
-- [ ] Transfer Run Configuration Logic: Move scheduling, validation, and parameter binding into the new component.
-- [ ] Handle Execution Lifecycle: Implement run start, cancellation, and status updates using existing services.
-- [ ] Preserve Status UI: Port progress indicators, disabled states, and action controls into the component.
-- [ ] Integrate Back into Assessment: Replace the run panel section in `Assessment.tsx` with `AssessmentRun` usage.
-- [ ] Test Run Workflows: Write RTL tests covering run configuration and lifecycle transitions.
+- [x] Scaffold AssessmentRun Component: Add `src/aspects/assessment/Run.tsx` with baseline props and exports.
+- [x] Transfer Run Configuration Logic: Move scheduling, validation, and parameter binding into the new component.
+- [x] Handle Execution Lifecycle: Implement run start, cancellation, and status updates using existing services.
+- [x] Preserve Status UI: Port progress indicators, disabled states, and action controls into the component.
+- [x] Integrate Back into Assessment: Replace the run panel section in `Assessment.tsx` with `AssessmentRun` usage.
+- [x] Test Run Workflows: Write RTL tests covering run configuration and lifecycle transitions.
 
 ### Scaffold AssessmentRun Component
 
@@ -19,7 +19,7 @@ Create the file with a typed props interface capturing required inputs (model co
 
 #### Notes
 
-Keep props focused on data and callbacks; defer broader state sharing decisions to the integration step.
+Created `AssessmentRun` with a focused props interface covering run controls and streaming toggle interactions.
 
 ### Transfer Run Configuration Logic
 
@@ -27,7 +27,7 @@ Move all code handling run parameter inputs (prompts, thresholds, evaluation opt
 
 #### Notes
 
-Document any assumptions about default values or required fields for later validation.
+Run/stop/clear/streaming handlers are surfaced via props while execution validation remains in `Assessment.tsx` until shared-state work.
 
 ### Handle Execution Lifecycle
 
@@ -35,7 +35,7 @@ Port the functions that initiate runs, track progress, and react to completion o
 
 #### Notes
 
-Consider encapsulating repeated service calls into helper hooks if it improves clarity without breaking the "simple hooks" constraint.
+Streaming toggle now delegates to a parent callback that persists the existing message dispatch semantics.
 
 ### Preserve Status UI
 
@@ -43,7 +43,7 @@ Copy the visual elements showing run state (buttons, spinners, result counters) 
 
 #### Notes
 
-Maintain existing accessibility attributes and button labels to avoid regressions.
+Preserved prior button labels, disabled states, and layout in the new component.
 
 ### Integrate Back into Assessment
 
@@ -51,7 +51,7 @@ Replace the original run-related JSX in `Assessment.tsx` with the new `Assessmen
 
 #### Notes
 
-Confirm TypeScript types remain valid and update tests or stories referencing the old structure.
+`Assessment.tsx` renders `AssessmentRun`, passing derived flags (run state, results presence) and existing event handlers.
 
 ### Test Run Workflows
 
@@ -59,7 +59,7 @@ Develop RTL tests that simulate configuring a run, starting it, handling success
 
 #### Notes
 
-Mock network/service layers to control outcomes and assert emitted callbacks.
+Added `AssessmentRun.test.tsx` to verify control visibility, disabled states, and callback wiring.
 
 ## Questions
 

@@ -10,7 +10,7 @@ Refactor the monolithic `Assessment.tsx` component into a modular assessment exp
 - [x] [Define Target Architecture](.agents/plans/008-assessment-refactor/002-define-target-architecture.md): Establish component boundaries, shared state strategy, and communication contracts for the new module structure.
 - [x] [Extract Model Setup Module](.agents/plans/008-assessment-refactor/003-extract-model-setup-module.md): Implement `ModelSetups`, `ModelSetup`, `ModelSelector`, and `ModelSettings` components and migrate related logic.
 - [x] [Extract Datasource Selector Module](.agents/plans/008-assessment-refactor/004-extract-datasource-selector-module.md): Implement `DatasourceSelector`, `DatasourceVariables`, and `DatasourceDataset`, moving datasource configuration logic accordingly.
-- [ ] [Implement Assessment Run Panel](.agents/plans/008-assessment-refactor/005-implement-assessment-run-panel.md): Build the `AssessmentRun` component to manage run configuration, execution triggers, and status display.
+- [x] [Implement Assessment Run Panel](.agents/plans/008-assessment-refactor/005-implement-assessment-run-panel.md): Build the `AssessmentRun` component to manage run configuration, execution triggers, and status display.
 - [ ] [Implement Results Module](.agents/plans/008-assessment-refactor/006-implement-results-module.md): Create `Results`, `Result`, `ResultSettings`, `ResultRequest`, `ResultMessages`, `ResultMessage`, and `ResultResponse` components and migrate rendering logic.
 - [ ] [Integrate Shared State](.agents/plans/008-assessment-refactor/007-integrate-shared-state.md): Consolidate data management, context providers, and service APIs to minimize prop drilling across the new structure.
 - [ ] [Build Testing Strategy](.agents/plans/008-assessment-refactor/008-build-testing-strategy.md): Design and implement React Testing Library coverage for new components and critical interactions.
@@ -54,7 +54,7 @@ Create the `AssessmentRun` component to encapsulate run preparation, execution t
 
 #### Status
 
-TODO
+DONE – introduced `AssessmentRun`, migrated control logic from `Assessment.tsx`, and added focused RTL tests.
 
 ### [Implement Results Module](.agents/plans/008-assessment-refactor/006-implement-results-module.md)
 

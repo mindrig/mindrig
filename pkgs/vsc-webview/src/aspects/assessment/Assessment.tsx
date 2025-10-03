@@ -57,6 +57,7 @@ import {
   type StreamingRunStarted,
   type StreamingRunUpdate,
 } from "./streamingTypes";
+import { AssessmentRun } from "./Run";
 import {
   ModelSetups,
   type ModelCapabilities,
@@ -826,6 +827,17 @@ export function Assessment({
     setIsStopping(true);
     send({ type: "prompt-run-stop", payload: { runId } });
   }, [executionState.runId, isStopping, send, streamingState.runId]);
+
+  const handleStreamingToggle = useCallback(
+    (enabled: boolean) => {
+      setStreamingEnabled(enabled);
+      send({
+        type: "settings-streaming-set",
+        payload: { enabled },
+      });
+    },
+    [send],
+  );
 
   const promptSource = useMemo(
     () => (prompt ? extractPromptText(fileContent, prompt) : ""),
@@ -1925,64 +1937,22 @@ export function Assessment({
         onClearCsv={handleClearCsv}
       />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleExecute}
-            disabled={runInFlight || !canRunPrompt}
-            className="px-4 py-2 border text-sm font-medium rounded disabled:opacity-60"
-          >
-            {isStopping
-              ? "Stopping…"
-              : runInFlight
-                ? "Running..."
-                : "Run Prompt"}
-          </button>
-
-          {showStopButton && (
-            <button
-              type="button"
-              onClick={handleStop}
-              disabled={stopDisabled}
-              className="px-3 py-2 border text-sm font-medium rounded disabled:opacity-60"
-            >
-              {isStopping ? "Stopping…" : "Stop"}
-            </button>
-          )}
-        </div>
-
-        <label
-          htmlFor={streamingToggleId}
-          className="flex items-center gap-2 text-sm"
-        >
-          <input
-            id={streamingToggleId}
-            type="checkbox"
-            className="h-4 w-4"
-            checked={streamingEnabled}
-            disabled={runInFlight}
-            onChange={(event) => {
-              const enabled = event.target.checked;
-              setStreamingEnabled(enabled);
-              send({
-                type: "settings-streaming-set",
-                payload: { enabled },
-              });
-            }}
-          />
-          Stream output
-        </label>
-
-        {(executionState.results.length > 0 || executionState.error) && (
-          <button
-            onClick={handleClear}
-            disabled={runInFlight}
-            className="px-4 py-2 border text-sm font-medium rounded disabled:opacity-60"
-          >
-            Clear
-          </button>
-        )}
-      </div>
+      <AssessmentRun
+        canRunPrompt={canRunPrompt}
+        runInFlight={runInFlight}
+        isStopping={isStopping}
+        showStopButton={showStopButton}
+        stopDisabled={stopDisabled}
+        streamingEnabled={streamingEnabled}
+        streamingToggleId={streamingToggleId}
+        hasResultsOrError={
+          executionState.results.length > 0 || executionState.error !== null
+        }
+        onExecute={handleExecute}
+        onStop={handleStop}
+        onClear={handleClear}
+        onStreamingToggle={handleStreamingToggle}
+      />
 
       {executionState.results.length > 0 && (
         <div className="space-y-3">
