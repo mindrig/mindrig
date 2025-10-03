@@ -1,6 +1,11 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import {
+  AssessmentDatasourceProvider,
+  type DatasourceContextValue,
+} from "@/aspects/assessment/hooks/useAssessmentDatasource";
+
 import { DatasourceDataset } from "../Dataset";
 import { DatasourceSelector } from "../Selector";
 import { DatasourceVariables } from "../Variables";
@@ -130,33 +135,42 @@ describe("DatasourceDataset", () => {
 
 describe("DatasourceSelector", () => {
   it("notifies when input source toggles", () => {
-    const onInputSourceChange = vi.fn();
+    const setInputSource = vi.fn();
+    const value: DatasourceContextValue = {
+      promptVariables: [],
+      inputSource: "manual",
+      setInputSource,
+      datasetMode: "row",
+      setDatasetMode: vi.fn(),
+      variables: {},
+      setVariables: vi.fn(),
+      csvPath: null,
+      setCsvPath: vi.fn(),
+      csvHeader: null,
+      setCsvHeader: vi.fn(),
+      csvRows: [],
+      setCsvRows: vi.fn(),
+      selectedRowIdx: null,
+      setSelectedRowIdx: vi.fn(),
+      rangeStart: "",
+      setRangeStart: vi.fn(),
+      rangeEnd: "",
+      setRangeEnd: vi.fn(),
+      handleVariableChange: vi.fn(),
+      handleSelectRow: vi.fn(),
+      handleLoadCsv: vi.fn(),
+      handleClearCsv: vi.fn(),
+      usingCsv: false,
+      csvFileLabel: null,
+    };
 
     render(
-      <DatasourceSelector
-        inputSource="manual"
-        promptVariables={[]}
-        variables={{}}
-        datasetMode="row"
-        csvRows={[]}
-        csvHeader={null}
-        csvFileLabel={null}
-        selectedRowIdx={null}
-        rangeStart=""
-        rangeEnd=""
-        usingCsv={false}
-        onInputSourceChange={onInputSourceChange}
-        onVariableChange={vi.fn()}
-        onDatasetModeChange={vi.fn()}
-        onSelectRow={vi.fn()}
-        onRangeStartChange={vi.fn()}
-        onRangeEndChange={vi.fn()}
-        onLoadCsv={vi.fn()}
-        onClearCsv={vi.fn()}
-      />,
+      <AssessmentDatasourceProvider value={value}>
+        <DatasourceSelector />
+      </AssessmentDatasourceProvider>,
     );
 
     fireEvent.click(screen.getByLabelText("Use dataset"));
-    expect(onInputSourceChange).toHaveBeenCalledWith("dataset");
+    expect(setInputSource).toHaveBeenCalledWith("dataset");
   });
 });

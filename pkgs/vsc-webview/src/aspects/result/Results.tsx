@@ -1,32 +1,12 @@
-import type { AvailableModel } from "@/aspects/models/Context";
-import type { RunResult } from "@/aspects/assessment/types";
-import type { ResultsLayout } from "@/aspects/assessment/persistence";
+import { useAssessmentResultsContext } from "@/aspects/assessment/hooks/useAssessmentResultsView";
 
 import { Result } from "./Result";
 
-export interface ResultsProps {
-  results: RunResult[];
-  layout: ResultsLayout;
-  onLayoutChange: (layout: ResultsLayout) => void;
-  collapsedResults: Record<number, boolean>;
-  onToggleCollapse: (index: number) => void;
-  collapsedModelSettings: Record<number, boolean>;
-  onToggleModelSettings: (index: number) => void;
-  requestExpanded: Record<number, boolean>;
-  onToggleRequest: (index: number) => void;
-  responseExpanded: Record<number, boolean>;
-  onToggleResponse: (index: number) => void;
-  viewTabs: Record<number, "rendered" | "raw">;
-  onChangeView: (index: number, view: "rendered" | "raw") => void;
-  activeResultIndex: number;
-  onActiveResultIndexChange: (index: number) => void;
-  timestamp?: number;
-  models: AvailableModel[];
-}
-
-export function Results(props: ResultsProps) {
+export function Results() {
   const {
     results,
+    models,
+    timestamp,
     layout,
     onLayoutChange,
     collapsedResults,
@@ -41,13 +21,11 @@ export function Results(props: ResultsProps) {
     onChangeView,
     activeResultIndex,
     onActiveResultIndexChange,
-    timestamp,
-    models,
-  } = props;
+  } = useAssessmentResultsContext();
 
   if (!results.length) return null;
 
-  const renderResult = (result: RunResult, index: number) => {
+  const renderResult = (result, index: number) => {
     const isLoading = Boolean(result.isLoading);
     const showFailureBadge = !isLoading && result.success === false;
     const isVerticalLayout = layout === "vertical";
