@@ -11,8 +11,13 @@ export const VscContext = createContext<VscContext.Value | undefined>(
   undefined,
 );
 
+let vscInstance: Vsc.Api | undefined;
+
 export function VscProvider(props: React.PropsWithChildren) {
-  const vsc = useMemo(() => window.acquireVsCodeApi?.(), []);
+  const vsc = useMemo(() => {
+    if (!vscInstance) vscInstance = window.acquireVsCodeApi?.();
+    return vscInstance;
+  }, []);
   if (!vsc) return null;
   return (
     <VscContext.Provider value={{ vsc }}>{props.children}</VscContext.Provider>
