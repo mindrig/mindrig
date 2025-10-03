@@ -144,7 +144,19 @@ export namespace ModelDotdev {
 
   export type ModalityOutput = "text";
 
-  export type Response = Record<ProviderId, Provider>;
+  export type Data = Record<ProviderId, Provider>;
+
+  export type Response = ResponseOk | ResponseError;
+
+  export interface ResponseOk {
+    status: "ok";
+    data: Data;
+  }
+
+  export interface ResponseError {
+    status: "error";
+    message: string;
+  }
 
   export interface Meta {
     modalities?: Modalities;
@@ -171,9 +183,9 @@ export namespace ModelDotdev {
   }
 }
 
-let MODELS_DEV_CACHE: ModelDotdev.Response | null = null;
+let MODELS_DEV_CACHE: ModelDotdev.Data | null = null;
 
-export function setModelsDevData(data: ModelDotdev.Response | null) {
+export function setModelsDevData(data: ModelDotdev.Data | null) {
   MODELS_DEV_CACHE = data;
 }
 
