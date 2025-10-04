@@ -110,6 +110,12 @@ drop() {
     esac
   fi
 
+  # Check if the worktree branch has been merged into main
+
+  # First, fetch the latest main branch
+  git fetch origin main
+
+  # Then check if the worktree branch is an ancestor of main
   if ! git merge-base --is-ancestor "$worktree_branch" origin/main; then
     echo -e "🟠 Worktree branch '$worktree_branch' has not been merged or rebased into 'main'."
     read -r -p "❔️ Are you sure you want to continue? This may discard unmerged commits. [Y/n] " yn
