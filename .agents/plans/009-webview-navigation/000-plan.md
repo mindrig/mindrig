@@ -2,12 +2,12 @@
 
 ## Brief
 
-Design the approach for hash-based navigation in the VS Code webview, ensuring the index experience remains primary, an auth view renders within the shared layout with a FileHeader-style toolbar, user workspace state persists across route changes via local storage, and automated tests cover navigation and persistence.
+Design the approach for adopting React Router's `HashRouter` in the VS Code webview, ensuring the index experience remains primary, compatibility across both `index.html` (VS Code webview) and `/` (Vite dev server) entrypoints, an auth view renders within the shared layout with a FileHeader-style toolbar, user workspace state persists across route changes via local storage, and automated tests cover navigation and persistence.
 
 ## Steps
 
 - [ ] [Assess Current Webview State](.agents/plans/009-webview-navigation/001-audit-webview-state.md): Inventory existing views, stateful components, and current persistence touchpoints.
-- [ ] [Add Hash Navigation Framework](.agents/plans/009-webview-navigation/002-hash-navigation.md): Introduce routing utilities to react to hash changes, manage default routing, and expose navigation helpers.
+- [ ] [Adopt React Router Hash Navigation](.agents/plans/009-webview-navigation/002-hash-navigation.md): Integrate React Router's `HashRouter` to drive index and auth routes while providing navigation helpers for shared components.
 - [ ] [Integrate Auth Page in Layout](.agents/plans/009-webview-navigation/003-auth-page-layout.md): Compose the auth view inside `<Layout>` with a FileHeader-inspired header that returns via history and falls back to the index when needed.
 - [ ] [Ensure State Persistence Coverage](.agents/plans/009-webview-navigation/004-state-persistence.md): Define and implement comprehensive local storage saving and hydration for prompt playground state.
 - [ ] [Add Navigation and Persistence Tests](.agents/plans/009-webview-navigation/005-testing.md): Specify React Testing Library coverage validating route rendering and state durability.
@@ -20,9 +20,9 @@ Review `App.tsx`, state management hooks, and existing persistence code to catal
 
 TODO
 
-### [Add Hash Navigation Framework](.agents/plans/009-webview-navigation/002-hash-navigation.md)
+### [Adopt React Router Hash Navigation](.agents/plans/009-webview-navigation/002-hash-navigation.md)
 
-Outline how to listen to and programmatically update the URL hash, define route configuration, and ensure the app renders the correct view while keeping existing index behavior intact.
+Outline how to integrate `HashRouter` and `Routes`, normalize default and unknown hashes, and ensure the app renders the correct view across both the `index.html` webview entry and the `/` dev server entry.
 
 #### Status
 
@@ -30,7 +30,7 @@ TODO
 
 ### [Integrate Auth Page in Layout](.agents/plans/009-webview-navigation/003-auth-page-layout.md)
 
-Plan the composition of the auth screen inside `<Layout>`, describe the FileHeader-style top bar, and determine how closing the auth view returns users to the index without losing state.
+Plan the composition of the auth screen inside `<Layout>`, describe the FileHeader-style top bar, and determine how closing the auth view uses React Router navigation helpers to return users to the prior route without losing state.
 
 #### Status
 
@@ -46,7 +46,7 @@ TODO
 
 ### [Add Navigation and Persistence Tests](.agents/plans/009-webview-navigation/005-testing.md)
 
-Define the test scenarios and fixtures for React Testing Library, covering routing transitions, persistence saves, and restores.
+Define the test scenarios and fixtures for React Testing Library, covering routing transitions (including initial loads at `/` and `/index.html`), persistence saves, and restores.
 
 #### Status
 

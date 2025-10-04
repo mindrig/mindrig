@@ -8,7 +8,7 @@ Design how the auth route renders inside the shared `<Layout>` component with a 
 
 - [ ] Define auth view component structure: Outline the React component tree for the auth page, including `<Layout>`, header, and existing auth form content.
 - [ ] Reuse FileHeader styling: Determine how to import or adapt `pkgs/vsc-webview/src/aspects/file/Header.tsx` for the auth top bar, including necessary props and icons.
-- [ ] Hook header actions to navigation helpers: Specify how the close/back control should invoke the history-aware navigation function.
+- [ ] Hook header actions to React Router navigation: Specify how the close/back control should invoke `useNavigate` (preferring history back with index fallback).
 - [ ] Validate layout responsiveness: Check that the auth view respects existing layout constraints, theme, and VS Code webview dimensions.
 
 ### Define auth view component structure
@@ -27,13 +27,13 @@ Review `Header.tsx` to decide whether to reuse it directly, create a variant, or
 
 Document any modifications needed so later execution can implement them quickly.
 
-### Hook header actions to navigation helpers
+### Hook header actions to React Router navigation
 
-Plan the event handler wiring so clicking the header control calls the `navigateBack` helper, including fallback to index when history is empty.
+Plan the event handler wiring so clicking the header control calls a React Router navigation helper (e.g., `navigate(-1)` with a safeguard to `/`), including fallback to the index route when history is empty.
 
 #### Notes
 
-Note any additional telemetry or analytics events to fire on close, if applicable.
+Note any additional telemetry or analytics events to fire on close, if applicable, and how to access navigation inside non-hook contexts if needed.
 
 ### Validate layout responsiveness
 
