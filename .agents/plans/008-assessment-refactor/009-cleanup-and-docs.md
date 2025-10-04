@@ -52,7 +52,7 @@ Run commands such as `pnpm typecheck`, `pnpm lint`, and `pnpm build` (adjust as 
 Capture any failures for follow-up fixes.
 
 - `pnpm -C pkgs/vsc-webview types` passes.
-- `pnpm -C pkgs/vsc-webview lint` still fails on legacy `messageContext` rules and pre-existing `curly` guidance; no new lint regressions introduced in this step.
+- `pnpm -C pkgs/vsc-webview lint` now passes after refactoring the message context helpers and cleaning remaining `curly` violations.
 
 ### Perform Manual Smoke Tests
 
@@ -90,4 +90,4 @@ None.
 
 - Centralized datasource hook handlers and context wiring, removing duplicated state lifters in `Assessment.tsx`.
 - Finalized results context provider integration with typed setters and updated `Results` consumption.
-- Tightened tests and docs to reflect the shared-state providers; type checks now pass under the package gate.
+- Tightened tests and docs to reflect the shared-state providers; type checks and lint now pass under the package gate.

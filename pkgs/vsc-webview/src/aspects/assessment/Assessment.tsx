@@ -382,7 +382,7 @@ export function Assessment({
         "Streaming is unavailable. Results will appear when the run completes.";
       const runStreamingEnabled = payload.streaming !== false;
 
-      for (const shell of payload.results) {
+      payload.results.forEach((shell) => {
         results[shell.resultId] = {
           id: shell.resultId,
           label: shell.label,
@@ -400,7 +400,7 @@ export function Assessment({
               : null,
           metadata: {},
         };
-      }
+      });
 
       updateStreamingState(
         () => ({
@@ -1309,7 +1309,6 @@ export function Assessment({
     isHydrated,
     models,
     modelConfigs,
-    normaliseProviderId,
     replaceAllConfigs,
   ]);
 
