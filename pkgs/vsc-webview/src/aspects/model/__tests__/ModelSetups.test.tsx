@@ -26,7 +26,6 @@ describe("ModelSetups", () => {
       providerOptionsJson: "{}",
       attachments: [
         {
-          id: "att-1",
           path: "file.txt",
           name: "file.txt",
           mime: "text/plain",

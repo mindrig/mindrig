@@ -1,6 +1,6 @@
 import type { RenderOptions } from "@testing-library/react";
 import { render } from "@testing-library/react";
-import type { ReactElement, ReactNode } from "react";
+import type { Dispatch, ReactElement, ReactNode, SetStateAction } from "react";
 
 import type { DatasourceContextValue } from "@/aspects/assessment/hooks/useAssessmentDatasource";
 import {
@@ -13,8 +13,8 @@ import {
 import type { RunResult } from "@/aspects/assessment/types";
 
 const noop = () => {};
-const noopRecordUpdater = <T,>(updater: (prev: T) => T) => {
-  updater({} as T);
+const createNoopDispatch = <T,>(): Dispatch<SetStateAction<T>> => {
+  return (_value) => {};
 };
 
 export function createDatasourceContextValue(
@@ -23,23 +23,23 @@ export function createDatasourceContextValue(
   return {
     promptVariables: [],
     inputSource: "manual",
-    setInputSource: noop,
+    setInputSource: createNoopDispatch(),
     datasetMode: "row",
-    setDatasetMode: noop,
+    setDatasetMode: createNoopDispatch(),
     variables: {},
-    setVariables: noopRecordUpdater,
+    setVariables: createNoopDispatch(),
     csvPath: null,
-    setCsvPath: noop,
+    setCsvPath: createNoopDispatch(),
     csvHeader: null,
-    setCsvHeader: noop,
+    setCsvHeader: createNoopDispatch(),
     csvRows: [],
-    setCsvRows: noop,
+    setCsvRows: createNoopDispatch(),
     selectedRowIdx: null,
-    setSelectedRowIdx: noop,
+    setSelectedRowIdx: createNoopDispatch(),
     rangeStart: "",
-    setRangeStart: noop,
+    setRangeStart: createNoopDispatch(),
     rangeEnd: "",
-    setRangeEnd: noop,
+    setRangeEnd: createNoopDispatch(),
     handleVariableChange: noop,
     handleSelectRow: noop,
     handleLoadCsv: noop,
@@ -109,7 +109,6 @@ export function createRunResult(
         attachments: [],
       },
     },
-    streamingState: null,
     warnings: null,
     finishReason: null,
     ...overrides,

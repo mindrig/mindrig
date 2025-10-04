@@ -86,7 +86,7 @@ Eliminate unused code, adjust imports and exports, update documentation or ADRs,
 
 #### Status
 
-TODO
+DONE – pruned legacy helpers, aligned context providers, refreshed docs/tests, and ran types/lint (lint still blocked by legacy `messageContext` issues). Manual smoke verification deferred to follow-up.
 
 ## Questions
 
@@ -140,4 +140,14 @@ Try to cover as much as possible with unit tests via React Testing Library.
 
 ## Follow-Ups
 
-None.
+### Manual Smoke Validation
+
+Manual UI smoke checks (model setup, datasource switching, run execution, result toggles) still need to be exercised in a UI-capable environment.
+
+#### Follow-Up Tasks
+
+- [ ] Run smoke flows locally: Open the assessment UI, verify datasource modes, execute a run, inspect results toggles.
+
+#### Prompt
+
+CLI environment lacked GUI access; run these checks locally once the refactor lands.

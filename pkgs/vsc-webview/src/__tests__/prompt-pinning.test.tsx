@@ -58,7 +58,6 @@ vi.mock("@/aspects/models/Context", () => {
       source: "fallback" as const,
       fallbackUsed: false,
       userAttempted: false,
-      checkedAt: undefined,
     },
     retry: vi.fn(),
     providers,

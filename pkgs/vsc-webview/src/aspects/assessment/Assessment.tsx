@@ -62,6 +62,7 @@ import {
   AssessmentResultsProvider,
   useAssessmentResultsViewState,
 } from "./hooks/useAssessmentResultsView";
+import type { ResultsContextValue } from "./hooks/useAssessmentResultsView";
 import { Results } from "@/aspects/result";
 import {
   ModelSetups,
@@ -83,12 +84,6 @@ interface ExecutionState {
   promptId?: string | null;
   startedAt?: number | null;
   completedAt?: number | null;
-}
-
-function createModelConfigKey(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto)
-    return `model-${crypto.randomUUID()}`;
-  return `model-${Math.random().toString(36).slice(2)}`;
 }
 
 function providerLabel(providerId: string): string {
@@ -248,7 +243,7 @@ export function Assessment({
         return runResult;
       });
     },
-    [setCsvHeader, setCsvRows, setCsvPath, setSelectedRowIdx],
+    [],
   );
 
   const updateStreamingState = useCallback(
@@ -1189,8 +1184,8 @@ export function Assessment({
       setDatasetMode("row");
       setRangeStart("");
       setRangeEnd("");
-      setResultsLayout("vertical");
-      setActiveResultIndex(0);
+    setResultsLayout("vertical");
+    setActiveResultIndex(0);
     }
 
     setCollapsedResults({});
@@ -1364,6 +1359,9 @@ export function Assessment({
     });
 
     const validationErrors: Record<string, ModelConfigErrors> = {};
+    const nextErrors: Record<string, ModelConfigErrors> = {
+      ...modelErrors,
+    };
     const preparedModels: Array<
       ModelConfig & {
         caps: ReturnType<typeof getModelCapabilities>;
@@ -1420,6 +1418,10 @@ export function Assessment({
           ...validationErrors[config.key],
           ...errors,
         };
+        nextErrors[config.key] = {
+          ...nextErrors[config.key],
+          ...errors,
+        };
         continue;
       }
 
@@ -1434,11 +1436,20 @@ export function Assessment({
       });
     }
 
+    for (const model of preparedModels)
+      nextErrors[model.key] = {
+        provider: null,
+        model: null,
+        tools: null,
+        providerOptions: null,
+      };
+
+    replaceAllErrors(nextErrors);
+
     if (
       Object.keys(validationErrors).length > 0 ||
       preparedModels.length === 0
     ) {
-      setModelErrors((prev) => ({ ...prev, ...validationErrors }));
       if (preparedModels.length === 0)
         setExecutionState({
           isLoading: false,
@@ -1447,18 +1458,6 @@ export function Assessment({
         });
       return;
     }
-
-    setModelErrors((prev) => {
-      const next = { ...prev } as Record<string, ModelConfigErrors>;
-      for (const model of preparedModels)
-        next[model.key] = {
-          provider: null,
-          model: null,
-          tools: null,
-          providerOptions: null,
-        };
-      return next;
-    });
 
     setExecutionState({ isLoading: true, results: [], error: null });
     setIsStopping(false);
@@ -1521,8 +1520,8 @@ export function Assessment({
     activeRunIdRef.current = null;
     setCollapsedResults({});
     setCollapsedModelSettings({});
-    setRequestExpanded({});
-    setResponseExpanded({});
+    setExpandedRequest({});
+    setExpandedResponse({});
     setViewTabs({});
   };
 
@@ -1597,11 +1596,12 @@ export function Assessment({
     ],
   );
 
-  const resultsContextValue = useMemo(
-    () => ({
+  const resultsContextValue = useMemo(() => {
+    const contextTimestamp = executionState.timestamp;
+
+    const value: ResultsContextValue = {
       results: executionState.results,
       models,
-      timestamp: executionState.timestamp,
       layout: resultsLayout,
       onLayoutChange: setResultsLayout,
       collapsedResults,
@@ -1618,13 +1618,13 @@ export function Assessment({
         })),
       requestExpanded: expandedRequest,
       onToggleRequest: (index: number) =>
-        setRequestExpanded((prev) => ({
+        setExpandedRequest((prev) => ({
           ...prev,
           [index]: !prev[index],
         })),
       responseExpanded: expandedResponse,
       onToggleResponse: (index: number) =>
-        setResponseExpanded((prev) => ({
+        setExpandedResponse((prev) => ({
           ...prev,
           [index]: !prev[index],
         })),
@@ -1642,27 +1642,30 @@ export function Assessment({
           const next = Math.max(0, Math.min(index, maxIndex));
           return next;
         }),
-    }),
-    [
-      executionState.results,
-      executionState.timestamp,
-      models,
-      resultsLayout,
-      setResultsLayout,
-      collapsedResults,
-      setCollapsedResults,
-      collapsedModelSettings,
-      setCollapsedModelSettings,
-      expandedRequest,
-      setExpandedRequest,
-      expandedResponse,
-      setExpandedResponse,
-      viewTabs,
-      setViewTabs,
-      activeResultIndex,
-      setActiveResultIndex,
-    ],
-  );
+    };
+
+    if (contextTimestamp !== undefined) value.timestamp = contextTimestamp;
+
+    return value;
+  }, [
+    executionState.results,
+    executionState.timestamp,
+    models,
+    resultsLayout,
+    setResultsLayout,
+    collapsedResults,
+    setCollapsedResults,
+    collapsedModelSettings,
+    setCollapsedModelSettings,
+    expandedRequest,
+    setExpandedRequest,
+    expandedResponse,
+    setExpandedResponse,
+    viewTabs,
+    setViewTabs,
+    activeResultIndex,
+    setActiveResultIndex,
+  ]);
 
   return !prompt ? null : (
     <div className="flex flex-col gap-2">

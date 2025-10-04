@@ -267,7 +267,6 @@ function getDefaultKeyStatus(): KeyStatus {
     source: "fallback",
     fallbackUsed: false,
     userAttempted: false,
-    checkedAt: undefined,
   };
 }
 

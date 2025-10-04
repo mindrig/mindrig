@@ -88,14 +88,23 @@ export function ModelSettings(props: ModelSettingsProps) {
 
           {attachments.length > 0 && (
             <div className="space-y-2 text-xs">
-              {attachments.map((attachment) => (
-                <div key={attachment.id} className="flex items-center gap-2">
-                  <span className="font-medium">{attachment.name}</span>
-                  <span className="text-neutral-500">
-                    {Math.round((attachment.size ?? 0) / 1024)} KB
-                  </span>
-                </div>
-              ))}
+              {attachments.map((attachment) => {
+                const key = attachment.path || attachment.name;
+                const approximateSize =
+                  typeof attachment.dataBase64 === "string"
+                    ? Math.round((attachment.dataBase64.length * 3) / 4 / 1024)
+                    : null;
+                return (
+                  <div key={key} className="flex items-center gap-2">
+                    <span className="font-medium">{attachment.name}</span>
+                    {approximateSize !== null && (
+                      <span className="text-neutral-500">
+                        {approximateSize} KB
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

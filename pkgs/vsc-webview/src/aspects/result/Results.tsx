@@ -1,4 +1,5 @@
 import { useAssessmentResultsContext } from "@/aspects/assessment/hooks/useAssessmentResultsView";
+import type { RunResult } from "@/aspects/assessment/types";
 
 import { Result } from "./Result";
 
@@ -25,7 +26,7 @@ export function Results() {
 
   if (!results.length) return null;
 
-  const renderResult = (result, index: number) => {
+  const renderResult = (result: RunResult, index: number) => {
     const isLoading = Boolean(result.isLoading);
     const showFailureBadge = !isLoading && result.success === false;
     const isVerticalLayout = layout === "vertical";

@@ -48,15 +48,19 @@ export function ModelSelector(props: ModelSelectorProps) {
           label: option.label,
           value: option.id,
         }))}
-        selectedKey={providerId ?? undefined}
+        selectedKey={providerId ?? null}
         onSelectionChange={(value) => {
+          if (value === null) {
+            onProviderChange(null);
+            return;
+          }
           const next = typeof value === "string" ? value : String(value);
           onProviderChange(next === "" ? null : next);
         }}
         placeholder="Select provider..."
         size="small"
         errors={providerError}
-        isDisabled={disabled}
+        isDisabled={!!disabled}
       />
 
       <Select
@@ -65,12 +69,16 @@ export function ModelSelector(props: ModelSelectorProps) {
           label: option.label,
           value: option.id,
         }))}
-        selectedKey={modelId ?? undefined}
+        selectedKey={modelId ?? null}
         onSelectionChange={(value) => {
+          if (value === null) {
+            onModelChange(null);
+            return;
+          }
           const next = typeof value === "string" ? value : String(value);
           onModelChange(next === "" ? null : next);
         }}
-        isDisabled={disabled || modelOptions.length === 0}
+        isDisabled={Boolean(disabled || modelOptions.length === 0)}
         placeholder="Select model..."
         size="small"
         errors={modelError}
