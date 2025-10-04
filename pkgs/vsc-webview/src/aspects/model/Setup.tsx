@@ -76,8 +76,8 @@ export function ModelSetup(props: ModelSetupProps) {
         modelOptions={modelOptions}
         providerId={config.providerId}
         modelId={config.modelId}
-        providerError={errors.provider}
-        modelError={errors.model}
+        providerError={errors.provider ?? null}
+        modelError={errors.model ?? null}
         onProviderChange={onProviderChange}
         onModelChange={onModelChange}
       />

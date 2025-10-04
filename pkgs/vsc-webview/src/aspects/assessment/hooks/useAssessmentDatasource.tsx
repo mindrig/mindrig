@@ -1,6 +1,13 @@
 import type { PromptVar } from "@mindrig/types";
 import { computeVariablesFromRow } from "@wrkspc/dataset";
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 type InputSource = "manual" | "dataset";
 type DatasetMode = "row" | "range" | "all";
@@ -8,23 +15,23 @@ type DatasetMode = "row" | "range" | "all";
 export type DatasourceContextValue = {
   promptVariables: PromptVar[] | undefined | null;
   inputSource: InputSource;
-  setInputSource: (source: InputSource) => void;
+  setInputSource: Dispatch<SetStateAction<InputSource>>;
   datasetMode: DatasetMode;
-  setDatasetMode: (mode: DatasetMode) => void;
+  setDatasetMode: Dispatch<SetStateAction<DatasetMode>>;
   variables: Record<string, string>;
-  setVariables: (updater: (prev: Record<string, string>) => Record<string, string>) => void;
+  setVariables: Dispatch<SetStateAction<Record<string, string>>>;
   csvPath: string | null;
-  setCsvPath: (path: string | null) => void;
+  setCsvPath: Dispatch<SetStateAction<string | null>>;
   csvHeader: string[] | null;
-  setCsvHeader: (header: string[] | null) => void;
+  setCsvHeader: Dispatch<SetStateAction<string[] | null>>;
   csvRows: string[][];
-  setCsvRows: (rows: string[][]) => void;
+  setCsvRows: Dispatch<SetStateAction<string[][]>>;
   selectedRowIdx: number | null;
-  setSelectedRowIdx: (index: number | null) => void;
+  setSelectedRowIdx: Dispatch<SetStateAction<number | null>>;
   rangeStart: string;
-  setRangeStart: (value: string) => void;
+  setRangeStart: Dispatch<SetStateAction<string>>;
   rangeEnd: string;
-  setRangeEnd: (value: string) => void;
+  setRangeEnd: Dispatch<SetStateAction<string>>;
   handleVariableChange: (name: string, value: string) => void;
   handleSelectRow: (index: number | null) => void;
   handleLoadCsv: () => void;
@@ -84,7 +91,11 @@ export function useAssessmentDatasourceState(
       if (!row) return;
 
       const headersToUse = csvHeader && csvHeader.length ? csvHeader : null;
-      const mapped = computeVariablesFromRow(row, headersToUse, promptVariables);
+      const mapped = computeVariablesFromRow(
+        row,
+        headersToUse,
+        promptVariables ?? undefined,
+      );
       setVariablesState(mapped);
     },
     [csvHeader, csvRows, promptVariables],

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 import type { AvailableModel } from "@/aspects/models/Context";
 import type { RunResult } from "@/aspects/assessment/types";
@@ -8,27 +9,19 @@ export interface AssessmentResultsState {
   layout: ResultsLayout;
   setLayout: (layout: ResultsLayout) => void;
   collapsedResults: Record<number, boolean>;
-  setCollapsedResults: (
-    updater: (prev: Record<number, boolean>) => Record<number, boolean>,
-  ) => void;
+  setCollapsedResults: Dispatch<SetStateAction<Record<number, boolean>>>;
   collapsedModelSettings: Record<number, boolean>;
-  setCollapsedModelSettings: (
-    updater: (prev: Record<number, boolean>) => Record<number, boolean>,
-  ) => void;
+  setCollapsedModelSettings: Dispatch<SetStateAction<Record<number, boolean>>>;
   requestExpanded: Record<number, boolean>;
-  setRequestExpanded: (
-    updater: (prev: Record<number, boolean>) => Record<number, boolean>,
-  ) => void;
+  setRequestExpanded: Dispatch<SetStateAction<Record<number, boolean>>>;
   responseExpanded: Record<number, boolean>;
-  setResponseExpanded: (
-    updater: (prev: Record<number, boolean>) => Record<number, boolean>,
-  ) => void;
+  setResponseExpanded: Dispatch<SetStateAction<Record<number, boolean>>>;
   viewTabs: Record<number, "rendered" | "raw">;
-  setViewTabs: (
-    updater: (prev: Record<number, "rendered" | "raw">) => Record<number, "rendered" | "raw">,
-  ) => void;
+  setViewTabs: Dispatch<
+    SetStateAction<Record<number, "rendered" | "raw">>
+  >;
   activeResultIndex: number;
-  setActiveResultIndex: (updater: (prev: number) => number) => void;
+  setActiveResultIndex: Dispatch<SetStateAction<number>>;
 }
 
 export interface ResultsContextValue {

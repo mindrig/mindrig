@@ -1,6 +1,6 @@
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Prompt } from "@mindrig/types";
 
@@ -10,7 +10,7 @@ import {
   createMockVscApi,
   renderWithVsc,
 } from "@/testUtils/messages";
-const { persistenceMocks, persistedData } = vi.hoisted(() => {
+const { persistenceMocks } = vi.hoisted(() => {
   const runResult = {
     success: true,
     runId: "run-1",
@@ -69,7 +69,6 @@ const { persistenceMocks, persistedData } = vi.hoisted(() => {
   };
 
   return {
-    persistedData: data,
     persistenceMocks: {
       load: vi.fn(() => ({ data })),
       save: vi.fn(() => null),
@@ -113,7 +112,6 @@ vi.mock("@/aspects/models/Context", () => ({
       source: "fallback",
       fallbackUsed: false,
       userAttempted: false,
-      checkedAt: undefined,
     },
     retry: vi.fn(),
     modelsByProvider: { openai: [{ id: "model-1", label: "Model 1" }] },
@@ -191,8 +189,11 @@ describe("Assessment shared state integration", () => {
     await user.click(screen.getByRole("button", { name: "Horizontal" }));
 
     await waitFor(() => {
+      const calls = persistenceMocks.save.mock.calls as unknown as Array<
+        [unknown, { layout?: string } | undefined]
+      >;
       expect(
-        persistenceMocks.save.mock.calls.some(([, snapshot]) => snapshot.layout === "horizontal"),
+        calls.some(([, snapshot]) => snapshot?.layout === "horizontal"),
       ).toBe(true);
     });
     expect(persistenceMocks.save).toHaveBeenCalled();

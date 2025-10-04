@@ -7,6 +7,7 @@ import type {
 } from "@wrkspc/model";
 import { providerFromEntry } from "@wrkspc/model";
 import { useCallback, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 import { ModelSetup } from "./Setup";
 
@@ -63,7 +64,7 @@ export interface ModelSetupsState {
   configs: ModelConfig[];
   errors: Record<string, ModelConfigErrors>;
   expandedKey: string | null;
-  setExpandedKey: (key: string | null) => void;
+  setExpandedKey: Dispatch<SetStateAction<string | null>>;
   addConfig: (preferredModelId?: string | null) => ModelConfig;
   removeConfig: (key: string) => void;
   replaceAllConfigs: (configs: ModelConfig[]) => void;
