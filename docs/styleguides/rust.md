@@ -13,6 +13,10 @@ Packages should default to private and have `publish = false` in their `Cargo.to
 
 For private packages use `wrkspc_` prefix, for public `mindrig_`, unless there's a specific reason to use a different prefix or no prefix at all.
 
+### New Package
+
+When adding a new package, create a new directory `pkgs/{{pkg_dir_name}}` and add it to the workspace in the root `Cargo.toml`.
+
 ## Testing
 
 - Prefer in-file tests with a dedicated `mod tests` section.

@@ -68,8 +68,8 @@ When referencing elements, quote or style them exactly as they appear in the int
 
 ### Markdown Editing
 
-- After updating a Markdown document, run `pnpm prettier <path>.md --write` to normalize formatting.
+After updating a Markdown document, run `prettier <path>.md --write` to normalize formatting.
 
 ### Git Usage
 
-- Unless explicitly instructed by the user, or when running in a cloud and instructed to commit changes, push to a remote repository, etc., do not run `git commit`, `git stash`, `git reset`, or other commands that alter Git history or staging state. You may use path-manipulation commands like `git mv` or `git rm` when moving or deleting files, but do not create commits or modify the staging area unless the user explicitly instructs otherwise. Limit other Git usage to read-only queries (e.g., `git status`, `git diff`).
+Unless explicitly instructed by the user, job instructions, or when running in a cloud and instructed to commit changes, push to a remote repository, etc., do not run `git commit`, `git stash`, `git reset`, or other commands that alter Git history or staging state. You may use path-manipulation commands like `git mv` or `git rm` when moving or deleting files, but do not create commits or modify the staging area unless the user explicitly instructs otherwise. Limit other Git usage to read-only queries (e.g., `git status`, `git diff`).
