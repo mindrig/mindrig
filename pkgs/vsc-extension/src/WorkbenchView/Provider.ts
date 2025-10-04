@@ -3,30 +3,29 @@ import { VscMessageBus } from "@/aspects/message";
 import { setAuthContext } from "@/auth";
 import { parsePrompts } from "@mindrig/parser-wasm";
 import { VscController } from "@wrkspc/vsc-controller";
-import { VscSettingsController } from "@wrkspc/vsc-settings";
-import type { SyncFile, SyncResource, VscMessageSync } from "@wrkspc/vsc-sync";
 import type {
   VscMessage,
-  VscMessageAuth,
   VscMessageAttachments,
+  VscMessageAuth,
   VscMessageDataset,
-  VscMessageModels,
-  VscMessagePrompts,
   VscMessagePromptRun,
+  VscMessagePrompts,
   VscMessageSettings,
 } from "@wrkspc/vsc-message";
+import { VscSettingsController } from "@wrkspc/vsc-settings";
+import type { SyncFile, SyncResource, VscMessageSync } from "@wrkspc/vsc-sync";
 import type {
   PromptRunResultData,
   PromptRunResultShell,
 } from "@wrkspc/vsc-types";
-import PQueue from "p-queue";
 import { nanoid } from "nanoid";
+import PQueue from "p-queue";
 import * as vscode from "vscode";
 import { AIService } from "../AIService";
 import { CodeSyncManager } from "../CodeSyncManager";
 import { FileManager } from "../FileManager";
-import { SecretManager } from "../SecretManager";
 import { ModelsDataController } from "../ModelsDataController";
+import { SecretManager } from "../SecretManager";
 import { resolveDevServerUri } from "../devServer";
 import { WorkbenchWebviewHtmlUris, workbenchWebviewHtml } from "./html";
 
@@ -822,12 +821,14 @@ export class WorkbenchViewProvider
           this.#gatewaySaving = true;
           void this.#publishGatewayState({ secret: normalized });
 
-          const refreshPromise = this.#modelsDataController?.handleSecretChanged();
+          const refreshPromise =
+            this.#modelsDataController?.handleSecretChanged();
 
           if (refreshPromise) {
             refreshPromise
               .then(() => {
-                const status = this.#modelsDataController?.getLastGatewayStatus();
+                const status =
+                  this.#modelsDataController?.getLastGatewayStatus();
                 this.#gatewaySaving = false;
                 this.#gatewayEditable =
                   status?.status === "error" || !normalized;

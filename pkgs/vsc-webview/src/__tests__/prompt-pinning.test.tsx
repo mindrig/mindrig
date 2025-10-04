@@ -200,9 +200,7 @@ describe("prompt pinning", () => {
   });
 
   async function renderIndex(options: { settings: any; reuseState?: boolean }) {
-    if (!options.reuseState) {
-      persistedState = { pinnedPrompt: null };
-    }
+    if (!options.reuseState) persistedState = { pinnedPrompt: null };
 
     const vsc = { postMessage, getState, setState };
 

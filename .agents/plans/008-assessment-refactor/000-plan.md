@@ -86,7 +86,7 @@ Eliminate unused code, adjust imports and exports, update documentation or ADRs,
 
 #### Status
 
-DONE – pruned legacy helpers, aligned context providers, refreshed docs/tests, and ran types/lint (lint still blocked by legacy `messageContext` issues). Manual smoke verification deferred to follow-up.
+DONE – pruned legacy helpers, aligned context providers, refreshed docs/tests, and ran types/lint (now green). Manual smoke verification deferred to follow-up.
 
 ## Questions
 

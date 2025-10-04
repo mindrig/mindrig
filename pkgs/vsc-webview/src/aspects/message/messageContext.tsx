@@ -113,44 +113,38 @@ export function MessageProvider({
     [listen],
   );
 
-  const useOnHook = useCallback(
-    <K extends VscMessage["type"]>(
-      type: K,
-      handler: VscMessageHandler<K>,
-      deps: DependencyList = [],
-    ) => {
-      useEffect(() => {
-        const subscription = listen(type, handler);
-        return () => subscription.dispose();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [listen, type, handler, ...deps]);
-    },
-    [listen],
-  );
+  const useOnHook = <K extends VscMessage["type"]>(
+    type: K,
+    handler: VscMessageHandler<K>,
+    deps: DependencyList = [],
+  ) => {
+    useEffect(() => {
+      const subscription = listen(type, handler);
+      return () => subscription.dispose();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [listen, type, handler, ...deps]);
+  };
 
-  const useOnceHook = useCallback(
-    <K extends VscMessage["type"]>(
-      type: K,
-      handler: VscMessageHandler<K>,
-      deps: DependencyList = [],
-    ) => {
-      useEffect(() => {
-        let disposed = false;
-        const subscription = listen(type, (message) => {
-          if (disposed) return;
-          subscription.dispose();
-          handler(message as Extract<VscMessage, { type: K }>);
-        });
+  const useOnceHook = <K extends VscMessage["type"]>(
+    type: K,
+    handler: VscMessageHandler<K>,
+    deps: DependencyList = [],
+  ) => {
+    useEffect(() => {
+      let disposed = false;
+      const subscription = listen(type, (message) => {
+        if (disposed) return;
+        subscription.dispose();
+        handler(message as Extract<VscMessage, { type: K }>);
+      });
 
-        return () => {
-          disposed = true;
-          subscription.dispose();
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [listen, type, handler, ...deps]);
-    },
-    [listen],
-  );
+      return () => {
+        disposed = true;
+        subscription.dispose();
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [listen, type, handler, ...deps]);
+  };
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -166,7 +160,7 @@ export function MessageProvider({
       const listeners = handlersRef.current.get(payload.type);
       if (!listeners || listeners.size === 0) return;
 
-      for (const handler of Array.from(listeners)) {
+      listeners.forEach((handler) => {
         try {
           handler(payload as never);
         } catch (error) {
@@ -175,20 +169,24 @@ export function MessageProvider({
             error,
           );
         }
-      }
+      });
     };
 
     window.addEventListener("message", handleMessage);
+    const handlersMap = handlersRef.current;
     return () => {
       window.removeEventListener("message", handleMessage);
-      handlersRef.current.clear();
+      handlersMap.clear();
     };
   }, [debug, logger, onUnhandledMessage]);
 
-  const value = useMemo<MessageContextValue>(
-    () => ({ send, listen, once, useOn: useOnHook, useOnce: useOnceHook }),
-    [send, listen, once, useOnHook, useOnceHook],
-  );
+  const value: MessageContextValue = {
+    send,
+    listen,
+    once,
+    useOn: useOnHook,
+    useOnce: useOnceHook,
+  };
 
   return (
     <MessageContext.Provider value={value}>{children}</MessageContext.Provider>
