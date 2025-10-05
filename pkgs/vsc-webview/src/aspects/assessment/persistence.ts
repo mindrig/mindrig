@@ -52,7 +52,16 @@ export interface PlaygroundState {
   };
   layout?: ResultsLayout;
   activeResultIndex?: number;
+  collapsedResults?: Record<string | number, boolean>;
+  collapsedModelSettings?: Record<string | number, boolean>;
+  requestExpanded?: Record<string | number, boolean>;
+  responseExpanded?: Record<string | number, boolean>;
+  viewTabs?: Record<string | number, "rendered" | "raw">;
+  streamingEnabled?: boolean;
+  schemaVersion?: number;
 }
+
+export const PLAYGROUND_STATE_VERSION = 2;
 
 export interface PersistedPromptState {
   id: string;
@@ -154,6 +163,10 @@ export function savePromptState(
   meta: PromptMeta,
   data: PlaygroundState,
 ): PersistedPromptState {
+  const stateToPersist: PlaygroundState = {
+    ...data,
+    schemaVersion: PLAYGROUND_STATE_VERSION,
+  };
   const entries = readRaw();
   const timestamp = Date.now();
   let updated: PersistedPromptState | undefined;
@@ -165,7 +178,7 @@ export function savePromptState(
         updated = {
           ...entry,
           meta: { ...meta, updatedAt: timestamp },
-          data,
+          data: stateToPersist,
         } as PersistedPromptState;
         return updated;
       }
@@ -177,7 +190,7 @@ export function savePromptState(
     updated = {
       id: `${meta.file}:${meta.span.start}-${meta.span.end}:${timestamp}`,
       meta: { ...meta, updatedAt: timestamp },
-      data,
+      data: stateToPersist,
     };
     nextEntries.push(updated);
   }

@@ -52,6 +52,7 @@ export class ModelsDataController extends VscController {
   #modelsDevInflight: Promise<ModelDotdev.Response | undefined> | null = null;
 
   #gatewayCache: ModelGateway.Response | undefined;
+  #globalGatewayCache: ModelGateway.Response | undefined;
   #gatewayInflight: Promise<ModelGateway.Response> | null = null;
   #lastGatewayError: string | null = null;
   #lastUserAttempted = false;
@@ -103,8 +104,11 @@ export class ModelsDataController extends VscController {
     await this.#emitCombinedResponse();
   }
 
-  async handleSecretChanged() {
+  async handleSecretChanged(secret?: string | null) {
     this.#gatewayCache = undefined;
+    if (!secret) {
+      this.#globalGatewayCache = undefined;
+    }
     this.#lastGatewayError = null;
     await this.refresh({ force: true });
   }
@@ -161,13 +165,24 @@ export class ModelsDataController extends VscController {
       .then((response) => {
         this.#gatewayInflight = null;
         this.#gatewayCache = response;
+        if (
+          response.source === "fallback" &&
+          response.response.status === "ok"
+        ) {
+          this.#globalGatewayCache = response;
+        }
         return response;
       })
       .catch((error) => {
         this.#gatewayInflight = null;
         const message =
           error instanceof Error ? error.message : String(error ?? "Unknown");
-        this.#lastGatewayError = message;
+        this.#lastGatewayError = this.#lastUserAttempted ? message : null;
+        const cachedFallback = this.#cloneGlobalGatewayCache(now);
+        if (cachedFallback) {
+          this.#gatewayCache = cachedFallback;
+          return cachedFallback;
+        }
         const fallbackResponse: ModelGateway.Response = {
           type: "vercel",
           source: "fallback",
@@ -211,22 +226,38 @@ export class ModelsDataController extends VscController {
       this.#lastGatewayError = null;
     }
 
-    const wrapperResponse = await this.#fetch(
-      `${this.#gatewayOrigin}/vercel/models`,
-    );
-    if (!wrapperResponse.ok) {
-      throw new Error(`Gateway wrapper failed with HTTP ${wrapperResponse.status}`);
+    try {
+      return await this.#requestFallbackGateway(now);
+    } catch (error) {
+      if (secret) throw error;
+      if (this.#gatewayCache) return this.#gatewayCache;
+      return {
+        type: "vercel",
+        source: "fallback",
+        fetchedAt: now,
+        response: { status: "ok", data: { models: [] } },
+      } satisfies ModelGateway.Response;
+    }
+  }
+
+  async #requestFallbackGateway(now: number): Promise<ModelGateway.Response> {
+    const response = await this.#fetch(`${this.#gatewayOrigin}/vercel/models`);
+    if (!response.ok) {
+      throw new Error(`Gateway wrapper failed with HTTP ${response.status}`);
     }
 
-    const fallbackRaw = await wrapperResponse.json();
-    const fallbackData = this.#normalizeGatewayResponse(fallbackRaw);
-    const payload: ModelGateway.Response = {
+    const payload = await response.json();
+    const normalized = this.#normalizeGatewayResponse(payload);
+    const fallbackResponse: ModelGateway.Response = {
       type: "vercel",
       source: "fallback",
       fetchedAt: now,
-      response: { status: "ok", data: fallbackData },
-    };
-    return payload;
+      response: { status: "ok", data: normalized },
+    } satisfies ModelGateway.Response;
+
+    this.#globalGatewayCache = fallbackResponse;
+
+    return fallbackResponse;
   }
 
   async #sendLegacyModelsDev() {
@@ -287,9 +318,12 @@ export class ModelsDataController extends VscController {
     const fetchedAt = this.#gatewayCache?.fetchedAt ?? this.#now();
     const gatewayResponse = this.#gatewayCache?.response;
     const hasGatewayError = gatewayResponse?.status === "error";
-    const status = this.#lastGatewayError || hasGatewayError ? "error" : "ok";
-    const message =
-      this.#lastGatewayError || (hasGatewayError ? gatewayResponse.message : undefined);
+    const shouldReportError =
+      this.#lastUserAttempted && (this.#lastGatewayError || hasGatewayError);
+    const status = shouldReportError ? "error" : "ok";
+    const message = shouldReportError
+      ? this.#lastGatewayError || (hasGatewayError ? gatewayResponse.message : undefined)
+      : undefined;
     const fallbackUsed = this.#gatewayCache?.source === "fallback";
     const source =
       this.#gatewayCache?.source ?? (this.#lastUserAttempted ? "user" : "fallback");
@@ -315,6 +349,15 @@ export class ModelsDataController extends VscController {
 
   getLastGatewayStatus(): GatewayKeyStatusMessage["payload"] {
     return this.#lastKeyStatus;
+  }
+
+  #cloneGlobalGatewayCache(now: number): ModelGateway.Response | undefined {
+    if (!this.#globalGatewayCache) return undefined;
+    return {
+      ...this.#globalGatewayCache,
+      fetchedAt: now,
+      response: this.#globalGatewayCache.response,
+    } satisfies ModelGateway.Response;
   }
 
   #normalizeGatewayResponse(raw: unknown): ModelVercel.Data {

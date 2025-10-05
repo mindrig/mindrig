@@ -66,6 +66,12 @@ const { persistenceMocks } = vi.hoisted(() => {
     },
     layout: "vertical",
     activeResultIndex: 0,
+    collapsedResults: { 0: true },
+    collapsedModelSettings: { 0: false },
+    requestExpanded: { 0: true },
+    responseExpanded: { 0: false },
+    viewTabs: { 0: "raw" },
+    streamingEnabled: false,
   };
 
   return {
@@ -76,11 +82,16 @@ const { persistenceMocks } = vi.hoisted(() => {
   };
 });
 
-vi.mock("../persistence", () => ({
-  loadPromptState: persistenceMocks.load,
-  savePromptState: persistenceMocks.save,
-  PersistedPromptState: {},
-}));
+vi.mock("../persistence", async () => {
+  const actual = await vi.importActual<
+    typeof import("../persistence")
+  >("../persistence");
+  return {
+    ...actual,
+    loadPromptState: persistenceMocks.load,
+    savePromptState: persistenceMocks.save,
+  };
+});
 
 vi.mock("@/aspects/models/Context", () => ({
   useModels: () => ({
@@ -189,14 +200,23 @@ describe("Assessment shared state integration", () => {
     await user.click(screen.getByRole("button", { name: "Horizontal" }));
 
     await waitFor(() => {
-      const calls = persistenceMocks.save.mock.calls as unknown as Array<
-        [unknown, { layout?: string } | undefined]
+      const calls = persistenceMocks.save.mock.calls as Array<
+        [unknown, Record<string, unknown> | undefined]
       >;
       expect(
         calls.some(([, snapshot]) => snapshot?.layout === "horizontal"),
       ).toBe(true);
     });
     expect(persistenceMocks.save).toHaveBeenCalled();
+
+    const lastSnapshot =
+      persistenceMocks.save.mock.calls.at(-1)?.[1] ?? ({} as Record<string, unknown>);
+    expect(lastSnapshot).toHaveProperty("collapsedResults");
+    expect(lastSnapshot).toHaveProperty("collapsedModelSettings");
+    expect(lastSnapshot).toHaveProperty("requestExpanded");
+    expect(lastSnapshot).toHaveProperty("responseExpanded");
+    expect(lastSnapshot).toHaveProperty("viewTabs");
+    expect(lastSnapshot).toHaveProperty("streamingEnabled");
 
     clearVscMocks(mockVsc);
   });

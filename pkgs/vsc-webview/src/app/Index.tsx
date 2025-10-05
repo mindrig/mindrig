@@ -6,11 +6,12 @@ import { findPromptAtCursor } from "@wrkspc/prompt";
 import type { VscMessagePrompts } from "@wrkspc/vsc-message";
 import { SyncFile } from "@wrkspc/vsc-sync";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AuthVercel } from "../aspects/auth/Vercel";
 import { Blueprint } from "../aspects/blueprint/Blueprint";
 import { DevDebug } from "../aspects/dev/DebugSection";
 import { FileHeader } from "../aspects/file/Header";
 import { Layout } from "./Layout";
+import { useAppNavigation } from "./navigation";
+import type { GatewaySecretState } from "./hooks/useGatewaySecretState";
 
 type PinnedPromptState = {
   prompt: Prompt;
@@ -23,29 +24,17 @@ type WebviewState = {
   pinnedPrompt?: PinnedPromptState | null;
 };
 
-interface GatewaySecretState {
-  maskedKey: string | null;
-  hasKey: boolean;
-  readOnly: boolean;
-  isSaving: boolean;
-  isResolved: boolean;
+interface IndexProps {
+  gatewaySecretState: GatewaySecretState;
 }
 
-export function Index() {
+export function Index({ gatewaySecretState }: IndexProps) {
   const { vsc } = useVsc();
   const { send } = useMessage();
+  const { navigateTo, currentRoute } = useAppNavigation();
   const [fileState, setFileState] = useState<SyncFile.State | null>(null);
   const [activeFile, setActiveFile] = useState<SyncFile.State | null>(null);
-  const [gatewaySecretState, setGatewaySecretState] =
-    useState<GatewaySecretState>(() => ({
-      maskedKey: null,
-      hasKey: false,
-      readOnly: false,
-      isSaving: false,
-      isResolved: false,
-    }));
   const { keyStatus, retry, gatewayError } = useModels();
-  const [isGatewayFormOpen, setIsGatewayFormOpen] = useState(false);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [parseStatus, setParseStatus] = useState<"success" | "error">(
     "success",
@@ -57,7 +46,6 @@ export function Index() {
       return persisted.pinnedPrompt ?? null;
     },
   );
-  const [vercelPanelOpenSignal, setVercelPanelOpenSignal] = useState(0);
   const persistPinnedPrompt = useCallback(
     (next: PinnedPromptState | null) => {
       setPinnedPrompt(next);
@@ -88,19 +76,15 @@ export function Index() {
     send({ type: "lifecycle-webview-ready" });
   }, [send]);
 
-  const handleVercelGatewayKeyChange = (vercelGatewayKey: string) => {
-    send({
-      type: "auth-vercel-gateway-set",
-      payload: vercelGatewayKey,
-    });
-  };
-
-  const handleClearVercelGatewayKey = () => {
-    send({ type: "auth-vercel-gateway-clear" });
-  };
-
-  const shouldShowGatewayErrorBanner =
-    keyStatus.status === "error" && !isGatewayFormOpen;
+  const isAuthRoute = currentRoute === "auth";
+  const gatewayResolved = gatewaySecretState.isResolved;
+  const showGatewayErrorBanner =
+    !isAuthRoute && gatewaySecretState.hasKey && keyStatus.status === "error";
+  const showGatewayMissingBanner =
+    !isAuthRoute &&
+    gatewayResolved &&
+    !gatewaySecretState.hasKey &&
+    keyStatus.status !== "error";
 
   const gatewayErrorMessage =
     gatewayError ??
@@ -263,25 +247,11 @@ export function Index() {
   );
 
   useOn(
-    "auth-vercel-gateway-state",
-    (message) => {
-      setGatewaySecretState({
-        maskedKey: message.payload.maskedKey ?? null,
-        hasKey: message.payload.hasKey,
-        readOnly: message.payload.readOnly,
-        isSaving: message.payload.isSaving,
-        isResolved: true,
-      });
-    },
-    [],
-  );
-
-  useOn(
     "auth-panel-open",
     () => {
-      setVercelPanelOpenSignal((n) => n + 1);
+      navigateTo("auth");
     },
-    [],
+    [navigateTo],
   );
 
   useOn(
@@ -294,52 +264,61 @@ export function Index() {
   return (
     <Layout>
       <div className="flex flex-col gap-2">
-        {shouldShowGatewayErrorBanner && (
-          <div className="flex flex-col gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-1">
-              <div className="font-semibold text-red-700">
-                Vercel Gateway error
+        {!isAuthRoute && gatewayResolved &&
+          (showGatewayErrorBanner || showGatewayMissingBanner) && (
+            <div
+              className={
+                showGatewayErrorBanner
+                  ? "flex flex-col gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 md:flex-row md:items-center md:justify-between"
+                  : "flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 md:flex-row md:items-center md:justify-between"
+              }
+            >
+              <div className="space-y-1">
+                <div
+                  className={
+                    showGatewayErrorBanner
+                      ? "font-semibold text-red-700"
+                      : "font-semibold text-amber-700"
+                  }
+                >
+                  {showGatewayErrorBanner
+                    ? "Vercel Gateway error"
+                    : "Vercel Gateway key missing"}
+                </div>
+                <div
+                  className={
+                    showGatewayErrorBanner
+                      ? "text-red-600"
+                      : "text-amber-700"
+                  }
+                >
+                  {showGatewayErrorBanner
+                    ? gatewayErrorMessage
+                    : "You are not authenticated with Vercel Gateway; LLM requests will fail until you add a key."}
+                </div>
               </div>
-              <div className="text-red-600">{gatewayErrorMessage}</div>
+              <div className="flex shrink-0 gap-2">
+                {showGatewayErrorBanner && (
+                  <button
+                    onClick={retry}
+                    className="rounded-lg border border-red-500 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
+                  >
+                    Retry
+                  </button>
+                )}
+                <button
+                  onClick={() => navigateTo("auth")}
+                  className={
+                    showGatewayErrorBanner
+                      ? "rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                      : "rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-600"
+                  }
+                >
+                  {showGatewayErrorBanner ? "Update" : "Add key"}
+                </button>
+              </div>
             </div>
-            <div className="flex shrink-0 gap-2">
-              <button
-                onClick={retry}
-                className="rounded-lg border border-red-500 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
-              >
-                Retry
-              </button>
-              <button
-                onClick={() => {
-                  setIsGatewayFormOpen(true);
-                  setVercelPanelOpenSignal((n) => n + 1);
-                }}
-                className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
-              >
-                Update
-              </button>
-            </div>
-          </div>
-        )}
-
-        <AuthVercel
-          maskedKey={gatewaySecretState.maskedKey}
-          hasKey={gatewaySecretState.hasKey}
-          isResolved={gatewaySecretState.isResolved}
-          readOnly={gatewaySecretState.readOnly}
-          isSaving={gatewaySecretState.isSaving}
-          errorMessage={
-            keyStatus.status === "error"
-              ? (keyStatus.message ??
-                gatewayError ??
-                "Failed to validate Vercel Gateway key.")
-              : null
-          }
-          onSave={handleVercelGatewayKeyChange}
-          onClear={handleClearVercelGatewayKey}
-          openSignal={vercelPanelOpenSignal}
-          onOpenChange={setIsGatewayFormOpen}
-        />
+          )}
 
         <FileHeader
           prompts={prompts}

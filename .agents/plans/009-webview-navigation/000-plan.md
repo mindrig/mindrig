@@ -6,11 +6,11 @@ Design the approach for adopting React Router's `HashRouter` in the VS Code webv
 
 ## Steps
 
-- [ ] [Assess Current Webview State](.agents/plans/009-webview-navigation/001-audit-webview-state.md): Inventory existing views, stateful components, and current persistence touchpoints.
-- [ ] [Adopt React Router Hash Navigation](.agents/plans/009-webview-navigation/002-hash-navigation.md): Integrate React Router's `HashRouter` to drive index and auth routes while providing navigation helpers for shared components.
-- [ ] [Integrate Auth Page in Layout](.agents/plans/009-webview-navigation/003-auth-page-layout.md): Compose the auth view inside `<Layout>` with a FileHeader-inspired header that returns via history and falls back to the index when needed.
-- [ ] [Ensure State Persistence Coverage](.agents/plans/009-webview-navigation/004-state-persistence.md): Define and implement comprehensive local storage saving and hydration for prompt playground state.
-- [ ] [Add Navigation and Persistence Tests](.agents/plans/009-webview-navigation/005-testing.md): Specify React Testing Library coverage validating route rendering and state durability.
+- [x] [Assess Current Webview State](.agents/plans/009-webview-navigation/001-audit-webview-state.md): Inventory existing views, stateful components, and current persistence touchpoints.
+- [x] [Adopt React Router Hash Navigation](.agents/plans/009-webview-navigation/002-hash-navigation.md): Integrate React Router's `HashRouter` to drive index and auth routes while providing navigation helpers for shared components.
+- [x] [Integrate Auth Page in Layout](.agents/plans/009-webview-navigation/003-auth-page-layout.md): Compose the auth view inside `<Layout>` with a FileHeader-inspired header that returns via history and falls back to the index when needed.
+- [x] [Ensure State Persistence Coverage](.agents/plans/009-webview-navigation/004-state-persistence.md): Define and implement comprehensive local storage saving and hydration for prompt playground state.
+- [x] [Add Navigation and Persistence Tests](.agents/plans/009-webview-navigation/005-testing.md): Specify React Testing Library coverage validating route rendering and state durability.
 
 ### [Assess Current Webview State](.agents/plans/009-webview-navigation/001-audit-webview-state.md)
 
@@ -18,7 +18,7 @@ Review `App.tsx`, state management hooks, and existing persistence code to catal
 
 #### Status
 
-TODO
+BrowserRouter currently wraps the app to map `/` and `/index.html` to `<Index />`, with `Context` providers layered above; `Index` holds prompt, gateway, and CSV state while persistence relies on VS Code webview state for pinned prompts and `assessment/persistence.ts` localStorage helpers for playground data.
 
 ### [Adopt React Router Hash Navigation](.agents/plans/009-webview-navigation/002-hash-navigation.md)
 
@@ -26,7 +26,7 @@ Outline how to integrate `HashRouter` and `Routes`, normalize default and unknow
 
 #### Status
 
-TODO
+HashRouter now wraps the app with typed route metadata (`routes.ts`), index aliases preserve `/index.html` compatibility, and `useAppNavigation` exposes typed helpers (`navigateTo`, `goBackOrIndex`) for components needing programmatic routing.
 
 ### [Integrate Auth Page in Layout](.agents/plans/009-webview-navigation/003-auth-page-layout.md)
 
@@ -34,7 +34,7 @@ Plan the composition of the auth screen inside `<Layout>`, describe the FileHead
 
 #### Status
 
-TODO
+Auth route now renders `AuthVercel` inside `<Layout>` with a `PanelSection` toolbar and history-aware close button, while the index and message handlers navigate to `#/auth` instead of toggling inline panels.
 
 ### [Ensure State Persistence Coverage](.agents/plans/009-webview-navigation/004-state-persistence.md)
 
@@ -42,7 +42,7 @@ Detail which pieces of prompt playground state need to be serialized, choose sto
 
 #### Status
 
-TODO
+Playground persistence now serializes collapse/expansion/view state, streaming toggles, and embeds a schema version; hydration rehydrates those maps and defaults gracefully when legacy snapshots are missing fields.
 
 ### [Add Navigation and Persistence Tests](.agents/plans/009-webview-navigation/005-testing.md)
 
@@ -50,7 +50,7 @@ Define the test scenarios and fixtures for React Testing Library, covering routi
 
 #### Status
 
-TODO
+New RTL suites cover HashRouter defaults/aliases (`hash-router-navigation.test.tsx`), the dedicated auth route flow with navigation mocks, and persistence versioning/field coverage via updated assessment integration plus a focused `persistence.test.ts`.
 
 ## Questions
 
@@ -90,4 +90,19 @@ Make sure to add React Testing Library-based tests to prompt state saving as wel
 
 ## Follow-Ups
 
-None.
+### Gateway Key Validation UX
+
+Tighten the Vercel Gateway key workflow so the auth form stays open while a key is being validated, errors surface inline and on the index banner, and clearing the key falls back to global models without triggering user-scoped lookups or error spam.
+
+#### Follow-Up Tasks
+
+- [x] Keep the auth form open until the key verification completes and render inline errors when validation fails.
+- [x] Ensure the index route shows the appropriate warning/error banner after invalid keys, including on reloads when the auth page starts in an error state.
+- [x] Update the extension fallback logic so clearing the key skips user-scoped fetches, reuses cached global models when possible, and emits a non-error status when unauthenticated.
+- [x] Extend integration/unit tests to cover invalid key submissions, index banner expectations, and the no-secret fallback path.
+
+#### Prompt
+
+1. It still turns form into masked key when I enter random string "123". It should wait until the key is verified by requesting the models and show an error below the input instead of collapsing if the key is invalid. Right now, I don't even see it making the request and failing. First figure out why it's a case (maybe you need to clear the user-scoped models cache, separate user-scoped and global-scoped caches, or maybe it doesn't try to fetch as there's global models data already present, I didn't really looked into the code), add test for it and only then fix it. As a result, an error is not produced and when I open the index, there's no error on top.
+
+2. When I reload the extension with invalid key I don't see the error on top of index either. If that's a case, the auth page should display in error state below input rendering the error message.

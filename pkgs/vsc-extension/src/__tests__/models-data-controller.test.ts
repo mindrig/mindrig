@@ -73,7 +73,7 @@ class StubSecretManager implements Pick<SecretManager, "getSecret"> {
 }
 
 describe("ModelsDataController", () => {
-const gatewayMock = createGateway as unknown as vi.Mock;
+  const gatewayMock = createGateway as unknown as vi.Mock;
   const gatewayOrigin = "https://example.com";
   let messageBus: StubMessageBus;
 
@@ -181,5 +181,59 @@ const gatewayMock = createGateway as unknown as vi.Mock;
     expect(dataResponse?.payload.gateway?.source).toBe("fallback");
     expect(statusMessage?.payload.status).toBe("ok");
     expect(statusMessage?.payload.userAttempted).toBe(false);
+  });
+
+  it("reuses cached fallback models when wrapper later fails without a user key", async () => {
+    gatewayMock.mockReset();
+
+    let fallbackCallCount = 0;
+    const fetchImpl = vi.fn(async (input: Parameters<typeof fetch>[0]) => {
+      const url = typeof input === "string" ? input : (input as Request)?.url ?? String(input);
+      if (url.includes("/vercel/models")) {
+        if (fallbackCallCount === 0) {
+          fallbackCallCount += 1;
+          return {
+            ok: true,
+            json: async () => sampleFallbackResponse,
+          } as any;
+        }
+        fallbackCallCount += 1;
+        return {
+          ok: false,
+          status: 500,
+          json: async () => ({}),
+        } as any;
+      }
+
+      return {
+        ok: true,
+        json: async () => ({ providers: {} }),
+      } as any;
+    });
+
+    const controller = await createController({ secret: null, fetchImpl });
+
+    await controller.refresh({ force: true });
+    await flush();
+    messageBus.clear();
+
+    await controller.refresh({ force: true });
+    await flush();
+
+    const dataResponses = findMessages("models-data-response");
+    const dataResponse = dataResponses.at(-1);
+    const statusMessages = findMessages("auth-vercel-gateway-status");
+    const statusMessage = statusMessages.at(-1);
+
+    const fallbackCalls = fetchImpl.mock.calls.filter(([input]) =>
+      (typeof input === "string" ? input : (input as Request)?.url ?? String(input)).includes(
+        "/vercel/models",
+      ),
+    );
+    expect(fallbackCalls).toHaveLength(2);
+    expect(dataResponse?.payload.gateway?.response.status).toBe("ok");
+    expect(statusMessage?.payload.status).toBe("ok");
+    expect(statusMessage?.payload.userAttempted).toBe(false);
+    expect(statusMessage?.payload.fallbackUsed).toBe(true);
   });
 });

@@ -1,9 +1,11 @@
 import { Index } from "@/app/Index";
+import type { GatewaySecretState } from "@/app/hooks/useGatewaySecretState";
 import { SettingsContext } from "@/aspects/settings/Context";
 import { MessageProvider } from "@/aspects/message/messageContext";
 import { VscContext } from "@/aspects/vsc/Context";
 import { Prompt } from "@mindrig/types";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { HashRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { SyncFile } from "@wrkspc/vsc-sync";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -100,6 +102,13 @@ describe("prompt pinning", () => {
   let postMessage: ReturnType<typeof vi.fn>;
   let getState: ReturnType<typeof vi.fn>;
   let setState: ReturnType<typeof vi.fn>;
+  const gatewayStateWithKey: GatewaySecretState = {
+    maskedKey: "abcd...12",
+    hasKey: true,
+    readOnly: false,
+    isSaving: false,
+    isResolved: true,
+  };
 
   beforeEach(() => {
     persistedState = { pinnedPrompt: null };
@@ -201,6 +210,7 @@ describe("prompt pinning", () => {
 
   async function renderIndex(options: { settings: any; reuseState?: boolean }) {
     if (!options.reuseState) persistedState = { pinnedPrompt: null };
+    window.location.hash = "#/";
 
     const vsc = { postMessage, getState, setState };
 
@@ -208,7 +218,9 @@ describe("prompt pinning", () => {
       <VscContext.Provider value={{ vsc }}>
         <MessageProvider>
           <SettingsContext.Provider value={{ settings: options.settings }}>
-            <Index />
+            <HashRouter hashType="slash">
+              <Index gatewaySecretState={gatewayStateWithKey} />
+            </HashRouter>
           </SettingsContext.Provider>
         </MessageProvider>
       </VscContext.Provider>,

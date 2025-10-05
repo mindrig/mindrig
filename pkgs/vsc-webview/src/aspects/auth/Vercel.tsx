@@ -8,6 +8,8 @@ export namespace AuthVercel {
     readOnly: boolean;
     isSaving: boolean;
     errorMessage?: string | null;
+    validationStatus: "idle" | "ok" | "error";
+    validationCheckedAt: number | null;
     onSave: (key: string) => void;
     onClear: () => void;
     openSignal?: number;
@@ -23,6 +25,8 @@ export function AuthVercel(props: AuthVercel.Props) {
     readOnly,
     isSaving,
     errorMessage = null,
+    validationStatus,
+    validationCheckedAt,
     onSave,
     onClear,
     openSignal = 0,
@@ -32,12 +36,20 @@ export function AuthVercel(props: AuthVercel.Props) {
   const [inputValue, setInputValue] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [pendingAutoHide, setPendingAutoHide] = useState(false);
   const [pendingOpen, setPendingOpen] = useState(false);
+  const [awaitingValidation, setAwaitingValidation] = useState(false);
+  const [validationBaseline, setValidationBaseline] = useState<
+    { status: "idle" | "ok" | "error"; checkedAt: number | null } | null
+  >(null);
 
   const resolvedVisible = isVisible && isResolved;
-  const showForm = resolvedVisible && isEditing;
-  const showSummary = resolvedVisible && hasKey && !isEditing;
+  const showSummary =
+    resolvedVisible &&
+    hasKey &&
+    !isEditing &&
+    !awaitingValidation &&
+    validationStatus !== "error";
+  const showForm = resolvedVisible && (!showSummary || isEditing);
 
   const notifyVisibility = useCallback(
     (open: boolean) => {
@@ -47,6 +59,12 @@ export function AuthVercel(props: AuthVercel.Props) {
   );
 
   useEffect(() => {
+    if (!showSummary) return;
+    if (inputValue === "") return;
+    setInputValue("");
+  }, [inputValue, showSummary]);
+
+  useEffect(() => {
     notifyVisibility(resolvedVisible);
   }, [resolvedVisible, notifyVisibility]);
 
@@ -54,39 +72,83 @@ export function AuthVercel(props: AuthVercel.Props) {
     if (isResolved) return;
     setIsVisible(false);
     setIsEditing(false);
-    setPendingAutoHide(false);
     setPendingOpen(false);
+    setAwaitingValidation(false);
+    setValidationBaseline(null);
+    setInputValue("");
   }, [isResolved]);
+
+  useEffect(() => {
+    if (!hasKey) {
+      setAwaitingValidation(false);
+      setValidationBaseline(null);
+    }
+  }, [hasKey]);
+
+  useEffect(() => {
+    if (!awaitingValidation) return;
+    if (isSaving) return;
+    if (!validationBaseline) return;
+
+    const checkedAt = validationCheckedAt ?? null;
+    const baselineCheckedAt = validationBaseline.checkedAt;
+
+    const checkedChanged =
+      baselineCheckedAt === null
+        ? checkedAt !== null
+        : checkedAt !== null && checkedAt !== baselineCheckedAt;
+    const statusChanged = validationStatus !== validationBaseline.status;
+
+    if (checkedChanged || statusChanged) {
+      setAwaitingValidation(false);
+      setValidationBaseline(null);
+    }
+  }, [
+    awaitingValidation,
+    isSaving,
+    validationBaseline,
+    validationCheckedAt,
+    validationStatus,
+  ]);
 
   useEffect(() => {
     if (!isResolved) return;
 
-    if (hasKey) {
-      setIsEditing(false);
-      if (pendingAutoHide && !isSaving && !errorMessage) {
-        setIsVisible(false);
-        setIsEditing(false);
-        setPendingAutoHide(false);
-      }
+    if (
+      isSaving ||
+      awaitingValidation ||
+      !hasKey ||
+      validationStatus === "error" ||
+      Boolean(errorMessage)
+    ) {
+      setIsVisible(true);
+      setIsEditing(true);
       return;
     }
 
-    setIsEditing(true);
-    if (pendingAutoHide) setPendingAutoHide(false);
-    setInputValue("");
-  }, [hasKey, isSaving, errorMessage, pendingAutoHide, isResolved]);
+    setIsVisible(true);
+    setIsEditing(false);
+  }, [
+    awaitingValidation,
+    errorMessage,
+    hasKey,
+    isResolved,
+    isSaving,
+    validationStatus,
+  ]);
 
   useEffect(() => {
     if (!isResolved || !errorMessage) return;
     setIsVisible(true);
     setIsEditing(true);
+    setAwaitingValidation(false);
   }, [errorMessage, isResolved]);
 
   const openPanel = useCallback(() => {
     if (!isResolved) return;
     setIsVisible(true);
     setIsEditing(!hasKey);
-    setPendingAutoHide(false);
+    setAwaitingValidation(false);
   }, [hasKey, isResolved]);
 
   useEffect(() => {
@@ -107,39 +169,43 @@ export function AuthVercel(props: AuthVercel.Props) {
 
   const disableInputs = useMemo(() => {
     if (!isResolved) return true;
-    if (pendingAutoHide && !isSaving && !errorMessage) return true;
-    if (!hasKey) return isSaving;
-    if (readOnly) return true;
-    return isSaving;
-  }, [hasKey, isSaving, readOnly, isResolved, pendingAutoHide, errorMessage]);
+    if (readOnly && !isEditing) return true;
+    return isSaving || awaitingValidation;
+  }, [awaitingValidation, isEditing, isSaving, readOnly, isResolved]);
 
   const handleSave = () => {
     const trimmed = inputValue.trim();
     if (!trimmed) return;
     onSave(trimmed);
-    setInputValue("");
-    setPendingAutoHide(true);
+    setValidationBaseline({
+      status: validationStatus,
+      checkedAt: validationCheckedAt ?? null,
+    });
+    setAwaitingValidation(true);
+    setIsVisible(true);
+    setIsEditing(true);
   };
 
   const handleClear = () => {
     onClear();
     setIsVisible(true);
     setIsEditing(true);
-    setPendingAutoHide(false);
     setPendingOpen(false);
+    setAwaitingValidation(false);
+    setValidationBaseline(null);
     setInputValue("");
   };
 
   const handleUpdate = () => {
     setIsEditing(true);
-    setPendingAutoHide(false);
+    setAwaitingValidation(false);
+    setValidationBaseline(null);
     setInputValue("");
   };
 
   const handleClose = () => {
     setIsVisible(false);
     setIsEditing(false);
-    setPendingAutoHide(false);
     setPendingOpen(false);
   };
 

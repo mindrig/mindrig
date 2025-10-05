@@ -822,7 +822,7 @@ export class WorkbenchViewProvider
           void this.#publishGatewayState({ secret: normalized });
 
           const refreshPromise =
-            this.#modelsDataController?.handleSecretChanged();
+            this.#modelsDataController?.handleSecretChanged(normalized);
 
           if (refreshPromise) {
             refreshPromise

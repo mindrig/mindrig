@@ -1,15 +1,45 @@
-import { Index } from "@/app/Index";
-import { SettingsContext } from "@/aspects/settings/Context";
-import {
-  createMockVscApi,
-  postWindowMessage,
-  renderWithVsc,
-} from "@/testUtils/messages";
+import React from "react";
+import { HashRouter } from "react-router-dom";
 import { act, cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+import { Auth } from "@/app/Auth";
+import { Index } from "@/app/Index";
+import { useGatewaySecretState } from "@/app/hooks/useGatewaySecretState";
+import { SettingsContext } from "@/aspects/settings/Context";
+import {
+  clearVscMocks,
+  createMockVscApi,
+  postWindowMessage,
+  renderWithVsc,
+} from "@/testUtils/messages";
+
 vi.mock("katex/dist/katex.min.css", () => ({}));
+
+const navigationMocks = vi.hoisted(() => ({
+  goBackOrIndex: vi.fn(),
+  navigateTo: vi.fn(),
+  replaceWith: vi.fn(),
+}));
+
+const routeState = vi.hoisted(() => ({ currentRoute: "auth" as "auth" | "index" }));
+
+vi.mock("@/app/navigation", () => ({
+  useAppNavigation: () => ({
+    currentRoute: routeState.currentRoute,
+    currentPath: routeState.currentRoute === "auth" ? ("/auth" as const) : ("/" as const),
+    navigateTo: navigationMocks.navigateTo,
+    replaceWith: navigationMocks.replaceWith,
+    goBackOrIndex: navigationMocks.goBackOrIndex,
+  }),
+}));
+
+let modelsContextHelpers: {
+  setState: (partial: Partial<{ keyStatus: KeyStatus; gatewayError: string | null; retry: ReturnType<typeof vi.fn> }>) => void;
+  resetState: () => void;
+  getDefaultKeyStatus: () => KeyStatus;
+};
 
 type KeyStatus = {
   status: "idle" | "ok" | "error";
@@ -20,106 +50,115 @@ type KeyStatus = {
   checkedAt?: number;
 };
 
-interface ModelsStubState {
-  keyStatus: KeyStatus;
-  gatewayError: string | null;
-  retry: ReturnType<typeof vi.fn>;
-}
-
-const modelsStubState: ModelsStubState = {
-  keyStatus: getDefaultKeyStatus(),
-  gatewayError: null,
-  retry: vi.fn(),
+type ModelsContextModule = {
+  __setModelsState: (partial: Partial<{
+    keyStatus: KeyStatus;
+    gatewayError: string | null;
+    retry: ReturnType<typeof vi.fn>;
+  }>) => void;
+  __resetModelsState: () => void;
+  __getDefaultKeyStatus: () => KeyStatus;
 };
 
 vi.mock("@/aspects/models/Context", () => {
-  const fallbackData: Record<string, any> = {
-    openai: {
-      id: "openai",
-      name: "OpenAI",
-      models: {
-        "gpt-5": { name: "GPT-5", last_updated: "2025-01-01T00:00:00Z" },
-        "gpt-5-mini": {
-          name: "GPT-5 Mini",
-          last_updated: "2025-01-01T00:00:00Z",
-        },
-      },
-    },
+  const React = require("react");
+  const fallbackData: Record<string, any> = {};
+
+  const createInitialState = () => ({
+    keyStatus: getDefaultKeyStatus(),
+    gatewayError: null as string | null,
+    retry: vi.fn(),
+  });
+
+  let state = createInitialState();
+  const listeners = new Set<() => void>();
+
+  const subscribe = (listener: () => void) => {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
   };
 
-  const providers: Record<string, any> = {
-    openai: {
-      id: "openai",
-      name: "OpenAI",
-      models: fallbackData.openai.models,
-    },
+  const notify = () => listeners.forEach((listener) => listener());
+
+  const setState = (partial: Partial<typeof state>) => {
+    state = { ...state, ...partial };
+    notify();
   };
 
-  const modelsByProvider: Record<string, Record<string, any>> = {
-    openai: {
-      "gpt-5": { id: "gpt-5", name: "GPT-5" },
-      "gpt-5-mini": { id: "gpt-5-mini", name: "GPT-5 Mini" },
-    },
+  const resetState = () => {
+    state = createInitialState();
+    notify();
   };
 
-  const normalise = (value: string | null | undefined) =>
-    (value ?? "").toLowerCase();
+  const getSnapshot = () => state;
 
-  const stub = {
-    gateway: undefined,
-    gatewayModels: [],
-    gatewayError: null,
-    dotDev: { status: "ok", data: fallbackData } as const,
-    dotDevData: fallbackData,
-    dotDevError: null,
-    isDotDevFallback: true,
-    isLoading: false,
-    providers,
-    modelsByProvider,
-    getProvider: (providerId: string | null | undefined) =>
-      providers[normalise(providerId)],
-    getModel: (
-      providerId: string | null | undefined,
-      modelId: string | null | undefined,
-    ) => {
-      const providerKey = normalise(providerId);
-      const modelKey = normalise(modelId);
-      return modelsByProvider[providerKey]?.[modelKey];
-    },
-    getCapabilities: () => ({
-      supportsImages: false,
-      supportsVideo: false,
-      supportsFiles: false,
-      supportsTools: false,
-      supportsReasoning: false,
-    }),
-  } as const;
+  const useModels = () => {
+    const snapshot = React.useSyncExternalStore(
+      subscribe,
+      getSnapshot,
+      getSnapshot,
+    );
+
+    return {
+      gateway: undefined,
+      gatewayModels: [],
+      gatewayError: snapshot.gatewayError,
+      dotDev: undefined,
+      dotDevData: fallbackData,
+      dotDevError: null,
+      isDotDevFallback: false,
+      isLoading: false,
+      keyStatus: snapshot.keyStatus,
+      retry: snapshot.retry,
+      providers: {},
+      modelsByProvider: {},
+      getProvider: () => undefined,
+      getModel: () => undefined,
+      getCapabilities: () => ({
+        supportsImages: false,
+        supportsVideo: false,
+        supportsFiles: false,
+        supportsTools: false,
+        supportsReasoning: false,
+      }),
+    };
+  };
 
   return {
-    useModels: () => ({
-      ...stub,
-      keyStatus: modelsStubState.keyStatus,
-      gatewayError: modelsStubState.gatewayError,
-      retry: modelsStubState.retry,
-    }),
+    useModels,
+    __setModelsState: setState,
+    __resetModelsState: resetState,
+    __getDefaultKeyStatus: getDefaultKeyStatus,
   };
 });
 
-describe("vercel auth integration", () => {
+let modelsContext: ModelsContextModule;
+
+beforeAll(async () => {
+  modelsContext = (await import("@/aspects/models/Context")) as ModelsContextModule;
+});
+
+function AuthWithGatewayState() {
+  const gatewayState = useGatewaySecretState();
+  return <Auth gatewaySecretState={gatewayState} />;
+}
+
+describe("Auth route integration", () => {
   afterEach(() => {
     cleanup();
   });
 
   beforeEach(() => {
-    modelsStubState.keyStatus = getDefaultKeyStatus();
-    modelsStubState.gatewayError = null;
-    modelsStubState.retry = vi.fn();
+    modelsContext.__resetModelsState();
+    modelsContext.__setModelsState({ retry: vi.fn() });
+    navigationMocks.goBackOrIndex.mockClear();
+    navigationMocks.navigateTo.mockClear();
+    navigationMocks.replaceWith.mockClear();
+    routeState.currentRoute = "auth";
   });
 
-  test("keeps auth UI hidden until state resolves and remains hidden until requested", async () => {
-    const { mockVsc } = await renderWorkbench();
-
-    expect(screen.queryByText(/vercel gateway api key/i)).toBeNull();
+  test("shows auth form once gateway state resolves", async () => {
+    const { mockVsc } = await renderAuthRoute();
 
     await dispatchGatewayState({
       maskedKey: null,
@@ -127,35 +166,28 @@ describe("vercel auth integration", () => {
       readOnly: false,
       isSaving: false,
     });
-
-    await waitFor(() =>
-      expect(
-        screen.queryByPlaceholderText(/enter your vercel gateway api key/i),
-      ).toBeNull(),
-    );
-
-    expect(mockVsc.postMessage).not.toHaveBeenCalledWith({
-      type: "auth-vercel-gateway-set",
-      payload: expect.any(String),
-    });
-  });
-
-  test("opens on request and hides after successful verification", async () => {
-    const { mockVsc, user } = await renderWorkbench();
-
-    await dispatchGatewayState({
-      maskedKey: null,
-      hasKey: false,
-      readOnly: false,
-      isSaving: false,
-    });
-
-    await dispatchPanelOpen();
 
     const input = await screen.findByPlaceholderText(
       /enter your vercel gateway api key/i,
     );
+    expect(input).toBeVisible();
 
+    clearVscMocks(mockVsc);
+  });
+
+  test("submitting form posts auth-vercel-gateway-set and close triggers back navigation", async () => {
+    const { mockVsc, user } = await renderAuthRoute();
+
+    await dispatchGatewayState({
+      maskedKey: null,
+      hasKey: false,
+      readOnly: false,
+      isSaving: false,
+    });
+
+    const input = await screen.findByPlaceholderText(
+      /enter your vercel gateway api key/i,
+    );
     await user.type(input, "vercel_test_key");
     await user.click(screen.getByRole("button", { name: /save/i }));
 
@@ -163,23 +195,18 @@ describe("vercel auth integration", () => {
       type: "auth-vercel-gateway-set",
       payload: "vercel_test_key",
     });
-
-    await dispatchGatewayState({
-      maskedKey: "verc...23",
-      hasKey: true,
-      readOnly: false,
-      isSaving: false,
+    expect(mockVsc.postMessage).toHaveBeenCalledWith({
+      type: "models-data-get",
     });
 
-    await waitFor(() =>
-      expect(
-        screen.queryByPlaceholderText(/enter your vercel gateway api key/i),
-      ).toBeNull(),
-    );
+    const [headerClose] = screen.getAllByRole("button", { name: /close/i });
+    await user.click(headerClose);
+
+    await waitFor(() => expect(navigationMocks.goBackOrIndex).toHaveBeenCalled());
   });
 
-  test("honours pending open requests once state resolves", async () => {
-    await renderWorkbench();
+  test("auth-panel-open retriggers visibility once resolved", async () => {
+    await renderAuthRoute();
 
     await dispatchPanelOpen();
 
@@ -194,58 +221,46 @@ describe("vercel auth integration", () => {
       isSaving: false,
     });
 
-    await waitFor(() =>
-      expect(
-        screen.getByPlaceholderText(/enter your vercel gateway api key/i),
-      ).toBeVisible(),
+    const input = await screen.findByPlaceholderText(
+      /enter your vercel gateway api key/i,
     );
+    expect(input).toBeVisible();
   });
 
-  test("shows profile summary for logged-in users until closed", async () => {
-    const { user } = await renderWorkbench();
+  test("update button opens editable form even when gateway is read-only", async () => {
+    const { user } = await renderAuthRoute();
+
+    modelsContext.__setModelsState({
+      keyStatus: {
+        status: "ok",
+        message: null,
+        source: "user",
+        fallbackUsed: false,
+        userAttempted: true,
+        checkedAt: Date.now(),
+      },
+    });
 
     await dispatchGatewayState({
       maskedKey: "abcd...12",
       hasKey: true,
-      readOnly: false,
+      readOnly: true,
       isSaving: false,
     });
 
-    expect(screen.queryByText("abcd...12")).toBeNull();
-
-    await dispatchPanelOpen();
-
-    expect(await screen.findByText("abcd...12")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Close" }));
-
-    await waitFor(() => expect(screen.queryByText("abcd...12")).toBeNull());
-  });
-
-  test("clearing from masked view switches to form", async () => {
-    const { mockVsc, user } = await renderWorkbench();
-
-    await dispatchGatewayState({
-      maskedKey: "abcd...12",
-      hasKey: true,
-      readOnly: false,
-      isSaving: false,
-    });
-
-    await dispatchPanelOpen();
-
-    expect(await screen.findByText("abcd...12")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: /clear/i }));
-
-    expect(mockVsc.postMessage).toHaveBeenCalledWith({
-      type: "auth-vercel-gateway-clear",
-    });
+    const updateButton = await screen.findByRole("button", { name: /update/i });
+    await user.click(updateButton);
 
     const input = await screen.findByPlaceholderText(
       /enter your vercel gateway api key/i,
     );
     expect(input).toBeVisible();
+    expect(input).not.toBeDisabled();
+    expect(input).toHaveValue("");
+  });
+
+  test("keeps form open and surfaces error when key validation fails", async () => {
+    const { mockVsc, user } = await renderAuthRoute();
 
     await dispatchGatewayState({
       maskedKey: null,
@@ -254,9 +269,189 @@ describe("vercel auth integration", () => {
       isSaving: false,
     });
 
+    const input = await screen.findByPlaceholderText(
+      /enter your vercel gateway api key/i,
+    );
+    await user.type(input, "123");
+    await user.click(screen.getByRole("button", { name: /save/i }));
+
+    expect(mockVsc.postMessage).toHaveBeenCalledWith({
+      type: "auth-vercel-gateway-set",
+      payload: "123",
+    });
+    expect(mockVsc.postMessage).toHaveBeenCalledWith({
+      type: "models-data-get",
+    });
+
+    await dispatchGatewayState({
+      maskedKey: "123",
+      hasKey: true,
+      readOnly: false,
+      isSaving: true,
+    });
+
+    expect(screen.queryByRole("button", { name: /update/i })).toBeNull();
+
+    modelsContext.__setModelsState({
+      keyStatus: {
+        status: "error",
+        message: "Invalid key",
+        source: "user",
+        fallbackUsed: true,
+        userAttempted: true,
+        checkedAt: Date.now(),
+      },
+      gatewayError: "Failed to validate Vercel Gateway key. Please retry or update your credentials.",
+    });
+
+    await dispatchGatewayState({
+      maskedKey: "123",
+      hasKey: true,
+      readOnly: false,
+      isSaving: false,
+    });
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(/invalid key/i),
+      ).toBeVisible(),
+    );
+
     expect(
       screen.getByPlaceholderText(/enter your vercel gateway api key/i),
     ).toBeVisible();
+    expect(screen.queryByRole("button", { name: /update/i })).toBeNull();
+    expect(navigationMocks.goBackOrIndex).not.toHaveBeenCalled();
+  });
+
+  test("renders inline error when an invalid key is already stored", async () => {
+    await renderAuthRoute();
+
+    modelsContext.__setModelsState({
+      keyStatus: {
+        status: "error",
+        message: "Invalid key",
+        source: "user",
+        fallbackUsed: true,
+        userAttempted: true,
+        checkedAt: Date.now(),
+      },
+      gatewayError: "Invalid key",
+    });
+
+    await dispatchGatewayState({
+      maskedKey: "abcd...12",
+      hasKey: true,
+      readOnly: false,
+      isSaving: false,
+    });
+
+    const input = await screen.findByPlaceholderText(
+      /enter your vercel gateway api key/i,
+    );
+    expect(input).toBeVisible();
+    expect(screen.getByText(/invalid key/i)).toBeVisible();
+    expect(screen.queryByRole("button", { name: /update/i })).toBeNull();
+  });
+});
+
+describe("Index gateway warnings", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  beforeEach(() => {
+    modelsContext.__resetModelsState();
+    navigationMocks.goBackOrIndex.mockClear();
+    routeState.currentRoute = "index";
+  });
+
+  test("shows error banner when gateway key is invalid on load", async () => {
+    routeState.currentRoute = "index";
+    modelsContext.__setModelsState({
+      keyStatus: {
+        status: "error",
+        message: "Failed to validate Vercel Gateway key. Please retry or update your credentials.",
+        source: "user",
+        fallbackUsed: false,
+        userAttempted: true,
+        checkedAt: Date.now(),
+      },
+      gatewayError: "Failed to validate Vercel Gateway key. Please retry or update your credentials.",
+    });
+
+    const mockVsc = createMockVscApi();
+    window.location.hash = "#/";
+
+    renderWithVsc(
+      <SettingsContext.Provider
+        value={{ settings: { playground: { showSource: false } } }}
+      >
+        <HashRouter hashType="slash">
+          <Index
+            gatewaySecretState={{
+              maskedKey: "abcd...12",
+              hasKey: true,
+              isResolved: true,
+              readOnly: false,
+              isSaving: false,
+            }}
+          />
+        </HashRouter>
+      </SettingsContext.Provider>,
+      mockVsc,
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText(/vercel gateway error/i)).toBeVisible(),
+    );
+    expect(
+      screen.getByText(/failed to validate vercel gateway key/i),
+    ).toBeVisible();
+  });
+
+  test("shows missing key warning when no key is configured", async () => {
+    routeState.currentRoute = "index";
+    modelsContext.__setModelsState({
+      keyStatus: {
+        status: "ok",
+        message: null,
+        source: "fallback",
+        fallbackUsed: true,
+        userAttempted: false,
+        checkedAt: Date.now(),
+      },
+    });
+
+    const mockVsc = createMockVscApi();
+    window.location.hash = "#/";
+
+    renderWithVsc(
+      <SettingsContext.Provider
+        value={{ settings: { playground: { showSource: false } } }}
+      >
+        <HashRouter hashType="slash">
+          <Index
+            gatewaySecretState={{
+              maskedKey: null,
+              hasKey: false,
+              isResolved: true,
+              readOnly: false,
+              isSaving: false,
+            }}
+          />
+        </HashRouter>
+      </SettingsContext.Provider>,
+      mockVsc,
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText(/vercel gateway key missing/i)).toBeVisible(),
+    );
+    expect(
+      screen.getByText(/you are not authenticated with vercel gateway/i),
+    ).toBeVisible();
+    expect(screen.queryByText(/vercel gateway error/i)).toBeNull();
   });
 });
 
@@ -270,7 +465,7 @@ function getDefaultKeyStatus(): KeyStatus {
   };
 }
 
-async function renderWorkbench() {
+async function renderAuthRoute() {
   const mockVsc = createMockVscApi();
   const user = userEvent.setup();
 
@@ -278,7 +473,7 @@ async function renderWorkbench() {
     <SettingsContext.Provider
       value={{ settings: { playground: { showSource: false } } }}
     >
-      <Index />
+      <AuthWithGatewayState />
     </SettingsContext.Provider>,
     mockVsc,
   );

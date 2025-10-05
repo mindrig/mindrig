@@ -1166,6 +1166,18 @@ export function Assessment({
       else setExecutionState({ isLoading: false, results: [], error: null });
       setResultsLayout(data.layout ?? "vertical");
       setActiveResultIndex(data.activeResultIndex ?? 0);
+      setCollapsedResults(toNumberBooleanRecord(data.collapsedResults));
+      setCollapsedModelSettings(
+        toNumberBooleanRecord(data.collapsedModelSettings),
+      );
+      setExpandedRequest(toNumberBooleanRecord(data.requestExpanded));
+      setExpandedResponse(toNumberBooleanRecord(data.responseExpanded));
+      setViewTabs(toNumberViewTabs(data.viewTabs));
+      setStreamingEnabled(
+        typeof data.streamingEnabled === "boolean"
+          ? data.streamingEnabled
+          : true,
+      );
     } else {
       const nextVariables: Record<string, string> = {};
       prompt?.vars?.forEach((variable) => {
@@ -1184,15 +1196,15 @@ export function Assessment({
       setDatasetMode("row");
       setRangeStart("");
       setRangeEnd("");
-    setResultsLayout("vertical");
-    setActiveResultIndex(0);
+      setResultsLayout("vertical");
+      setActiveResultIndex(0);
+      setCollapsedResults({});
+      setCollapsedModelSettings({});
+      setExpandedRequest({});
+      setExpandedResponse({});
+      setViewTabs({});
+      setStreamingEnabled(true);
     }
-
-    setCollapsedResults({});
-    setCollapsedModelSettings({});
-    setViewTabs({});
-    setExpandedRequest({});
-    setExpandedResponse({});
     setIsHydrated(true);
   }, [
     promptId,
@@ -1218,6 +1230,7 @@ export function Assessment({
     setExpandedRequest,
     setExpandedResponse,
     setViewTabs,
+    setStreamingEnabled,
   ]);
 
   useEffect(() => {
@@ -1250,6 +1263,12 @@ export function Assessment({
           : undefined,
       layout: resultsLayout,
       activeResultIndex,
+      collapsedResults: { ...collapsedResults },
+      collapsedModelSettings: { ...collapsedModelSettings },
+      requestExpanded: { ...expandedRequest },
+      responseExpanded: { ...expandedResponse },
+      viewTabs: { ...viewTabs },
+      streamingEnabled,
     };
 
     persistedStateRef.current = savePromptState(promptMeta, snapshot);
@@ -1269,6 +1288,12 @@ export function Assessment({
     executionState,
     resultsLayout,
     activeResultIndex,
+    collapsedResults,
+    collapsedModelSettings,
+    expandedRequest,
+    expandedResponse,
+    viewTabs,
+    streamingEnabled,
   ]);
 
   useEffect(() => {
@@ -1733,4 +1758,33 @@ export function Assessment({
       )}
     </div>
   );
+}
+
+function toNumberBooleanRecord(
+  source: Record<string | number, boolean> | undefined,
+): Record<number, boolean> {
+  if (!source) return {};
+  return Object.entries(source).reduce<Record<number, boolean>>(
+    (acc, [key, value]) => {
+      const index = Number(key);
+      if (Number.isNaN(index)) return acc;
+      acc[index] = Boolean(value);
+      return acc;
+    },
+    {},
+  );
+}
+
+function toNumberViewTabs(
+  source: Record<string | number, "rendered" | "raw"> | undefined,
+): Record<number, "rendered" | "raw"> {
+  if (!source) return {};
+  return Object.entries(source).reduce<
+    Record<number, "rendered" | "raw">
+  >((acc, [key, value]) => {
+    const index = Number(key);
+    if (Number.isNaN(index)) return acc;
+    acc[index] = value === "raw" ? "raw" : "rendered";
+    return acc;
+  }, {});
 }
