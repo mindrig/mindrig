@@ -1,5 +1,5 @@
 import { Prompt } from "@mindrig/types";
-import { SyncFile } from "@wrkspc/vsc-sync";
+import { EditorFile } from "@wrkspc/core/editor";
 import { Assessment } from "../assessment/Assessment";
 import { PanelSection } from "../panel/Section";
 import { PromptSource } from "../prompt/Source";
@@ -7,7 +7,7 @@ import { useSettings } from "../settings/Context";
 
 export namespace Blueprint {
   export interface Props {
-    file: SyncFile.State;
+    file: EditorFile;
     prompt: Prompt;
     vercelGatewayKey: string | undefined | null;
     promptIndex: number | null;

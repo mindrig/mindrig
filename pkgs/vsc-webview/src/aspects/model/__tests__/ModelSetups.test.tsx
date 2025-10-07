@@ -1,9 +1,14 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { renderHook, act } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import type { AvailableModel } from "@/aspects/models/Context";
+import type { AvailableModel } from "@/aspects/model/Context";
 
 import {
   ModelSetups,
@@ -50,7 +55,9 @@ describe("ModelSetups", () => {
       errors: { "config-1": {} },
       expandedKey: "config-1",
       providerOptions: [{ id: "openai", label: "OpenAI" }],
-      getModelOptions: vi.fn().mockReturnValue([{ id: "gpt-4", label: "GPT-4" }]),
+      getModelOptions: vi
+        .fn()
+        .mockReturnValue([{ id: "gpt-4", label: "GPT-4" }]),
       getCapabilities: vi.fn().mockReturnValue(caps),
       onAddModel: vi.fn(),
       onRemoveModel: vi.fn(),

@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => ({
         "yjs",
         "ai",
         "@ai-sdk/gateway",
+        "mime",
+        "alwaysly",
       ],
     },
     outDir: "dist/extension",

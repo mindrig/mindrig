@@ -1,5 +1,8 @@
 import type { PromptVar } from "@mindrig/types";
-import { computeVariablesFromRow } from "@wrkspc/dataset";
+import { computeVariablesFromRow } from "@wrkspc/core/dataset";
+import { Datasource } from "@wrkspc/core/datasource";
+import { PromptArguments } from "@wrkspc/core/prompt";
+import type { Dispatch, SetStateAction } from "react";
 import {
   createContext,
   useCallback,
@@ -7,18 +10,16 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { Dispatch, SetStateAction } from "react";
 
-type InputSource = "manual" | "dataset";
 type DatasetMode = "row" | "range" | "all";
 
 export type DatasourceContextValue = {
   promptVariables: PromptVar[] | undefined | null;
-  inputSource: InputSource;
-  setInputSource: Dispatch<SetStateAction<InputSource>>;
+  inputSource: Datasource.Type;
+  setInputSource: Dispatch<SetStateAction<Datasource.Type>>;
   datasetMode: DatasetMode;
   setDatasetMode: Dispatch<SetStateAction<DatasetMode>>;
-  variables: Record<string, string>;
+  variables: PromptArguments;
   setVariables: Dispatch<SetStateAction<Record<string, string>>>;
   csvPath: string | null;
   setCsvPath: Dispatch<SetStateAction<string | null>>;
@@ -40,9 +41,8 @@ export type DatasourceContextValue = {
   csvFileLabel: string | null;
 };
 
-const AssessmentDatasourceContext = createContext<DatasourceContextValue | null>(
-  null,
-);
+const AssessmentDatasourceContext =
+  createContext<DatasourceContextValue | null>(null);
 
 interface UseAssessmentDatasourceStateOptions {
   promptVariables?: PromptVar[] | undefined | null;
@@ -53,7 +53,7 @@ export function useAssessmentDatasourceState(
   options: UseAssessmentDatasourceStateOptions = {},
 ) {
   const { promptVariables = [], onRequestCsv } = options;
-  const [inputSource, setInputSource] = useState<InputSource>("manual");
+  const [inputSource, setInputSource] = useState<Datasource.Type>("manual");
   const [datasetMode, setDatasetMode] = useState<DatasetMode>("row");
   const [variables, setVariablesState] = useState<Record<string, string>>({});
   const [csvPath, setCsvPath] = useState<string | null>(null);
@@ -169,6 +169,8 @@ export function AssessmentDatasourceProvider(props: {
 export function useAssessmentDatasource() {
   const ctx = useContext(AssessmentDatasourceContext);
   if (!ctx)
-    throw new Error("useAssessmentDatasource must be used within AssessmentDatasourceProvider");
+    throw new Error(
+      "useAssessmentDatasource must be used within AssessmentDatasourceProvider",
+    );
   return ctx;
 }

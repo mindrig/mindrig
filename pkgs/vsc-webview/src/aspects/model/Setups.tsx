@@ -1,13 +1,11 @@
-import { ModelStatusDot } from "@/aspects/assessment/components/ModelStatusDot";
-import type { ModelStatus } from "@/aspects/assessment/components/ModelStatusDot";
-import type { AvailableModel } from "@/aspects/models/Context";
+import { useModels, type AvailableModel } from "@/aspects/model/Context";
 import type {
   AttachmentInput,
   GenerationOptionsInput,
-} from "@wrkspc/model";
-import { providerFromEntry } from "@wrkspc/model";
-import { useCallback, useState } from "react";
+} from "@wrkspc/core/model";
+import { providerFromEntry } from "@wrkspc/core/model";
 import type { Dispatch, SetStateAction } from "react";
+import { useCallback, useState } from "react";
 
 import { ModelSetup } from "./Setup";
 
@@ -57,7 +55,7 @@ export interface UseModelSetupsStateOptions {
   models: AvailableModel[];
   providerOptions: ProviderOption[];
   groupedModelsByProvider: Record<string, ModelOption[]>;
-  normaliseProviderId: (value: string | null | undefined) => string;
+  normaliseProviderId: (value: string | undefined | null) => string;
 }
 
 export interface ModelSetupsState {
@@ -111,14 +109,15 @@ function createInitialConfig(
   preferredModelId?: string | null,
 ): ModelConfig {
   const fallbackModel = preferredModelId
-    ? models.find((model) => model.id === preferredModelId) ?? null
-    : models[0] ?? null;
+    ? (models.find((model) => model.id === preferredModelId) ?? null)
+    : (models[0] ?? null);
   const providerId = fallbackModel
     ? normaliseProviderId(providerFromEntry(fallbackModel))
-    : providerOptions[0]?.id ?? null;
+    : (providerOptions[0]?.id ?? null);
   const candidateModels =
     groupedModelsByProvider[providerId ?? ""] ?? groupedModelsByProvider[""];
-  const modelId = fallbackModel?.id ?? preferredModelId ?? candidateModels?.[0]?.id ?? null;
+  const modelId =
+    fallbackModel?.id ?? preferredModelId ?? candidateModels?.[0]?.id ?? null;
   const label = fallbackModel?.name ?? fallbackModel?.id ?? null;
 
   return {
@@ -141,8 +140,12 @@ function createInitialConfig(
 export function useModelSetupsState(
   options: UseModelSetupsStateOptions,
 ): ModelSetupsState {
-  const { models, providerOptions, groupedModelsByProvider, normaliseProviderId } =
-    options;
+  const {
+    models,
+    providerOptions,
+    groupedModelsByProvider,
+    normaliseProviderId,
+  } = options;
 
   const [configs, setConfigs] = useState<ModelConfig[]>(() => []);
   const [errors, setErrors] = useState<Record<string, ModelConfigErrors>>({});
@@ -173,12 +176,7 @@ export function useModelSetupsState(
       setErrors((prev) => ({ ...prev, [config.key]: {} }));
       return config;
     },
-    [
-      models,
-      providerOptions,
-      normaliseProviderId,
-      groupedModelsByProvider,
-    ],
+    [models, providerOptions, normaliseProviderId, groupedModelsByProvider],
   );
 
   const removeConfig = useCallback((key: string) => {
@@ -186,7 +184,7 @@ export function useModelSetupsState(
       if (prev.length <= 1) return prev;
       const next = prev.filter((config) => config.key !== key);
       setExpandedKey((current) =>
-        current === key ? next[0]?.key ?? null : current,
+        current === key ? (next[0]?.key ?? null) : current,
       );
       return next;
     });
@@ -226,7 +224,8 @@ export function useModelSetupsState(
         providerId: normalised,
         modelId: nextModelId,
         label: nextModelId
-          ? list.find((entry) => entry.id === nextModelId)?.label ?? nextModelId
+          ? (list.find((entry) => entry.id === nextModelId)?.label ??
+            nextModelId)
           : null,
       }));
       updateErrors(key, { provider: null, model: null });
@@ -248,7 +247,9 @@ export function useModelSetupsState(
     [models, updateConfig, updateErrors],
   );
 
-  const updateGenerationOption = useCallback<ModelSetupsState["updateGenerationOption"]>(
+  const updateGenerationOption = useCallback<
+    ModelSetupsState["updateGenerationOption"]
+  >(
     (key, field, value) => {
       updateConfig(key, (config) => {
         const next = { ...config.generationOptions } as Record<string, any>;
@@ -315,15 +316,9 @@ export function useModelSetupsState(
 }
 
 export interface ModelSetupsProps {
-  status: ModelStatus;
-  modelsLoading: boolean;
-  modelsError: string | null;
   configs: ModelConfig[];
   errors: Record<string, ModelConfigErrors>;
   expandedKey: string | null;
-  providerOptions: ProviderOption[];
-  getModelOptions: (providerId: string | null) => ModelOption[];
-  getCapabilities: (config: ModelConfig | null) => ModelCapabilities;
   onAddModel: () => void;
   onRemoveModel: (key: string) => void;
   onToggleExpand: (key: string | null) => void;
@@ -340,15 +335,10 @@ export interface ModelSetupsProps {
 
 export function ModelSetups(props: ModelSetupsProps) {
   const {
-    status,
-    modelsLoading,
-    modelsError,
     configs,
     errors,
     expandedKey,
-    providerOptions,
-    getModelOptions,
-    getCapabilities,
+
     onAddModel,
     onRemoveModel,
     onToggleExpand,
@@ -363,6 +353,8 @@ export function ModelSetups(props: ModelSetupsProps) {
     addDisabled,
   } = props;
 
+  const models = useModels();
+
   const buttonLabel = configs.length > 1 ? "Add model" : "Multi model";
 
   return (
@@ -370,8 +362,8 @@ export function ModelSetups(props: ModelSetupsProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h4 className="text-sm font-semibold">Model</h4>
-          <ModelStatusDot status={status} />
         </div>
+
         <button
           type="button"
           onClick={onAddModel}
@@ -381,15 +373,7 @@ export function ModelSetups(props: ModelSetupsProps) {
           {buttonLabel}
         </button>
       </div>
-      {modelsError && <div className="text-xs">{modelsError}</div>}
-      {modelsLoading && configs.length === 0 && (
-        <div className="text-xs">Loading models…</div>
-      )}
-      {configs.length === 0 && !modelsLoading && (
-        <div className="text-xs">
-          No models available. Provide gateway credentials to load models.
-        </div>
-      )}
+
       <div className="space-y-3">
         {configs.map((config) => {
           const caps = getCapabilities(config);

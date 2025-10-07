@@ -1,4 +1,4 @@
-import type { AvailableModel } from "@/aspects/models/Context";
+import type { AvailableModel } from "@/aspects/model/Context";
 
 export interface PricingInfoProps {
   usage: any;

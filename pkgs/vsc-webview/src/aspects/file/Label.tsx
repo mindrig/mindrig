@@ -1,10 +1,10 @@
-import { SyncFile } from "@wrkspc/vsc-sync";
+import { EditorFile } from "@wrkspc/core/editor";
 import { LanguageIcon } from "../language/Icon";
 import { FileNameLabel } from "./NameLabel";
 
 export namespace FileLabel {
   export interface Props {
-    file: SyncFile.State;
+    file: EditorFile;
     isPinned: boolean;
   }
 }

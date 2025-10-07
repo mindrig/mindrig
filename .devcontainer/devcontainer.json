@@ -56,7 +56,8 @@
         "oxc.oxc-vscode",
         "bradlc.vscode-tailwindcss",
         "vitest.explorer",
-        "zoma.vscode-auto-open-workspace"
+        "zoma.vscode-auto-open-workspace",
+        "bierner.markdown-mermaid"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",

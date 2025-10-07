@@ -1,8 +1,9 @@
 import type { PromptVar } from "@mindrig/types";
+import { PromptArguments } from "@wrkspc/core/prompt";
 
 export interface DatasourceVariablesProps {
   promptVariables: PromptVar[] | undefined | null;
-  variables: Record<string, string>;
+  variables: PromptArguments;
   onVariableChange: (name: string, value: string) => void;
 }
 

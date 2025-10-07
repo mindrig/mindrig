@@ -1,5 +1,5 @@
-import type { AvailableModel } from "@/aspects/models/Context";
 import type { RunResult } from "@/aspects/assessment/types";
+import type { AvailableModel } from "@/aspects/model/Context";
 
 import { PricingInfo } from "./PricingInfo";
 import { ResultMessages } from "./ResultMessages";
@@ -122,7 +122,9 @@ export function Result(props: ResultProps) {
             <div className="space-y-2">
               <h5 className="text-sm font-medium">Error</h5>
               <div className="p-3 rounded border">
-                <pre className="text-sm whitespace-pre-wrap">{result.error}</pre>
+                <pre className="text-sm whitespace-pre-wrap">
+                  {result.error}
+                </pre>
               </div>
             </div>
           )}

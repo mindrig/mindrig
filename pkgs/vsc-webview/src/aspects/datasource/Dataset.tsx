@@ -1,15 +1,15 @@
-export type DatasetMode = "row" | "range" | "all";
+import { DatasetSelection } from "@wrkspc/core/dataset";
 
 export interface DatasourceDatasetProps {
   usingCsv: boolean;
   csvFileLabel: string | null;
   csvRows: string[][];
   headers: string[] | null;
-  datasetMode: DatasetMode;
+  datasetMode: DatasetSelection.Type;
   selectedRowIdx: number | null;
   rangeStart: string;
   rangeEnd: string;
-  onDatasetModeChange: (mode: DatasetMode) => void;
+  onDatasetModeChange: (mode: DatasetSelection.Type) => void;
   onSelectRow: (index: number | null) => void;
   onRangeStartChange: (value: string) => void;
   onRangeEndChange: (value: string) => void;
@@ -126,8 +126,9 @@ export function DatasourceDataset(props: DatasourceDatasetProps) {
                   const label = headers
                     ? headers
                         .slice(0, Math.min(headers.length, 5))
-                        .map((header, headerIdx) =>
-                          `${header}=${row[headerIdx] ?? ""}`,
+                        .map(
+                          (header, headerIdx) =>
+                            `${header}=${row[headerIdx] ?? ""}`,
                         )
                         .join(", ")
                     : row.slice(0, 5).join(", ");

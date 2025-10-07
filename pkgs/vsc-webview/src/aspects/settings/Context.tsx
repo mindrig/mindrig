@@ -1,10 +1,10 @@
-import { VscSettings } from "@wrkspc/vsc-settings";
+import { useListenMessage } from "@/aspects/message/Context";
+import { Settings } from "@wrkspc/core/settings";
 import { createContext, useContext, useState } from "react";
-import { useOn } from "@/aspects/message/messageContext";
 
 export namespace SettingsContext {
   export interface Value {
-    settings: VscSettings;
+    settings: Settings;
   }
 }
 
@@ -13,15 +13,13 @@ export const SettingsContext = createContext<SettingsContext.Value | undefined>(
 );
 
 export function SettingsProvider(props: React.PropsWithChildren) {
-  const [settings, setSettings] = useState<VscSettings>(
+  const [settings, setSettings] = useState<Settings>(
     window.initialState?.settings || {},
   );
 
-  useOn(
-    "settings-update",
-    (message) => {
-      setSettings(message.payload);
-    },
+  useListenMessage(
+    "settings-ext-update",
+    (message) => setSettings(message.payload),
     [setSettings],
   );
 

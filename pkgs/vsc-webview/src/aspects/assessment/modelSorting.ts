@@ -53,11 +53,11 @@ export const OFFLINE_MODEL_RECOMMENDATIONS: Record<
 
 export const DYNAMIC_RECOMMENDATION_WEIGHTS = [100, 95, 90];
 
-export function normaliseProviderId(value: string | null | undefined): string {
+export function normaliseProviderId(value: string | undefined | null): string {
   return (value ?? "").toLowerCase();
 }
 
-export function modelKeyFromId(id: string | null | undefined): string {
+export function modelKeyFromId(id: string | undefined | null): string {
   if (!id) return "";
   return id.split("/").pop()?.toLowerCase() ?? id.toLowerCase();
 }

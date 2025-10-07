@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { SyncFile } from "@wrkspc/vsc-sync";
 
+import { EditorFile } from "@wrkspc/core/editor";
 import { FileLabel } from "./Label";
 
 const meta = {
@@ -45,7 +45,7 @@ export const LongPath: Story = {
   },
 };
 
-function syncFile(overrides: Partial<SyncFile.State> = {}): SyncFile.State {
+function syncFile(overrides: Partial<EditorFile> = {}): EditorFile {
   return {
     path: "/wrkspc/project/src/index.ts",
     content: 'export const title = "Mind Rig Storybook sample";\n',

@@ -2,9 +2,9 @@
 
 import * as fs from "fs/promises";
 import * as path from "path";
-import { workbenchWebviewHtml } from "../../src/WorkbenchView/html";
+import { webviewHtml } from "../../src/aspects/webview/html";
 
-const html = workbenchWebviewHtml({
+const html = webviewHtml({
   uris: {
     app: "/src/index.tsx",
     reactRefresh: "/@react-refresh",

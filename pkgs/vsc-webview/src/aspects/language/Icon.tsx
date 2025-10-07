@@ -1,5 +1,5 @@
+import { Language } from "@wrkspc/core/lang";
 import { iconBaseCn, iconInlineCn } from "@wrkspc/ds";
-import { Language } from "@wrkspc/lang";
 import { cn } from "crab";
 
 export namespace LanguageIcon {

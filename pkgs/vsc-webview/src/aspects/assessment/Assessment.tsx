@@ -1,20 +1,35 @@
-import { useMessage, useOn } from "@/aspects/message/messageContext";
-import { useModels } from "@/aspects/models/Context";
+import { DatasourceSelector } from "@/aspects/datasource/Selector";
+import { useMessages } from "@/aspects/message/Context";
+import { useModels } from "@/aspects/model/Context";
+import {
+  ModelSetups,
+  useModelSetupsState,
+  type ModelConfig,
+  type ModelConfigErrors,
+  type ProviderOption as ModelProviderOption,
+  type ModelOption as ModelSelectorOption,
+} from "@/aspects/model/Setups";
+import { Results } from "@/aspects/result";
 import type { Prompt } from "@mindrig/types";
-import { buildRunsAndSettings } from "@wrkspc/dataset";
-import type { AttachmentInput, GenerationOptionsInput } from "@wrkspc/model";
+import { buildRunsAndSettings } from "@wrkspc/core/dataset";
+import type {
+  VscMessageAttachment,
+  VscMessageDataset,
+  VscMessagePromptRun,
+} from "@wrkspc/core/message";
+import type { AttachmentInput } from "@wrkspc/core/model";
 import {
   selectedModelCapabilities as capsForEntry,
   filterAttachmentsForCapabilities,
   mergeProviderOptionsWithReasoning,
   providerFromEntry,
-} from "@wrkspc/model";
-import { extractPromptText } from "@wrkspc/prompt";
-import type {
-  VscMessageAttachments,
-  VscMessageDataset,
-  VscMessagePromptRun,
-} from "@wrkspc/vsc-message";
+} from "@wrkspc/core/model";
+import { extractPromptText } from "@wrkspc/core/prompt";
+import {
+  PromptRunResultCompletedPayload,
+  PromptRunStartedPayload,
+  PromptRunUpdatePayload,
+} from "@wrkspc/core/promptRun";
 import {
   useCallback,
   useEffect,
@@ -24,8 +39,22 @@ import {
   useState,
 } from "react";
 import { parseString as parseCsvString } from "smolcsv";
-import type { ModelStatus } from "./components/ModelStatusDot";
-import type { AvailableModel } from "@/aspects/models/Context";
+import {
+  appendTextChunk,
+  createEmptyStreamingState,
+  type AssessmentStreamingResult,
+  type AssessmentStreamingState,
+} from "../promptRun/streaming";
+import { useStoreState } from "../store/hooks";
+import {
+  AssessmentDatasourceProvider,
+  useAssessmentDatasourceState,
+} from "./hooks/useAssessmentDatasource";
+import type { ResultsContextValue } from "./hooks/useAssessmentResultsView";
+import {
+  AssessmentResultsProvider,
+  useAssessmentResultsViewState,
+} from "./hooks/useAssessmentResultsView";
 import type { ProviderModelWithScore } from "./modelSorting";
 import {
   compareProviderModelEntries,
@@ -41,39 +70,10 @@ import {
   PersistedPromptState,
   PlaygroundState,
   PromptMeta,
-  ResultsLayout,
   savePromptState,
 } from "./persistence";
-import {
-  appendTextChunk,
-  createEmptyStreamingState,
-  type AssessmentStreamingResult,
-  type AssessmentStreamingState,
-  type StreamingRunCompleted,
-  type StreamingRunError,
-  type StreamingRunResultCompleted,
-  type StreamingRunStarted,
-  type StreamingRunUpdate,
-} from "./streamingTypes";
 import { AssessmentRun } from "./Run";
 import type { RunResult } from "./types";
-import { AssessmentDatasourceProvider, useAssessmentDatasourceState } from "./hooks/useAssessmentDatasource";
-import {
-  AssessmentResultsProvider,
-  useAssessmentResultsViewState,
-} from "./hooks/useAssessmentResultsView";
-import type { ResultsContextValue } from "./hooks/useAssessmentResultsView";
-import { Results } from "@/aspects/result";
-import {
-  ModelSetups,
-  type ModelCapabilities,
-  type ModelConfig,
-  type ModelConfigErrors,
-  type ModelOption as ModelSelectorOption,
-  type ProviderOption as ModelProviderOption,
-  useModelSetupsState,
-} from "@/aspects/model/Setups";
-import { DatasourceSelector } from "@/aspects/datasource/Selector";
 
 interface ExecutionState {
   isLoading: boolean;
@@ -98,19 +98,19 @@ function providerLabel(providerId: string): string {
 export namespace Assessment {
   export interface Props {
     prompt: Prompt | undefined;
-    vercelGatewayKey: string | undefined | null;
     fileContent?: string | undefined;
     promptIndex?: number | null;
   }
 }
 
-export function Assessment({
+export { AssessmentComponent as Assessment };
+
+function AssessmentComponent({
   prompt,
-  vercelGatewayKey,
   fileContent,
   promptIndex = null,
 }: Assessment.Props) {
-  const { send } = useMessage();
+  const { send, useListen } = useMessages();
   const attachmentTargetKeyRef = useRef<string | null>(null);
 
   const [executionState, setExecutionState] = useState<ExecutionState>({
@@ -120,13 +120,12 @@ export function Assessment({
   });
   const [streamingState, setStreamingState] =
     useState<AssessmentStreamingState>(() => createEmptyStreamingState());
-  const [streamingEnabled, setStreamingEnabled] = useState(true);
   const [isStopping, setIsStopping] = useState(false);
   const activeRunIdRef = useRef<string | null>(null);
   const promptVariables = useMemo(() => prompt?.vars ?? [], [prompt]);
   const datasourceState = useAssessmentDatasourceState({
     promptVariables,
-    onRequestCsv: () => send({ type: "dataset-csv-request" }),
+    onRequestCsv: () => send({ type: "dataset-wv-csv-request" }),
   });
   const {
     inputSource,
@@ -312,54 +311,49 @@ export function Assessment({
   const persistedStateRef = useRef<PersistedPromptState | undefined>(undefined);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  const {
-    gateway,
-    gatewayModels,
-    gatewayError,
-    dotDevError,
-    isDotDevFallback: modelsDevFallback,
-    isLoading: modelsLoading,
-    providers: modelsDevProviders,
-    modelsByProvider,
-    getModel: getModelsDevMeta,
-  } = useModels();
-  const modelsDevLoading = modelsLoading;
+  // const {
+  //   // gateway,
+  //   // gatewayModels,
+  //   // gatewayError,
+  //   // dotDevError,
+  //   // isDotDevFallback: modelsDevFallback,
+  //   // isLoading: modelsLoading,
+  //   // providers: modelsDevProviders,
+  //   // modelsByProvider,
+  //   // getModel: getModelsDevMeta,
+  // } = useModels();
 
-  const manualModelFallback = useMemo<AvailableModel[]>(() => {
-    return Object.entries(OFFLINE_MODEL_RECOMMENDATIONS).flatMap(
-      ([providerId, entries]) =>
-        Object.keys(entries).map((modelId) => {
-          const meta = getModelsDevMeta(providerId, modelId) as
-            | { name?: string }
-            | undefined;
-          return {
-            id: modelId,
-            name: meta?.name ?? modelId,
-            specification: { provider: providerId },
-          };
-        }),
-    );
-  }, [getModelsDevMeta]);
+  // const manualModelFallback = useMemo<AvailableModel[]>(() => {
+  //   return Object.entries(OFFLINE_MODEL_RECOMMENDATIONS).flatMap(
+  //     ([providerId, entries]) =>
+  //       Object.keys(entries).map((modelId) => {
+  //         const meta = getModelsDevMeta(providerId, modelId) as
+  //           | { name?: string }
+  //           | undefined;
+  //         return {
+  //           id: modelId,
+  //           name: meta?.name ?? modelId,
+  //           specification: { provider: providerId },
+  //         };
+  //       }),
+  //   );
+  // }, [getModelsDevMeta]);
 
-  const models = useMemo<AvailableModel[]>(() => {
-    if (gatewayModels && gatewayModels.length > 0) return gatewayModels;
-    return manualModelFallback;
-  }, [gatewayModels, manualModelFallback]);
+  // const models = useMemo<AvailableModel[]>(() => {
+  //   if (gatewayModels && gatewayModels.length > 0) return gatewayModels;
+  //   return manualModelFallback;
+  // }, [gatewayModels, manualModelFallback]);
 
-  const modelsError = useMemo(() => {
-    if (gateway?.response.status === "error") return gateway.response.message;
-    return null;
-  }, [gateway]);
+  // const modelsError = useMemo(() => {
+  //   if (gateway?.response.status === "error") return gateway.response.message;
+  //   return null;
+  // }, [gateway]);
 
-  const modelStatus = useMemo<ModelStatus>(() => {
-    if (gateway?.response.status === "error" || dotDevError) return "error";
-    if (modelsLoading) return "loading";
-    return "success";
-  }, [dotDevError, gateway, modelsLoading]);
-
-  useEffect(() => {
-    send({ type: "settings-streaming-get" });
-  }, [send]);
+  // const modelStatus = useMemo<ModelStatus>(() => {
+  //   if (gateway?.response.status === "error" || dotDevError) return "error";
+  //   if (modelsLoading) return "loading";
+  //   return "success";
+  // }, [dotDevError, gateway, modelsLoading]);
 
   useEffect(() => {
     if (resultsLayout !== "vertical") setCollapsedResults({});
@@ -370,7 +364,7 @@ export function Assessment({
     : null;
 
   const handleRunStarted = useCallback(
-    (payload: StreamingRunStarted) => {
+    (payload: PromptRunStartedPayload) => {
       if (payload.promptId !== promptId) return;
 
       activeRunIdRef.current = payload.runId;
@@ -422,7 +416,7 @@ export function Assessment({
   );
 
   const handleRunUpdate = useCallback(
-    (payload: StreamingRunUpdate) => {
+    (payload: PromptRunUpdatePayload) => {
       if (payload.promptId !== promptId) return;
       if (activeRunIdRef.current && payload.runId !== activeRunIdRef.current)
         return;
@@ -455,7 +449,7 @@ export function Assessment({
   );
 
   const handleRunCompleted = useCallback(
-    (payload: StreamingRunCompleted) => {
+    (payload: VscMessagePromptRun.ExtCompletePayload) => {
       if (payload.promptId !== promptId) return;
       if (activeRunIdRef.current && payload.runId !== activeRunIdRef.current)
         return;
@@ -542,7 +536,7 @@ export function Assessment({
   );
 
   const handleRunResultCompleted = useCallback(
-    (payload: StreamingRunResultCompleted) => {
+    (payload: PromptRunResultCompletedPayload) => {
       if (payload.promptId !== promptId) return;
 
       updateStreamingState((prev) => {
@@ -603,7 +597,7 @@ export function Assessment({
   );
 
   const handleRunError = useCallback(
-    (payload: StreamingRunError) => {
+    (payload: VscMessagePromptRun.ExtErrorPayload) => {
       if (payload.promptId !== promptId) return;
 
       if (payload.resultId) {
@@ -656,7 +650,7 @@ export function Assessment({
   );
 
   const handleExecutionResult = useCallback(
-    (payload: VscMessagePromptRun.ExecutionResult["payload"]) => {
+    (payload: VscMessagePromptRun.ExtExecutionResult["payload"]) => {
       if (payload.promptId !== promptId) return;
 
       const timestamp = payload.timestamp || Date.now();
@@ -743,61 +737,57 @@ export function Assessment({
     ],
   );
 
-  useOn(
-    "prompt-run-start",
+  useListen(
+    "prompt-run-ext-start",
     (message) => {
       handleRunStarted(message.payload);
     },
     [handleRunStarted],
   );
 
-  useOn(
-    "prompt-run-update",
+  useListen(
+    "prompt-run-ext-update",
     (message) => {
       handleRunUpdate(message.payload);
     },
     [handleRunUpdate],
   );
 
-  useOn(
-    "prompt-run-complete",
+  useListen(
+    "prompt-run-ext-complete",
     (message) => {
       handleRunCompleted(message.payload);
     },
     [handleRunCompleted],
   );
 
-  useOn(
-    "prompt-run-error",
+  useListen(
+    "prompt-run-ext-error",
     (message) => {
       handleRunError(message.payload);
     },
     [handleRunError],
   );
 
-  useOn(
-    "prompt-run-result-complete",
+  useListen(
+    "prompt-run-ext-result-complete",
     (message) => {
       handleRunResultCompleted(message.payload);
     },
     [handleRunResultCompleted],
   );
 
-  useOn(
-    "prompt-run-execution-result",
+  useListen(
+    "prompt-run-ext-execution-result",
     (message) => {
       handleExecutionResult(message.payload);
     },
     [handleExecutionResult],
   );
 
-  useOn(
-    "settings-streaming-state",
-    (message) => {
-      const enabledRaw = message.payload.enabled;
-      setStreamingEnabled(typeof enabledRaw === "boolean" ? enabledRaw : true);
-    },
-    [setStreamingEnabled],
+  const [streamingEnabled, setStreamingEnabled] = useStoreState(
+    "global",
+    "playground.streaming",
   );
 
   const handleStop = useCallback(() => {
@@ -808,19 +798,8 @@ export function Assessment({
       null;
     if (!runId || isStopping) return;
     setIsStopping(true);
-    send({ type: "prompt-run-stop", payload: { runId } });
+    send({ type: "prompt-run-vw-stop", payload: { runId } });
   }, [executionState.runId, isStopping, send, streamingState.runId]);
-
-  const handleStreamingToggle = useCallback(
-    (enabled: boolean) => {
-      setStreamingEnabled(enabled);
-      send({
-        type: "settings-streaming-set",
-        payload: { enabled },
-      });
-    },
-    [send],
-  );
 
   const promptSource = useMemo(
     () => (prompt ? extractPromptText(fileContent, prompt) : ""),
@@ -865,7 +844,9 @@ export function Assessment({
     });
   }, [models, modelsDevProviders]);
 
-  const groupedModelsByProvider = useMemo<Record<string, ModelSelectorOption[]>>(() => {
+  const groupedModelsByProvider = useMemo<
+    Record<string, ModelSelectorOption[]>
+  >(() => {
     const grouped: Record<string, ProviderModelWithScore[]> = {};
 
     for (const model of models) {
@@ -957,7 +938,7 @@ export function Assessment({
   }, [modelConfigs, activeModelKey]);
 
   const getModelEntry = useCallback(
-    (config: ModelConfig | null | undefined) => {
+    (config: ModelConfig | undefined | null) => {
       if (!config?.modelId) return undefined;
       return models.find((model) => model.id === config.modelId);
     },
@@ -965,7 +946,7 @@ export function Assessment({
   );
 
   const getModelCapabilities = useCallback(
-    (config: ModelConfig | null | undefined) => {
+    (config: ModelConfig | undefined | null) => {
       const entry = getModelEntry(config);
       if (!entry)
         return {
@@ -985,7 +966,7 @@ export function Assessment({
     async (
       payload: Extract<
         VscMessageDataset,
-        { type: "dataset-csv-load" }
+        { type: "dataset-ext-csv-content" }
       >["payload"],
     ) => {
       if (payload.status === "error") {
@@ -994,7 +975,7 @@ export function Assessment({
       }
 
       try {
-        const rows = await parseCsvString(payload.content);
+        const rows = await parseCsvString(payload.base64);
         if (!rows || rows.length === 0) {
           setCsvHeader(null);
           setCsvRows([]);
@@ -1021,8 +1002,8 @@ export function Assessment({
   const handleAttachmentsLoad = useCallback(
     (
       payload: Extract<
-        VscMessageAttachments,
-        { type: "attachments-load" }
+        VscMessageAttachment,
+        { type: "attachment-ext-content" }
       >["payload"],
     ) => {
       if (payload.status === "error") {
@@ -1035,7 +1016,7 @@ export function Assessment({
         path: item.path,
         name: item.name,
         mime: item.mime,
-        dataBase64: item.dataBase64,
+        base64: item.base64,
       }));
 
       const targetKey =
@@ -1053,16 +1034,16 @@ export function Assessment({
     [activeModelKey, modelConfigs, updateModelConfig],
   );
 
-  useOn(
-    "dataset-csv-load",
+  useListen(
+    "dataset-ext-csv-content",
     (message) => {
       void handleDatasetLoad(message.payload);
     },
     [handleDatasetLoad],
   );
 
-  useOn(
-    "attachments-load",
+  useListen(
+    "attachment-ext-content",
     (message) => {
       handleAttachmentsLoad(message.payload);
     },
@@ -1075,7 +1056,7 @@ export function Assessment({
       const caps = getModelCapabilities(config);
       attachmentTargetKeyRef.current = config.key;
       send({
-        type: "attachments-request",
+        type: "attachment-wv-request",
         payload: { imagesOnly: caps.supportsImages && !caps.supportsFiles },
       });
     },
@@ -1302,13 +1283,7 @@ export function Assessment({
     if (modelConfigs.length > 0) return;
     if (models.length === 0) return;
     addConfig(models[0]?.id ?? null);
-  }, [
-    isHydrated,
-    modelsLoading,
-    modelConfigs.length,
-    models,
-    addConfig,
-  ]);
+  }, [isHydrated, modelsLoading, modelConfigs.length, models, addConfig]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -1330,12 +1305,7 @@ export function Assessment({
       };
     });
     if (hasChange) replaceAllConfigs(next);
-  }, [
-    isHydrated,
-    models,
-    modelConfigs,
-    replaceAllConfigs,
-  ]);
+  }, [isHydrated, models, modelConfigs, replaceAllConfigs]);
 
   const headersToUse = useMemo(() => {
     if (!usingCsv) return null;
@@ -1510,23 +1480,23 @@ export function Assessment({
         providerOptions: model.providerOptions ?? null,
         reasoning: model.reasoning,
         attachments: model.filteredAttachments.map(
-          ({ name, mime, dataBase64 }) => ({
+          ({ name, mime, base64 }) => ({
             name: name ?? "",
             mime: mime ?? "application/octet-stream",
-            dataBase64: dataBase64 ?? "",
+            base64: base64 ?? "",
           }),
         ),
       })),
     };
 
-    send({ type: "prompt-run-execute", payload });
+    send({ type: "prompt-run-wv-execute", payload });
   };
 
   const handleExecuteRef = useRef<() => void>(() => {});
   handleExecuteRef.current = handleExecute;
 
-  useOn(
-    "prompts-execute-from-command",
+  useListen(
+    "prompts-ext-execute-from-command",
     () => {
       handleExecuteRef.current();
     },
@@ -1691,12 +1661,12 @@ export function Assessment({
     setActiveResultIndex,
   ]);
 
+  const { gateway, dotdev } = useModels();
+  const modelsLoading = !gateway.response && !dotdev.response;
+
   return !prompt ? null : (
     <div className="flex flex-col gap-2">
       <ModelSetups
-        status={modelStatus}
-        modelsLoading={modelsLoading}
-        modelsError={modelsError}
         configs={modelConfigs}
         errors={modelErrors}
         expandedKey={expandedModelKey}
@@ -1718,7 +1688,7 @@ export function Assessment({
           )
         }
         onClearAttachments={clearAttachments}
-        addDisabled={modelsLoading && models.length === 0}
+        addDisabled={modelsLoading}
       />
 
       <AssessmentDatasourceProvider value={datasourceContextValue}>
@@ -1739,7 +1709,7 @@ export function Assessment({
         onExecute={handleExecute}
         onStop={handleStop}
         onClear={handleClear}
-        onStreamingToggle={handleStreamingToggle}
+        onStreamingToggle={setStreamingEnabled}
       />
 
       <AssessmentResultsProvider value={resultsContextValue}>
@@ -1779,12 +1749,13 @@ function toNumberViewTabs(
   source: Record<string | number, "rendered" | "raw"> | undefined,
 ): Record<number, "rendered" | "raw"> {
   if (!source) return {};
-  return Object.entries(source).reduce<
-    Record<number, "rendered" | "raw">
-  >((acc, [key, value]) => {
-    const index = Number(key);
-    if (Number.isNaN(index)) return acc;
-    acc[index] = value === "raw" ? "raw" : "rendered";
-    return acc;
-  }, {});
+  return Object.entries(source).reduce<Record<number, "rendered" | "raw">>(
+    (acc, [key, value]) => {
+      const index = Number(key);
+      if (Number.isNaN(index)) return acc;
+      acc[index] = value === "raw" ? "raw" : "rendered";
+      return acc;
+    },
+    {},
+  );
 }

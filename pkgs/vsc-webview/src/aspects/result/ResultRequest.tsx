@@ -3,7 +3,7 @@ import JsonView from "@uiw/react-json-view";
 import { shouldExpandNodeInitially } from "./jsonUtils";
 
 export interface ResultRequestProps {
-  request: object | null | undefined;
+  request: object | undefined | null;
   expanded: boolean;
   onToggle: () => void;
 }

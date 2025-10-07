@@ -1,0 +1,143 @@
+import { Manager } from "@/aspects/manager/Manager.js";
+import { Page } from "@wrkspc/core/page";
+import * as vscode from "vscode";
+import { AttachmentsManager } from "../attachment/Manager";
+import { AuthManager } from "../auth/Manager";
+import { DatasetsManager } from "../dataset/Manager";
+import { EditorManager } from "../editor/Manager";
+import { EditorStateManager } from "../editor/StateManager";
+import { MessagesManager } from "../message/Manager";
+import { ModelsDotdevManager } from "../model/DotdevManager";
+import { ModelsGatewayManager } from "../model/GatewayManager";
+import { PageManager } from "../page/Manager";
+import { PromptsManager } from "../prompt/Manager";
+import { PromptRunManager } from "../promptRun/Manager";
+import { SecretsManager } from "../secret/Manager";
+import { SettingsManager } from "../settings/Manager";
+import { StoreManager } from "../store/Manager";
+import { WebviewHtmlManager } from "./HtmlManager";
+
+export namespace WebviewManager {
+  export interface Props {
+    view: vscode.WebviewView;
+    context: vscode.ExtensionContext;
+  }
+}
+
+export class WebviewManager extends Manager {
+  #view: vscode.WebviewView;
+  #context: vscode.ExtensionContext;
+  #messages: MessagesManager;
+  #settings: SettingsManager;
+  #secrets: SecretsManager;
+  #auth: AuthManager;
+  #editorState: EditorStateManager;
+  #gatewayModels: ModelsGatewayManager;
+  #dotdevModels: ModelsDotdevManager;
+  #store: StoreManager;
+  #editor: EditorManager;
+  #prompts: PromptsManager;
+  #promptRun: PromptRunManager;
+  #datasets: DatasetsManager;
+  #attachments: AttachmentsManager;
+  #page: PageManager;
+  #html: WebviewHtmlManager;
+
+  constructor(parent: Manager, props: WebviewManager.Props) {
+    super(parent);
+
+    this.#view = props.view;
+    this.#context = props.context;
+
+    this.#messages = new MessagesManager(this, {
+      webview: this.#view.webview,
+    });
+
+    this.#secrets = new SecretsManager(this, {
+      storage: this.#context.secrets,
+    });
+
+    this.#auth = new AuthManager(this, {
+      secrets: this.#secrets,
+      messages: this.#messages,
+    });
+
+    this.#settings = new SettingsManager(this, {
+      messages: this.#messages,
+    });
+
+    this.#store = new StoreManager(this, {
+      context: this.#context,
+      messages: this.#messages,
+    });
+
+    this.#gatewayModels = new ModelsGatewayManager(this, {
+      auth: this.#auth,
+      secrets: this.#secrets,
+      messages: this.#messages,
+    });
+
+    this.#dotdevModels = new ModelsDotdevManager(this, {
+      messages: this.#messages,
+    });
+
+    this.#editor = new EditorManager(this, {
+      messages: this.#messages,
+    });
+
+    this.#prompts = new PromptsManager(this, {
+      messages: this.#messages,
+      editor: this.#editor,
+    });
+
+    this.#promptRun = new PromptRunManager(this, {
+      messages: this.#messages,
+      secrets: this.#secrets,
+    });
+
+    this.#datasets = new DatasetsManager(this, {
+      messages: this.#messages,
+    });
+
+    this.#attachments = new AttachmentsManager(this, {
+      messages: this.#messages,
+    });
+
+    this.#page = new PageManager(this, {
+      messages: this.#messages,
+    });
+
+    this.#editorState = new EditorStateManager(this, {
+      auth: this.#auth,
+      settings: this.#settings,
+      prompts: this.#prompts,
+      editor: this.#editor,
+    });
+
+    this.#html = new WebviewHtmlManager(this, {
+      extensionUri: this.#context.extensionUri,
+      webview: this.#view.webview,
+      state: this.#editorState,
+    });
+
+    this.#messages.listen(this, "lifecycle-wv-ready", this.#onReady);
+  }
+
+  async #onReady() {
+    // Up to this point any extension messages where queued, now we can
+    // process them.
+    await this.#messages.ready();
+  }
+
+  navigateTo(page: Page) {
+    this.#messages.send({ type: "page-ext-open", payload: page });
+  }
+
+  logOut() {
+    this.#auth.logOut();
+  }
+
+  runPrompt() {
+    this.#promptRun.trigger();
+  }
+}

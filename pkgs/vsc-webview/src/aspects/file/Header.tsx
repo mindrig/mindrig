@@ -1,20 +1,19 @@
 import { FileLabel } from "@/aspects/file/Label";
 import { Prompt } from "@mindrig/types";
+import { EditorFile } from "@wrkspc/core/editor";
 import { Button } from "@wrkspc/ds";
 import { Select } from "@wrkspc/form";
 import iconRegularThumbtackAngle from "@wrkspc/icons/svg/regular/thumbtack-angle.js";
 import iconSolidThumbtack from "@wrkspc/icons/svg/solid/thumbtack.js";
-import { SyncFile } from "@wrkspc/vsc-sync";
 import { cn } from "crab";
 import { PanelSection } from "../panel/Section";
 
 export namespace FileHeader {
   export interface Props {
-    fileState: SyncFile.State | null;
+    fileState: EditorFile | null;
     prompts: Prompt[];
     promptIdx: number | null;
     isPinned: boolean;
-    isPinDisabled: boolean;
     onTogglePromptPin: () => void;
     onPromptSelect: (index: number) => void;
   }
@@ -26,7 +25,6 @@ export function FileHeader(props: FileHeader.Props) {
     prompts,
     promptIdx,
     isPinned,
-    isPinDisabled,
     onTogglePromptPin,
     onPromptSelect,
   } = props;

@@ -1,0 +1,49 @@
+{
+  "name": "@wrkspc/core",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Shared functionality between Mind Rig client and server",
+  "type": "module",
+  "exports": {
+    "./assessment": "./src/assessment/index.ts",
+    "./attachment": "./src/attachment/index.ts",
+    "./auth": "./src/auth/index.ts",
+    "./client": "./src/client/index.ts",
+    "./dataset": "./src/dataset/index.ts",
+    "./datasource": "./src/datasource/index.ts",
+    "./editor": "./src/editor/index.ts",
+    "./file": "./src/file/index.ts",
+    "./lang": "./src/lang/index.ts",
+    "./message": "./src/message/index.ts",
+    "./model": "./src/model/index.ts",
+    "./page": "./src/page/index.ts",
+    "./prompt": "./src/prompt/index.ts",
+    "./promptRun": "./src/promptRun/index.ts",
+    "./settings": "./src/settings/index.ts",
+    "./store": "./src/store/index.ts",
+    "./state": "./src/state/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "types": "$(pnpm root -w)/../scripts/pkg-types.sh || tsc",
+    "types:watch": "$(pnpm root -w)/../scripts/pkg-types.sh watch || tsc --watch",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix --fix-suggestions",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@ai-sdk/gateway": "^1.0.15",
+    "@mindrig/types": "workspace:^",
+    "alwaysly": "^0.3.0",
+    "yjs": "^13.6.27"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.103.0",
+    "@wrkspc/ts": "workspace:*",
+    "oxlint": "^1.13.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

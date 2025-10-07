@@ -1,7 +1,7 @@
 import { createGateway } from "@ai-sdk/gateway";
 import { useMemo } from "react";
-import useSWR from "swr";
 import type { KeyedMutator } from "swr";
+import useSWR from "swr";
 
 export interface AvailableModel {
   id: string;
@@ -45,7 +45,7 @@ export interface UseGatewayModelsResult {
 }
 
 export function useGatewayModels(
-  vercelGatewayKey: string | null | undefined,
+  vercelGatewayKey: string | undefined | null,
 ): UseGatewayModelsResult {
   const shouldFetch = vercelGatewayKey !== undefined;
   const swrKey = useMemo<SwrKey | null>(() => {

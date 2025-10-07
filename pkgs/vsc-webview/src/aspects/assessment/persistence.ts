@@ -1,7 +1,9 @@
+import { Attachment } from "@wrkspc/core/attachment";
+import { DatasetSelection } from "@wrkspc/core/dataset";
+import { Datasource } from "@wrkspc/core/datasource";
+import { PromptArguments } from "@wrkspc/core/prompt";
 import leven from "leven";
 
-export type PromptInputSource = "manual" | "dataset";
-export type DatasetMode = "row" | "range" | "all";
 export type ResultsLayout = "horizontal" | "vertical" | "carousel";
 
 export interface PromptMeta {
@@ -25,25 +27,20 @@ export interface PlaygroundModelConfigState {
   };
   toolsJson: string;
   providerOptionsJson: string;
-  attachments: Array<{
-    path: string;
-    name: string;
-    mime?: string;
-    dataBase64?: string;
-  }>;
+  attachments: Array<Attachment>;
 }
 
 export interface PlaygroundState {
   modelConfigs: PlaygroundModelConfigState[];
-  variables: Record<string, string>;
+  variables: PromptArguments;
   csv?: {
     path: string | null;
     header: string[] | null;
     rows: string[][];
     selectedRowIdx: number | null;
   };
-  inputSource: PromptInputSource;
-  datasetMode: DatasetMode;
+  inputSource: Datasource.Type;
+  datasetMode: DatasetSelection.Type;
   range?: { start: string; end: string };
   execution?: {
     results: Array<Record<string, unknown>>;

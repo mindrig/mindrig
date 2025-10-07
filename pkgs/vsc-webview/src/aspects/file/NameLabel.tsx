@@ -1,5 +1,5 @@
+import { fileNameView } from "@wrkspc/core/file";
 import { textCn } from "@wrkspc/ds";
-import { fileNameView } from "@wrkspc/file";
 import { cn } from "crab";
 import { useMemo } from "react";
 

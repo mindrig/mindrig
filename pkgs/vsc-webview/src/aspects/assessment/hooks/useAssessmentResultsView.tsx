@@ -1,8 +1,8 @@
-import { createContext, useContext, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import { createContext, useContext, useState } from "react";
 
-import type { AvailableModel } from "@/aspects/models/Context";
 import type { RunResult } from "@/aspects/assessment/types";
+import type { AvailableModel } from "@/aspects/model/Context";
 import type { ResultsLayout } from "../persistence";
 
 export interface AssessmentResultsState {
@@ -17,9 +17,7 @@ export interface AssessmentResultsState {
   responseExpanded: Record<number, boolean>;
   setResponseExpanded: Dispatch<SetStateAction<Record<number, boolean>>>;
   viewTabs: Record<number, "rendered" | "raw">;
-  setViewTabs: Dispatch<
-    SetStateAction<Record<number, "rendered" | "raw">>
-  >;
+  setViewTabs: Dispatch<SetStateAction<Record<number, "rendered" | "raw">>>;
   activeResultIndex: number;
   setActiveResultIndex: Dispatch<SetStateAction<number>>;
 }
@@ -44,16 +42,27 @@ export interface ResultsContextValue {
   onActiveResultIndexChange: (index: number) => void;
 }
 
-const AssessmentResultsContext = createContext<ResultsContextValue | null>(null);
+const AssessmentResultsContext = createContext<ResultsContextValue | null>(
+  null,
+);
 
 export function useAssessmentResultsViewState(): AssessmentResultsState {
   const [layout, setLayout] = useState<ResultsLayout>("vertical");
-  const [collapsedResults, setCollapsedResults] = useState<Record<number, boolean>>({});
-  const [collapsedModelSettings, setCollapsedModelSettings] =
-    useState<Record<number, boolean>>({});
-  const [requestExpanded, setRequestExpanded] = useState<Record<number, boolean>>({});
-  const [responseExpanded, setResponseExpanded] = useState<Record<number, boolean>>({});
-  const [viewTabs, setViewTabs] = useState<Record<number, "rendered" | "raw">>({});
+  const [collapsedResults, setCollapsedResults] = useState<
+    Record<number, boolean>
+  >({});
+  const [collapsedModelSettings, setCollapsedModelSettings] = useState<
+    Record<number, boolean>
+  >({});
+  const [requestExpanded, setRequestExpanded] = useState<
+    Record<number, boolean>
+  >({});
+  const [responseExpanded, setResponseExpanded] = useState<
+    Record<number, boolean>
+  >({});
+  const [viewTabs, setViewTabs] = useState<Record<number, "rendered" | "raw">>(
+    {},
+  );
   const [activeResultIndex, setActiveResultIndex] = useState(0);
 
   return {
@@ -89,6 +98,8 @@ export function AssessmentResultsProvider(props: {
 export function useAssessmentResultsContext() {
   const ctx = useContext(AssessmentResultsContext);
   if (!ctx)
-    throw new Error("useAssessmentResultsContext must be used within AssessmentResultsProvider");
+    throw new Error(
+      "useAssessmentResultsContext must be used within AssessmentResultsProvider",
+    );
   return ctx;
 }

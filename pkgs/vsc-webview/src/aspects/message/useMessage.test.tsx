@@ -1,15 +1,19 @@
-import { describe, expect, it, vi } from "vitest";
-import { renderHook, render } from "@testing-library/react";
-import type { FC, PropsWithChildren } from "react";
-import type { VscMessage } from "@wrkspc/vsc-message";
-import { MessageProvider, useMessage, useOn, useOnce } from "./messageContext";
-import { VscContext } from "@/aspects/vsc/Context";
 import { createMockVSCodeAPI } from "@/__tests__/mocks/vscode";
+import { VscContext } from "@/aspects/vsc/Context";
+import { render, renderHook } from "@testing-library/react";
+import type { FC, PropsWithChildren } from "react";
+import { describe, expect, it, vi } from "vitest";
+import {
+  MessagesProvider,
+  useListenMessage,
+  useMessages,
+  useOnce,
+} from "./Context";
 
 function createWrapper(mock = createMockVSCodeAPI()) {
   const Wrapper: FC<PropsWithChildren> = ({ children }) => (
     <VscContext.Provider value={{ vsc: mock }}>
-      <MessageProvider>{children}</MessageProvider>
+      <MessagesProvider>{children}</MessagesProvider>
     </VscContext.Provider>
   );
 
@@ -20,7 +24,7 @@ describe("message context", () => {
   it("sends messages through vscode API", () => {
     const { Wrapper, mock } = createWrapper();
 
-    const { result } = renderHook(() => useMessage(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useMessages(), { wrapper: Wrapper });
 
     const message: VscMessage = { type: "settings-streaming-get" };
     result.current.send(message);
@@ -34,7 +38,7 @@ describe("message context", () => {
 
     const { unmount } = renderHook(
       () => {
-        useOn("settings-streaming-state", handler, [handler]);
+        useListenMessage("settings-streaming-state", handler, [handler]);
       },
       { wrapper: Wrapper },
     );
@@ -81,7 +85,7 @@ describe("message context", () => {
     const handler = vi.fn();
 
     function Subscriber() {
-      useOn("settings-streaming-state", handler, []);
+      useListenMessage("settings-streaming-state", handler, []);
       return null;
     }
 
@@ -135,7 +139,7 @@ describe("message context", () => {
   it("resolves the once promise helper", async () => {
     const { Wrapper } = createWrapper();
 
-    const messagePromise = renderHook(() => useMessage(), {
+    const messagePromise = renderHook(() => useMessages(), {
       wrapper: Wrapper,
     }).result.current.once("settings-streaming-state");
 

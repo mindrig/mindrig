@@ -2,7 +2,7 @@
 
 ## Catalogue
 
-- [`@wrkspc/dataset`](../../pkgs/dataset): Dataset helpers for prompts (CSV mapping, run building).
+- [`@wrkspc/core`](../../pkgs/dataset): Shared functionality between VS Code extension and webview.
 - [`@wrkspc/file`](../../pkgs/file): Mind Rig file aspect utilities.
 - [`@wrkspc/gateway`](../../pkgs/gateway): Cloudflare Workers gateway for routing AI requests.
 - [`@wrkspc/lang`](../../pkgs/lang): Mind Rig language aspect helpers.
@@ -15,12 +15,10 @@
 - [`@wrkspc/types-src`](../../pkgs/types): Genotype build workspace for shared types.
 - [`@mindrig/types`](../../pkgs/types/pkgs/ts) (public): Generated TypeScript types for prompts and schema data.
 - [`mindrig_types`](../../pkgs/types/pkgs/rs) (public): Mind Rig shared types crate.
-- [`@wrkspc/vsc-controller`](../../pkgs/vsc-controller): Mind Rig VS Code controller helpers.
 - [`vscode`](../../pkgs/vsc-extension) (public): Mind Rig extension for VS Code.
 - [`@wrkspc/vsc-settings`](../../pkgs/vsc-settings): Mind Rig VS Code settings helpers.
-- [`@wrkspc/vsc-state`](../../pkgs/vsc-state): Mind Rig VS Code state helpers.
 - [`@wrkspc/vsc-sync`](../../pkgs/vsc-sync): Workspace sync helpers for VS Code.
-- [`@wrkspc/vsc-types`](../../pkgs/vsc-types): VS Code type declarations for Mind Rig extension.
+- [`@wrkspc/core`](../../pkgs/vsc-types): VS Code type declarations for Mind Rig extension.
 - [`@wrkspc/vsc-webview`](../../pkgs/vsc-webview): Mind Rig webview React application.
 
 ## Storybook

@@ -18,4 +18,4 @@ overrides:
   '@mindrig/parser-wasm': workspace:*
   '@mindrig/types': workspace:*
   '@wrkspc/vsc-sync': workspace:*
-  '@wrkspc/vsc-types': workspace:*
+  '@wrkspc/core': workspace:*
