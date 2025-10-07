@@ -1,7 +1,6 @@
 import { AssetResolver } from "@/aspects/asset";
 import { bodyCn } from "@wrkspc/theme";
-import { VscSettings } from "@wrkspc/vsc-settings";
-import { VscState } from "@wrkspc/vsc-state";
+import { VscSettings, VscWebviewState } from "@wrkspc/vsc-types";
 
 export interface WorkbenchWebviewHtmlUris {
   csp?: string;
@@ -17,7 +16,7 @@ export interface WorkbenchWebviewHtmlProps {
   devServer?: boolean;
   uris: WorkbenchWebviewHtmlUris;
   /** Initial state. */
-  initialState?: VscState;
+  initialState?: VscWebviewState;
 }
 
 export interface WorkbenchWebviewHtmlInitialState {

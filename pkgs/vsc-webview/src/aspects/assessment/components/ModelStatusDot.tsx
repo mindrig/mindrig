@@ -1,16 +1,14 @@
-import React from "react";
-
-export type ModelStatus = "loading" | "success" | "error";
+export type ModelStatus = "loading" | "ok" | "error";
 
 const STATUS_COLOR: Record<ModelStatus, string> = {
   loading: "#9CA3AF",
-  success: "#22C55E",
+  ok: "#22C55E",
   error: "#EF4444",
 };
 
 const STATUS_LABEL: Record<ModelStatus, string> = {
   loading: "Models are loading",
-  success: "Models are ready",
+  ok: "Models are ready",
   error: "Model loading failed",
 };
 

@@ -18,9 +18,10 @@
   },
   "dependencies": {
     "@mindrig/types": "workspace:*",
+    "@wrkspc/auth": "workspace:*",
     "@wrkspc/model": "workspace:*",
-    "@wrkspc/vsc-settings": "workspace:*",
     "@wrkspc/vsc-sync": "workspace:*",
+    "@wrkspc/vsc-state": "workspace:*",
     "@wrkspc/vsc-types": "workspace:*"
   },
   "devDependencies": {

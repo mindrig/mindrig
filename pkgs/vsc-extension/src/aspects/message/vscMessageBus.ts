@@ -1,70 +1,37 @@
-import type { Disposable, Webview } from "vscode";
 import type { VscMessage } from "@wrkspc/vsc-message";
+import * as vscode from "vscode";
 
-export type VscMessageHandler<K extends VscMessage["type"]> = (
-  message: Extract<VscMessage, { type: K }>,
+export type VscMessageHandler<Type extends VscMessage["type"]> = (
+  message: VscMessage & { type: Type },
 ) => void;
 
-export interface VscMessageBusOptions {
-  debug?: boolean;
-  onUnhandledMessage?: (message: unknown) => void;
-  logger?: (entry: { direction: "in" | "out"; message: VscMessage }) => void;
-}
-
-export class VscMessageBus implements Disposable {
-  readonly #webview: Webview;
-  readonly #options: VscMessageBusOptions;
+export class VscMessageBus implements vscode.Disposable {
+  readonly #webview: vscode.Webview;
   readonly #handlers = new Map<string, Set<VscMessageHandler<any>>>();
-  readonly #disposables: Disposable[] = [];
+  readonly #disposables: vscode.Disposable[] = [];
 
-  constructor(webview: Webview, options: VscMessageBusOptions = {}) {
+  constructor(webview: vscode.Webview) {
     this.#webview = webview;
-    this.#options = options;
 
-    const subscription = this.#webview.onDidReceiveMessage((raw) => {
-      const message = this.#narrowMessage(raw);
+    const subscription = this.#webview.onDidReceiveMessage(
+      (message: VscMessage) => {
+        const listeners = this.#handlers.get(message.type);
+        if (!listeners || listeners.size === 0) return;
 
-      if (!message) return;
-
-      this.#options.logger?.({ direction: "in", message });
-
-      const listeners = this.#handlers.get(message.type);
-      if (!listeners || listeners.size === 0) return;
-
-      for (const handler of Array.from(listeners)) {
-        try {
-          handler(message as never);
-        } catch (error) {
-          console.error(
-            `VscMessageBus handler for ${message.type} threw an error`,
-            error,
-          );
+        for (const handler of Array.from(listeners)) {
+          try {
+            handler(message as never);
+          } catch (error) {
+            console.error(
+              `VscMessageBus handler for ${message.type} threw an error`,
+              error,
+            );
+          }
         }
-      }
-    });
+      },
+    );
 
     this.#disposables.push(subscription);
-  }
-
-  #narrowMessage(candidate: unknown): VscMessage | null {
-    if (!candidate || typeof candidate !== "object") {
-      this.#options.onUnhandledMessage?.(candidate);
-      if (this.#options.debug) {
-        console.warn("Received non-object webview message", candidate);
-      }
-      return null;
-    }
-
-    const maybeMessage = candidate as { type?: unknown };
-    if (typeof maybeMessage.type !== "string") {
-      this.#options.onUnhandledMessage?.(candidate);
-      if (this.#options.debug) {
-        console.warn("Received webview message without type", candidate);
-      }
-      return null;
-    }
-
-    return candidate as VscMessage;
   }
 
   dispose() {
@@ -72,15 +39,14 @@ export class VscMessageBus implements Disposable {
     while (this.#disposables.length) this.#disposables.pop()?.dispose();
   }
 
-  send(message: VscMessage) {
-    this.#options.logger?.({ direction: "out", message });
+  send(message: VscMessage): Thenable<boolean> {
     return this.#webview.postMessage(message);
   }
 
-  on<K extends VscMessage["type"]>(
-    type: K,
-    handler: VscMessageHandler<K>,
-  ): Disposable {
+  on<Type extends VscMessage["type"]>(
+    type: Type,
+    handler: VscMessageHandler<Type>,
+  ): vscode.Disposable {
     const bucket = this.#handlers.get(type) ?? new Set();
     bucket.add(handler as VscMessageHandler<any>);
     this.#handlers.set(type, bucket);
@@ -94,10 +60,10 @@ export class VscMessageBus implements Disposable {
     };
   }
 
-  once<K extends VscMessage["type"]>(
-    type: K,
-    handler: VscMessageHandler<K>,
-  ): Disposable {
+  once<Type extends VscMessage["type"]>(
+    type: Type,
+    handler: VscMessageHandler<Type>,
+  ): vscode.Disposable {
     const disposable = this.on(type, (message) => {
       disposable.dispose();
       handler(message);

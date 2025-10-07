@@ -1,33 +1,30 @@
+import { ModelResponse } from "./response";
 import { ModelVercel } from "./vercel";
 
 export namespace ModelGateway {
   export type Response = ResponseVercel;
 
-  export type ResponseVercel = ResponseVercelOk | ResponseVercelError;
-
-  export interface ResponseVercelBase {
+  export interface ResponseVercel {
     type: "vercel";
     /** Indicates whether data came from a user-scoped call or the fallback wrapper. */
-    source: "user" | "fallback";
+    source: Source;
     /** Epoch timestamp in milliseconds when the response was resolved. */
     fetchedAt: number;
+    data: ResponseVercelData;
   }
 
-  export interface ResponseVercelOk extends ResponseVercelBase {
-    response: ResponseDataOk<ModelVercel.Data>;
+  export type ResponseVercelData = ModelResponse.Data<ModelVercel.Payload>;
+
+  export type Source = SourceAuth | SourceGlobal;
+
+  export type SourceType = Source["type"];
+
+  export interface SourceAuth {
+    type: "auth";
+    hash: string;
   }
 
-  export interface ResponseVercelError extends ResponseVercelBase {
-    response: ResponseDataError;
-  }
-
-  export interface ResponseDataOk<Data> {
-    status: "ok";
-    data: Data;
-  }
-
-  export interface ResponseDataError {
-    status: "error";
-    message: string;
+  export interface SourceGlobal {
+    type: "global";
   }
 }

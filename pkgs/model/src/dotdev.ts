@@ -1,6 +1,6 @@
-export function modelsDotdevUrl(): string {
-  return "https://models.dev/api.json";
-}
+import { ModelResponse } from "./response";
+
+export const modelsDotdevUrl = "https://models.dev/api.json";
 
 export namespace ModelDotdev {
   // TODO: Refactor when updated schema is published: https://github.com/sst/models.dev/blob/dev/packages/core/src/schema.ts
@@ -144,19 +144,14 @@ export namespace ModelDotdev {
 
   export type ModalityOutput = "text";
 
-  export type Data = Record<ProviderId, Provider>;
+  export type Payload = Record<ProviderId, Provider>;
 
-  export type Response = ResponseOk | ResponseError;
-
-  export interface ResponseOk {
-    status: "ok";
-    data: Data;
+  export interface Response {
+    fetchedAt: number;
+    data: ResponseData;
   }
 
-  export interface ResponseError {
-    status: "error";
-    message: string;
-  }
+  export type ResponseData = ModelResponse.Data<Payload>;
 
   export interface Meta {
     modalities?: Modalities;
@@ -183,9 +178,9 @@ export namespace ModelDotdev {
   }
 }
 
-let MODELS_DEV_CACHE: ModelDotdev.Data | null = null;
+let MODELS_DEV_CACHE: ModelDotdev.Payload | null = null;
 
-export function setModelsDevData(data: ModelDotdev.Data | null) {
+export function setModelsDevData(data: ModelDotdev.Payload | null) {
   MODELS_DEV_CACHE = data;
 }
 

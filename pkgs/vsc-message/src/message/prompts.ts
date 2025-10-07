@@ -6,6 +6,20 @@ export type VscMessagePrompts =
   | VscMessagePrompts.Reveal;
 
 export namespace VscMessagePrompts {
+  //#region Extension
+
+  export type Extension = never;
+
+  //#endregion
+
+  //#region Webview
+
+  export type Webview = never;
+
+  //#endregion
+
+  //#region Legacy
+
   export interface Change {
     type: "prompts-change";
     payload: {
@@ -30,4 +44,6 @@ export namespace VscMessagePrompts {
       };
     };
   }
+
+  //#endregion
 }

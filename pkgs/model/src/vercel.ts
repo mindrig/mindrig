@@ -9,7 +9,7 @@ export namespace ModelVercel {
     id: ModelId;
   };
 
-  export interface Data {
+  export interface Payload {
     models: Model[];
   }
 }

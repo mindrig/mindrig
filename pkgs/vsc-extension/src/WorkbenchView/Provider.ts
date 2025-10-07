@@ -1,8 +1,7 @@
-import { AssetResolver } from "@/aspects/asset";
+import { Manager } from "@/aspects/manager/Manager.js";
 import { VscMessageBus } from "@/aspects/message";
-import { setAuthContext } from "@/auth";
+import { WebviewManager } from "@/aspects/webview/Manager";
 import { parsePrompts } from "@mindrig/parser-wasm";
-import { VscController } from "@wrkspc/vsc-controller";
 import type {
   VscMessage,
   VscMessageAttachments,
@@ -12,22 +11,11 @@ import type {
   VscMessagePrompts,
   VscMessageSettings,
 } from "@wrkspc/vsc-message";
-import { VscSettingsController } from "@wrkspc/vsc-settings";
 import type { SyncFile, SyncResource, VscMessageSync } from "@wrkspc/vsc-sync";
-import type {
-  PromptRunResultData,
-  PromptRunResultShell,
-} from "@wrkspc/vsc-types";
-import { nanoid } from "nanoid";
-import PQueue from "p-queue";
 import * as vscode from "vscode";
-import { AIService } from "../AIService";
 import { CodeSyncManager } from "../CodeSyncManager";
 import { FileManager } from "../FileManager";
 import { ModelsDataController } from "../ModelsDataController";
-import { SecretManager } from "../SecretManager";
-import { resolveDevServerUri } from "../devServer";
-import { WorkbenchWebviewHtmlUris, workbenchWebviewHtml } from "./html";
 
 export type ViteManifest = Record<string, ViteManifestEntry>;
 
@@ -41,12 +29,12 @@ export interface ViteManifestEntry {
 
 type PromptRunExecuteMessage = Extract<
   VscMessagePromptRun,
-  { type: "prompt-run-execute" }
+  { type: "prompt-run-wv-execute" }
 >;
 
 type PromptRunStopMessage = Extract<
   VscMessagePromptRun,
-  { type: "prompt-run-stop" }
+  { type: "prompt-run-vw-stop" }
 >;
 
 type PromptRunStartMessage = Extract<
@@ -99,7 +87,7 @@ type DatasetCsvLoadMessage = Extract<
 
 type AuthVercelGatewaySetPayload = Extract<
   VscMessageAuth,
-  { type: "auth-vercel-gateway-set" }
+  { type: "auth-ext-vercel-gateway-set" }
 >["payload"];
 
 type SettingsStreamingSetPayload = Extract<
@@ -108,7 +96,7 @@ type SettingsStreamingSetPayload = Extract<
 >["payload"];
 
 export class WorkbenchViewProvider
-  extends VscController
+  extends Manager
   implements vscode.WebviewViewProvider
 {
   //#region Static
@@ -131,7 +119,7 @@ export class WorkbenchViewProvider
     isDevelopment: boolean,
     context: vscode.ExtensionContext,
   ) {
-    super();
+    super(null);
 
     this.#extensionUri = extensionUri;
     this.#isDevelopment = isDevelopment;
@@ -147,10 +135,9 @@ export class WorkbenchViewProvider
   #currentResourcePath: string | null = null;
   #pendingOpenVercelPanel = false;
   #lastAttachmentPickImagesOnly = false;
-  #lastExecutionPayload: ExecutePromptPayload | null = null;
-  #gatewaySaving = false;
-  #gatewayEditable = true;
   #modelsDataController: ModelsDataController | null = null;
+
+  #webviewManager: WebviewManager | null = null;
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -162,20 +149,12 @@ export class WorkbenchViewProvider
       localResourceRoots: [vscode.Uri.joinPath(this.#extensionUri, "dist")],
     };
 
-    this.#webview = webviewView.webview;
-    const messageBus = new VscMessageBus(this.#webview, {
-      debug: process.env.MINDRIG_DEBUG_MESSAGES === "true",
-      onUnhandledMessage: (raw) => {
-        console.warn("Received unknown webview message", raw);
-      },
+    this.#webviewManager = new WebviewManager(this, {
+      view: webviewView,
+      context: this.#context,
     });
-    this.#messageBus = messageBus;
-    this.register(messageBus);
 
-    this.#setupMessageHandling();
-    this.#registerSettings();
-    this.#initializeSecretManager();
-    this.#applyHtml(webviewView.webview);
+    this.#webview = webviewView.webview;
   }
 
   #handleWebviewReady() {
@@ -190,8 +169,7 @@ export class WorkbenchViewProvider
         });
     }
 
-    this.#sendVercelGatewayKey();
-    void this.#modelsDataController?.refresh();
+    this.#modelsDataController?.refresh();
 
     if (this.#pendingOpenVercelPanel) {
       this.#sendMessage({ type: "auth-panel-open" });
@@ -207,143 +185,10 @@ export class WorkbenchViewProvider
 
   //#endregion
 
-  //#region HTML
-
-  async #applyHtml(webview: vscode.Webview) {
-    const html = await this.#renderHtml(webview);
-    webview.html = html;
-  }
-
-  async #renderHtml(webview: vscode.Webview): Promise<string> {
-    const useDevServer = process.env.VSCODE_DEV_SERVER === "true";
-
-    const uris = useDevServer
-      ? await this.#devServerUris()
-      : await this.#localPaths(webview);
-
-    return workbenchWebviewHtml({
-      devServer: useDevServer,
-      uris,
-      initialState: {
-        settings: this.#settings?.settings,
-      },
-    });
-  }
-
-  async #devServerUris(): Promise<WorkbenchWebviewHtmlUris> {
-    const externalUri = await resolveDevServerUri();
-    const base = externalUri.toString().replace(/\/$/, "");
-    // Vite websockets address for HMR
-    const wsUri = `ws://${externalUri.authority}`;
-
-    const csp = [
-      "default-src 'none';",
-      `img-src ${webviewSources} ${base} https: data:;`,
-      `script-src ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
-      `script-src-elem ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
-      `style-src ${webviewSources} ${base} 'unsafe-inline';`,
-      `font-src ${webviewSources} ${base} https: data:;`,
-      // TODO: Come up with complete list of authorities rather than slapping global `https:`
-      `connect-src ${base} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https: ${wsUri};`,
-    ].join(" ");
-
-    const app = `${base}/src/index.tsx`;
-    const reactRefresh = `${base}/@react-refresh`;
-    const viteClient = `${base}/@vite/client`;
-
-    return {
-      csp,
-      app,
-      reactRefresh,
-      viteClient,
-    };
-  }
-
-  async #localPaths(
-    webview: vscode.Webview,
-  ): Promise<WorkbenchWebviewHtmlUris> {
-    const csp = [
-      "default-src 'none';",
-      `img-src ${webviewSources} https: data:;`,
-      `script-src ${webviewSources} 'unsafe-inline';`,
-      `style-src ${webviewSources} 'unsafe-inline';`,
-      `font-src ${webviewSources} https: data:;`,
-      `connect-src ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https:;`,
-    ].join(" ");
-
-    const baseUri = vscode.Uri.joinPath(this.#extensionUri, "dist", "webview");
-    const app = webview
-      .asWebviewUri(vscode.Uri.joinPath(baseUri, "webview.js"))
-      .toString();
-    const styles = webview
-      .asWebviewUri(vscode.Uri.joinPath(baseUri, "index.css"))
-      .toString();
-
-    const manifest = await this.#loadManifest();
-    const asset = manifest
-      ? this.#createAssetResolver(webview, baseUri, manifest)
-      : undefined;
-
-    return { csp, app, styles, asset };
-  }
-
-  async #loadManifest(): Promise<ViteManifest | null> {
-    if (this.#manifest !== undefined) return this.#manifest;
-
-    const manifestUri = vscode.Uri.joinPath(
-      this.#extensionUri,
-      "dist",
-      "webview",
-      ".vite",
-      "manifest.json",
-    );
-
-    try {
-      const manifestStr = await vscode.workspace.fs.readFile(manifestUri);
-      this.#manifest = JSON.parse(new TextDecoder("utf-8").decode(manifestStr));
-    } catch (error) {
-      console.error("Failed to read webview manifest");
-    }
-
-    this.#manifest ||= null;
-    return this.#manifest;
-  }
-
-  #createAssetResolver(
-    webview: vscode.Webview,
-    baseUri: vscode.Uri,
-    manifest: ViteManifest,
-  ): AssetResolver | undefined {
-    const map = new Map<string, string>();
-
-    function add(path: string) {
-      if (map.has(path)) return;
-
-      const resolved = webview
-        .asWebviewUri(vscode.Uri.joinPath(baseUri, path))
-        .toString();
-      map.set(path, resolved);
-    }
-
-    for (const entry of Object.values(manifest)) {
-      add(entry.file);
-      entry.css?.forEach(add);
-      entry.assets?.forEach(add);
-    }
-
-    return { type: "manifest", manifest: Object.fromEntries(map) };
-  }
-
-  //#endregion
-
   //#region Messages
 
   #setupMessageHandling() {
     if (!this.#messageBus) return;
-
-    this.register(
-      this.#messageBus.on("dev-add-it-works", () => this.#handleAddItWorks()),
-    );
 
     this.register(
       this.#messageBus.on("prompts-reveal", (message) =>
@@ -366,26 +211,8 @@ export class WorkbenchViewProvider
     );
 
     this.register(
-      this.#messageBus.on("lifecycle-webview-ready", () =>
+      this.#messageBus.on("lifecycle-wv-ready", () =>
         this.#handleWebviewReady(),
-      ),
-    );
-
-    this.register(
-      this.#messageBus.on("auth-vercel-gateway-get", () =>
-        this.#sendVercelGatewayKey(),
-      ),
-    );
-
-    this.register(
-      this.#messageBus.on("auth-vercel-gateway-set", (message) =>
-        this.#handleSetVercelGatewayKey(message.payload),
-      ),
-    );
-
-    this.register(
-      this.#messageBus.on("auth-vercel-gateway-clear", () =>
-        this.#handleClearVercelGatewayKey(),
       ),
     );
 
@@ -415,18 +242,6 @@ export class WorkbenchViewProvider
 
     this.register(
       this.#messageBus.on("sync-init", () => this.#handleRequestSync()),
-    );
-
-    this.register(
-      this.#messageBus.on("prompt-run-execute", (message) =>
-        this.#handleExecutePrompt(message.payload),
-      ),
-    );
-
-    this.register(
-      this.#messageBus.on("prompt-run-stop", (message) =>
-        this.#handleStopPromptRun(message.payload),
-      ),
     );
   }
 
@@ -471,6 +286,12 @@ export class WorkbenchViewProvider
   public openVercelGatewayPanel() {
     if (this.#webview) this.#sendMessage({ type: "auth-panel-open" });
     else this.#pendingOpenVercelPanel = true;
+  }
+
+  async runPromptFromCommand(): Promise<boolean> {
+    if (!this.#webview) return false;
+    this.#sendMessage({ type: "prompts-execute-from-command" });
+    return true;
   }
 
   //#endregion
@@ -568,10 +389,6 @@ export class WorkbenchViewProvider
         },
       })),
     );
-  }
-
-  #handleAddItWorks() {
-    this.#fileManager?.addCommentToActiveFile("// It works!");
   }
 
   async #handleRequestCsvPick() {
@@ -735,158 +552,7 @@ export class WorkbenchViewProvider
 
   //#endregion
 
-  //#region Settings
-
-  #settings: VscSettingsController | null = null;
-
-  #registerSettings() {
-    this.register(
-      (this.#settings = new VscSettingsController({
-        onUpdate: (settings) => {
-          this.#sendMessage({ type: "settings-update", payload: settings });
-        },
-      })),
-    );
-  }
-
-  //#endregion
-
   //#region Secret manager
-
-  #secretManager: SecretManager | null = null;
-
-  #maskSecret(secret: string | null | undefined): string | null {
-    if (!secret) return null;
-    if (secret.length <= 4) return "*".repeat(secret.length);
-    const prefix = secret.slice(0, 4);
-    const suffix = secret.slice(-2);
-    return `${prefix}...${suffix}`;
-  }
-
-  async #publishGatewayState(options?: { secret?: string | null }) {
-    if (!this.#messageBus) return;
-
-    let secret = options?.secret ?? null;
-    if (options?.secret === undefined && this.#secretManager) {
-      secret = (await this.#secretManager.getSecret()) ?? null;
-    }
-
-    const hasKey = Boolean(secret);
-    if (!hasKey) this.#gatewayEditable = true;
-
-    const message: Extract<
-      VscMessageAuth,
-      { type: "auth-vercel-gateway-state" }
-    > = {
-      type: "auth-vercel-gateway-state",
-      payload: {
-        maskedKey: this.#maskSecret(secret),
-        hasKey,
-        readOnly: hasKey ? !this.#gatewayEditable : false,
-        isSaving: this.#gatewaySaving,
-      },
-    };
-
-    this.#sendMessage(message);
-  }
-
-  #ensureModelsDataController() {
-    if (
-      this.#modelsDataController ||
-      !this.#messageBus ||
-      !this.#secretManager
-    ) {
-      return;
-    }
-
-    const controller = new ModelsDataController({
-      messageBus: this.#messageBus,
-      secretManager: this.#secretManager,
-      gatewayOrigin: import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN,
-    });
-
-    this.register(controller);
-    this.#modelsDataController = controller;
-    void controller.refresh();
-  }
-
-  #initializeSecretManager() {
-    this.register(
-      (this.#secretManager = new SecretManager(this.#context.secrets, {
-        onSecretChanged: (secret) => {
-          const normalized = secret ?? null;
-          setAuthContext({ loggedIn: !!normalized });
-
-          this.#gatewayEditable = !normalized;
-          this.#gatewaySaving = true;
-          void this.#publishGatewayState({ secret: normalized });
-
-          const refreshPromise =
-            this.#modelsDataController?.handleSecretChanged(normalized);
-
-          if (refreshPromise) {
-            refreshPromise
-              .then(() => {
-                const status =
-                  this.#modelsDataController?.getLastGatewayStatus();
-                this.#gatewaySaving = false;
-                this.#gatewayEditable =
-                  status?.status === "error" || !normalized;
-                void this.#publishGatewayState({ secret: normalized });
-              })
-              .catch((error) => {
-                console.error(
-                  "Failed to refresh gateway models after secret change:",
-                  error,
-                );
-                this.#gatewaySaving = false;
-                this.#gatewayEditable = true;
-                void this.#publishGatewayState({ secret: normalized });
-              });
-          } else {
-            this.#gatewaySaving = false;
-            this.#gatewayEditable = !normalized;
-            void this.#publishGatewayState({ secret: normalized });
-          }
-        },
-      })),
-    );
-
-    this.#ensureModelsDataController();
-
-    if (this.#secretManager) {
-      this.#secretManager.getSecret().then((secret) => {
-        const normalized = secret ?? null;
-        setAuthContext({ loggedIn: !!normalized });
-        this.#gatewayEditable = !normalized;
-        this.#gatewaySaving = false;
-        this.#ensureModelsDataController();
-        void this.#publishGatewayState({ secret: normalized });
-      });
-    }
-  }
-
-  async #sendVercelGatewayKey() {
-    await this.#publishGatewayState();
-  }
-
-  async #handleSetVercelGatewayKey(
-    vercelGatewayKey: AuthVercelGatewaySetPayload,
-  ) {
-    if (!this.#secretManager) return;
-    this.#gatewaySaving = true;
-    this.#gatewayEditable = false;
-    void this.#publishGatewayState({ secret: vercelGatewayKey });
-    await this.#secretManager.setSecret(vercelGatewayKey);
-  }
-
-  async #handleClearVercelGatewayKey() {
-    if (!this.#secretManager) return;
-    this.#gatewaySaving = true;
-    this.#gatewayEditable = true;
-    void this.#publishGatewayState({ secret: null });
-    await this.#secretManager.clearSecret();
-  }
 
   async #handleGetStreamingPreference() {
     const enabled =
@@ -913,604 +579,11 @@ export class WorkbenchViewProvider
     });
   }
 
-  // Exposed to extension.ts to clear the stored key
-  public async clearVercelGatewayKey() {
-    await this.#handleClearVercelGatewayKey();
-  }
-
-  //#endregion
-
-  //#region AI Service
-
-  #initializeAIService() {
-    this.register((this.#aiService = new AIService()));
-  }
-
-  #cloneExecutionPayload(payload: ExecutePromptPayload): ExecutePromptPayload {
-    return JSON.parse(JSON.stringify(payload)) as ExecutePromptPayload;
-  }
-
-  async #handleExecutePrompt(payload: ExecutePromptPayload) {
-    this.#lastExecutionPayload = this.#cloneExecutionPayload(payload);
-    if (!this.#aiService) this.#initializeAIService();
-
-    const runId = nanoid();
-    const promptId = payload.promptId;
-    const now = () => Date.now();
-
-    const sendRunError = (error: string, resultId?: string) => {
-      const payload: PromptRunErrorMessage["payload"] = {
-        runId,
-        promptId,
-        timestamp: now(),
-        error,
-      };
-      if (typeof resultId === "string") payload.resultId = resultId;
-      this.#sendMessage({ type: "prompt-run-error", payload });
-    };
-
-    const sendRunUpdate = (resultId: string, delta: string) => {
-      const message: PromptRunUpdateMessage = {
-        type: "prompt-run-update",
-        payload: {
-          runId,
-          promptId,
-          resultId,
-          timestamp: now(),
-          delta: { type: "text", text: delta },
-        },
-      };
-      this.#sendMessage(message);
-    };
-
-    if (!this.#secretManager) {
-      const error = "Secret manager not initialized";
-      sendRunError(error);
-      this.#sendMessage({
-        type: "prompt-run-execution-result",
-        payload: {
-          success: false,
-          error,
-          promptId,
-          timestamp: now(),
-          results: [],
-          runId,
-        },
-      });
-      return;
-    }
-
-    const apiKey = await this.#secretManager.getSecret();
-    if (!apiKey) {
-      const error =
-        "No Vercel Gateway API key configured. Please set your API key in the panel above.";
-      sendRunError(error);
-      this.#sendMessage({
-        type: "prompt-run-execution-result",
-        payload: {
-          success: false,
-          error,
-          promptId,
-          timestamp: now(),
-          results: [],
-          runId,
-        },
-      });
-      return;
-    }
-
-    this.#aiService!.setApiKey(apiKey);
-
-    let streamingEnabled: boolean;
-    if (typeof payload.streamingEnabled === "boolean")
-      streamingEnabled = payload.streamingEnabled;
-    else if ((payload.runSettings as any)?.streaming?.enabled !== undefined)
-      streamingEnabled = !!(payload.runSettings as any)?.streaming?.enabled;
-    else
-      streamingEnabled =
-        this.#context.globalState.get<boolean>(
-          this.#streamingPreferenceKey,
-          true,
-        ) ?? true;
-
-    payload.streamingEnabled = streamingEnabled;
-    payload.runSettings = {
-      ...(payload.runSettings ?? {}),
-      streaming: { enabled: streamingEnabled },
-    };
-
-    this.#lastExecutionPayload = this.#cloneExecutionPayload(payload);
-
-    try {
-      const runs =
-        Array.isArray(payload.runs) && payload.runs.length
-          ? payload.runs
-          : [
-              {
-                label: "Run 1",
-                variables: payload.variables || {},
-                substitutedPrompt: payload.promptText,
-              },
-            ];
-
-      const models =
-        Array.isArray(payload.models) && payload.models.length
-          ? payload.models
-          : [
-              {
-                key: "default",
-                modelId: payload.modelId ?? null,
-                providerId: null,
-                label: payload.modelId ?? "Default model",
-                options: payload.options,
-                tools: payload.tools ?? null,
-                providerOptions: payload.providerOptions ?? null,
-                attachments: payload.attachments ?? [],
-                reasoning: {
-                  enabled: false,
-                  effort: "medium" as const,
-                  budgetTokens: "" as const,
-                },
-              },
-            ];
-
-      type ExecutionJob = {
-        resultId: string;
-        run: (typeof runs)[number];
-        runLabel: string;
-        modelConfig: (typeof models)[number];
-        modelLabel: string;
-        attachments: Array<{ name: string; mime: string; dataBase64: string }>;
-        reasoning: {
-          enabled: boolean;
-          effort: "low" | "medium" | "high";
-          budgetTokens?: number | "";
-        };
-        shell: PromptRunResultShell;
-      };
-
-      const jobs: ExecutionJob[] = [];
-      const shells: PromptRunResultShell[] = [];
-
-      for (const modelConfig of models) {
-        const modelLabel = modelConfig.label ?? modelConfig.modelId ?? "Model";
-        const reasoning = modelConfig.reasoning ?? {
-          enabled: false,
-          effort: "medium" as const,
-          budgetTokens: "" as const,
-        };
-        const attachments = Array.isArray(modelConfig.attachments)
-          ? modelConfig.attachments
-          : [];
-
-        for (const run of runs) {
-          const runLabel = run.label ?? "Run";
-          const resultId = nanoid();
-          const shell: PromptRunResultShell = {
-            resultId,
-            label: `${modelLabel} • ${runLabel}`,
-            runLabel,
-            model: {
-              key: modelConfig.key,
-              id: modelConfig.modelId ?? null,
-              providerId: modelConfig.providerId ?? null,
-              label: modelConfig.label ?? modelConfig.modelId ?? null,
-              settings: {
-                options: modelConfig.options,
-                reasoning,
-                providerOptions: modelConfig.providerOptions ?? null,
-                tools: modelConfig.tools ?? null,
-                attachments,
-              },
-            },
-            streaming: streamingEnabled,
-          };
-
-          jobs.push({
-            resultId,
-            run,
-            runLabel,
-            modelConfig,
-            modelLabel,
-            attachments,
-            reasoning,
-            shell,
-          });
-          shells.push(shell);
-        }
-      }
-
-      const startedMessage: PromptRunStartMessage = {
-        type: "prompt-run-start",
-        payload: {
-          runId,
-          promptId,
-          timestamp: now(),
-          streaming: streamingEnabled,
-          results: shells,
-          runSettings: payload.runSettings,
-        },
-      };
-      this.#sendMessage(startedMessage);
-
-      if (this.#cancelledRuns.has(runId)) {
-        this.#cancelledRuns.delete(runId);
-        const cancelMessage = "Prompt run cancelled.";
-        sendRunError(cancelMessage);
-
-        const completedMessage: PromptRunCompleteMessage = {
-          type: "prompt-run-complete",
-          payload: {
-            runId,
-            promptId,
-            timestamp: now(),
-            success: false,
-            results: [],
-          },
-        };
-        this.#sendMessage(completedMessage);
-
-        this.#sendMessage({
-          type: "prompt-run-execution-result",
-          payload: {
-            success: false,
-            error: cancelMessage,
-            results: [],
-            promptId,
-            timestamp: now(),
-            runSettings: payload.runSettings,
-            runId,
-          },
-        });
-        return;
-      }
-
-      const configuration = vscode.workspace.getConfiguration("mindrig");
-      const parallelSetting = configuration.get<number | string>(
-        "run.parallel",
-        4,
-      );
-      const numericParallel =
-        typeof parallelSetting === "number"
-          ? parallelSetting
-          : Number(parallelSetting);
-      const concurrency =
-        Number.isFinite(numericParallel) && numericParallel > 0
-          ? Math.floor(numericParallel)
-          : 1;
-
-      const queue = new PQueue({ concurrency });
-      const resultDataById = new Map<string, PromptRunResultData>();
-
-      const enqueueJob = (job: ExecutionJob) =>
-        queue.add(async () => {
-          if (this.#cancelledRuns.has(runId)) return;
-
-          let streamedText = "";
-          let jobErrorReported = false;
-
-          const streamingHandlers = streamingEnabled
-            ? {
-                onTextDelta: async (delta: string) => {
-                  streamedText += delta;
-                  sendRunUpdate(job.resultId, delta);
-                },
-                onError: async (err: unknown) => {
-                  const message = this.#formatExecutionError(err);
-                  jobErrorReported = true;
-                  sendRunError(message, job.resultId);
-                },
-              }
-            : undefined;
-
-          const extras = {
-            tools: job.modelConfig.tools ?? null,
-            toolChoice: payload.toolChoice,
-            providerOptions: job.modelConfig.providerOptions ?? null,
-          };
-
-          const controller = new AbortController();
-          this.#addRunController(runId, controller);
-
-          const runtimeOptions = {
-            signal: controller.signal,
-            ...(streamingHandlers ? { streamingHandlers } : {}),
-          };
-
-          try {
-            const result = await this.#aiService!.executePrompt(
-              job.run.substitutedPrompt,
-              job.modelConfig.modelId ?? undefined,
-              job.modelConfig.options,
-              extras,
-              job.attachments,
-              runtimeOptions,
-            );
-
-            if (controller.signal.aborted) {
-              this.#cancelledRuns.add(runId);
-              return;
-            }
-
-            if (result.success) {
-              const finalText =
-                typeof result.text === "string"
-                  ? result.text
-                  : streamedText || null;
-
-              const completedResult: PromptRunResultData = {
-                resultId: job.resultId,
-                success: true,
-                prompt: job.run.substitutedPrompt,
-                text: finalText,
-                label: job.shell.label,
-                runLabel: job.runLabel,
-                request: result.request,
-                response: result.response,
-                usage: result.usage,
-                totalUsage: result.totalUsage,
-                steps: (result as any).steps,
-                finishReason: (result as any).finishReason ?? null,
-                warnings: (result as any).warnings,
-                model: job.shell.model,
-              };
-
-              resultDataById.set(job.resultId, completedResult);
-              const resultCompletedMessage: PromptRunResultCompleteMessage = {
-                type: "prompt-run-result-complete",
-                payload: {
-                  runId,
-                  promptId,
-                  timestamp: now(),
-                  result: completedResult,
-                },
-              };
-              this.#sendMessage(resultCompletedMessage);
-            } else {
-              const errorMessage = this.#formatExecutionError(result.error);
-              if (!jobErrorReported) sendRunError(errorMessage, job.resultId);
-
-              const failedResult: PromptRunResultData = {
-                resultId: job.resultId,
-                success: false,
-                prompt: job.run.substitutedPrompt,
-                text: null,
-                label: job.shell.label,
-                runLabel: job.runLabel,
-                error: errorMessage,
-                model: job.shell.model,
-              };
-
-              resultDataById.set(job.resultId, failedResult);
-              const failureMessage: PromptRunResultCompleteMessage = {
-                type: "prompt-run-result-complete",
-                payload: {
-                  runId,
-                  promptId,
-                  timestamp: now(),
-                  result: failedResult,
-                },
-              };
-              this.#sendMessage(failureMessage);
-            }
-          } catch (error) {
-            if (!controller.signal.aborted) {
-              const formatted = this.#formatExecutionError(error);
-              if (!jobErrorReported) sendRunError(formatted, job.resultId);
-
-              const failedResult: PromptRunResultData = {
-                resultId: job.resultId,
-                success: false,
-                prompt: job.run.substitutedPrompt,
-                text: null,
-                label: job.shell.label,
-                runLabel: job.runLabel,
-                error: formatted,
-                model: job.shell.model,
-              };
-
-              resultDataById.set(job.resultId, failedResult);
-              const failureMessage: PromptRunResultCompleteMessage = {
-                type: "prompt-run-result-complete",
-                payload: {
-                  runId,
-                  promptId,
-                  timestamp: now(),
-                  result: failedResult,
-                },
-              };
-              this.#sendMessage(failureMessage);
-            } else {
-              this.#cancelledRuns.add(runId);
-            }
-          } finally {
-            this.#removeRunController(runId, controller);
-          }
-        });
-
-      for (const job of jobs) enqueueJob(job);
-
-      await queue.onIdle();
-
-      const wasCancelled = this.#cancelledRuns.has(runId);
-
-      if (wasCancelled) {
-        const cancelMessage = "Prompt run cancelled.";
-        for (const job of jobs) {
-          if (resultDataById.has(job.resultId)) continue;
-          const cancelledResult: PromptRunResultData = {
-            resultId: job.resultId,
-            success: false,
-            prompt: job.run.substitutedPrompt,
-            text: null,
-            label: job.shell.label,
-            runLabel: job.runLabel,
-            error: cancelMessage,
-            model: job.shell.model,
-          };
-          resultDataById.set(job.resultId, cancelledResult);
-          const cancelledMessage: PromptRunResultCompleteMessage = {
-            type: "prompt-run-result-complete",
-            payload: {
-              runId,
-              promptId,
-              timestamp: now(),
-              result: cancelledResult,
-            },
-          };
-          this.#sendMessage(cancelledMessage);
-        }
-        sendRunError(cancelMessage);
-      }
-
-      const aggregatedResults = jobs
-        .map((job) => resultDataById.get(job.resultId))
-        .filter((result): result is PromptRunResultData => Boolean(result));
-
-      const overallSuccess =
-        aggregatedResults.length > 0 &&
-        aggregatedResults.every((result) => result.success);
-
-      this.#activeRunControllers.delete(runId);
-      this.#cancelledRuns.delete(runId);
-
-      const completedMessage: PromptRunCompleteMessage = {
-        type: "prompt-run-complete",
-        payload: {
-          runId,
-          promptId,
-          timestamp: now(),
-          success: !wasCancelled && overallSuccess,
-          results: aggregatedResults,
-        },
-      };
-      this.#sendMessage(completedMessage);
-
-      this.#sendMessage({
-        type: "prompt-run-execution-result",
-        payload: {
-          success: !wasCancelled && overallSuccess,
-          results: aggregatedResults,
-          promptId,
-          timestamp: now(),
-          runSettings: payload.runSettings,
-          runId,
-        },
-      });
-    } catch (error) {
-      console.error("Error executing prompt:", error);
-      const formatted = this.#formatExecutionError(error);
-      const message = `Unexpected error: ${formatted}`;
-      sendRunError(message);
-      this.#activeRunControllers.delete(runId);
-      this.#cancelledRuns.delete(runId);
-      this.#sendMessage({
-        type: "prompt-run-execution-result",
-        payload: {
-          success: false,
-          error: message,
-          promptId,
-          timestamp: now(),
-          results: [],
-          runId,
-        },
-      });
-    }
-  }
-
-  async runPromptFromCommand(): Promise<boolean> {
-    if (!this.#webview) return false;
-    this.#sendMessage({ type: "prompts-execute-from-command" });
-    return true;
-  }
-
-  async rerunLastExecution(): Promise<boolean> {
-    if (!this.#lastExecutionPayload) return false;
-    const payload = this.#cloneExecutionPayload(this.#lastExecutionPayload);
-    await this.#handleExecutePrompt(payload);
-    return true;
-  }
-
-  #formatExecutionError(error: unknown): string {
-    if (typeof error === "string") {
-      const normalized = error.startsWith("Failed to execute prompt: ")
-        ? error.slice("Failed to execute prompt: ".length)
-        : error;
-      return normalized;
-    }
-
-    if (error instanceof Error) {
-      const message = error.message || "Unknown error occurred";
-
-      if (
-        error.name === "AbortError" ||
-        message.toLowerCase().includes("abort")
-      )
-        return "Prompt run cancelled.";
-
-      if (
-        message.includes("network socket disconnected") ||
-        message.includes("TLS connection")
-      )
-        return "Network connectivity issue. Please check your internet connection and try again.";
-
-      if (
-        message.includes("401") ||
-        message.toLowerCase().includes("unauthorized")
-      )
-        return "Invalid API key. Please verify your Vercel Gateway API key is correct.";
-
-      if (message.includes("429"))
-        return "Rate limit exceeded. Please wait a moment and try again.";
-
-      if (
-        message.includes("500") ||
-        message.includes("502") ||
-        message.includes("503")
-      )
-        return "Server error. The Vercel Gateway service may be temporarily unavailable.";
-
-      return message;
-    }
-
-    return "Unknown error occurred";
-  }
-
-  #handleStopPromptRun(payload: StopPromptRunPayload) {
-    const runId = typeof payload?.runId === "string" ? payload.runId : null;
-    if (!runId) return;
-
-    const controllers = this.#activeRunControllers.get(runId);
-    if (controllers) {
-      for (const controller of controllers)
-        if (!controller.signal.aborted) controller.abort();
-      this.#activeRunControllers.delete(runId);
-    }
-
-    this.#cancelledRuns.add(runId);
-  }
-
   //#endregion
 
   //#region Code Sync Manager
 
-  #addRunController(runId: string, controller: AbortController) {
-    const existing = this.#activeRunControllers.get(runId);
-    if (existing) existing.add(controller);
-    else this.#activeRunControllers.set(runId, new Set([controller]));
-  }
-
-  #removeRunController(runId: string, controller: AbortController) {
-    const existing = this.#activeRunControllers.get(runId);
-    if (!existing) return;
-    existing.delete(controller);
-    if (existing.size === 0) this.#activeRunControllers.delete(runId);
-  }
-
   #codeSyncManager: CodeSyncManager | null = null;
-  #aiService: AIService | null = null;
-  #activeRunControllers: Map<string, Set<AbortController>> = new Map();
-  #cancelledRuns: Set<string> = new Set();
 
   #initializeCodeSyncManager() {
     this.register(

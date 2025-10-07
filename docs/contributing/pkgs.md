@@ -15,7 +15,6 @@
 - [`@wrkspc/types-src`](../../pkgs/types): Genotype build workspace for shared types.
 - [`@mindrig/types`](../../pkgs/types/pkgs/ts) (public): Generated TypeScript types for prompts and schema data.
 - [`mindrig_types`](../../pkgs/types/pkgs/rs) (public): Mind Rig shared types crate.
-- [`@wrkspc/vsc-controller`](../../pkgs/vsc-controller): Mind Rig VS Code controller helpers.
 - [`vscode`](../../pkgs/vsc-extension) (public): Mind Rig extension for VS Code.
 - [`@wrkspc/vsc-settings`](../../pkgs/vsc-settings): Mind Rig VS Code settings helpers.
 - [`@wrkspc/vsc-state`](../../pkgs/vsc-state): Mind Rig VS Code state helpers.

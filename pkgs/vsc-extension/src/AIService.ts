@@ -1,5 +1,5 @@
+import { Manager } from "@/aspects/manager/Manager.js";
 import { createGateway } from "@ai-sdk/gateway";
-import { VscController } from "@wrkspc/vsc-controller";
 import {
   streamText,
   type LanguageModelRequestMetadata,
@@ -42,7 +42,7 @@ interface PromptRunSummary {
   warnings?: StreamFinishEvent["warnings"];
 }
 
-export class AIService extends VscController {
+export class AIService extends Manager {
   #apiKey: string | null = null;
 
   constructor(apiKey?: string) {

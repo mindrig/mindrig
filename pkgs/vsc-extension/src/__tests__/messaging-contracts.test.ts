@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type * as vscode from "vscode";
-import * as VSCode from "vscode";
 
 import { createWorkbenchHarness } from "../testUtils/messages";
 
@@ -125,7 +124,7 @@ describe("WorkbenchViewProvider messaging contracts", () => {
   it("responds to sync-init with current state vector", async () => {
     const { receive, posted, flush } = await createWorkbenchHarness();
 
-    receive({ type: "lifecycle-webview-ready" });
+    receive({ type: "lifecycle-wv-ready" });
 
     const fileState = {
       path: "/workspace/file.ts",
@@ -173,7 +172,7 @@ describe("WorkbenchViewProvider messaging contracts", () => {
   it("applies inbound sync updates to the code manager", async () => {
     const { receive, flush } = await createWorkbenchHarness();
 
-    receive({ type: "lifecycle-webview-ready" });
+    receive({ type: "lifecycle-wv-ready" });
 
     const fileState = {
       path: "/workspace/file.ts",

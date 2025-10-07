@@ -1,9 +1,9 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import type { VscMessage } from "@wrkspc/vsc-message";
 import type { VscMessageBus } from "@/aspects/message";
-import type { SecretManager } from "../SecretManager";
-import { ModelsDataController } from "../ModelsDataController";
 import { createGateway } from "@ai-sdk/gateway";
+import type { VscMessage } from "@wrkspc/vsc-message";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { SecretsManager } from "../aspects/secret/Manager";
+import { ModelsDataController } from "../ModelsDataController";
 
 vi.mock("@ai-sdk/gateway", () => ({
   createGateway: vi.fn(),
@@ -60,14 +60,14 @@ class StubMessageBus implements Pick<VscMessageBus, "on" | "send"> {
   }
 }
 
-class StubSecretManager implements Pick<SecretManager, "getSecret"> {
+class StubSecretManager implements Pick<SecretsManager, "getSecret"> {
   #secret: string | null;
 
   constructor(initial: string | null) {
     this.#secret = initial;
   }
 
-  async getSecret() {
+  async get() {
     return this.#secret ?? undefined;
   }
 }
@@ -92,10 +92,12 @@ describe("ModelsDataController", () => {
       messageBus: messageBus as unknown as VscMessageBus,
       secretManager: new StubSecretManager(options?.secret ?? null),
       gatewayOrigin,
-      fetchImpl: options?.fetchImpl ?? (async () => ({
-            ok: true,
-            json: async () => sampleFallbackResponse,
-          })) ,
+      fetchImpl:
+        options?.fetchImpl ??
+        (async () => ({
+          ok: true,
+          json: async () => sampleFallbackResponse,
+        })),
     });
 
     return controller;
@@ -188,7 +190,10 @@ describe("ModelsDataController", () => {
 
     let fallbackCallCount = 0;
     const fetchImpl = vi.fn(async (input: Parameters<typeof fetch>[0]) => {
-      const url = typeof input === "string" ? input : (input as Request)?.url ?? String(input);
+      const url =
+        typeof input === "string"
+          ? input
+          : ((input as Request)?.url ?? String(input));
       if (url.includes("/vercel/models")) {
         if (fallbackCallCount === 0) {
           fallbackCallCount += 1;
@@ -226,9 +231,10 @@ describe("ModelsDataController", () => {
     const statusMessage = statusMessages.at(-1);
 
     const fallbackCalls = fetchImpl.mock.calls.filter(([input]) =>
-      (typeof input === "string" ? input : (input as Request)?.url ?? String(input)).includes(
-        "/vercel/models",
-      ),
+      (typeof input === "string"
+        ? input
+        : ((input as Request)?.url ?? String(input))
+      ).includes("/vercel/models"),
     );
     expect(fallbackCalls).toHaveLength(2);
     expect(dataResponse?.payload.gateway?.response.status).toBe("ok");

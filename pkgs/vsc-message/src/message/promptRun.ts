@@ -9,8 +9,8 @@ import type {
 } from "@wrkspc/vsc-types";
 
 export type VscMessagePromptRun =
-  | VscMessagePromptRun.Execute
-  | VscMessagePromptRun.Stop
+  | VscMessagePromptRun.WvExecute
+  | VscMessagePromptRun.WvStop
   | VscMessagePromptRun.Start
   | VscMessagePromptRun.Update
   | VscMessagePromptRun.ResultComplete
@@ -19,49 +19,22 @@ export type VscMessagePromptRun =
   | VscMessagePromptRun.ExecutionResult;
 
 export namespace VscMessagePromptRun {
-  export interface Execute {
-    type: "prompt-run-execute";
-    payload: ExecutePayload;
+  //#region Extension
+
+  export type Extension = never;
+
+  //#endregion
+
+  //#region Webview
+
+  export type Webview = WvExecute | WvStop;
+
+  export interface WvExecute {
+    type: "prompt-run-wv-execute";
+    payload: WvExecutePayload;
   }
 
-  export interface Stop {
-    type: "prompt-run-stop";
-    payload: {
-      runId: string;
-    };
-  }
-
-  export interface Start {
-    type: "prompt-run-start";
-    payload: PromptRunStartedPayload;
-  }
-
-  export interface Update {
-    type: "prompt-run-update";
-    payload: PromptRunUpdatePayload;
-  }
-
-  export interface ResultComplete {
-    type: "prompt-run-result-complete";
-    payload: PromptRunResultCompletedPayload;
-  }
-
-  export interface Complete {
-    type: "prompt-run-complete";
-    payload: PromptRunCompletedPayload;
-  }
-
-  export interface Error {
-    type: "prompt-run-error";
-    payload: PromptRunErrorPayload;
-  }
-
-  export interface ExecutionResult {
-    type: "prompt-run-execution-result";
-    payload: ExecutionResultPayload;
-  }
-
-  export interface ExecutePayload {
+  export interface WvExecutePayload {
     promptText: string;
     variables: Record<string, string>;
     promptId: string;
@@ -95,6 +68,47 @@ export namespace VscMessagePromptRun {
     runSettings?: Record<string, unknown>;
   }
 
+  export interface WvStop {
+    type: "prompt-run-vw-stop";
+    payload: {
+      runId: string;
+    };
+  }
+
+  //#endregion
+
+  //#region Legacy
+
+  export interface Start {
+    type: "prompt-run-start";
+    payload: PromptRunStartedPayload;
+  }
+
+  export interface Update {
+    type: "prompt-run-update";
+    payload: PromptRunUpdatePayload;
+  }
+
+  export interface ResultComplete {
+    type: "prompt-run-result-complete";
+    payload: PromptRunResultCompletedPayload;
+  }
+
+  export interface Complete {
+    type: "prompt-run-complete";
+    payload: PromptRunCompletedPayload;
+  }
+
+  export interface Error {
+    type: "prompt-run-error";
+    payload: PromptRunErrorPayload;
+  }
+
+  export interface ExecutionResult {
+    type: "prompt-run-execution-result";
+    payload: ExecutionResultPayload;
+  }
+
   export interface ExecutionResultPayload {
     success: boolean;
     promptId: string;
@@ -107,4 +121,6 @@ export namespace VscMessagePromptRun {
 
   export interface ResultShell extends PromptRunResultShell {}
   export interface ResultData extends PromptRunResultData {}
+
+  //#endregion
 }

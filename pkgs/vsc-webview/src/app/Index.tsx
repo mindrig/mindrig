@@ -1,17 +1,16 @@
-import { useMessage, useOn } from "@/aspects/message/messageContext";
+import { useMessages } from "@/aspects/message/Context";
 import { useModels } from "@/aspects/models/Context";
 import { useVsc } from "@/aspects/vsc/Context";
 import { Prompt } from "@mindrig/types";
 import { findPromptAtCursor } from "@wrkspc/prompt";
 import type { VscMessagePrompts } from "@wrkspc/vsc-message";
 import { SyncFile } from "@wrkspc/vsc-sync";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Blueprint } from "../aspects/blueprint/Blueprint";
 import { DevDebug } from "../aspects/dev/DebugSection";
 import { FileHeader } from "../aspects/file/Header";
 import { Layout } from "./Layout";
 import { useAppNavigation } from "./navigation";
-import type { GatewaySecretState } from "./hooks/useGatewaySecretState";
 
 type PinnedPromptState = {
   prompt: Prompt;
@@ -24,17 +23,12 @@ type WebviewState = {
   pinnedPrompt?: PinnedPromptState | null;
 };
 
-interface IndexProps {
-  gatewaySecretState: GatewaySecretState;
-}
-
-export function Index({ gatewaySecretState }: IndexProps) {
+export function IndexPage() {
   const { vsc } = useVsc();
-  const { send } = useMessage();
+  const { send, useListen } = useMessages();
   const { navigateTo, currentRoute } = useAppNavigation();
   const [fileState, setFileState] = useState<SyncFile.State | null>(null);
   const [activeFile, setActiveFile] = useState<SyncFile.State | null>(null);
-  const { keyStatus, retry, gatewayError } = useModels();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [parseStatus, setParseStatus] = useState<"success" | "error">(
     "success",
@@ -72,24 +66,16 @@ export function Index({ gatewaySecretState }: IndexProps) {
     [pinnedPrompt, persistPinnedPrompt],
   );
 
-  useEffect(() => {
-    send({ type: "lifecycle-webview-ready" });
-  }, [send]);
-
   const isAuthRoute = currentRoute === "auth";
-  const gatewayResolved = gatewaySecretState.isResolved;
-  const showGatewayErrorBanner =
-    !isAuthRoute && gatewaySecretState.hasKey && keyStatus.status === "error";
-  const showGatewayMissingBanner =
-    !isAuthRoute &&
-    gatewayResolved &&
-    !gatewaySecretState.hasKey &&
-    keyStatus.status !== "error";
 
+  const { gateway } = useModels();
+
+  const gatewayResolved = !!gateway.response;
+  const showGatewayErrorBanner = gateway.response?.data.status === "error";
+  // TODO: Figure out why did we need this.
+  const showGatewayMissingBanner = false;
   const gatewayErrorMessage =
-    gatewayError ??
-    keyStatus.message ??
-    "Failed to validate Vercel Gateway key. Please retry or update your credentials.";
+    gateway.response?.data.status === "error" && gateway.response.data.message;
 
   const targetFile = activeFile;
   const [cursorPromptIdx, cursorPrompt] = useMemo(() => {
@@ -214,7 +200,7 @@ export function Index({ gatewaySecretState }: IndexProps) {
     [activeFile, pinnedPrompt, persistPinnedPrompt],
   );
 
-  useOn(
+  useListen(
     "file-active-change",
     (message) => {
       applyFileState(message.payload ?? null);
@@ -222,7 +208,7 @@ export function Index({ gatewaySecretState }: IndexProps) {
     [applyFileState],
   );
 
-  useOn(
+  useListen(
     "file-content-change",
     (message) => {
       applyFileState(message.payload ?? null);
@@ -230,7 +216,7 @@ export function Index({ gatewaySecretState }: IndexProps) {
     [applyFileState],
   );
 
-  useOn(
+  useListen(
     "file-save",
     (message) => {
       applyFileState(message.payload ?? null);
@@ -238,7 +224,7 @@ export function Index({ gatewaySecretState }: IndexProps) {
     [applyFileState],
   );
 
-  useOn(
+  useListen(
     "file-cursor-change",
     (message) => {
       applyFileState(message.payload ?? null);
@@ -246,7 +232,7 @@ export function Index({ gatewaySecretState }: IndexProps) {
     [applyFileState],
   );
 
-  useOn(
+  useListen(
     "auth-panel-open",
     () => {
       navigateTo("auth");
@@ -254,17 +240,19 @@ export function Index({ gatewaySecretState }: IndexProps) {
     [navigateTo],
   );
 
-  useOn(
+  useListen(
     "prompts-change",
     (message) => {
       handlePromptsChange(message.payload);
     },
     [handlePromptsChange],
   );
+
   return (
     <Layout>
       <div className="flex flex-col gap-2">
-        {!isAuthRoute && gatewayResolved &&
+        {!isAuthRoute &&
+          gatewayResolved &&
           (showGatewayErrorBanner || showGatewayMissingBanner) && (
             <div
               className={
@@ -287,9 +275,7 @@ export function Index({ gatewaySecretState }: IndexProps) {
                 </div>
                 <div
                   className={
-                    showGatewayErrorBanner
-                      ? "text-red-600"
-                      : "text-amber-700"
+                    showGatewayErrorBanner ? "text-red-600" : "text-amber-700"
                   }
                 >
                   {showGatewayErrorBanner
@@ -300,7 +286,7 @@ export function Index({ gatewaySecretState }: IndexProps) {
               <div className="flex shrink-0 gap-2">
                 {showGatewayErrorBanner && (
                   <button
-                    onClick={retry}
+                    onClick={gateway.refresh}
                     className="rounded-lg border border-red-500 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
                   >
                     Retry

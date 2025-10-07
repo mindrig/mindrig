@@ -1,10 +1,10 @@
+import { Manager } from "@/aspects/manager/Manager.js";
 import { createGateway } from "@ai-sdk/gateway";
-import { VscController } from "@wrkspc/vsc-controller";
 import type { ModelDotdev, ModelGateway, ModelVercel } from "@wrkspc/model";
 import type { VscMessageAuth, VscMessageModels } from "@wrkspc/vsc-message";
 
 import type { VscMessageBus } from "@/aspects/message";
-import type { SecretManager } from "./SecretManager";
+import type { SecretsManager } from "./aspects/secret/Manager";
 
 const MODELS_DEV_ENDPOINT = "https://models.dev/api.json";
 const MODELS_DEV_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -27,20 +27,20 @@ type GatewayKeyStatusMessage = Extract<
 
 export interface ModelsDataControllerOptions {
   messageBus: VscMessageBus;
-  secretManager: SecretManager;
+  secretManager: SecretsManager;
   gatewayOrigin: string;
   fetchImpl?: typeof fetch;
   now?: () => number;
 }
 
 interface ModelsDevState {
-  payload: ModelDotdev.Response | undefined;
+  payload: ModelDotdev.ResponseData | undefined;
   fetchedAt: number | null;
 }
 
-export class ModelsDataController extends VscController {
+export class ModelsDataController extends Manager {
   readonly #messageBus: VscMessageBus;
-  readonly #secretManager: SecretManager;
+  readonly #secretManager: SecretsManager;
   readonly #gatewayOrigin: string;
   readonly #fetch: typeof fetch;
   readonly #now: () => number;
@@ -49,7 +49,8 @@ export class ModelsDataController extends VscController {
     payload: undefined,
     fetchedAt: null,
   };
-  #modelsDevInflight: Promise<ModelDotdev.Response | undefined> | null = null;
+  #modelsDevInflight: Promise<ModelDotdev.ResponseData | undefined> | null =
+    null;
 
   #gatewayCache: ModelGateway.Response | undefined;
   #globalGatewayCache: ModelGateway.Response | undefined;
@@ -123,31 +124,32 @@ export class ModelsDataController extends VscController {
 
     if (this.#modelsDevInflight) return this.#modelsDevInflight;
 
-    this.#modelsDevInflight = this.#requestModelsDev()
-      .then((response) => {
-        this.#modelsDevInflight = null;
-        this.#modelsDevState = {
-          payload: response,
-          fetchedAt: now,
-        };
-        return response;
-      });
+    this.#modelsDevInflight = this.#requestModelsDev().then((response) => {
+      this.#modelsDevInflight = null;
+      this.#modelsDevState = {
+        payload: response,
+        fetchedAt: now,
+      };
+      return response;
+    });
 
     return this.#modelsDevInflight;
   }
 
-  async #requestModelsDev(): Promise<ModelDotdev.Response> {
+  async #requestModelsDev(): Promise<ModelDotdev.ResponseData> {
     try {
       const response = await this.#fetch(MODELS_DEV_ENDPOINT);
       if (!response.ok)
-        throw new Error(`models.dev request failed with HTTP ${response.status}`);
+        throw new Error(
+          `models.dev request failed with HTTP ${response.status}`,
+        );
 
-      const data = (await response.json()) as ModelDotdev.Data;
-      return { status: "ok", data } satisfies ModelDotdev.Response;
+      const data = (await response.json()) as ModelDotdev.Payload;
+      return { status: "ok", data } satisfies ModelDotdev.ResponseData;
     } catch (error) {
       const message =
         error instanceof Error ? error.message : String(error ?? "Unknown");
-      return { status: "error", message } satisfies ModelDotdev.Response;
+      return { status: "error", message } satisfies ModelDotdev.ResponseData;
     }
   }
 
@@ -165,10 +167,7 @@ export class ModelsDataController extends VscController {
       .then((response) => {
         this.#gatewayInflight = null;
         this.#gatewayCache = response;
-        if (
-          response.source === "fallback" &&
-          response.response.status === "ok"
-        ) {
+        if (response.source === "fallback" && response.data.status === "ok") {
           this.#globalGatewayCache = response;
         }
         return response;
@@ -187,7 +186,7 @@ export class ModelsDataController extends VscController {
           type: "vercel",
           source: "fallback",
           fetchedAt: now,
-          response: { status: "error", message },
+          data: { status: "error", message },
         };
         this.#gatewayCache = fallbackResponse;
         return fallbackResponse;
@@ -201,7 +200,7 @@ export class ModelsDataController extends VscController {
 
   async #requestGateway(): Promise<ModelGateway.Response> {
     const now = this.#now();
-    const secret = await this.#secretManager.getSecret();
+    const secret = await this.#secretManager.get();
     this.#lastUserAttempted = !!secret;
 
     if (secret) {
@@ -214,7 +213,7 @@ export class ModelsDataController extends VscController {
           type: "vercel",
           source: "user",
           fetchedAt: now,
-          response: { status: "ok", data: normalized },
+          data: { status: "ok", payload: normalized },
         };
         return payload;
       } catch (error) {
@@ -235,7 +234,7 @@ export class ModelsDataController extends VscController {
         type: "vercel",
         source: "fallback",
         fetchedAt: now,
-        response: { status: "ok", data: { models: [] } },
+        data: { status: "ok", payload: { models: [] } },
       } satisfies ModelGateway.Response;
     }
   }
@@ -252,7 +251,7 @@ export class ModelsDataController extends VscController {
       type: "vercel",
       source: "fallback",
       fetchedAt: now,
-      response: { status: "ok", data: normalized },
+      data: { status: "ok", payload: normalized },
     } satisfies ModelGateway.Response;
 
     this.#globalGatewayCache = fallbackResponse;
@@ -268,7 +267,7 @@ export class ModelsDataController extends VscController {
           type: "models-dev-response",
           payload: {
             status: "ok",
-            data: response.data as unknown as ModelDotdev.Response,
+            data: response.data as unknown as ModelDotdev.ResponseData,
           },
         };
         await this.#messageBus.send(payload);
@@ -316,17 +315,19 @@ export class ModelsDataController extends VscController {
 
   async #broadcastKeyStatus() {
     const fetchedAt = this.#gatewayCache?.fetchedAt ?? this.#now();
-    const gatewayResponse = this.#gatewayCache?.response;
+    const gatewayResponse = this.#gatewayCache?.data;
     const hasGatewayError = gatewayResponse?.status === "error";
     const shouldReportError =
       this.#lastUserAttempted && (this.#lastGatewayError || hasGatewayError);
     const status = shouldReportError ? "error" : "ok";
     const message = shouldReportError
-      ? this.#lastGatewayError || (hasGatewayError ? gatewayResponse.message : undefined)
+      ? this.#lastGatewayError ||
+        (hasGatewayError ? gatewayResponse.message : undefined)
       : undefined;
     const fallbackUsed = this.#gatewayCache?.source === "fallback";
     const source =
-      this.#gatewayCache?.source ?? (this.#lastUserAttempted ? "user" : "fallback");
+      this.#gatewayCache?.source ??
+      (this.#lastUserAttempted ? "user" : "fallback");
 
     const payloadData: GatewayKeyStatusMessage["payload"] = {
       status,
@@ -356,11 +357,11 @@ export class ModelsDataController extends VscController {
     return {
       ...this.#globalGatewayCache,
       fetchedAt: now,
-      response: this.#globalGatewayCache.response,
+      data: this.#globalGatewayCache.data,
     } satisfies ModelGateway.Response;
   }
 
-  #normalizeGatewayResponse(raw: unknown): ModelVercel.Data {
+  #normalizeGatewayResponse(raw: unknown): ModelVercel.Payload {
     const modelsArray = Array.isArray((raw as any)?.models)
       ? ((raw as any).models as any[])
       : [];
@@ -370,6 +371,6 @@ export class ModelsDataController extends VscController {
       id: String(model?.id ?? "") as ModelVercel.ModelId,
     }));
 
-    return { models } satisfies ModelVercel.Data;
+    return { models } satisfies ModelVercel.Payload;
   }
 }

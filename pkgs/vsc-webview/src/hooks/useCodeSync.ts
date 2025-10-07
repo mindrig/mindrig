@@ -1,4 +1,4 @@
-import { useMessage, useOn } from "@/aspects/message/messageContext";
+import { useMessage, useMessages } from "@/aspects/message/Context";
 import type { SyncResource } from "@wrkspc/vsc-sync";
 import {
   applyCodeChanges,
@@ -29,7 +29,7 @@ export namespace UseCodeSync {
 }
 
 export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
-  const { send } = useMessage();
+  const { send } = useMessages();
   const { debounceMs = 100, resource } = props;
   const [content, setContent] = useState<string>("");
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -214,8 +214,8 @@ export function useCodeSync(props: UseCodeSync.Props): UseCodeSync.Result {
     [isTargetResource, send, targetResource],
   );
 
-  useOn("sync-update", handleSyncMessage, [handleSyncMessage]);
-  useOn("sync-state-vector", handleSyncMessage, [handleSyncMessage]);
+  useMessage("sync-update", handleSyncMessage, [handleSyncMessage]);
+  useMessage("sync-state-vector", handleSyncMessage, [handleSyncMessage]);
 
   return {
     content,

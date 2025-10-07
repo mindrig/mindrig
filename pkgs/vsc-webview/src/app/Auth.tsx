@@ -1,79 +1,70 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useMessage, useOn } from "@/aspects/message/messageContext";
-import { useModels } from "@/aspects/models/Context";
+import { useAuth } from "@/aspects/auth/Context";
 import { PanelSection } from "@/aspects/panel/Section";
-import { AuthVercel } from "../aspects/auth/Vercel";
+import { Auth } from "@wrkspc/auth";
 import { Button } from "@wrkspc/ds";
+import { AuthVercel } from "../aspects/auth/Vercel";
 import { Layout } from "./Layout";
-import { useAppNavigation } from "./navigation";
-import type { GatewaySecretState } from "./hooks/useGatewaySecretState";
 
-interface AuthProps {
-  gatewaySecretState: GatewaySecretState;
-}
+export function AuthPage() {
+  const { auth, gateway } = useAuth();
 
-export function Auth({ gatewaySecretState }: AuthProps) {
-  const { send } = useMessage();
-  const { goBackOrIndex } = useAppNavigation();
-  const { keyStatus, gatewayError } = useModels();
-  const [openSignal, setOpenSignal] = useState(1);
-  const hasOpenedRef = useRef(false);
+  // const { send } = useMessage();
+  // const { goBackOrIndex } = useAppNavigation();
+  // const { keyStatus, gatewayError } = useModels();
+  // const [openSignal, setOpenSignal] = useState(1);
+  // const hasOpenedRef = useRef(false);
 
-  useEffect(() => {
-    send({ type: "lifecycle-webview-ready" });
-  }, [send]);
+  // useOn(
+  //   "auth-panel-open",
+  //   () => {
+  //     setOpenSignal((value) => value + 1);
+  //   },
+  //   [],
+  // );
 
-  useOn(
-    "auth-panel-open",
-    () => {
-      setOpenSignal((value) => value + 1);
-    },
-    [],
-  );
+  // const handleNavigateBack = useCallback(() => {
+  //   hasOpenedRef.current = false;
+  //   goBackOrIndex();
+  // }, [goBackOrIndex]);
 
-  const handleNavigateBack = useCallback(() => {
-    hasOpenedRef.current = false;
-    goBackOrIndex();
-  }, [goBackOrIndex]);
+  // const handleOpenChange = useCallback(
+  //   (open: boolean) => {
+  //     if (open) {
+  //       hasOpenedRef.current = true;
+  //       return;
+  //     }
 
-  const handleOpenChange = useCallback(
-    (open: boolean) => {
-      if (open) {
-        hasOpenedRef.current = true;
-        return;
-      }
+  //     if (!hasOpenedRef.current) return;
+  //     hasOpenedRef.current = false;
+  //     goBackOrIndex();
+  //   },
+  //   [goBackOrIndex],
+  // );
 
-      if (!hasOpenedRef.current) return;
-      hasOpenedRef.current = false;
-      goBackOrIndex();
-    },
-    [goBackOrIndex],
-  );
+  // const handleSave = useCallback(
+  //   (vercelGatewayKey: string) => {
+  //     if (!vercelGatewayKey) return;
+  //     send({
+  //       type: "auth-ext-vercel-gateway-set",
+  //       payload: vercelGatewayKey,
+  //     });
+  //     send({ type: "models-data-get" });
+  //   },
+  //   [send],
+  // );
 
-  const handleSave = useCallback(
-    (vercelGatewayKey: string) => {
-      if (!vercelGatewayKey) return;
-      send({
-        type: "auth-vercel-gateway-set",
-        payload: vercelGatewayKey,
-      });
-      send({ type: "models-data-get" });
-    },
-    [send],
-  );
+  // const handleClear = useCallback(() => {
+  //   send({ type: "auth-vercel-gateway-clear" });
+  //   send({ type: "models-data-get" });
+  // }, [send]);
 
-  const handleClear = useCallback(() => {
-    send({ type: "auth-vercel-gateway-clear" });
-    send({ type: "models-data-get" });
-  }, [send]);
-
-  const showAuthError =
-    gatewaySecretState.hasKey && keyStatus.status === "error";
-  const authErrorMessage = showAuthError
-    ? keyStatus.message ??
-      gatewayError ??
-      "Failed to validate Vercel Gateway key. Please retry or update your credentials."
-    : null;
+  // const showAuthError =
+  //   gatewaySecretState.hasKey && keyStatus.status === "error";
+  // const authErrorMessage = showAuthError
+  //   ? (keyStatus.message ??
+  //     gatewayError ??
+  //     "Failed to validate Vercel Gateway key. Please retry or update your credentials.")
+  //   : null;
 
   return (
     <Layout>
@@ -86,29 +77,52 @@ export function Auth({ gatewaySecretState }: AuthProps) {
                 Manage the Vercel Gateway credentials for this workspace.
               </p>
             </div>
-            <Button style="label" color="secondary" onClick={handleNavigateBack}>
+            <Button
+              style="label"
+              color="secondary"
+              // onClick={handleNavigateBack}
+            >
               Close
             </Button>
           </div>
         </PanelSection>
 
         <div className="px-5">
-          <AuthVercel
-            maskedKey={gatewaySecretState.maskedKey}
-            hasKey={gatewaySecretState.hasKey}
-            isResolved={gatewaySecretState.isResolved}
-            readOnly={gatewaySecretState.readOnly}
-            isSaving={gatewaySecretState.isSaving}
-            errorMessage={authErrorMessage}
-            validationStatus={keyStatus.status}
-            validationCheckedAt={keyStatus.checkedAt ?? null}
-            onSave={handleSave}
-            onClear={handleClear}
-            openSignal={openSignal}
-            onOpenChange={handleOpenChange}
-          />
+          <Content auth={auth} />
         </div>
       </div>
     </Layout>
   );
+}
+
+namespace Content {
+  export interface Props {
+    auth: Auth;
+  }
+}
+
+function Content(props: Content.Props) {
+  const { auth } = props;
+
+  switch (auth.gateway?.type) {
+    case "vercel":
+    default:
+      return (
+        <AuthVercel
+          gateway={auth.gateway}
+          // maskedKey={gatewaySecretState.maskedKey}
+          // hasKey={gatewaySecretState.hasKey}
+          // isResolved={gatewaySecretState.isResolved}
+          // readOnly={gatewaySecretState.readOnly}
+          // isSaving={gatewaySecretState.isSaving}
+          // errorMessage={authErrorMessage}
+          // validationStatus={keyStatus.status}
+          // validationCheckedAt={keyStatus.checkedAt ?? null}
+          // onSave={handleSave}
+          // onClear={handleClear}
+          // openSignal={openSignal}
+          // onOpenChange={handleOpenChange}
+        />
+      );
+  }
 }

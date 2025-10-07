@@ -1,13 +1,13 @@
-import { Index } from "@/app/Index";
+import { IndexPage } from "@/app/Index";
 import type { GatewaySecretState } from "@/app/hooks/useGatewaySecretState";
+import { MessagesProvider } from "@/aspects/message/Context";
 import { SettingsContext } from "@/aspects/settings/Context";
-import { MessageProvider } from "@/aspects/message/messageContext";
 import { VscContext } from "@/aspects/vsc/Context";
 import { Prompt } from "@mindrig/types";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
-import { HashRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { SyncFile } from "@wrkspc/vsc-sync";
+import { HashRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("katex/dist/katex.min.css", () => ({}));
@@ -216,19 +216,19 @@ describe("prompt pinning", () => {
 
     render(
       <VscContext.Provider value={{ vsc }}>
-        <MessageProvider>
+        <MessagesProvider>
           <SettingsContext.Provider value={{ settings: options.settings }}>
             <HashRouter hashType="slash">
-              <Index gatewaySecretState={gatewayStateWithKey} />
+              <IndexPage gatewaySecretState={gatewayStateWithKey} />
             </HashRouter>
           </SettingsContext.Provider>
-        </MessageProvider>
+        </MessagesProvider>
       </VscContext.Provider>,
     );
 
     await waitFor(() => {
       expect(postMessage).toHaveBeenCalledWith({
-        type: "lifecycle-webview-ready",
+        type: "lifecycle-wv-ready",
       });
     });
 

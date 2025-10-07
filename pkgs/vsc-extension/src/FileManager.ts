@@ -1,5 +1,5 @@
-import { SyncFile } from "@wrkspc/vsc-sync";
 import { Language, languageIdFromExt } from "@wrkspc/lang";
+import { SyncFile } from "@wrkspc/vsc-sync";
 import * as vscode from "vscode";
 import { fileExtFromPath } from "./aspects/file";
 
@@ -184,26 +184,6 @@ export class FileManager {
     const offset = document.offsetAt(position);
     const { line, character } = position;
     return { offset, line, character };
-  }
-
-  //#endregion
-  //#region Editing
-
-  async addCommentToActiveFile(comment: string): Promise<boolean> {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor || !this.#detectFileLang(editor.document)) return false;
-
-    const document = editor.document;
-    const lastLine = document.lineAt(document.lineCount - 1);
-    const position = new vscode.Position(
-      document.lineCount - 1,
-      lastLine.text.length,
-    );
-
-    const edit = new vscode.WorkspaceEdit();
-    edit.insert(document.uri, position, `\n${comment}`);
-
-    return await vscode.workspace.applyEdit(edit);
   }
 
   //#endregion

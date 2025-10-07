@@ -16,6 +16,10 @@
     "lint:fix": "oxlint --fix --fix-suggestions",
     "format": "prettier --write ."
   },
+  "dependencies": {
+    "@wrkspc/auth": "workspace:*",
+    "@wrkspc/settings": "workspace:*"
+  },
   "devDependencies": {
     "oxlint": "^1.13.0",
     "prettier": "^3.6.2",

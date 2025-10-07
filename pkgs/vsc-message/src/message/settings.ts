@@ -1,16 +1,29 @@
-import type { VscSettings } from "@wrkspc/vsc-settings";
+import type { VscSettings } from "@wrkspc/vsc-types";
 
 export type VscMessageSettings =
-  | VscMessageSettings.Update
   | VscMessageSettings.StreamingGet
   | VscMessageSettings.StreamingSet
   | VscMessageSettings.StreamingState;
 
 export namespace VscMessageSettings {
-  export interface Update {
-    type: "settings-update";
+  //#region Extension
+
+  export type Extension = ExtensionUpdate;
+
+  export interface ExtensionUpdate {
+    type: "settings-ext-update";
     payload: VscSettings;
   }
+
+  //#endregion
+
+  //#region Webview
+
+  export type Webview = never;
+
+  //#endregion
+
+  //#region Legacy
 
   export interface StreamingGet {
     type: "settings-streaming-get";
@@ -26,4 +39,6 @@ export namespace VscMessageSettings {
     type: "settings-streaming-state";
     payload: { enabled: boolean };
   }
+
+  //#endregion
 }

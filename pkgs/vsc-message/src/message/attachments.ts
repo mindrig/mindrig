@@ -3,6 +3,20 @@ export type VscMessageAttachments =
   | VscMessageAttachments.Load;
 
 export namespace VscMessageAttachments {
+  //#region Extension
+
+  export type Extension = never;
+
+  //#endregion
+
+  //#region Webview
+
+  export type Webview = never;
+
+  //#endregion
+
+  //#region Legacy
+
   export interface Request {
     type: "attachments-request";
     payload?: { imagesOnly?: boolean };
@@ -29,4 +43,6 @@ export namespace VscMessageAttachments {
     status: "error";
     error: string;
   }
+
+  //#endregion
 }

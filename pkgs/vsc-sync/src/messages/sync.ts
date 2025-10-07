@@ -6,6 +6,20 @@ export type VscMessageSync =
   | VscMessageSync.Init;
 
 export namespace VscMessageSync {
+  //#region Extension
+
+  export type Extension = never;
+
+  //#endregion
+
+  //#region Webview
+
+  export type Webview = never;
+
+  //#endregion
+
+  //#region Legacy
+
   export interface Base<Type extends string> {
     type: Type;
     resource: SyncResource;
@@ -24,4 +38,6 @@ export namespace VscMessageSync {
   }
 
   export interface Init extends Base<"sync-init"> {}
+
+  //#endregion
 }

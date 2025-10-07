@@ -1,11 +1,10 @@
-import React from "react";
-import { HashRouter } from "react-router-dom";
 import { act, cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { HashRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { Auth } from "@/app/Auth";
-import { Index } from "@/app/Index";
+import { AuthPage } from "@/app/Auth";
+import { IndexPage } from "@/app/Index";
 import { useGatewaySecretState } from "@/app/hooks/useGatewaySecretState";
 import { SettingsContext } from "@/aspects/settings/Context";
 import {
@@ -23,12 +22,15 @@ const navigationMocks = vi.hoisted(() => ({
   replaceWith: vi.fn(),
 }));
 
-const routeState = vi.hoisted(() => ({ currentRoute: "auth" as "auth" | "index" }));
+const routeState = vi.hoisted(() => ({
+  currentRoute: "auth" as "auth" | "index",
+}));
 
 vi.mock("@/app/navigation", () => ({
   useAppNavigation: () => ({
     currentRoute: routeState.currentRoute,
-    currentPath: routeState.currentRoute === "auth" ? ("/auth" as const) : ("/" as const),
+    currentPath:
+      routeState.currentRoute === "auth" ? ("/auth" as const) : ("/" as const),
     navigateTo: navigationMocks.navigateTo,
     replaceWith: navigationMocks.replaceWith,
     goBackOrIndex: navigationMocks.goBackOrIndex,
@@ -36,7 +38,13 @@ vi.mock("@/app/navigation", () => ({
 }));
 
 let modelsContextHelpers: {
-  setState: (partial: Partial<{ keyStatus: KeyStatus; gatewayError: string | null; retry: ReturnType<typeof vi.fn> }>) => void;
+  setState: (
+    partial: Partial<{
+      keyStatus: KeyStatus;
+      gatewayError: string | null;
+      retry: ReturnType<typeof vi.fn>;
+    }>,
+  ) => void;
   resetState: () => void;
   getDefaultKeyStatus: () => KeyStatus;
 };
@@ -51,11 +59,13 @@ type KeyStatus = {
 };
 
 type ModelsContextModule = {
-  __setModelsState: (partial: Partial<{
-    keyStatus: KeyStatus;
-    gatewayError: string | null;
-    retry: ReturnType<typeof vi.fn>;
-  }>) => void;
+  __setModelsState: (
+    partial: Partial<{
+      keyStatus: KeyStatus;
+      gatewayError: string | null;
+      retry: ReturnType<typeof vi.fn>;
+    }>,
+  ) => void;
   __resetModelsState: () => void;
   __getDefaultKeyStatus: () => KeyStatus;
 };
@@ -135,12 +145,14 @@ vi.mock("@/aspects/models/Context", () => {
 let modelsContext: ModelsContextModule;
 
 beforeAll(async () => {
-  modelsContext = (await import("@/aspects/models/Context")) as ModelsContextModule;
+  modelsContext = (await import(
+    "@/aspects/models/Context"
+  )) as ModelsContextModule;
 });
 
 function AuthWithGatewayState() {
   const gatewayState = useGatewaySecretState();
-  return <Auth gatewaySecretState={gatewayState} />;
+  return <AuthPage gatewaySecretState={gatewayState} />;
 }
 
 describe("Auth route integration", () => {
@@ -192,7 +204,7 @@ describe("Auth route integration", () => {
     await user.click(screen.getByRole("button", { name: /save/i }));
 
     expect(mockVsc.postMessage).toHaveBeenCalledWith({
-      type: "auth-vercel-gateway-set",
+      type: "auth-ext-vercel-gateway-set",
       payload: "vercel_test_key",
     });
     expect(mockVsc.postMessage).toHaveBeenCalledWith({
@@ -202,7 +214,9 @@ describe("Auth route integration", () => {
     const [headerClose] = screen.getAllByRole("button", { name: /close/i });
     await user.click(headerClose);
 
-    await waitFor(() => expect(navigationMocks.goBackOrIndex).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(navigationMocks.goBackOrIndex).toHaveBeenCalled(),
+    );
   });
 
   test("auth-panel-open retriggers visibility once resolved", async () => {
@@ -276,7 +290,7 @@ describe("Auth route integration", () => {
     await user.click(screen.getByRole("button", { name: /save/i }));
 
     expect(mockVsc.postMessage).toHaveBeenCalledWith({
-      type: "auth-vercel-gateway-set",
+      type: "auth-ext-vercel-gateway-set",
       payload: "123",
     });
     expect(mockVsc.postMessage).toHaveBeenCalledWith({
@@ -301,7 +315,8 @@ describe("Auth route integration", () => {
         userAttempted: true,
         checkedAt: Date.now(),
       },
-      gatewayError: "Failed to validate Vercel Gateway key. Please retry or update your credentials.",
+      gatewayError:
+        "Failed to validate Vercel Gateway key. Please retry or update your credentials.",
     });
 
     await dispatchGatewayState({
@@ -311,11 +326,7 @@ describe("Auth route integration", () => {
       isSaving: false,
     });
 
-    await waitFor(() =>
-      expect(
-        screen.getByText(/invalid key/i),
-      ).toBeVisible(),
-    );
+    await waitFor(() => expect(screen.getByText(/invalid key/i)).toBeVisible());
 
     expect(
       screen.getByPlaceholderText(/enter your vercel gateway api key/i),
@@ -371,13 +382,15 @@ describe("Index gateway warnings", () => {
     modelsContext.__setModelsState({
       keyStatus: {
         status: "error",
-        message: "Failed to validate Vercel Gateway key. Please retry or update your credentials.",
+        message:
+          "Failed to validate Vercel Gateway key. Please retry or update your credentials.",
         source: "user",
         fallbackUsed: false,
         userAttempted: true,
         checkedAt: Date.now(),
       },
-      gatewayError: "Failed to validate Vercel Gateway key. Please retry or update your credentials.",
+      gatewayError:
+        "Failed to validate Vercel Gateway key. Please retry or update your credentials.",
     });
 
     const mockVsc = createMockVscApi();
@@ -388,7 +401,7 @@ describe("Index gateway warnings", () => {
         value={{ settings: { playground: { showSource: false } } }}
       >
         <HashRouter hashType="slash">
-          <Index
+          <IndexPage
             gatewaySecretState={{
               maskedKey: "abcd...12",
               hasKey: true,
@@ -431,7 +444,7 @@ describe("Index gateway warnings", () => {
         value={{ settings: { playground: { showSource: false } } }}
       >
         <HashRouter hashType="slash">
-          <Index
+          <IndexPage
             gatewaySecretState={{
               maskedKey: null,
               hasKey: false,
@@ -480,7 +493,7 @@ async function renderAuthRoute() {
 
   await waitFor(() =>
     expect(mockVsc.postMessage).toHaveBeenCalledWith({
-      type: "lifecycle-webview-ready",
+      type: "lifecycle-wv-ready",
     }),
   );
 

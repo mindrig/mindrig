@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useOn } from "@/aspects/message/messageContext";
+import { useMessage } from "@/aspects/message/Context";
 import type { VscMessageAuth } from "@wrkspc/vsc-message";
+import { useState } from "react";
 
 export interface GatewaySecretState {
   maskedKey: string | null;
@@ -21,9 +21,11 @@ const INITIAL_STATE: GatewaySecretState = {
 export function useGatewaySecretState(): GatewaySecretState {
   const [state, setState] = useState<GatewaySecretState>(INITIAL_STATE);
 
-  useOn(
+  useMessage(
     "auth-vercel-gateway-state",
-    (message: Extract<VscMessageAuth, { type: "auth-vercel-gateway-state" }>) => {
+    (
+      message: Extract<VscMessageAuth, { type: "auth-vercel-gateway-state" }>,
+    ) => {
       setState({
         maskedKey: message.payload.maskedKey ?? null,
         hasKey: message.payload.hasKey,

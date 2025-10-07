@@ -7,6 +7,20 @@ export type VscMessageFile =
   | VscMessageFile.CursorChange;
 
 export namespace VscMessageFile {
+  //#region Extension
+
+  export type Extension = never;
+
+  //#endregion
+
+  //#region Webview
+
+  export type Webview = never;
+
+  //#endregion
+
+  //#region Legacy
+
   export interface ActiveChange {
     type: "file-active-change";
     payload: SyncFile.State | null;
@@ -26,4 +40,6 @@ export namespace VscMessageFile {
     type: "file-cursor-change";
     payload: SyncFile.State;
   }
+
+  //#endregion
 }

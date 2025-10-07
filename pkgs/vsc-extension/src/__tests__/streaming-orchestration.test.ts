@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type * as vscode from "vscode";
-import * as VSCode from "vscode";
 
 import { AIService } from "../AIService";
 import {
@@ -100,7 +99,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     const { receive, posted, flush } = await createWorkbenchHarness();
 
     receive({
-      type: "prompt-run-execute",
+      type: "prompt-run-wv-execute",
       payload: {
         promptText: "Hello world",
         variables: {},
@@ -168,7 +167,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     const { receive, posted, flush } = await createWorkbenchHarness();
 
     receive({
-      type: "prompt-run-execute",
+      type: "prompt-run-wv-execute",
       payload: {
         promptText: "Cancel me",
         variables: {},
@@ -183,7 +182,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     const runId = started?.payload.runId;
     expect(runId).toBeTruthy();
 
-    receive({ type: "prompt-run-stop", payload: { runId } });
+    receive({ type: "prompt-run-vw-stop", payload: { runId } });
 
     await flush();
 
@@ -231,7 +230,7 @@ describe("WorkbenchViewProvider streaming orchestration", () => {
     const { receive, posted, flush } = await createWorkbenchHarness();
 
     receive({
-      type: "prompt-run-execute",
+      type: "prompt-run-wv-execute",
       payload: {
         promptText: "Non streaming",
         variables: {},

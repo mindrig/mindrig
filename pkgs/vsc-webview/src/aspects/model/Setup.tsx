@@ -1,6 +1,8 @@
 import { Button } from "@wrkspc/ds";
 import { providerLogoUrl } from "@wrkspc/model";
 
+import { ModelSelector } from "./Selector";
+import { ModelSettings } from "./Settings/Settings";
 import type {
   ModelCapabilities,
   ModelConfig,
@@ -8,43 +10,42 @@ import type {
   ModelOption,
   ProviderOption,
 } from "./Setups";
-import { ModelSelector } from "./Selector";
-import { ModelSettings } from "./Settings";
 
-export interface ModelSetupProps {
-  config: ModelConfig;
-  providerOptions: ProviderOption[];
-  modelOptions: ModelOption[];
-  capabilities: ModelCapabilities;
-  errors: ModelConfigErrors;
-  isExpanded: boolean;
-  canRemove: boolean;
-  onToggleExpand: () => void;
-  onRemove: () => void;
-  onProviderChange: (providerId: string | null) => void;
-  onModelChange: (modelId: string | null) => void;
-  onGenerationOptionChange: (
-    field:
-      | "maxOutputTokens"
-      | "temperature"
-      | "topP"
-      | "topK"
-      | "presencePenalty"
-      | "frequencyPenalty"
-      | "stopSequences"
-      | "seed",
-    value: number | string | undefined,
-  ) => void;
-  onReasoningChange: (
-    updates: Partial<ModelConfig["reasoning"]>,
-  ) => void;
-  onToolsJsonChange: (value: string) => void;
-  onProviderOptionsJsonChange: (value: string) => void;
-  onRequestAttachments: () => void;
-  onClearAttachments: () => void;
+export namespace ModelSetup {
+  export interface Props {
+    // field: Field<ModelSetup, "detachable">;
+    config: ModelConfig;
+    providerOptions: ProviderOption[];
+    modelOptions: ModelOption[];
+    capabilities: ModelCapabilities;
+    errors: ModelConfigErrors;
+    isExpanded: boolean;
+    canRemove: boolean;
+    onToggleExpand: () => void;
+    onRemove: () => void;
+    onProviderChange: (providerId: string | null) => void;
+    onModelChange: (modelId: string | null) => void;
+    onGenerationOptionChange: (
+      field:
+        | "maxOutputTokens"
+        | "temperature"
+        | "topP"
+        | "topK"
+        | "presencePenalty"
+        | "frequencyPenalty"
+        | "stopSequences"
+        | "seed",
+      value: number | string | undefined,
+    ) => void;
+    onReasoningChange: (updates: Partial<ModelConfig["reasoning"]>) => void;
+    onToolsJsonChange: (value: string) => void;
+    onProviderOptionsJsonChange: (value: string) => void;
+    onRequestAttachments: () => void;
+    onClearAttachments: () => void;
+  }
 }
 
-export function ModelSetup(props: ModelSetupProps) {
+export function ModelSetup(props: ModelSetup.Props) {
   const {
     config,
     providerOptions,

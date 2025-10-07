@@ -3,6 +3,20 @@ export type VscMessageDataset =
   | VscMessageDataset.CsvLoad;
 
 export namespace VscMessageDataset {
+  //#region Extension
+
+  export type Extension = never;
+
+  //#endregion
+
+  //#region Webview
+
+  export type Webview = never;
+
+  //#endregion
+
+  //#region Legacy
+
   export interface CsvRequest {
     type: "dataset-csv-request";
     payload?: undefined;
@@ -25,4 +39,6 @@ export namespace VscMessageDataset {
     status: "error";
     error: string;
   }
+
+  //#endregion
 }

@@ -1,6 +1,6 @@
+import type { VscMessage } from "@wrkspc/vsc-message";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Disposable, Webview } from "vscode";
-import type { VscMessage } from "@wrkspc/vsc-message";
 
 import { VscMessageBus } from "./vscMessageBus";
 
@@ -118,49 +118,5 @@ describe("VscMessageBus", () => {
 
     webview.__listeners.forEach((listener) => listener(inbound));
     expect(handler).not.toHaveBeenCalled();
-  });
-
-  it("reports unhandled payloads when debug is enabled", () => {
-    const onUnhandledMessage = vi.fn();
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
-    const bus = new VscMessageBus(webview, {
-      debug: true,
-      onUnhandledMessage,
-    });
-
-    webview.__listeners.forEach((listener) => listener(null));
-
-    expect(onUnhandledMessage).toHaveBeenCalledWith(null);
-    expect(warnSpy).toHaveBeenCalled();
-
-    warnSpy.mockRestore();
-  });
-
-  it("logs inbound and outbound messages when a logger is provided", async () => {
-    const logger = vi.fn();
-    const bus = new VscMessageBus(webview, { logger });
-
-    const outbound: VscMessage = { type: "auth-vercel-gateway-get" };
-    await bus.send(outbound);
-
-    expect(logger).toHaveBeenCalledWith({
-      direction: "out",
-      message: outbound,
-    });
-
-    const inbound: VscMessage = {
-      type: "auth-vercel-gateway-state",
-      payload: {
-        maskedKey: "token",
-        hasKey: true,
-        readOnly: true,
-        isSaving: false,
-      },
-    };
-
-    webview.__listeners.forEach((listener) => listener(inbound));
-
-    expect(logger).toHaveBeenCalledWith({ direction: "in", message: inbound });
   });
 });
