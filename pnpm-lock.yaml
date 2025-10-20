@@ -206,6 +206,9 @@ importers:
       '@wrkspc/theme':
         specifier: workspace:*
         version: link:../../subs/ds/pkgs/theme
+      '@wrkspc/ts':
+        specifier: workspace:*
+        version: link:../ts
       fantasticon:
         specifier: ^3.0.0
         version: 3.0.0

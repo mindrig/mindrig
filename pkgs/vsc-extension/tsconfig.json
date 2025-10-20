@@ -1,8 +1,7 @@
 {
-  "include": ["./src/**/*.ts", "./tests/**/*.ts", "./scripts/**/*.ts"],
+  "extends": "@wrkspc/ts/base",
   "compilerOptions": {
     // Resolve
-    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
@@ -12,24 +11,12 @@
       // TypeScript where to find the local package as well.
       "@mindrig/parser-wasm": ["../parser/pkg"]
     },
-    // Output
-    "noEmit": true,
-    "target": "esnext",
     // Modules
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "isolatedModules": true,
-    "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     // Env
     "lib": ["ES2022"],
-    "types": ["./env.d.ts", "node", "vscode", "mocha"],
-    // Checks
-    "skipLibCheck": true,
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true
+    "types": ["./env.d.ts", "vscode", "mocha"]
   }
 }

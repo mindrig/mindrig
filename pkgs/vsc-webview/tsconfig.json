@@ -1,6 +1,12 @@
 {
   "extends": "@wrkspc/ts/base",
   "compilerOptions": {
+    // Resolve
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    // Env
     "lib": ["ESNext", "DOM"]
   }
 }

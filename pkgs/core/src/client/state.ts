@@ -1,5 +1,5 @@
-import { PromptParse } from "@/prompt";
 import { Auth } from "../auth";
+import { PromptParse } from "../prompt/index.js";
 import { Settings } from "../settings";
 
 export interface ClientState {

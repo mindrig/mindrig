@@ -1,7 +1,7 @@
-import { Datasource } from "@/datasource";
-import { PromptRun } from "@/promptRun";
 import type { Prompt, PromptVar } from "@mindrig/types";
+import { Datasource } from "../datasource";
 import { PromptArguments, substituteVariables } from "../prompt";
+import { PromptRun } from "../promptRun";
 import { DatasetSelection } from "./selection.js";
 
 export * from "./content.js";

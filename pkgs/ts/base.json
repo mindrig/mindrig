@@ -14,10 +14,7 @@
   "compilerOptions": {
     // Resolve
     "rootDir": "${configDir}",
-    "baseUrl": "${configDir}",
-    "paths": {
-      "@/*": ["${configDir}/src/*"]
-    },
+    "paths": {},
     // Output
     "target": "esnext",
     "outDir": "${configDir}/.ts",

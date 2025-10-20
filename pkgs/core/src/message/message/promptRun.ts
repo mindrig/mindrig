@@ -1,13 +1,13 @@
-import { Attachment } from "@/attachment";
-import { ModelSettings } from "@/model";
-import { PromptArguments } from "@/prompt";
+import { Attachment } from "../../attachment/index.js";
+import { ModelSettings } from "../../model/settings.js";
+import { PromptArguments } from "../../prompt/index.js";
 import type {
   PromptRun,
   PromptRunResultCompletedPayload,
   PromptRunResultData,
   PromptRunStartedPayload,
   PromptRunUpdatePayload,
-} from "@/promptRun";
+} from "../../promptRun/index.js";
 
 export type VscMessagePromptRun =
   | VscMessagePromptRun.WvExecute
