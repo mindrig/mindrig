@@ -1,4 +1,4 @@
-import { EditorState } from "src/editor";
+import { EditorState } from "../../editor";
 
 export namespace VscMessageState {
   //#region Extension

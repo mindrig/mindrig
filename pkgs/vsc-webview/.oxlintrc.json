@@ -9,7 +9,7 @@
     "es2022": true
   },
   "rules": {
-    "curly": ["warn", "multi", "consistent"],
+    "curly": "off",
     "eqeqeq": "warn",
     "no-throw-literal": "warn",
     "react/react-in-jsx-scope": "off",

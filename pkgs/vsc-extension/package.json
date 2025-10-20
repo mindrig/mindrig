@@ -186,7 +186,7 @@
     "@wrkspc/theme": "workspace:*",
     "@wrkspc/ts": "workspace:*",
     "fantasticon": "^3.0.0",
-    "oxlint": "^1.13.0",
+    "oxlint": "^1.23.0",
     "playwright-core": "^1.55.0",
     "prettier": "^3.6.2",
     "tsx": "^4.20.5",
