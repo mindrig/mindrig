@@ -34,7 +34,7 @@ Where:
 
 ### Plan File Template
 
-When generating a new plan, only fill out the plan brief file (`000-plan.md`) file using the following template, but do not fill out the step files yet until receiving further instructions to do so:
+When generating a new plan, only fill out the plan brief file (`./000-plan.md`) file using the following template, but do not fill out the step files yet until receiving further instructions to do so:
 
 ```md
 # {{plan_title}}
