@@ -6,7 +6,7 @@ Build the resolver module that reconciles parsed prompts with the persistent map
 
 ## Tasks
 
-- [ ] Install dependencies: Add `fastest-levenshtein` to the core package (`pnpm -F @wrkspc/core add fastest-levenshtein`) before implementing distance matching helpers.
+- [ ] Install dependencies: Add `fastest-levenshtein` to the VS Code extension package (`pnpm -F vscode add fastest-levenshtein`) before implementing distance matching helpers.
 - [ ] Scaffold resolver module: Establish `pkgs/vsc-extension/src/aspects/playground/resolve.ts` exporting all resolver entry points.
 - [ ] Implement map reconciliation helpers: Code `resolveFilePromptsMap`, `matchPlaygroundMapFile`, prompt matching helpers, and supporting utilities per flow charts.
 - [ ] Implement playground state resolver: Implement `resolvePlaygroundState` and ancillary logic for pin/cursor selection while keeping structures immutable.
@@ -15,11 +15,13 @@ Build the resolver module that reconciles parsed prompts with the persistent map
 
 ### Install dependencies
 
-Add `fastest-levenshtein` to the core package by running:
+Add `fastest-levenshtein` to the VS Code extension package by running:
 
 ```bash
-pnpm -F @wrkspc/core add fastest-levenshtein
+pnpm -F vscode add fastest-levenshtein
 ```
+
+Update `pkgs/vsc-extension/vite.config.ts` to list `fastest-levenshtein` in the `external` array so the bundle treats it as a dependency instead of bundling it.
 
 ### Scaffold resolver module
 

@@ -207,7 +207,7 @@ export function matchPlaygroundMapFile(
   props: MatchPlaygroundMapFile.Props
 ): PlaygroundMap.File | null;
 
-export namespace MatchTopScoringMapFileByDistance {
+export namespace MatchPlaygroundMapFileByDistance {
   export interface Props {
     map: PlaygroundMap;
     parsedPrompts: Prompt[];
@@ -215,7 +215,7 @@ export namespace MatchTopScoringMapFileByDistance {
 }
 
 export function matchPlaygroundMapFileByDistance(
-  props: MatchTopScoringMapFileByDistance.Props
+  props: MatchPlaygroundMapFileByDistance.Props
 ): PlaygroundMap.File | null;
 
 export namespace MatchPlaygroundMapPrompts {
