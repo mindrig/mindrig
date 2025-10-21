@@ -55,7 +55,10 @@
         "mitsuhiko.insta",
         "oxc.oxc-vscode",
         "bradlc.vscode-tailwindcss",
-        "vitest.explorer",
+        // TODO: Vitest extension struggles to find `node` and given that we
+        // have many packages, it spams failing VS Code terminals on startup.
+        // Find a way to address this and re-enable the extension.
+        // "vitest.explorer",
         "zoma.vscode-auto-open-workspace",
         "bierner.markdown-mermaid"
       ],
