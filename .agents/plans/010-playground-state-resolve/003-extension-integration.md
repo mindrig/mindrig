@@ -6,13 +6,13 @@ Embed the resolver into the VS Code extension by introducing a `PlaygroundManage
 
 ## Tasks
 
-- [ ] Implement PlaygroundManager skeleton: Define the manager class in `pkgs/vsc-extension/src/aspects/playground/Manager.ts` with constructor wiring and state fields.
-- [ ] Handle editor-driven events: Connect active-change, cursor-update, file-save, and file-update hooks to resolver calls while respecting pin rules.
-- [ ] Persist playground map and pin: Integrate `StoreManager` accessors to load/save map snapshots and ensure workspace scope persistence.
-- [ ] Wire extension registration: Register the manager within `pkgs/vsc-extension/src/aspects/extension/Manager.ts` and expose state to the store/webview messaging pipeline.
-- [ ] Update shared client state: Replace prompt fragments with `PlaygroundState` in `pkgs/core/src/client/state.ts` and update consumers (e.g., `EditorStateManager`).
-- [ ] Add manager test suite: Create `Manager.test.ts` covering event dispatch, resolver usage, persistence behavior, and message emissions.
-- [ ] Validate types, tests, lint, and formatting: After integration changes, execute repository checks for the core and VS Code packages.
+- [x] Implement PlaygroundManager skeleton: Define the manager class in `pkgs/vsc-extension/src/aspects/playground/Manager.ts` with constructor wiring and state fields.
+- [x] Handle editor-driven events: Connect active-change, cursor-update, file-save, and file-update hooks to resolver calls while respecting pin rules.
+- [x] Persist playground map and pin: Integrate `StoreManager` accessors to load/save map snapshots and ensure workspace scope persistence.
+- [x] Wire extension registration: Register the manager within `pkgs/vsc-extension/src/aspects/extension/Manager.ts` and expose state to the store/webview messaging pipeline.
+- [x] Update shared client state: Replace prompt fragments with `PlaygroundState` in `pkgs/core/src/client/state.ts` and update consumers (e.g., `EditorStateManager`).
+- [x] Add manager test suite: Create `Manager.test.ts` covering event dispatch, resolver usage, persistence behavior, and message emissions.
+- [x] Validate types, tests, lint, and formatting: After integration changes, execute repository checks for the core and VS Code packages.
 
 ### Implement PlaygroundManager skeleton
 

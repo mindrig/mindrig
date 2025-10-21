@@ -1,5 +1,10 @@
+import type { PlaygroundMap } from "../playground/index.js";
+import type { PlaygroundState } from "../playground/index.js";
+
 export type Store = {
   "playground.streaming"?: boolean | undefined;
+  playground?: PlaygroundMap | undefined;
+  "playground.pin"?: PlaygroundState.Ref | null | undefined;
 };
 
 export namespace Store {
@@ -21,7 +26,10 @@ export namespace Store {
 
   export type GlobalKeys = keyof Global;
 
-  export interface Workspace {}
+  export interface Workspace {
+    playground?: PlaygroundMap | undefined;
+    "playground.pin"?: PlaygroundState.Ref | null | undefined;
+  }
 
   export type WorkspaceKeys = keyof Workspace;
 
