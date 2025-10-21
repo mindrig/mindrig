@@ -168,6 +168,7 @@
     "@mindrig/parser-wasm": "0.1.0",
     "ai": "^5.0.28",
     "alwaysly": "^0.3.0",
+    "fastest-levenshtein": "^1.0.16",
     "mime": "^4.1.0",
     "nanoid": "^5.0.7",
     "p-queue": "^8.0.1",

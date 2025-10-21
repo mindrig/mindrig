@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => ({
         "@ai-sdk/gateway",
         "mime",
         "alwaysly",
+        "fastest-levenshtein",
       ],
     },
     outDir: "dist/extension",
