@@ -6,12 +6,12 @@ Build the resolver module that reconciles parsed prompts with the persistent map
 
 ## Tasks
 
-- [ ] Install dependencies: Add `fastest-levenshtein` to the VS Code extension package (`pnpm -F vscode add fastest-levenshtein`) before implementing distance matching helpers.
-- [ ] Scaffold resolver module: Establish `pkgs/vsc-extension/src/aspects/playground/resolve.ts` exporting all resolver entry points.
-- [ ] Implement map reconciliation helpers: Code `resolveFilePromptsMap`, `matchPlaygroundMapFile`, prompt matching helpers, and supporting utilities per flow charts.
-- [ ] Implement playground state resolver: Implement `resolvePlaygroundState` and ancillary logic for pin/cursor selection while keeping structures immutable.
-- [ ] Add resolver test suites: Write targeted unit tests in `resolve.test.ts` covering map reconciliation, matching heuristics (including threshold tuning), and state decisions.
-- [ ] Validate types, tests, lint, and formatting: After completing implementation tasks, run repository checks covering core and extension packages.
+- [x] Install dependencies: Add `fastest-levenshtein` to the VS Code extension package (`pnpm -F vscode add fastest-levenshtein`) before implementing distance matching helpers.
+- [x] Scaffold resolver module: Establish `pkgs/vsc-extension/src/aspects/playground/resolve.ts` exporting all resolver entry points.
+- [x] Implement map reconciliation helpers: Code `resolveFilePromptsMap`, `matchPlaygroundMapFile`, prompt matching helpers, and supporting utilities per flow charts.
+- [x] Implement playground state resolver: Implement `resolvePlaygroundState` and ancillary logic for pin/cursor selection while keeping structures immutable.
+- [x] Add resolver test suites: Write targeted unit tests in `resolve.test.ts` covering map reconciliation, matching heuristics (including threshold tuning), and state decisions.
+- [x] Validate types, tests, lint, and formatting: After completing implementation tasks, run repository checks covering core and extension packages.
 
 ### Install dependencies
 

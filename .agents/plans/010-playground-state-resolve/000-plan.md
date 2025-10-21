@@ -10,7 +10,7 @@
 ## Steps
 
 - [x] [Define Playground Contracts](.agents/plans/010-playground-state-resolve/001-core-contracts.md): Specify shared playground types, message envelopes, and architecture doc updates reflecting the pared-down resolve payload and ID-focused map.
-- [ ] [Implement Map and Resolver Logic](.agents/plans/010-playground-state-resolve/002-map-logic.md): Build the resolving functions, constants, and helpers that update the map, match prompts, and return resolved payloads, with focused unit coverage.
+- [x] [Implement Map and Resolver Logic](.agents/plans/010-playground-state-resolve/002-map-logic.md): Build the resolving functions, constants, and helpers that update the map, match prompts, and return resolved payloads, with focused unit coverage.
 - [ ] [Integrate Extension Events](.agents/plans/010-playground-state-resolve/003-extension-integration.md): Add a playground manager that applies the resolver to editor events, handles pin toggles, and exercises the flow through unit tests of the VS Code extension layer.
 
 ### [Define Playground Contracts](.agents/plans/010-playground-state-resolve/001-core-contracts.md)
@@ -310,9 +310,18 @@ describe(matchPlaygroundMapPromptsByContent, () => {
 });
 ```
 
+#### Tasks
+
+- [x] Install dependencies
+- [x] Scaffold resolver module
+- [x] Implement map reconciliation helpers
+- [x] Implement playground state resolver
+- [x] Add resolver test suites
+- [x] Validate types, tests, lint, and formatting
+
 #### Status
 
-TODO
+Completed. Added `resolve.ts` with map reconciliation, distance/content matching helpers, and state resolver, tuned thresholds, and backed it with targeted unit tests plus full type/lint/format runs for core and extension packages.
 
 ### [Integrate Extension Events](.agents/plans/010-playground-state-resolve/003-extension-integration.md)
 
