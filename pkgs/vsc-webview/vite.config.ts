@@ -6,7 +6,7 @@ import { defineConfig, PluginOption } from "vite";
 // NOTE: When developing inside a dev container, the default `localhost`
 // prevents the host to access the dev server.
 const host = "127.0.0.1";
-const port = 5173;
+const port = 3191;
 const origin = `http://${host}:${port}`;
 
 export default defineConfig(({ mode }) => {

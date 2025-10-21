@@ -27,7 +27,7 @@ Storybook lives in the private package [`@wrkspc/storybook`](../../pkgs/storyboo
 
 ### Run Storybook locally
 
-- `pnpm --filter @wrkspc/storybook dev` starts the dev server on http://localhost:6006.
+- `pnpm --filter @wrkspc/storybook dev` starts the dev server on http://localhost:3190.
 - The host aggregates stories from `pkgs/vsc-webview` and `subs/ds/pkgs/ui`; it hot reloads changes to colocated `*.stories.tsx` files.
 - Set `STORYBOOK_DISABLE_TELEMETRY=1` locally if you prefer to skip upstream telemetry.
 

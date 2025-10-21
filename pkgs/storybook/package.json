@@ -5,7 +5,7 @@
   "description": "Workspace Storybook host aggregating UI stories",
   "type": "module",
   "scripts": {
-    "dev": "storybook dev --config-dir ./src/ --port 6006",
+    "dev": "storybook dev --config-dir ./src/ --port 3190",
     "build": "storybook build --config-dir ./src/ --output-dir dist",
     "test": "vitest run",
     "test:watch": "vitest",

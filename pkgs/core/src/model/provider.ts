@@ -9,7 +9,7 @@ export interface ModelProvider {
 
 export namespace ModelProvider {
   // NOTE: Get up-to-date ids using command:
-  //     curl --silent http://localhost:3100/vercel/models | jaq -r '[.models[].specification.provider] | unique | sort | map("\"" + . + "\"") | join(" | ")'
+  //     curl --silent http://localhost:3110/vercel/models | jaq -r '[.models[].specification.provider] | unique | sort | map("\"" + . + "\"") | join(" | ")'
   export type Id =
     | "alibaba"
     | "anthropic"

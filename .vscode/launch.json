@@ -71,7 +71,7 @@
       "name": "storybook#dev",
       "type": "msedge",
       "request": "launch",
-      "url": "http://localhost:6006",
+      "url": "http://localhost:3190",
       "webRoot": "${workspaceFolder}",
       "preLaunchTask": "storybook#dev"
     },

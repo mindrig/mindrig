@@ -11,7 +11,7 @@ export namespace ModelVercel {
   //#region Ids
 
   // NOTE: Get up-to-date ids using command:
-  //     curl --silent http://localhost:3100/vercel/models | jaq -r '[.models[].id | split("/")[0]] | unique | sort | map("\"" + . + "\"") | join(" | ")'
+  //     curl --silent http://localhost:3110/vercel/models | jaq -r '[.models[].id | split("/")[0]] | unique | sort | map("\"" + . + "\"") | join(" | ")'
   export type DeveloperId =
     | "alibaba"
     | "amazon"
@@ -34,7 +34,7 @@ export namespace ModelVercel {
     | "zai";
 
   // NOTE: Get up-to-date ids using command:
-  //     curl --silent http://localhost:3100/vercel/models | jaq -r '[.models[].specification.provider] | unique | sort | map("\"" + . + "\"") | join(" | ")'
+  //     curl --silent http://localhost:3110/vercel/models | jaq -r '[.models[].specification.provider] | unique | sort | map("\"" + . + "\"") | join(" | ")'
   export type ProviderId =
     | "alibaba"
     | "anthropic"

@@ -71,7 +71,7 @@ Expose Storybook commands through PNPM and Turborepo.
 
 #### Description
 
-- Add `dev` (`storybook dev -p 6006`) and `build` (`storybook build --output-dir dist`) scripts to `pkgs/storybook/package.json`.
+- Add `dev` (`storybook dev -p 3190`) and `build` (`storybook build --output-dir dist`) scripts to `pkgs/storybook/package.json`.
 - Update the repo root `package.json` to include shortcuts (`storybook`, `build`) that call into the workspace script via `pnpm --filter @wrkspc/storybook`.
 - Extend `turbo.json` with tasks for `dev` and `build`, specifying `outputs` for the build (`pkgs/storybook/dist/**`) and optional cache configuration.
 - Capture any additional dependency updates (e.g., lockfile changes) for future execution review.
