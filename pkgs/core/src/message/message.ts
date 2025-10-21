@@ -5,6 +5,7 @@ import type { VscMessageEditor } from "./message/editor.js";
 import type { VscMessageLifecycle } from "./message/lifecycle.js";
 import type { VscMessageModels } from "./message/models.js";
 import type { VscMessagePage } from "./message/page.js";
+import type { VscMessagePlayground } from "./message/playground.js";
 import type { VscMessagePrompt } from "./message/prompt.js";
 import type { VscMessagePromptRun } from "./message/promptRun.js";
 import type { VscMessageSettings } from "./message/settings.js";
@@ -22,7 +23,8 @@ export namespace VscMessage {
     | VscMessageDataset.Extension
     | VscMessageModels.Extension
     | VscMessageLifecycle.Extension
-    | VscMessagePage.Extension;
+    | VscMessagePage.Extension
+    | VscMessagePlayground.Extension;
 
   export type ExtensionType = Extension["type"];
 
@@ -37,7 +39,8 @@ export namespace VscMessage {
     | VscMessageDataset.Webview
     | VscMessageModels.Webview
     | VscMessageLifecycle.Webview
-    | VscMessagePage.Webview;
+    | VscMessagePage.Webview
+    | VscMessagePlayground.Webview;
 
   export type WebviewType = Webview["type"];
 }

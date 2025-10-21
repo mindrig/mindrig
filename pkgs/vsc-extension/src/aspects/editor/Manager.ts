@@ -101,7 +101,7 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
     }
 
     return {
-      path: document.uri.fsPath,
+      path: EditorFile.path(document.uri.fsPath),
       content: document.getText(),
       isDirty: document.isDirty,
       lastSaved: document.isDirty ? undefined : new Date(),
@@ -143,7 +143,7 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
   //#region File state
 
   #onFileUpdate(event: vscode.TextDocumentChangeEvent) {
-    const filePath = event.document.uri.fsPath;
+    const filePath = EditorFile.path(event.document.uri.fsPath);
 
     if (filePath !== this.#activeFile?.path) return;
 
@@ -162,7 +162,7 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
   }
 
   #onFileSave(document: vscode.TextDocument) {
-    const filePath = document.uri.fsPath;
+    const filePath = EditorFile.path(document.uri.fsPath);
 
     if (filePath !== this.#activeFile?.path) return;
 
@@ -187,7 +187,10 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
 
   #onCursorUpdate(event: vscode.TextEditorSelectionChangeEvent) {
     const { textEditor } = event;
-    if (textEditor.document.uri.fsPath !== this.#activeFile?.path) return;
+    if (
+      EditorFile.path(textEditor.document.uri.fsPath) !== this.#activeFile?.path
+    )
+      return;
 
     const position = event.selections[0]?.active;
     if (!position) return;

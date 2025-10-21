@@ -9,7 +9,7 @@
 
 ## Steps
 
-- [ ] [Define Playground Contracts](.agents/plans/010-playground-state-resolve/001-core-contracts.md): Specify shared playground types, message envelopes, and architecture doc updates reflecting the pared-down resolve payload and ID-focused map.
+- [x] [Define Playground Contracts](.agents/plans/010-playground-state-resolve/001-core-contracts.md): Specify shared playground types, message envelopes, and architecture doc updates reflecting the pared-down resolve payload and ID-focused map.
 - [ ] [Implement Map and Resolver Logic](.agents/plans/010-playground-state-resolve/002-map-logic.md): Build the resolving functions, constants, and helpers that update the map, match prompts, and return resolved payloads, with focused unit coverage.
 - [ ] [Integrate Extension Events](.agents/plans/010-playground-state-resolve/003-extension-integration.md): Add a playground manager that applies the resolver to editor events, handles pin toggles, and exercises the flow through unit tests of the VS Code extension layer.
 
@@ -151,9 +151,18 @@ export namespace VscMessagePlayground {
 
 Register the new message types within `pkgs/core/src/message/message.ts`, and revise the architecture documents to call out the separation between `PlaygroundState` (shared payload) and `PlaygroundMap` (server-only ID map).
 
+#### Tasks
+
+- [x] Audit editor and message types: Reviewed `pkgs/core/src/editor/file.ts` and message modules to confirm the required hooks for new playground contracts.
+- [x] Author playground state namespace
+- [x] Author playground map namespace
+- [x] Author messages
+- [x] Expose playground module entrypoints
+- [x] Validate types, tests, lint, and formatting
+
 #### Status
 
-TODO
+Completed. Core now publishes the shared `PlaygroundState` and `PlaygroundMap` namespaces plus the `VscMessagePlayground` envelope, with package exports refreshed, architecture docs updated, and repo checks (types, tests, lint, format) passing.
 
 ### [Implement Map and Resolver Logic](.agents/plans/010-playground-state-resolve/002-map-logic.md)
 
