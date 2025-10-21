@@ -11,7 +11,7 @@
 
 - [x] [Define Playground Contracts](.agents/plans/010-playground-state-resolve/001-core-contracts.md): Specify shared playground types, message envelopes, and architecture doc updates reflecting the pared-down resolve payload and ID-focused map.
 - [x] [Implement Map and Resolver Logic](.agents/plans/010-playground-state-resolve/002-map-logic.md): Build the resolving functions, constants, and helpers that update the map, match prompts, and return resolved payloads, with focused unit coverage.
-- [ ] [Integrate Extension Events](.agents/plans/010-playground-state-resolve/003-extension-integration.md): Add a playground manager that applies the resolver to editor events, handles pin toggles, and exercises the flow through unit tests of the VS Code extension layer.
+- [x] [Integrate Extension Events](.agents/plans/010-playground-state-resolve/003-extension-integration.md): Add a playground manager that applies the resolver to editor events, handles pin toggles, and exercises the flow through unit tests of the VS Code extension layer.
 
 ### [Define Playground Contracts](.agents/plans/010-playground-state-resolve/001-core-contracts.md)
 
@@ -398,9 +398,19 @@ Author `pkgs/vsc-extension/src/aspects/playground/Manager.test.ts` exercising:
 
 Mock dependencies (VS Code APIs, `MessagesManager`, `EditorManager`, `PromptsManager`, `StoreManager`, etc.) to isolate the manager logic. Keep the mocks minimal and targeted, preferring spies and `any` (in case of type mismatches) to verify interactions, avoiding lengthy stubs.
 
+#### Tasks
+
+- [x] Implement PlaygroundManager skeleton
+- [x] Handle editor-driven events
+- [x] Persist playground map and pin
+- [x] Wire extension registration
+- [x] Update shared client state
+- [x] Add manager test suite
+- [x] Validate types, tests, lint, and formatting
+
 #### Status
 
-TODO
+Completed. Extension now ships a `PlaygroundManager` that hydrates map/pin from the store, processes editor lifecycle events, persists updates, and broadcasts resolver snapshots; wiring pulls it into the webview bootstrap and editor state alongside the updated core client state and dedicated manager tests.
 
 ## Questions
 

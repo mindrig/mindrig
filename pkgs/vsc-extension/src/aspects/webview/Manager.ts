@@ -12,6 +12,7 @@ import { ModelsGatewayManager } from "../model/GatewayManager";
 import { PageManager } from "../page/Manager";
 import { PromptsManager } from "../prompt/Manager";
 import { PromptRunManager } from "../promptRun/Manager";
+import { PlaygroundManager } from "../playground/Manager";
 import { SecretsManager } from "../secret/Manager";
 import { SettingsManager } from "../settings/Manager";
 import { StoreManager } from "../store/Manager";
@@ -37,6 +38,7 @@ export class WebviewManager extends Manager {
   #store: StoreManager;
   #editor: EditorManager;
   #prompts: PromptsManager;
+  #playground: PlaygroundManager;
   #promptRun: PromptRunManager;
   #datasets: DatasetsManager;
   #attachments: AttachmentsManager;
@@ -90,6 +92,13 @@ export class WebviewManager extends Manager {
       editor: this.#editor,
     });
 
+    this.#playground = new PlaygroundManager(this, {
+      messages: this.#messages,
+      editor: this.#editor,
+      prompts: this.#prompts,
+      store: this.#store,
+    });
+
     this.#promptRun = new PromptRunManager(this, {
       messages: this.#messages,
       secrets: this.#secrets,
@@ -110,8 +119,8 @@ export class WebviewManager extends Manager {
     this.#editorState = new EditorStateManager(this, {
       auth: this.#auth,
       settings: this.#settings,
-      prompts: this.#prompts,
       editor: this.#editor,
+      playground: this.#playground,
     });
 
     this.#html = new WebviewHtmlManager(this, {
