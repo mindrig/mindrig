@@ -1,15 +1,13 @@
 import { Manager } from "@/aspects/manager/Manager.js";
-import { EditorState } from "@wrkspc/core/editor";
+import { ClientState } from "@wrkspc/core/client";
 import { AuthManager } from "../auth/Manager";
 import { PlaygroundManager } from "../playground/Manager";
 import { SettingsManager } from "../settings/Manager";
-import { EditorManager } from "./Manager";
 
 export namespace EditorStateManager {
   export interface Props {
     auth: AuthManager;
     settings: SettingsManager;
-    editor: EditorManager;
     playground: PlaygroundManager;
   }
 }
@@ -17,7 +15,6 @@ export namespace EditorStateManager {
 export class EditorStateManager extends Manager {
   #auth: AuthManager;
   #settings: SettingsManager;
-  #editor: EditorManager;
   #playground: PlaygroundManager;
 
   constructor(parent: Manager, props: EditorStateManager.Props) {
@@ -25,16 +22,14 @@ export class EditorStateManager extends Manager {
 
     this.#auth = props.auth;
     this.#settings = props.settings;
-    this.#editor = props.editor;
     this.#playground = props.playground;
   }
 
-  get state(): EditorState {
+  get state(): ClientState {
     return {
       auth: this.#auth.state,
       settings: this.#settings.state,
       playground: this.#playground.state,
-      file: this.#editor.activeFile,
     };
   }
 }

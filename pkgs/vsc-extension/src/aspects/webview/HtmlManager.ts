@@ -3,13 +3,13 @@ import { Manager } from "@/aspects/manager/Manager.js";
 import { WebviewHtml, webviewHtml } from "@/aspects/webview/html";
 import * as vscode from "vscode";
 import { AssetResolver } from "../asset/types";
-import { EditorStateManager } from "../editor/StateManager";
+import { ClientStateManager } from "../client/StateManager";
 
 export namespace WebviewHtmlManager {
   export interface Props {
     extensionUri: vscode.Uri;
     webview: vscode.Webview;
-    state: EditorStateManager;
+    state: ClientStateManager;
   }
 
   export type ViteManifest = Record<string, ViteManifestEntry>;
@@ -27,7 +27,7 @@ export class WebviewHtmlManager extends Manager {
   #extensionUri: vscode.Uri;
   #webview: vscode.Webview;
   #manifest: WebviewHtmlManager.ViteManifest | undefined | null;
-  #state: EditorStateManager;
+  #state: ClientStateManager;
 
   constructor(parent: Manager, props: WebviewHtmlManager.Props) {
     super(parent);
