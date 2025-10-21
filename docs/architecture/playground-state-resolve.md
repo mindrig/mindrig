@@ -92,6 +92,10 @@ flowchart TB
 
 The idea of the map is to maintain a stable association between prompts and their playground state across file edits. Essentially it exists only to obtain the correct prompt reference (file and prompt IDs) to load the playground state from.
 
+## Contracts
+
+The VS Code extension and the webview exchange a canonical `PlaygroundState` payload exported from `@wrkspc/core/playground`. Playground state only contains prompt identifiers, trimmed previews, and the chosen prompt entry. The resolver tracks richer history inside `PlaygroundMap`, also exported from `@wrkspc/core/playground`, which maintains per-file prompt IDs, contents, and timestamps. `PlaygroundMap` never leaves the extension process; it is used to derive `PlaygroundState` snapshots emitted via the `VscMessagePlayground` message channel.
+
 ## Algorithms
 
 ### `resolveFilePromptsMap`

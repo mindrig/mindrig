@@ -17,6 +17,7 @@
     "./message": "./src/message/index.ts",
     "./model": "./src/model/index.ts",
     "./page": "./src/page/index.ts",
+    "./playground": "./src/playground/index.ts",
     "./prompt": "./src/prompt/index.ts",
     "./promptRun": "./src/promptRun/index.ts",
     "./settings": "./src/settings/index.ts",

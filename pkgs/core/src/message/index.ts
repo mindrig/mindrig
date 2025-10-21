@@ -6,6 +6,7 @@ export * from "./message/editor.js";
 export * from "./message/lifecycle.js";
 export * from "./message/models.js";
 export * from "./message/page.js";
+export * from "./message/playground.js";
 export * from "./message/prompt.js";
 export * from "./message/promptRun.js";
 export * from "./message/settings.js";

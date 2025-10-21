@@ -6,12 +6,12 @@ Capture the shared playground state/map contracts and message envelope updates s
 
 ## Tasks
 
-- [ ] Audit editor and message types: Confirm existing `EditorFile` exports and playground message stubs so new contracts extend the right shapes.
-- [ ] Author playground state namespace: Introduce `PlaygroundState` types in `pkgs/core/src/playground/state.ts` that mirror the plan brief.
-- [ ] Author playground map namespace: Add `PlaygroundMap` types in `pkgs/core/src/playground/map.ts` with branded IDs and timestamp hygiene.
-- [ ] Author messages: Create `pkgs/core/src/message/message/playground.ts` updating `pkgs/core/src/message/message.ts` unions to use `VscMessagePlayground` messages.
-- [ ] Expose playground module entrypoints: Add `pkgs/core/src/playground/index.ts` to re-export playground modules and update `pkgs/core/package.json` to publish them.
-- [ ] Validate types, tests, lint, and formatting: After completing the above tasks, run repository checks to ensure core and extension packages stay healthy.
+- [x] Audit editor and message types: Confirm existing `EditorFile` exports and playground message stubs so new contracts extend the right shapes.
+- [x] Author playground state namespace: Introduce `PlaygroundState` types in `pkgs/core/src/playground/state.ts` that mirror the plan brief.
+- [x] Author playground map namespace: Add `PlaygroundMap` types in `pkgs/core/src/playground/map.ts` with branded IDs and timestamp hygiene.
+- [x] Author messages: Create `pkgs/core/src/message/message/playground.ts` updating `pkgs/core/src/message/message.ts` unions to use `VscMessagePlayground` messages.
+- [x] Expose playground module entrypoints: Add `pkgs/core/src/playground/index.ts` to re-export playground modules and update `pkgs/core/package.json` to publish them.
+- [x] Validate types, tests, lint, and formatting: After completing the above tasks, run repository checks to ensure core and extension packages stay healthy.
 
 ### Audit editor and message types
 
