@@ -3,16 +3,16 @@ import { Page } from "@wrkspc/core/page";
 import * as vscode from "vscode";
 import { AttachmentsManager } from "../attachment/Manager";
 import { AuthManager } from "../auth/Manager";
+import { ClientStateManager } from "../client/StateManager";
 import { DatasetsManager } from "../dataset/Manager";
 import { EditorManager } from "../editor/Manager";
-import { EditorStateManager } from "../editor/StateManager";
 import { MessagesManager } from "../message/Manager";
 import { ModelsDotdevManager } from "../model/DotdevManager";
 import { ModelsGatewayManager } from "../model/GatewayManager";
 import { PageManager } from "../page/Manager";
+import { PlaygroundManager } from "../playground/Manager";
 import { PromptsManager } from "../prompt/Manager";
 import { PromptRunManager } from "../promptRun/Manager";
-import { PlaygroundManager } from "../playground/Manager";
 import { SecretsManager } from "../secret/Manager";
 import { SettingsManager } from "../settings/Manager";
 import { StoreManager } from "../store/Manager";
@@ -32,7 +32,7 @@ export class WebviewManager extends Manager {
   #settings: SettingsManager;
   #secrets: SecretsManager;
   #auth: AuthManager;
-  #editorState: EditorStateManager;
+  #clientState: ClientStateManager;
   #gatewayModels: ModelsGatewayManager;
   #dotdevModels: ModelsDotdevManager;
   #store: StoreManager;
@@ -116,17 +116,16 @@ export class WebviewManager extends Manager {
       messages: this.#messages,
     });
 
-    this.#editorState = new EditorStateManager(this, {
+    this.#clientState = new ClientStateManager(this, {
       auth: this.#auth,
       settings: this.#settings,
-      editor: this.#editor,
       playground: this.#playground,
     });
 
     this.#html = new WebviewHtmlManager(this, {
       extensionUri: this.#context.extensionUri,
       webview: this.#view.webview,
-      state: this.#editorState,
+      state: this.#clientState,
     });
 
     this.#messages.listen(this, "lifecycle-wv-ready", this.#onReady);

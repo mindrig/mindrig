@@ -1,5 +1,5 @@
 import { AssetResolver } from "@/aspects/asset/types";
-import { EditorState } from "@wrkspc/core/editor";
+import { ClientState } from "@wrkspc/core/client";
 import { bodyCn } from "@wrkspc/theme";
 
 export namespace WebviewHtml {
@@ -7,7 +7,7 @@ export namespace WebviewHtml {
     devServer?: boolean;
     uris: Uris;
     /** Initial state. */
-    initialState?: EditorState;
+    initialState?: ClientState;
   }
 
   export interface Uris {
