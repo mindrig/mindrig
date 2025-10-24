@@ -2,7 +2,7 @@ import { Prompt } from "@mindrig/types";
 
 export namespace PromptParse {
   export interface Result {
-    prompts: Prompt[];
+    prompts: readonly Prompt[];
     source: Source;
   }
 
@@ -41,14 +41,22 @@ export namespace PromptParse {
   }
 }
 
-export function promptParseResultPlaceholder(): PromptParse.Result {
+export function buildPromptParseResultFallback(): PromptParse.Result {
   return {
     prompts: [],
     source: {
       type: "fallback",
-      reason: {
-        type: "placeholder",
-      },
+      reason: { type: "unsupported" },
     },
+  };
+}
+
+export function buildPromptsParseResult(
+  overrides?: Partial<PromptParse.Result>,
+): PromptParse.Result {
+  return {
+    prompts: [],
+    source: { type: "parse" },
+    ...overrides,
   };
 }

@@ -18,6 +18,7 @@ export default defineConfig(({ mode }) => ({
         "mime",
         "alwaysly",
         "fastest-levenshtein",
+        "nanoid",
       ],
     },
     outDir: "dist/extension",

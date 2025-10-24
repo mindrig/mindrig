@@ -37,6 +37,7 @@
     "@ai-sdk/gateway": "^1.0.15",
     "@mindrig/types": "workspace:^",
     "alwaysly": "^0.3.0",
+    "nanoid": "^5.1.6",
     "yjs": "^13.6.27"
   },
   "devDependencies": {

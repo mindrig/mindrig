@@ -9,18 +9,12 @@ export interface PlaygroundState {
 }
 
 export namespace PlaygroundState {
-  export interface PromptItem {
-    fileId: EditorFile.Path;
-    promptId: PlaygroundMap.PromptId;
-    /**
-     * Trimmed prompt content for display within the picker UI.
-     */
+  export interface PromptItem extends Ref {
+    /** Trimmed prompt content for display within the picker UI. */
     preview: string;
   }
 
-  export interface Prompt {
-    fileId: EditorFile.Path;
-    promptId: PlaygroundMap.PromptId;
+  export interface Prompt extends Ref {
     content: string;
     reason: PromptReason;
   }
@@ -28,7 +22,24 @@ export namespace PlaygroundState {
   export type PromptReason = "pinned" | "cursor";
 
   export interface Ref {
-    fileId: EditorFile.Path;
+    fileId: PlaygroundMap.FileId;
     promptId: PlaygroundMap.PromptId;
   }
+}
+
+export function isSamePlaygroundStateRef(
+  left: PlaygroundState.Ref | null,
+  right: PlaygroundState.Ref | null,
+): boolean {
+  if (!left || !right) return left === right;
+  return left.fileId === right.fileId && left.promptId === right.promptId;
+}
+
+export function buildPlaygroundState(): PlaygroundState {
+  return {
+    file: null,
+    prompt: null,
+    prompts: [],
+    pin: null,
+  };
 }

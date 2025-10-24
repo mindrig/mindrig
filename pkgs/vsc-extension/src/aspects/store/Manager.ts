@@ -15,7 +15,7 @@ export class StoreManager extends Manager {
   #context: vscode.ExtensionContext;
   #messages: MessagesManager;
 
-  constructor(parent: Manager, props: StoreManager.Props) {
+  constructor(parent: Manager | null, props: StoreManager.Props) {
     super(parent);
 
     this.#context = props.context;

@@ -2,7 +2,6 @@ export * from "./message.js";
 export * from "./message/attachment.js";
 export * from "./message/auth.js";
 export * from "./message/dataset.js";
-export * from "./message/editor.js";
 export * from "./message/lifecycle.js";
 export * from "./message/models.js";
 export * from "./message/page.js";

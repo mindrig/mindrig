@@ -18,7 +18,7 @@ export class MessagesManager extends Manager {
   #target = new EventTarget();
   #queue: VscMessage.Extension[] | null = [];
 
-  constructor(parent: Manager, props: MessagesManager.Props) {
+  constructor(parent: Manager | null, props: MessagesManager.Props) {
     super(parent);
 
     this.#webview = props.webview;
