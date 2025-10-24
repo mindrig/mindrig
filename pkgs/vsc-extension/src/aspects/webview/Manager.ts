@@ -83,14 +83,9 @@ export class WebviewManager extends Manager {
       messages: this.#messages,
     });
 
-    this.#editor = new EditorManager(this, {
-      messages: this.#messages,
-    });
+    this.#editor = new EditorManager(this);
 
-    this.#prompts = new PromptsManager(this, {
-      messages: this.#messages,
-      editor: this.#editor,
-    });
+    this.#prompts = new PromptsManager(this);
 
     this.#playground = new PlaygroundManager(this, {
       messages: this.#messages,

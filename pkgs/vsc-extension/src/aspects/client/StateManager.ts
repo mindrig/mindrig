@@ -4,7 +4,7 @@ import { AuthManager } from "../auth/Manager";
 import { PlaygroundManager } from "../playground/Manager";
 import { SettingsManager } from "../settings/Manager";
 
-export namespace EditorStateManager {
+export namespace ClientStateManager {
   export interface Props {
     auth: AuthManager;
     settings: SettingsManager;
@@ -12,12 +12,12 @@ export namespace EditorStateManager {
   }
 }
 
-export class EditorStateManager extends Manager {
+export class ClientStateManager extends Manager {
   #auth: AuthManager;
   #settings: SettingsManager;
   #playground: PlaygroundManager;
 
-  constructor(parent: Manager, props: EditorStateManager.Props) {
+  constructor(parent: Manager, props: ClientStateManager.Props) {
     super(parent);
 
     this.#auth = props.auth;
@@ -25,11 +25,11 @@ export class EditorStateManager extends Manager {
     this.#playground = props.playground;
   }
 
-  get state(): ClientState {
-    return {
+  get state(): Promise<ClientState> {
+    return this.#playground.state.then((playground) => ({
       auth: this.#auth.state,
       settings: this.#settings.state,
-      playground: this.#playground.state,
-    };
+      playground,
+    }));
   }
 }

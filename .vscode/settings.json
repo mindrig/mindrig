@@ -9,5 +9,8 @@
   "files.associations": {
     "**/pkgs/ts/base.json": "jsonc",
     "*.css": "tailwindcss"
+  },
+  "debug.javascript.defaultRuntimeExecutable": {
+    "pwa-node": "/home/vscode/.local/share/mise/shims/node"
   }
 }

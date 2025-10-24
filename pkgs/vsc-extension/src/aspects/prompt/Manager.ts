@@ -2,73 +2,49 @@ import { Manager } from "@/aspects/manager/Manager.js";
 import { parsePrompts } from "@mindrig/parser-wasm";
 import { Prompt } from "@mindrig/types";
 import { EditorFile } from "@wrkspc/core/editor";
-import { VscMessagePrompt } from "@wrkspc/core/message";
-import { PromptParse } from "@wrkspc/core/prompt";
-import { EditorManager } from "../editor/Manager";
-import { MessagesManager } from "../message/Manager";
+import {
+  buildPromptParseResultFallback,
+  PromptParse,
+} from "@wrkspc/core/prompt";
 
 export namespace PromptsManager {
-  export interface Props {
-    messages: MessagesManager;
-    editor: EditorManager;
-  }
-
   export interface Cache {
     path: string;
+    content: string;
     prompts: Prompt[];
   }
 }
 
 export class PromptsManager extends Manager {
-  #messages: MessagesManager;
-  #editor: EditorManager;
   #cache: PromptsManager.Cache | undefined;
 
-  constructor(parent: Manager, props: PromptsManager.Props) {
+  constructor(parent: Manager | null) {
     super(parent);
-
-    this.#messages = props.messages;
-    this.#editor = props.editor;
-
-    this.#editor.on(this, "active-change", this.#onUpdate);
-
-    this.#editor.on(this, "file-update", this.#onUpdate);
-
-    // Webview messages
-
-    this.#messages.listen(this, "prompt-wv-reveal", this.#onReveal);
   }
 
-  get state(): PromptParse.Result {
-    return this.#parse();
-  }
+  parse(file: EditorFile | null): PromptParse.Result {
+    if (!file) return buildPromptParseResultFallback();
 
-  #parse(fileState?: EditorFile | undefined | null): PromptParse.Result {
-    // Use editor state if no file provided
-    if (fileState === undefined) fileState = this.#editor.activeFile;
-
-    if (!fileState)
+    if (this.#cache?.path === file.path && this.#cache.content === file.content)
       return {
-        prompts: [],
-        source: {
-          type: "fallback",
-          reason: { type: "unsupported" },
-        },
+        prompts: this.#cache.prompts,
+        source: { type: "parse" },
       };
 
-    const result = parsePrompts(fileState.content, fileState.path);
+    const result = parsePrompts(file.content, file.path);
 
     if (result.state === "success") {
       this.#cache = {
-        path: fileState.path,
+        path: file.path,
         prompts: result.prompts,
+        content: file.content,
       };
 
       return {
         prompts: result.prompts,
         source: { type: "parse" },
       };
-    } else if (this.#cache?.path === fileState.path) {
+    } else if (this.#cache?.path === file.path) {
       return {
         prompts: this.#cache.prompts,
         source: {
@@ -85,17 +61,5 @@ export class PromptsManager extends Manager {
         },
       };
     }
-  }
-
-  #onUpdate(fileState: EditorFile | null) {
-    const result = this.#parse(fileState);
-    return this.#messages.send({
-      type: "prompt-ext-update",
-      payload: result,
-    });
-  }
-
-  #onReveal(message: VscMessagePrompt.WvReveal) {
-    return this.#editor.openFile(message.payload);
   }
 }

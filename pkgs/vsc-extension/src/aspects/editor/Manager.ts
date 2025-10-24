@@ -3,13 +3,8 @@ import { EditorFile } from "@wrkspc/core/editor";
 import { fileExtFromPath } from "@wrkspc/core/file";
 import { Language, languageIdFromExt } from "@wrkspc/core/lang";
 import * as vscode from "vscode";
-import { MessagesManager } from "../message/Manager";
 
 export namespace EditorManager {
-  export interface Props {
-    messages: MessagesManager;
-  }
-
   export type EventMap = {
     "file-update": EditorFile;
     "file-save": EditorFile;
@@ -19,12 +14,8 @@ export namespace EditorManager {
 }
 
 export class EditorManager extends Manager<EditorManager.EventMap> {
-  #messages: MessagesManager;
-
-  constructor(parent: Manager, props: EditorManager.Props) {
+  constructor(parent: Manager | null) {
     super(parent);
-
-    this.#messages = props.messages;
 
     this.#setActive(vscode.window.activeTextEditor);
 
@@ -78,6 +69,20 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
     );
   }
 
+  async readFile(path: EditorFile.Path): Promise<EditorFile | null> {
+    if (this.#activeFile?.path === path) return this.#activeFile;
+
+    const doc = vscode.workspace.textDocuments.find(
+      (doc) => doc.uri.fsPath === path,
+    );
+    if (!doc) return null;
+
+    const languageId = this.#detectFileLang(doc);
+    if (!languageId) return null;
+
+    return this.#createFileState(doc, languageId);
+  }
+
   //#endregion
 
   //#region State
@@ -101,10 +106,9 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
     }
 
     return {
-      path: EditorFile.path(document.uri.fsPath),
+      path: document.uri.fsPath as EditorFile.Path,
       content: document.getText(),
       isDirty: document.isDirty,
-      lastSaved: document.isDirty ? undefined : new Date(),
       languageId,
       cursor: cursorPosition,
     };
@@ -124,11 +128,6 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
     this.#setActive(editor);
 
     this.emit("active-change", this.#activeFile);
-
-    this.#messages.send({
-      type: "editor-ext-active-change",
-      payload: this.#activeFile,
-    });
   }
 
   #setActive(editor: vscode.TextEditor | undefined) {
@@ -143,7 +142,7 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
   //#region File state
 
   #onFileUpdate(event: vscode.TextDocumentChangeEvent) {
-    const filePath = EditorFile.path(event.document.uri.fsPath);
+    const filePath = event.document.uri.fsPath as EditorFile.Path;
 
     if (filePath !== this.#activeFile?.path) return;
 
@@ -154,31 +153,18 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
     };
 
     this.emit("file-update", this.#activeFile);
-
-    this.#messages.send({
-      type: "editor-ext-file-update",
-      payload: this.#activeFile,
-    });
   }
 
   #onFileSave(document: vscode.TextDocument) {
-    const filePath = EditorFile.path(document.uri.fsPath);
-
-    if (filePath !== this.#activeFile?.path) return;
+    if (document.uri.fsPath !== this.#activeFile?.path) return;
 
     this.#activeFile = {
       ...this.#activeFile,
       content: document.getText(),
       isDirty: false,
-      lastSaved: new Date(),
     };
 
     this.emit("file-save", this.#activeFile);
-
-    this.#messages.send({
-      type: "editor-ext-file-save",
-      payload: this.#activeFile,
-    });
   }
 
   //#endregion
@@ -187,10 +173,7 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
 
   #onCursorUpdate(event: vscode.TextEditorSelectionChangeEvent) {
     const { textEditor } = event;
-    if (
-      EditorFile.path(textEditor.document.uri.fsPath) !== this.#activeFile?.path
-    )
-      return;
+    if (textEditor.document.uri.fsPath !== this.#activeFile?.path) return;
 
     const position = event.selections[0]?.active;
     if (!position) return;
@@ -206,11 +189,6 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
     };
 
     this.emit("cursor-update", this.#activeFile);
-
-    this.#messages.send({
-      type: "editor-ext-cursor-update",
-      payload: this.#activeFile,
-    });
   }
 
   #convertCursorPosition(

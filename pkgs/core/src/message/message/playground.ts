@@ -14,15 +14,7 @@ export namespace VscMessagePlayground {
 
   //#region Webview
 
-  export type Webview =
-    | VscMessagePlayground.WvRequestState
-    | VscMessagePlayground.WvPin
-    | VscMessagePlayground.WvUnpin
-    | VscMessagePlayground.WvPromptChange;
-
-  export interface WvRequestState {
-    type: "playground-wv-request-state";
-  }
+  export type Webview = WvPin | WvUnpin | WvPromptChange | WvPromptReveal;
 
   export interface WvPin {
     type: "playground-wv-pin";
@@ -35,6 +27,11 @@ export namespace VscMessagePlayground {
 
   export interface WvPromptChange {
     type: "playground-wv-prompt-change";
+    payload: PlaygroundState.Ref;
+  }
+
+  export interface WvPromptReveal {
+    type: "playground-wv-prompt-reveal";
     payload: PlaygroundState.Ref;
   }
 
