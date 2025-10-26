@@ -43,3 +43,13 @@ export function buildPlaygroundState(): PlaygroundState {
     pin: null,
   };
 }
+
+export function playgroundStatePromptToRef(
+  prompt: PlaygroundState.Prompt | null,
+): PlaygroundState.Ref | null {
+  if (!prompt) return null;
+  return {
+    promptId: prompt.promptId,
+    fileId: prompt.fileId,
+  };
+}

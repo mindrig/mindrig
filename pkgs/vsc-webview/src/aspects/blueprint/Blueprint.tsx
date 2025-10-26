@@ -1,5 +1,5 @@
-import { Prompt } from "@mindrig/types";
 import { EditorFile } from "@wrkspc/core/editor";
+import { PlaygroundState } from "@wrkspc/core/playground";
 import { Assessment } from "../assessment/Assessment";
 import { PanelSection } from "../panel/Section";
 import { PromptSource } from "../prompt/Source";
@@ -7,12 +7,8 @@ import { useSettings } from "../settings/Context";
 
 export namespace Blueprint {
   export interface Props {
-    file: EditorFile;
-    prompt: Prompt;
-    vercelGatewayKey: string | undefined | null;
-    promptIndex: number | null;
-    showSource?: boolean;
-    isPromptPinned?: boolean;
+    file: EditorFile.Meta;
+    prompt: PlaygroundState.Prompt;
   }
 }
 

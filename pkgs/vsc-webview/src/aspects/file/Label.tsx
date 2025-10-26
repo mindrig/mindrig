@@ -4,7 +4,7 @@ import { FileNameLabel } from "./NameLabel";
 
 export namespace FileLabel {
   export interface Props {
-    file: EditorFile;
+    file: EditorFile.Meta;
     isPinned: boolean;
   }
 }

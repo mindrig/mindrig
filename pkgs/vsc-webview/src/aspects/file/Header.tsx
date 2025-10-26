@@ -1,83 +1,71 @@
 import { FileLabel } from "@/aspects/file/Label";
-import { Prompt } from "@mindrig/types";
 import { EditorFile } from "@wrkspc/core/editor";
+import { playgroundStatePromptToRef } from "@wrkspc/core/playground";
 import { Button } from "@wrkspc/ds";
 import { Select } from "@wrkspc/form";
 import iconRegularThumbtackAngle from "@wrkspc/icons/svg/regular/thumbtack-angle.js";
 import iconSolidThumbtack from "@wrkspc/icons/svg/solid/thumbtack.js";
 import { cn } from "crab";
+import { useMessages } from "../message/Context";
 import { PanelSection } from "../panel/Section";
+import { usePlayground } from "../playground/Context";
 
 export namespace FileHeader {
   export interface Props {
-    fileState: EditorFile | null;
-    prompts: Prompt[];
-    promptIdx: number | null;
-    isPinned: boolean;
-    onTogglePromptPin: () => void;
-    onPromptSelect: (index: number) => void;
+    file: EditorFile.Meta;
   }
 }
 
 export function FileHeader(props: FileHeader.Props) {
+  const { file } = props;
   const {
-    fileState,
-    prompts,
-    promptIdx,
-    isPinned,
-    onTogglePromptPin,
-    onPromptSelect,
-  } = props;
+    playground: { prompts, prompt, pin },
+  } = usePlayground();
+  const { send } = useMessages();
 
-  if (!fileState)
-    return (
-      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <div className="text-center text-gray-500">
-          <div className="mb-2">📄</div>
-          <p className="text-sm">No supported file open</p>
-          <p className="text-xs text-gray-400 mt-1">
-            Open a .ts, .tsx, .js, .jsx, .mjs, .mjsx, .cjs, or .cjsx file
-          </p>
-        </div>
-      </div>
-    );
+  const isPinned = !!pin;
+  const promptRef = playgroundStatePromptToRef(prompt);
 
   return (
     <PanelSection bordered pinned={isPinned}>
-      {fileState && (
-        <div className="flex items-center justify-between gap-2">
-          <FileLabel file={fileState} isPinned={isPinned} />
+      <div className="flex items-center justify-between gap-2">
+        <FileLabel file={file} isPinned={isPinned} />
 
-          <div className="flex items-center gap-2">
-            <Select
-              label={{ a11y: "Select prompt" }}
-              size="xsmall"
-              selectedKey={promptIdx ?? null}
-              options={prompts.map((prompt, index) => ({
-                label: prompt.exp.slice(0, 15),
-                value: index,
-              }))}
-              placeholder={prompts.length ? "Select prompt" : "No prompts"}
-              isDisabled={!prompts.length}
-              onSelectionChange={(idx) => {
-                if (idx === null) return;
-                onPromptSelect(Number(idx));
+        <div className="flex items-center gap-2">
+          <Select
+            label={{ a11y: "Select prompt" }}
+            size="xsmall"
+            selectedKey={prompt?.promptId || null}
+            options={prompts.map((prompt) => ({
+              label: prompt.preview,
+              value: prompt.promptId,
+            }))}
+            placeholder={prompts.length ? "Select prompt" : "No prompts"}
+            isDisabled={!prompts.length}
+            onSelectionChange={(promptId) => {
+              const prompt =
+                prompts.find((prompt) => prompt.promptId === promptId) || null;
+              send({ type: "playground-wv-prompt-change", payload: prompt });
+            }}
+          />
+
+          <div className={cn("inline-flex", isPinned && "text-active-text")}>
+            <Button
+              style="label"
+              color={isPinned ? "current" : "secondary"}
+              icon={isPinned ? iconSolidThumbtack : iconRegularThumbtackAngle}
+              isDisabled={!promptRef}
+              onClick={() => {
+                if (isPinned) send({ type: "playground-wv-unpin" });
+                else if (promptRef)
+                  send({ type: "playground-wv-pin", payload: promptRef });
               }}
+              aria-pressed={isPinned}
+              aria-label={isPinned ? "Unpin prompt" : "Pin prompt"}
             />
-
-            <div className={cn("inline-flex", isPinned && "text-active-text")}>
-              <Button
-                style="label"
-                color={isPinned ? "current" : "secondary"}
-                icon={isPinned ? iconSolidThumbtack : iconRegularThumbtackAngle}
-                onClick={onTogglePromptPin}
-                aria-pressed={isPinned}
-                aria-label={isPinned ? "Unpin prompt" : "Pin prompt"}
-              />
-            </div>
           </div>
         </div>
-      )}
+      </div>
     </PanelSection>
   );
 }

@@ -46,7 +46,7 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
 
   //#region API
 
-  async openFile(ref: EditorFile.Ref): Promise<void> {
+  async openFile(ref: EditorFile.Ref): Promise<EditorFile | null> {
     const { path, selection } = ref;
 
     const uri = vscode.Uri.file(path);
@@ -56,17 +56,19 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
       preserveFocus: false,
     });
 
-    if (!selection) return;
+    if (selection) {
+      const startPos = doc.positionAt(selection.start);
+      const endPos = doc.positionAt(selection.end);
+      const range = new vscode.Range(startPos, endPos);
 
-    const startPos = doc.positionAt(selection.start);
-    const endPos = doc.positionAt(selection.end);
-    const range = new vscode.Range(startPos, endPos);
+      editor.selection = new vscode.Selection(startPos, endPos);
+      editor.revealRange(
+        range,
+        vscode.TextEditorRevealType.InCenterIfOutsideViewport,
+      );
+    }
 
-    editor.selection = new vscode.Selection(startPos, endPos);
-    editor.revealRange(
-      range,
-      vscode.TextEditorRevealType.InCenterIfOutsideViewport,
-    );
+    return this.#fileStateFromDoc(doc);
   }
 
   async readFile(path: EditorFile.Path): Promise<EditorFile | null> {
@@ -90,6 +92,13 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
   #detectFileLang(document: vscode.TextDocument): Language.Id | undefined {
     const ext = fileExtFromPath(document.fileName);
     return languageIdFromExt(ext);
+  }
+
+  #fileStateFromDoc(doc: vscode.TextDocument): EditorFile | null {
+    const languageId = this.#detectFileLang(doc);
+    if (!languageId) return null;
+
+    return this.#createFileState(doc, languageId);
   }
 
   #createFileState(

@@ -2,7 +2,7 @@ import { VscMock, vscMock } from "@/__tests__/vsc";
 import { EditorManager } from "@/aspects/editor/Manager";
 import { Prompt } from "@mindrig/types";
 import { EditorFile, editorFileToMeta } from "@wrkspc/core/editor";
-import { type PlaygroundState } from "@wrkspc/core/playground";
+import { PlaygroundMap, type PlaygroundState } from "@wrkspc/core/playground";
 import {
   buildPromptParseResultFallback,
   buildPromptsParseResult,
@@ -67,7 +67,8 @@ describe(PlaygroundManager, () => {
       const { vsc, prompts, map, editorFileA, mapFileA, parsedPromptsA } =
         await setupFactory();
 
-      const sameMap = vsc.context.workspaceState.get("playground.map");
+      const sameMap =
+        vsc.context.workspaceState.get<PlaygroundMap>("playground.map");
       expect(sameMap).toBe(map);
 
       expect(sameMap).toMatchObject({
@@ -102,7 +103,8 @@ describe(PlaygroundManager, () => {
         }),
       );
 
-      const updatedMap = vsc.context.workspaceState.get("playground.map");
+      const updatedMap =
+        vsc.context.workspaceState.get<PlaygroundMap>("playground.map");
       expect(updatedMap).not.toBe(map);
 
       expect(updatedMap).toMatchObject({
@@ -113,6 +115,116 @@ describe(PlaygroundManager, () => {
             ]),
           }),
         }),
+      });
+    });
+
+    it("inits empty map if none in store", async () => {
+      const {
+        vsc,
+        manager,
+        editorFileA,
+        parsedPromptsA,
+        mapPromptsA,
+        cursorB,
+        editorFileB,
+        mapPromptsB,
+      } = await setupFactory({
+        vsc: {
+          context: vscMock.ExtensionContext({
+            workspaceState: vscMock.Memento({
+              "playground.map": null,
+              "playground.pin": null,
+            }),
+          }),
+        },
+      });
+
+      const state = await manager.state;
+
+      expect(state).toEqual({
+        file: editorFileToMeta(editorFileA),
+        prompt: expect.objectContaining({
+          fileId: expect.any(String),
+          promptId: expect.any(String),
+          content: mapPromptsA[0].content,
+        }),
+        prompts: [
+          {
+            fileId: expect.any(String),
+            promptId: expect.any(String),
+            preview: parsedPromptsA[0].exp,
+          },
+          {
+            fileId: expect.any(String),
+            promptId: expect.any(String),
+            preview: parsedPromptsA[1].exp,
+          },
+        ],
+        pin: null,
+      });
+
+      const initialMap =
+        vsc.context.workspaceState.get<PlaygroundMap>("playground.map");
+      expect(initialMap).toMatchObject({
+        files: {
+          [editorFileA.path]: expect.objectContaining({
+            prompts: [
+              expect.objectContaining({ content: "alpha" }),
+              expect.objectContaining({ content: "beta" }),
+            ],
+          }),
+        },
+      });
+
+      const editorB = vscMock.TextEditor({
+        document: vscMock.TextDocument({
+          uri: vscMock.Uri({ fsPath: editorFileB.path }),
+          offsetAt: cursorB && (() => cursorB.offset),
+        }),
+      });
+
+      vsc.window.activeTextEditor = editorB;
+      await vsc.emit(vsc.window, "onDidChangeActiveTextEditor", editorB);
+
+      const activeStateB = expect.objectContaining({
+        prompt: expect.objectContaining({
+          fileId: expect.any(String),
+          promptId: expect.any(String),
+          content: mapPromptsB[0].content,
+        }),
+        pin: null,
+      });
+
+      expect(await manager.state).toEqual(activeStateB);
+
+      const updatedMap =
+        vsc.context.workspaceState.get<PlaygroundMap>("playground.map");
+      expect(updatedMap).not.toBe(initialMap);
+      expect(updatedMap).toMatchObject({
+        files: {
+          [editorFileA.path]: expect.objectContaining({
+            id: initialMap?.files[editorFileA.path]?.id,
+            prompts: [
+              expect.objectContaining({
+                id: initialMap?.files[editorFileA.path]?.prompts[0]?.id,
+                content: "alpha",
+              }),
+              expect.objectContaining({
+                id: initialMap?.files[editorFileA.path]?.prompts[1]?.id,
+                content: "beta",
+              }),
+            ],
+          }),
+          [editorFileB.path]: expect.objectContaining({
+            id: expect.any(String),
+            prompts: expect.arrayContaining([
+              expect.objectContaining({
+                id: expect.any(String),
+                content: "gamma",
+              }),
+            ]),
+          }),
+        },
       });
     });
   });
@@ -160,7 +272,7 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(pinnedStateB);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-state",
+        type: "playground-ext-update",
         payload: pinnedStateB,
       });
 
@@ -191,21 +303,148 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(unpinnedState);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-state",
+        type: "playground-ext-update",
         payload: unpinnedState,
+      });
+    });
+
+    it("updates pin on prompt change", async () => {
+      const { vsc, manager, messages, mapFileA, mapPromptsA, editorFileA } =
+        await setupFactory({
+          managerProps: ({ map, mapFileA, mapPromptsA }) => ({
+            vsc: {
+              context: vscMock.ExtensionContext({
+                workspaceState: vscMock.Memento({
+                  "playground.map": map,
+                  "playground.pin": {
+                    fileId: mapFileA.id,
+                    promptId: mapPromptsA[0].id,
+                  },
+                }),
+              }),
+            },
+          }),
+        });
+
+      expect(await manager.state).toMatchObject({
+        file: editorFileToMeta(editorFileA),
+        prompt: expect.objectContaining({
+          fileId: mapFileA.id,
+          promptId: mapPromptsA[0].id,
+          content: mapPromptsA[0].content,
+        }),
+        pin: {
+          fileId: mapFileA.id,
+          promptId: mapPromptsA[0].id,
+        },
+      });
+
+      await vsc.emit(vsc.webview, "onDidReceiveMessage", {
+        type: "playground-wv-prompt-change",
+        payload: {
+          fileId: mapFileA.id,
+          promptId: mapPromptsA[1].id,
+        },
+      });
+
+      const pinChangedState = expect.objectContaining({
+        file: editorFileToMeta(editorFileA),
+        prompt: expect.objectContaining({
+          fileId: mapFileA.id,
+          promptId: mapPromptsA[1].id,
+          content: mapPromptsA[1].content,
+        }),
+        pin: {
+          fileId: mapFileA.id,
+          promptId: mapPromptsA[1].id,
+        },
+      });
+
+      expect(await manager.state).toMatchObject(pinChangedState);
+
+      expect(messages.send).toHaveBeenCalledWith({
+        type: "playground-ext-update",
+        payload: pinChangedState,
+      });
+    });
+
+    it("handles prompt change to null", async () => {
+      const { vsc, manager, messages, mapFileA, mapPromptsA, editorFileA } =
+        await setupFactory({
+          managerProps: ({ map, mapFileA, mapPromptsA }) => ({
+            vsc: {
+              context: vscMock.ExtensionContext({
+                workspaceState: vscMock.Memento({
+                  "playground.map": map,
+                  "playground.pin": {
+                    fileId: mapFileA.id,
+                    promptId: mapPromptsA[0].id,
+                  },
+                }),
+              }),
+            },
+          }),
+
+          cursorA: editorCursorFactory({ offset: 10 }),
+        });
+
+      expect(await manager.state).toMatchObject({
+        file: editorFileToMeta(editorFileA),
+        prompt: expect.objectContaining({
+          fileId: mapFileA.id,
+          promptId: mapPromptsA[0].id,
+          content: mapPromptsA[0].content,
+        }),
+        pin: {
+          fileId: mapFileA.id,
+          promptId: mapPromptsA[0].id,
+        },
+      });
+
+      await vsc.emit(vsc.webview, "onDidReceiveMessage", {
+        type: "playground-wv-prompt-change",
+        payload: null,
+      });
+
+      const pinChangedState = expect.objectContaining({
+        file: editorFileToMeta(editorFileA),
+        prompt: expect.objectContaining({
+          fileId: mapFileA.id,
+          promptId: mapPromptsA[1].id,
+          content: mapPromptsA[1].content,
+        }),
+        pin: null,
+      });
+
+      expect(await manager.state).toMatchObject(pinChangedState);
+
+      expect(messages.send).toHaveBeenCalledWith({
+        type: "playground-ext-update",
+        payload: pinChangedState,
       });
     });
   });
 
   describe("prompts", () => {
-    it("delegates prompt reveal to editor", async () => {
-      const { vsc, manager, editor, mapFileA, mapPromptsA, editorFileA } =
-        await setupFactory();
+    it("delegates prompt change to editor", async () => {
+      const { vsc, editor, mapFileA, mapPromptsA, editorFileA } =
+        await setupFactory({
+          managerProps: ({ map, mapFileB, mapPromptsB }) => ({
+            vsc: {
+              context: vscMock.ExtensionContext({
+                workspaceState: vscMock.Memento({
+                  "playground.map": map,
+                  "playground.pin": null,
+                }),
+              }),
+            },
+          }),
+        });
 
       vi.spyOn(editor, "openFile");
 
       await vsc.emit(vsc.webview, "onDidReceiveMessage", {
-        type: "playground-wv-prompt-reveal",
+        type: "playground-wv-prompt-change",
         payload: {
           fileId: mapFileA.id,
           promptId: mapPromptsA[0].id,
@@ -252,7 +491,7 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(activeStateB);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-state",
+        type: "playground-ext-update",
         payload: activeStateB,
       });
     });
@@ -287,7 +526,7 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(changedCursorState);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-state",
+        type: "playground-ext-update",
         payload: changedCursorState,
       });
     });
@@ -354,7 +593,7 @@ describe(PlaygroundManager, () => {
       expect(savedFileState).toEqual(expectedSavedFileState);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-state",
+        type: "playground-ext-update",
         payload: expectedSavedFileState,
       });
     });
@@ -417,7 +656,7 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(updatedFileState);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-state",
+        type: "playground-ext-update",
         payload: updatedFileState,
       });
     });

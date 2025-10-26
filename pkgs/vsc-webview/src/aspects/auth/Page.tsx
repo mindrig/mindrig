@@ -2,7 +2,7 @@ import { useAuth } from "@/aspects/auth/Context";
 import { PanelSection } from "@/aspects/panel/Section";
 import { Auth } from "@wrkspc/core/auth";
 import { Button } from "@wrkspc/ds";
-import { useApp } from "../app/hooks";
+import { useApp } from "../app/Context";
 import { AppLayout } from "../app/Layout";
 import { AuthVercel } from "./vercel/Vercel";
 

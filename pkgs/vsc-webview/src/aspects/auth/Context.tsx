@@ -1,6 +1,7 @@
 import { useMessages } from "@/aspects/message/Context";
 import { Auth, AuthGateway, resolveAuthGateway } from "@wrkspc/core/auth";
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext } from "react";
+import { useClientState } from "../client/StateContext";
 
 export namespace AuthContext {
   export interface Value {
@@ -15,20 +16,14 @@ export const AuthContext = createContext<AuthContext.Value | undefined>(
 );
 
 export function AuthProvider(props: React.PropsWithChildren) {
-  const [auth, setAuth] = useState<Auth>(
-    window.initialState?.auth || { gateway: undefined },
-  );
-  const gateway = resolveAuthGateway(auth);
-  const { useListen, send } = useMessages();
-
-  useListen("auth-ext-update", (message) => setAuth(message.payload), [
-    setAuth,
-  ]);
+  const { state } = useClientState();
+  const gateway = resolveAuthGateway(state.auth);
+  const { send } = useMessages();
 
   const logOut = useCallback(() => send({ type: "auth-wv-logout" }), [send]);
 
   return (
-    <AuthContext.Provider value={{ auth, gateway, logOut }}>
+    <AuthContext.Provider value={{ auth: state.auth, gateway, logOut }}>
       {props.children}
     </AuthContext.Provider>
   );

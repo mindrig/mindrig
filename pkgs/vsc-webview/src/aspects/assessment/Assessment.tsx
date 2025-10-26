@@ -45,7 +45,7 @@ import {
   type AssessmentStreamingResult,
   type AssessmentStreamingState,
 } from "../promptRun/streaming";
-import { useStoreState } from "../store/hooks";
+import { useStoreState } from "../store/Context";
 import {
   AssessmentDatasourceProvider,
   useAssessmentDatasourceState,

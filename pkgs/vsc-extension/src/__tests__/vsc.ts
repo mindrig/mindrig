@@ -100,7 +100,7 @@ export const vscMock = {
   [currentMockSymbol]: undefined as VscMock.Api | undefined,
 
   async module(importVsc: VscMock.ModuleLoader): Promise<Vsc.Api> {
-    const originalVsc = await importVsc();
+    const _originalVsc = await importVsc();
 
     function cachedMock<Key extends keyof Vsc.Api>(key: Key): Vsc.Api[Key] {
       vscMock[currentMockSymbol] ??= vscMock.Api();
@@ -129,7 +129,12 @@ export const vscMock = {
         return cachedMock("Selection");
       },
 
-      TextEditorRevealType: originalVsc.TextEditorRevealType,
+      TextEditorRevealType: {
+        Default: 0,
+        InCenter: 1,
+        InCenterIfOutsideViewport: 2,
+        AtTop: 3,
+      },
     } as Vsc.Api;
   },
 
@@ -287,6 +292,7 @@ export const vscMock = {
     return {
       document: props?.document ?? vscMock.TextDocument(),
       selections: props?.selections || [vscMock.Selection()],
+      revealRange: vi.fn() as vscode.TextEditor["revealRange"],
     } as vscode.TextEditor;
   },
 

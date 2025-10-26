@@ -87,7 +87,11 @@ export class PlaygroundManager extends Manager {
 
     this.#messages.listen(this, "playground-wv-unpin", this.#onUnpin);
 
-    this.#messages.listen(this, "playground-wv-prompt-reveal", this.#onReveal);
+    this.#messages.listen(
+      this,
+      "playground-wv-prompt-change",
+      this.#onPromptChange,
+    );
 
     this.#hydratePromise = new Promise(
       (resolve) => (this.#hydrateResolve = resolve),
@@ -153,7 +157,7 @@ export class PlaygroundManager extends Manager {
 
   #sendState(): Promise<boolean> {
     return this.#messages.send({
-      type: "playground-ext-state",
+      type: "playground-ext-update",
       payload: this.#state,
     });
   }
@@ -170,6 +174,26 @@ export class PlaygroundManager extends Manager {
 
   async #onFileUpdate(file: EditorFile): Promise<void> {
     this.#updateState(file);
+    await this.#sendState();
+  }
+
+  async #onPromptChange(message: VscMessagePlayground.WvPromptChange) {
+    if (!message.payload) {
+      if (!this.#pin) return;
+      this.#pin = null;
+      this.#updateState(this.#editor.activeFile);
+      await this.#sendState();
+      return;
+    }
+
+    const pair = resolvePlaygroundMapPair(this.#map, message.payload);
+    always(pair);
+    const file = await this.#editor.openFile(
+      playgroundMapPairToEditorRef(pair),
+    );
+    if (file) this.#pin = { ref: message.payload, file };
+
+    this.#updateState();
     await this.#sendState();
   }
 
@@ -200,11 +224,5 @@ export class PlaygroundManager extends Manager {
     this.#pin = null;
     this.#updateState();
     this.#sendState();
-  }
-
-  #onReveal(message: VscMessagePlayground.WvPromptReveal) {
-    const pair = resolvePlaygroundMapPair(this.#map, message.payload);
-    always(pair);
-    return this.#editor.openFile(playgroundMapPairToEditorRef(pair));
   }
 }
