@@ -1,0 +1,30 @@
+---
+import { DownloadForm } from "./DownloadForm";
+import { textCn } from "@wrkspc/theme";
+---
+
+<div class="bg-gray-50 w-full">
+  <div
+    class="mx-auto px-7 py-32 max-w-6xl w-full flex flex-col gap-8 items-center"
+  >
+    <div class="space-y-4 max-w-2xl text-center">
+      <h1 class={textCn({ role: "header", size: "xlarge" })}>
+        Powerful AI Playground<br />Right in Your Code Editor
+      </h1>
+
+      <h2
+        class={textCn({
+          role: "subheader",
+          size: "xlarge",
+          color: "support",
+          className: "hidden md:block ",
+        })}
+      >
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+        tempor.
+      </h2>
+    </div>
+
+    <DownloadForm />
+  </div>
+</div>

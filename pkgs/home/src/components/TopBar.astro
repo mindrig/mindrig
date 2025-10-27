@@ -1,0 +1,177 @@
+---
+import { Logotype } from "@wrkspc/logo";
+import { cn } from "crab";
+
+export interface Props /*extends cn.Props<typeof layoutCn>*/ {
+  // TODO: Open an issue in Astro about extends not working
+  borderless?: boolean;
+}
+
+const layoutCn = cn<{ borderless: boolean }>()
+  .base("w-full flex justify-center bg-gray-50")
+  .borderless(false, {
+    true: "",
+    false: "border-b border-gray-300",
+  });
+---
+
+<header class={layoutCn(Astro.props)}>
+  <nav
+    class="w-full max-w-7xl flex items-center justify-between p-4"
+    aria-label="Global"
+  >
+    <div class="flex lg:flex-1">
+      <a href="/"><Logotype /></a>
+    </div>
+
+    <div class="flex lg:hidden">
+      <button
+        type="button"
+        id="mobile-menu-toggle"
+        class="inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+      >
+        <span class="sr-only">Open main menu</span>
+        <svg
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="hidden lg:flex lg:gap-12">
+      <a href="/#about" class="text-sm font-semibold leading-6 text-gray-900"
+        >About</a
+      >
+      <a href="/#cost" class="text-sm font-semibold leading-6 text-gray-900"
+        >Pricing</a
+      >
+
+      <a href="/blog" class="text-sm font-semibold leading-6 text-gray-900"
+        >Blog</a
+      >
+
+      <a href="/#contact" class="text-sm font-semibold leading-6 text-gray-900"
+        >Contact</a
+      >
+    </div>
+
+    <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+      <!-- <a
+        href={import.meta.env.PUBLIC_WEB_APP_ORIGIN}
+        class="text-sm font-semibold leading-6 text-gray-900"
+        >Log in <span aria-hidden="true">&rarr;</span></a
+      > -->
+    </div>
+  </nav>
+  <!-- Mobile menu, show/hide based on menu open state. -->
+  <div
+    class="lg:hidden hidden"
+    role="dialog"
+    aria-modal="true"
+    id="mobile-menu"
+  >
+    <!-- Background backdrop, show/hide based on slide-over state. -->
+    <div class="fixed inset-0 z-10"></div>
+    <div
+      class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10"
+    >
+      <div class="flex items-center justify-between">
+        <a href="/"><Logotype /> </a>
+
+        <button type="button" class="rounded-md p-2.5 text-gray-700">
+          <span class="sr-only">Close menu</span>
+          <svg
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="">
+        <div class="">
+          <div class="space-y-2 py-6 border-b border-gray-300">
+            <a
+              href="/#about"
+              class="block rounded-lg py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 mobile-link"
+              >About</a
+            >
+            <a
+              href="/#cost"
+              class="block rounded-lg py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 mobile-link"
+              >Pricing</a
+            >
+            <a
+              href="/blog"
+              class="block rounded-lg py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 mobile-link"
+              >Blog</a
+            >
+
+            <a
+              href="#contact"
+              class="block rounded-lg py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 mobile-link"
+              >Contact</a
+            >
+          </div>
+
+          <!-- <div class="py-6">
+            <a
+              href={import.meta.env.PUBLIC_WEB_APP_ORIGIN}
+              class="block rounded-lg py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+              >Log in</a
+            >
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  const { pathname } = window.location;
+  const activeLink = document.querySelector(`a[href="${pathname}"]`);
+
+  if (activeLink) {
+    activeLink.classList.add(
+      "text-slate-900",
+      "border-b-2",
+      "border-slate-900",
+      "",
+      "",
+      ""
+    );
+  }
+</script>
+
+<script>
+  const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
+  const mobileMenu = document.getElementById("mobile-menu");
+  const mobileLinks = document.getElementsByClassName("mobile-link");
+  const closeMenuButton = mobileMenu?.querySelector("button");
+
+  function toggleMobileMenu() {
+    mobileMenu?.classList.toggle("hidden");
+  }
+
+  mobileMenuToggle?.addEventListener("click", toggleMobileMenu);
+  for (let i = 0; i < mobileLinks.length; i++) {
+    mobileLinks[i]?.addEventListener("click", toggleMobileMenu);
+  }
+  closeMenuButton?.addEventListener("click", toggleMobileMenu);
+</script>

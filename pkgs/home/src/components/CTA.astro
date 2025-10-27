@@ -1,0 +1,20 @@
+---
+import { DownloadForm } from "./DownloadForm";
+const { title, subtitle } = Astro.props;
+---
+
+<div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8 flex justify-center">
+  <div class="max-w-7xl flex flex-col items-center gap-4 space-y-4">
+    <div class="space-y-4 max-w-xl text-center">
+      <h2 class="text-3xl font-bold tracking-tight sm:text-4xl text-balance">
+        {title}
+      </h2>
+
+      <p class="text-lg leading-8 text-gray-600 text-balance">
+        {subtitle}
+      </p>
+    </div>
+
+    <DownloadForm />
+  </div>
+</div>

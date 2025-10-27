@@ -1,0 +1,43 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import { ContentHeader } from "../../components/ContentHeader";
+import ContentLayout from "../../layouts/Content.astro";
+import { textCn } from "@wrkspc/theme";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<ContentLayout title={post.data.title}>
+  <main class="flex flex-col items-center w-full">
+    <ContentHeader
+      title={post.data.title}
+      publishedAt={post.data.publishedAt}
+    />
+
+    <article class="w-full max-w-2xl py-6 px-4 md:py-20">
+      <div
+        class={textCn({
+          role: "content",
+          size: "xlarge",
+        })}
+      >
+        <Content />
+      </div>
+    </article>
+  </main>
+</ContentLayout>

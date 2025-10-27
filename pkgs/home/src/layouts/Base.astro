@@ -1,0 +1,30 @@
+---
+import "../styles/global.css";
+import { bodyCn } from "@wrkspc/theme";
+
+export interface Props {
+  title: string;
+}
+
+export type { Props as BaseLayoutProps };
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.ico" sizes="16x16" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+  </head>
+  <body class={bodyCn("bg-white flex flex-col items-center")}>
+    <slot />
+  </body>
+</html>

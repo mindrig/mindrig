@@ -1,0 +1,13 @@
+---
+import TopBar from "../components/TopBar.astro";
+import BaseLayout, { type Props as BaseLayoutProps } from "./Base.astro";
+
+interface Props extends BaseLayoutProps {
+  title: string;
+}
+---
+
+<BaseLayout {...Astro.props}>
+  <TopBar borderless />
+  <slot />
+</BaseLayout>

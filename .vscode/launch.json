@@ -1,6 +1,20 @@
 {
   "version": "0.2.0",
   "configurations": [
+    //#region home
+
+    // home#dev
+    {
+      "name": "home#dev",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:3110",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "home#dev"
+    },
+
+    //#endregion
+
     //#region vscode
 
     // vscode#dev

@@ -60,7 +60,8 @@
         // Find a way to address this and re-enable the extension.
         // "vitest.explorer",
         "zoma.vscode-auto-open-workspace",
-        "bierner.markdown-mermaid"
+        "MermaidChart.vscode-mermaid-chart",
+        "astro-build.astro-vscode"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",

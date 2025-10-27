@@ -108,6 +108,6 @@ async function fetchWsDebuggerUrl(): Promise<string> {
 
 const debuggerPort = 9222;
 
-// NOTE: It is a VS Code term and has nothing to do with the Mind Control
+// NOTE: It is a VS Code term and has nothing to do with the Mind Rig
 // Workbench feature.
 const vscodeHtmlName = "workbench.html";

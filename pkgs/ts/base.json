@@ -29,6 +29,7 @@
     "lib": ["ESNext"],
     "types": [],
     "jsx": "react-jsx",
+    "jsxImportSource": "react",
     // Checks
     "skipLibCheck": true,
     "strict": true,

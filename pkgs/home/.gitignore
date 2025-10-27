@@ -1,0 +1,5 @@
+
+# Astro
+.astro/
+# Dist
+dist/

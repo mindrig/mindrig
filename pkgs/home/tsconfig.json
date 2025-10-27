@@ -1,0 +1,12 @@
+{
+  "extends": "@wrkspc/ts/base",
+  "compilerOptions": {
+    // Resolve
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    // Env
+    "types": ["@cloudflare/workers-types/2023-07-01"]
+  }
+}

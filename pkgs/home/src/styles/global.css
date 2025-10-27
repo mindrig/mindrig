@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@config "../../tailwind.config.ts";
+@plugin "@tailwindcss/typography";
+@plugin "tailwindcss-react-aria-components";
+@import "@wrkspc/theme/default";
+
+:placeholder-shown {
+  font-style: italic;
+}
+
+@layer base {
+  @font-face {
+    font-family: "MonaSans";
+    src: url("/mona-sans.woff2") format("woff2-variations");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "MonaspaceNeon";
+    src: url("/monaspace-neon.woff2") format("woff2-variations");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "MartianMono";
+    src: url("/martian-mono.woff2") format("woff2-variations");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .flex > * {
+    min-width: 0;
+  }
+
+  .font-sans {
+    font-variation-settings:
+      "wdth" 90,
+      "wght" 420;
+  }
+
+  .font-mono {
+    font-variation-settings:
+      "wdth" 80,
+      "wght" 290;
+    font-size-adjust: 0.53;
+  }
+}
+
+.bg-fade {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    #ffffff 100%
+  );
+}
+
+.bg-off-white {
+  background-color: #f9f8f1;
+}
+
+.text-off-white {
+  color: #f9f8f1;
+}
