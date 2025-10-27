@@ -12,18 +12,19 @@ dest_dirs=(
   "../home/public"
 )
 
-echo "🌀 Linking public files"
+echo "🌀 Copying public files"
 
 for dest_dir in "${dest_dirs[@]}"; do
-  echo "🔵 Linking to $dest_dir"
+  echo "🔵 Copying to $dest_dir"
 
   mkdir -p "$dest_dir"
 
   for file in "$src_dir"/*; do
     [ -f "$file" ] || continue
     src_path="./$file"
-    link_path="$dest_dir/$(basename "$file")"
-    ln -s "$src_path" "$link_path"
+    dest_path="$dest_dir/$(basename "$file")"
+    rm -f "$dest_path"
+    cp "$src_path" "$dest_path"
   done
 done
 
