@@ -1,4 +1,13 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "mindrig-home"
-compatibility_date = "2024-05-12"
-pages_build_output_dir = "./dist"
+main = "dist/_worker.js/index.js"
+compatibility_date = "2025-10-27"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+workers_dev = false
+
+[assets]
+binding = "ASSETS"
+directory = "./dist"
+
+[observability]
+enabled = true

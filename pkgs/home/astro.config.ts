@@ -10,11 +10,7 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 3100,
   },
-  adapter: cloudflare({
-    platformProxy: {
-      enabled: true,
-    },
-  }),
+  adapter: cloudflare(),
   integrations: [react()],
   vite: {
     plugins: [tailwindcss() as any],
