@@ -4,6 +4,8 @@ export default {
     "./src/**/*.{js,jsx,ts,tsx}",
     // Webview HTML
     "../extension/src/**/html.ts",
+    // UI packages
+    "../logo/src/**/html.tsx",
     // DS packages
     "../../subs/ds/pkgs/form/src/**/*.{js,ts,jsx,tsx}",
     "../../subs/ds/pkgs/icons/src/**/*.{js,ts,jsx,tsx}",
