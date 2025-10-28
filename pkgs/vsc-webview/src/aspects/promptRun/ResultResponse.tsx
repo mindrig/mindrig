@@ -1,29 +1,29 @@
 import JsonView from "@uiw/react-json-view";
 
-import { shouldExpandNodeInitially } from "./jsonUtils";
+import { shouldExpandNodeInitially } from "../result/jsonUtils";
 
-export interface ResultRequestProps {
-  request: object | undefined | null;
+export interface ResultResponseProps {
+  response: object | undefined | null;
   expanded: boolean;
   onToggle: () => void;
 }
 
-export function ResultRequest(props: ResultRequestProps) {
-  const { request, expanded, onToggle } = props;
-  if (!request) return null;
+export function PromptRunResultResoponse(props: ResultResponseProps) {
+  const { response, expanded, onToggle } = props;
+  if (!response) return null;
 
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <h6 className="text-xs font-medium">Request JSON</h6>
+        <h6 className="text-xs font-medium">Response JSON</h6>
         <button className="text-xs hover:underline" onClick={onToggle}>
-          {expanded ? "Hide request" : "Show request"}
+          {expanded ? "Hide response" : "Show response"}
         </button>
       </div>
       {expanded && (
         <div className="p-3 rounded border overflow-auto">
           <JsonView
-            value={request}
+            value={response}
             displayObjectSize={false}
             shouldExpandNodeInitially={shouldExpandNodeInitially}
           />

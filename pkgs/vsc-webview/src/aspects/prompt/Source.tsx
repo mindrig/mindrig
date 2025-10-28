@@ -1,22 +1,15 @@
-import type { Prompt } from "@mindrig/types";
+import { PlaygroundState } from "@wrkspc/core/playground";
 import { TextArea } from "@wrkspc/form";
-import { useMemo } from "react";
 
 export namespace PromptSource {
   export interface Props {
-    prompt: Prompt;
-    content: string;
+    prompt: PlaygroundState.Prompt;
   }
 }
 
 export function PromptSource(props: PromptSource.Props) {
-  const { prompt, content } = props;
-  const span = prompt.span.inner;
-
-  const source = useMemo(
-    () => content.slice(span.start, span.end),
-    [content, span.start, span.end],
+  const { prompt } = props;
+  return (
+    <TextArea label={{ a11y: "Prompt" }} value={prompt.content} isReadOnly />
   );
-
-  return <TextArea label={{ a11y: "Prompt" }} value={source} isReadOnly />;
 }

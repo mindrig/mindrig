@@ -6,7 +6,6 @@ import {
   modelResponseErrorData,
   ModelVercel,
 } from "@wrkspc/core/model";
-import { createHash } from "node:crypto";
 import { AuthManager } from "../auth/Manager.js";
 import { Manager } from "../manager/Manager.js";
 import { MessagesManager } from "../message/Manager.js";
@@ -106,7 +105,7 @@ export class ModelsGatewayManager extends Manager {
 
     const source: ModelGateway.ListSource = {
       type: "auth",
-      hash: vercelKeyHash(apiKey),
+      hash: await vercelKeyHash(apiKey),
     };
 
     const cache = this.#cache("auth").access(source);
@@ -221,6 +220,11 @@ const cacheProvider: RequestCacheManager.Provider<
   ok: (response) => response.data.status === "ok",
 };
 
-function vercelKeyHash(apiKey: string): string {
-  return createHash("sha256").update(apiKey).digest("hex");
+async function vercelKeyHash(apiKey: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(apiKey);
+  const hashBuffer = await global.crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hash;
 }

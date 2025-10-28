@@ -1,15 +1,15 @@
-import { screen, fireEvent } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import type { ResultsLayout } from "@/aspects/assessment/persistence";
 import type { ResultsContextValue } from "@/aspects/assessment/hooks/useAssessmentResultsView";
+import type { ResultsLayout } from "@/aspects/assessment/persistence";
 import {
   createRunResult,
   renderWithAssessmentProviders,
 } from "@/testUtils/assessment";
 
-import { Results } from "../Results";
+import { PromptRunResults } from "../../promptRun/Results";
 
 const baseResult = createRunResult({
   runId: "run-1",
@@ -31,7 +31,7 @@ const models = [
 
 describe("Results", () => {
   const renderComponent = (overrides: Partial<ResultsContextValue> = {}) => {
-    return renderWithAssessmentProviders(<Results />, {
+    return renderWithAssessmentProviders(<PromptRunResults />, {
       results: {
         results: [baseResult],
         models,
@@ -73,7 +73,10 @@ describe("Results", () => {
     const onActiveIndexChange = vi.fn();
     renderComponent({
       layout: "carousel",
-      results: [baseResult, { ...baseResult, resultId: "res-2", label: "Result 2" }],
+      results: [
+        baseResult,
+        { ...baseResult, resultId: "res-2", label: "Result 2" },
+      ],
       onActiveResultIndexChange: onActiveIndexChange,
     });
 

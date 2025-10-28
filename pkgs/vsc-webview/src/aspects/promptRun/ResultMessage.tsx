@@ -9,7 +9,7 @@ export interface ResultMessageProps {
   onChangeView: (view: "rendered" | "raw") => void;
 }
 
-export function ResultMessage(props: ResultMessageProps) {
+export function PromptRunResultMessage(props: ResultMessageProps) {
   const {
     label,
     renderedLabel,
@@ -30,6 +30,7 @@ export function ResultMessage(props: ResultMessageProps) {
         >
           {renderedLabel}
         </button>
+
         <button
           type="button"
           className={`px-2 py-1 border rounded ${currentView === "raw" ? "font-semibold" : ""}`}
@@ -38,6 +39,7 @@ export function ResultMessage(props: ResultMessageProps) {
           Raw
         </button>
       </div>
+
       <div className="p-3 rounded border">
         {currentView === "rendered" ? renderedContent : rawContent}
       </div>

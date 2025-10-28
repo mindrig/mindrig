@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
+import { describe, expect, it, vi } from "vitest";
 
 import { createRunResult } from "@/testUtils/assessment";
 
-import { ResultMessages } from "../ResultMessages";
+import { PromptRunResultMessages } from "../../promptRun/ResultMessages";
 
 vi.mock("@uiw/react-json-view", () => ({
   __esModule: true,
@@ -29,7 +29,7 @@ vi.mock("@/aspects/assessment/components/StreamingMarkdown", () => ({
         ? text
         : textParts && textParts.length > 0
           ? textParts.join("")
-          : emptyPlaceholder ?? null}
+          : (emptyPlaceholder ?? null)}
     </div>
   ),
 }));
@@ -39,7 +39,7 @@ describe("ResultMessages", () => {
     const result = createRunResult({ text: '{"foo":"bar"}' });
 
     render(
-      <ResultMessages
+      <PromptRunResultMessages
         result={result}
         isLoading={false}
         view="rendered"
@@ -56,7 +56,7 @@ describe("ResultMessages", () => {
     const onViewChange = vi.fn();
 
     render(
-      <ResultMessages
+      <PromptRunResultMessages
         result={createRunResult({ text: "" })}
         isLoading={false}
         view="rendered"

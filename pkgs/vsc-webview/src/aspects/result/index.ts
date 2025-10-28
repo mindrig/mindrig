@@ -1,8 +1,8 @@
-export { Results } from "./Results";
-export { Result } from "./Result";
-export { ResultSettings } from "./ResultSettings";
-export { ResultRequest } from "./ResultRequest";
-export { ResultMessages } from "./ResultMessages";
-export { ResultMessage } from "./ResultMessage";
-export { ResultResponse } from "./ResultResponse";
-export { PricingInfo } from "./PricingInfo";
+export { PromptRunPricingInfo as PricingInfo } from "../promptRun/PricingInfo";
+export { PromptRunResult as Result } from "../promptRun/Result";
+export { PromptRunResultMessage as ResultMessage } from "../promptRun/ResultMessage";
+export { PromptRunResultMessages as ResultMessages } from "../promptRun/ResultMessages";
+export { PromptRunResultRequest as ResultRequest } from "../promptRun/ResultRequest";
+export { PromptRunResultResoponse as ResultResponse } from "../promptRun/ResultResponse";
+export { PromptRunResults as Results } from "../promptRun/Results";
+export { PromptRunResultSettings as ResultSettings } from "../promptRun/ResultSettings";

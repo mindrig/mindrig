@@ -46,13 +46,23 @@ function Content() {
   return (
     <RouterProvider navigate={navigate} useHref={useHref}>
       <Routes>
-        <PageRoute page={{ type: "playground" }}>
-          <PlaygroundPage />
-        </PageRoute>
+        <Route
+          path={pageHrefs.playground()}
+          element={
+            <PageRoute page={{ type: "playground" }}>
+              <PlaygroundPage />
+            </PageRoute>
+          }
+        />
 
-        <PageRoute page={{ type: "auth" }}>
-          <AuthPage />
-        </PageRoute>
+        <Route
+          path={pageHrefs.auth()}
+          element={
+            <PageRoute page={{ type: "auth" }}>
+              <AuthPage />
+            </PageRoute>
+          }
+        />
 
         <Route
           path="*"
@@ -77,5 +87,5 @@ function PageRoute(props: React.PropsWithChildren<PageRoute.Props>) {
     send({ type: "page-wv-update", payload: props.page });
   }, [send]);
 
-  return <Route path={pageHrefs.auth()} element={children} />;
+  return children;
 }

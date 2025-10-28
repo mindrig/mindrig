@@ -13,33 +13,14 @@ export namespace Blueprint {
 }
 
 export function Blueprint(props: Blueprint.Props) {
-  const {
-    file,
-    prompt,
-    vercelGatewayKey,
-    promptIndex,
-    showSource,
-    isPromptPinned,
-  } = props;
+  const { file, prompt } = props;
   const { settings } = useSettings();
-  const shouldShowSource =
-    isPromptPinned ||
-    (typeof showSource === "boolean"
-      ? showSource
-      : settings?.playground?.showSource);
 
   return (
     <PanelSection>
-      {shouldShowSource && (
-        <PromptSource prompt={prompt} content={file.content} />
-      )}
+      {settings.playground?.showSource && <PromptSource prompt={prompt} />}
 
-      <Assessment
-        prompt={prompt}
-        vercelGatewayKey={vercelGatewayKey}
-        fileContent={file.content}
-        promptIndex={promptIndex}
-      />
+      <Assessment prompt={prompt} />
     </PanelSection>
   );
 }

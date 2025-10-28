@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { ResultResponse } from "../ResultResponse";
+import { PromptRunResultResoponse } from "../../promptRun/ResultResponse";
 
 vi.mock("@uiw/react-json-view", () => ({
   __esModule: true,
@@ -14,7 +14,11 @@ vi.mock("@uiw/react-json-view", () => ({
 describe("ResultResponse", () => {
   it("returns null when no response is provided", () => {
     const { container } = render(
-      <ResultResponse response={null} expanded={false} onToggle={vi.fn()} />,
+      <PromptRunResultResoponse
+        response={null}
+        expanded={false}
+        onToggle={vi.fn()}
+      />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -24,7 +28,7 @@ describe("ResultResponse", () => {
     const onToggle = vi.fn();
 
     render(
-      <ResultResponse
+      <PromptRunResultResoponse
         response={{ foo: "bar" }}
         expanded={false}
         onToggle={onToggle}
@@ -40,7 +44,7 @@ describe("ResultResponse", () => {
 
   it("displays JSON view when expanded", () => {
     render(
-      <ResultResponse
+      <PromptRunResultResoponse
         response={{ foo: "bar" }}
         expanded
         onToggle={vi.fn()}

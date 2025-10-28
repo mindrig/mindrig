@@ -5,5 +5,5 @@ export interface Auth {
 }
 
 export namespace Auth {
-  export type GatewayValue = AuthGateway | undefined | null;
+  export type GatewayValue = AuthGateway | null;
 }

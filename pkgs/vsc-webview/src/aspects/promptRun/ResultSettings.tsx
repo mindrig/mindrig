@@ -1,6 +1,6 @@
 import JsonView from "@uiw/react-json-view";
 
-import { shouldExpandNodeInitially } from "./jsonUtils";
+import { shouldExpandNodeInitially } from "../result/jsonUtils";
 
 export interface ResultSettingsProps {
   settings: object | null;
@@ -8,7 +8,7 @@ export interface ResultSettingsProps {
   onToggle: () => void;
 }
 
-export function ResultSettings(props: ResultSettingsProps) {
+export function PromptRunResultSettings(props: ResultSettingsProps) {
   const { settings, collapsed, onToggle } = props;
   if (!settings) return null;
 
@@ -20,6 +20,7 @@ export function ResultSettings(props: ResultSettingsProps) {
           {collapsed ? "Show settings" : "Hide settings"}
         </button>
       </div>
+
       {!collapsed && (
         <div className="p-3 rounded border overflow-auto">
           <JsonView

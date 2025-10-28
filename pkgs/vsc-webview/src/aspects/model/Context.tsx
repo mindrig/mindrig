@@ -7,10 +7,22 @@ import {
   ModelGateway,
 } from "@wrkspc/core/model";
 import { createContext, useContext, useMemo, useState } from "react";
-import { useModelsSource } from "./source";
+import { ModelsSource, useModelsSource } from "./source";
 
 export namespace ModelsContext {
-  export type Value = PayloadOk | PayloadError | undefined;
+  export interface Value {
+    payload: PayloadValue;
+    sources: Sources;
+  }
+
+  export interface Sources {
+    dotdev: ModelsSource<"dotdev">;
+    gateway: ModelsSource<"gateway">;
+  }
+
+  export type PayloadValue = Payload | undefined;
+
+  export type Payload = PayloadOk | PayloadError;
 
   export interface PayloadOk {
     status: "ok";
@@ -55,7 +67,7 @@ export function ModelsProvider(props: React.PropsWithChildren) {
     ModelDeveloper.Id | undefined
   >();
 
-  const value = useMemo<ModelsContext.Value>(() => {
+  const payload = useMemo<ModelsContext.PayloadValue>(() => {
     // Gateway is still loading
     if (!gateway.response) return undefined;
 
@@ -84,17 +96,16 @@ export function ModelsProvider(props: React.PropsWithChildren) {
     }
 
     const map = buildModelsMap(gatewayOk, dotdevOk);
-
     const developers = mapModelDeveloperItems(map);
 
-    const value: ModelsContext.PayloadOk = {
+    const payload: ModelsContext.PayloadOk = {
       status: "ok",
       map,
       developers,
       meta,
       // setDeveloperId,
     };
-    return value;
+    return payload;
   }, [gateway, dotdev, setDeveloperId]);
 
   // useMemo(() => {
@@ -114,6 +125,11 @@ export function ModelsProvider(props: React.PropsWithChildren) {
   //   }
   // }, [value, developerId]);
 
+  const value: ModelsContext.Value = {
+    payload,
+    sources: { dotdev, gateway },
+  };
+
   return (
     <ModelsContext.Provider value={value}>
       {props.children}
@@ -126,15 +142,3 @@ export function useModels(): ModelsContext.Value {
   if (!value) throw new Error("useModels must be used within a ModelsProvider");
   return value;
 }
-
-//#region Legacy
-
-export interface AvailableModel {
-  id: string;
-  name?: string;
-  modelType?: string | null;
-  specification?: { provider?: string };
-  pricing?: Record<string, number>;
-}
-
-//#endregion

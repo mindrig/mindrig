@@ -1,82 +1,73 @@
-import type { RunResult } from "@/aspects/assessment/types";
-import type { AvailableModel } from "@/aspects/model/Context";
-
-import { PricingInfo } from "./PricingInfo";
-import { ResultMessages } from "./ResultMessages";
-import { ResultRequest } from "./ResultRequest";
-import { ResultResponse } from "./ResultResponse";
-import { ResultSettings } from "./ResultSettings";
-
 export interface ResultProps {
-  index: number;
-  result: RunResult;
-  isVerticalLayout: boolean;
-  collapsed: boolean;
-  timestamp?: number;
-  isLoading: boolean;
-  showFailureBadge: boolean;
-  modelEntry: AvailableModel | null;
-  modelSettingsCollapsed: boolean;
-  onToggleCollapse: (index: number) => void;
-  onToggleModelSettings: (index: number) => void;
-  requestExpanded: boolean;
-  onToggleRequest: (index: number) => void;
-  responseExpanded: boolean;
-  onToggleResponse: (index: number) => void;
-  view: "rendered" | "raw";
-  onChangeView: (index: number, view: "rendered" | "raw") => void;
+  // index: number;
+  // result: RunResult;
+  // isVerticalLayout: boolean;
+  // collapsed: boolean;
+  // timestamp?: number;
+  // isLoading: boolean;
+  // showFailureBadge: boolean;
+  // modelEntry: AvailableModel | null;
+  // modelSettingsCollapsed: boolean;
+  // onToggleCollapse: (index: number) => void;
+  // onToggleModelSettings: (index: number) => void;
+  // requestExpanded: boolean;
+  // onToggleRequest: (index: number) => void;
+  // responseExpanded: boolean;
+  // onToggleResponse: (index: number) => void;
+  // view: "rendered" | "raw";
+  // onChangeView: (index: number, view: "rendered" | "raw") => void;
 }
 
-export function Result(props: ResultProps) {
-  const {
-    index,
-    result,
-    isVerticalLayout,
-    collapsed,
-    timestamp,
-    isLoading,
-    showFailureBadge,
-    modelEntry,
-    modelSettingsCollapsed,
-    onToggleCollapse,
-    onToggleModelSettings,
-    requestExpanded,
-    onToggleRequest,
-    responseExpanded,
-    onToggleResponse,
-    view,
-    onChangeView,
-  } = props;
+export function PromptRunResult(props: ResultProps) {
+  // const {
+  //   index,
+  //   result,
+  //   isVerticalLayout,
+  //   collapsed,
+  //   timestamp,
+  //   isLoading,
+  //   showFailureBadge,
+  //   modelEntry,
+  //   modelSettingsCollapsed,
+  //   onToggleCollapse,
+  //   onToggleModelSettings,
+  //   requestExpanded,
+  //   onToggleRequest,
+  //   responseExpanded,
+  //   onToggleResponse,
+  //   view,
+  //   onChangeView,
+  // } = props;
 
-  const headerTitle =
-    result.label ||
-    [result.model?.label ?? result.model?.id, result.runLabel]
-      .filter(Boolean)
-      .join(" • ") ||
-    `Result ${index + 1}`;
+  // const headerTitle =
+  //   result.label ||
+  //   [result.model?.label ?? result.model?.id, result.runLabel]
+  //     .filter(Boolean)
+  //     .join(" • ") ||
+  //   `Result ${index + 1}`;
 
-  const modelSettingsPayload = result.model?.settings
-    ? {
-        id: result.model.id,
-        provider: result.model.providerId,
-        options: result.model.settings.options,
-        reasoning: result.model.settings.reasoning,
-        providerOptions: result.model.settings.providerOptions,
-        tools: result.model.settings.tools,
-        attachments: result.model.settings.attachments,
-      }
-    : null;
+  // const modelSettingsPayload = result.model?.settings
+  //   ? {
+  //       id: result.model.id,
+  //       provider: result.model.providerId,
+  //       options: result.model.settings.options,
+  //       reasoning: result.model.settings.reasoning,
+  //       providerOptions: result.model.settings.providerOptions,
+  //       tools: result.model.settings.tools,
+  //       attachments: result.model.settings.attachments,
+  //     }
+  //   : null;
 
-  const handleToggleCollapse = () => onToggleCollapse(index);
-  const handleToggleModelSettings = () => onToggleModelSettings(index);
-  const handleToggleRequest = () => onToggleRequest(index);
-  const handleToggleResponse = () => onToggleResponse(index);
-  const handleViewChange = (next: "rendered" | "raw") =>
-    onChangeView(index, next);
+  // const handleToggleCollapse = () => onToggleCollapse(index);
+  // const handleToggleModelSettings = () => onToggleModelSettings(index);
+  // const handleToggleRequest = () => onToggleRequest(index);
+  // const handleToggleResponse = () => onToggleResponse(index);
+  // const handleViewChange = (next: "rendered" | "raw") =>
+  //   onChangeView(index, next);
 
   return (
     <div className="border rounded">
-      <div className="flex items-center justify-between px-3 py-2 border-b">
+      {/* <div className="flex items-center justify-between px-3 py-2 border-b">
         <div className="flex items-center gap-2">
           {isVerticalLayout && (
             <button
@@ -84,19 +75,21 @@ export function Result(props: ResultProps) {
               onClick={handleToggleCollapse}
               title={collapsed ? "Expand" : "Collapse"}
             >
-              {collapsed ? "+" : "–"}
+              {collapsed ? "+" : "-"}
             </button>
           )}
           <span className="text-sm font-medium">{headerTitle}</span>
           {showFailureBadge && <span className="text-xs">Failed</span>}
         </div>
+
         {timestamp && (
           <span className="text-xs">
             {new Date(timestamp).toLocaleString()}
           </span>
         )}
-      </div>
-      {!collapsed && (
+      </div> */}
+
+      {/* {!collapsed && (
         <div className="p-3 space-y-3">
           {isLoading && !result.error && (
             <div className="flex items-center gap-2 text-xs text-neutral-500">
@@ -156,7 +149,7 @@ export function Result(props: ResultProps) {
 
           <PricingInfo usage={result.usage} modelEntry={modelEntry} />
         </div>
-      )}
+      )} */}
     </div>
   );
 }

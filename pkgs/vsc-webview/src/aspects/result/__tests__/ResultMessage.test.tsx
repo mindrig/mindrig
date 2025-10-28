@@ -2,12 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { ResultMessage } from "../ResultMessage";
+import { PromptRunResultMessage } from "../../promptRun/ResultMessage";
 
 describe("ResultMessage", () => {
   it("renders provided label and highlights current view", () => {
     render(
-      <ResultMessage
+      <PromptRunResultMessage
         label="Response"
         renderedLabel="Rendered"
         currentView="rendered"
@@ -29,7 +29,7 @@ describe("ResultMessage", () => {
     const onChangeView = vi.fn();
 
     render(
-      <ResultMessage
+      <PromptRunResultMessage
         label="Response"
         renderedLabel="Rendered"
         currentView="rendered"

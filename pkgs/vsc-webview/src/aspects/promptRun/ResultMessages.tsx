@@ -3,8 +3,8 @@ import JsonView from "@uiw/react-json-view";
 import { StreamingMarkdown } from "@/aspects/assessment/components/StreamingMarkdown";
 import type { RunResult } from "@/aspects/assessment/types";
 
-import { shouldExpandNodeInitially } from "./jsonUtils";
-import { ResultMessage } from "./ResultMessage";
+import { shouldExpandNodeInitially } from "../result/jsonUtils";
+import { PromptRunResultMessage } from "./ResultMessage";
 
 export interface ResultMessagesProps {
   result: RunResult;
@@ -13,7 +13,7 @@ export interface ResultMessagesProps {
   onViewChange: (view: "rendered" | "raw") => void;
 }
 
-export function ResultMessages(props: ResultMessagesProps) {
+export function PromptRunResultMessages(props: ResultMessagesProps) {
   const { result, isLoading, view, onViewChange } = props;
 
   const rawText = result.text ?? "";
@@ -50,7 +50,9 @@ export function ResultMessages(props: ResultMessagesProps) {
       resultId={result.resultId ?? null}
       streaming={Boolean(result.streaming) || isLoading || !hasContent}
       wrapperClassName="streamdown-content prose prose-sm max-w-none"
-      emptyPlaceholder={<div className="text-xs text-neutral-500">{placeholderCopy}</div>}
+      emptyPlaceholder={
+        <div className="text-xs text-neutral-500">{placeholderCopy}</div>
+      }
       allowedLinkPrefixes={["https://", "http://", "mailto:"]}
       allowedImagePrefixes={["https://", "http://"]}
     />
@@ -65,7 +67,7 @@ export function ResultMessages(props: ResultMessagesProps) {
   );
 
   return (
-    <ResultMessage
+    <PromptRunResultMessage
       label="Response"
       renderedLabel={renderedLabel}
       currentView={view}
