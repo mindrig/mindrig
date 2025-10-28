@@ -1,0 +1,13 @@
+[providers.age]
+type = "age"
+recipients = ["age1ayemh9gkd9p70wta8ewqd8xepr5p2293c46wkq2n9jagzhqd0v9q8txja9"]
+
+[secrets.FONTAWESOME_PACKAGE_TOKEN]
+description = "Font Awesome npm token"
+provider = "age"
+value = "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBhSVFxOSszSWVFbXZCcDhKT1N2Y1A3cGwvN3hucDMzU0FtS1FkVEluaFZzCkhCNVQwa2poUjFweGRDT0U4Vi9LbWJidnRXTzE2RjFIWExoenhHZ3BQcnMKLS0tIFo3YUQ1OGI4YzlvVUZsYTVvbDVPVk5meU1veklUR3pMeEIvalAwWEsyMUUKhWNuLeN6zChnEJX77sMhm6IJFOx+RgiUxcsYUZNaa3QH8QhxBmHn6EeY+uctTz3nKyQGrSFIXHGEMhc7uvZJQU7h4iA="
+
+[secrets.VERCEL_GATEWAY_KEY]
+description = "Vercel Gateway key"
+provider = "age"
+value = "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBDVzlZdVVDSHJHTDVIZk9kdzZqa1U0aVdpdzMxV3ppK2JNYmxVQ2pzcVdNCkp0ZFd3cDY3QmVXTi9Pam9wVFZTK0I3dWRSWHpjV21UQzh4c1JnVXFiU1kKLS0tIHlQZlVDRmhFc3U5Ym41OUNpUHBPM2pqVHlhQnhEV2RUeXNOQS92VkltZFkKgx1S2vgcn+I0hSdzrdV3RqBDl7PQn7B+b9mer/X36Kc7Km6wvtz4AHWf0royV447bz9fNmQxLIyermx5TGXJIVC6gr/gvaNl6Q3M6ThH2UIEQFMx6cRjnOB+n/4="

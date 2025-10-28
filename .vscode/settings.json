@@ -11,6 +11,7 @@
     "*.css": "tailwindcss"
   },
   "debug.javascript.defaultRuntimeExecutable": {
-    "pwa-node": "/home/vscode/.local/share/mise/shims/node"
-  }
+    "pwa-node": "/Users/koss/.local/share/mise/shims/node"
+  },
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv"
 }

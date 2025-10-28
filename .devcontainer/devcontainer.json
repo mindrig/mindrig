@@ -9,6 +9,7 @@
 
   "mounts": [
     // Mount credentials from host machine:
+    "source=${localEnv:HOME}/.config/fnox/age.txt,target=/home/vscode/.config/fnox/age.txt,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.config/mothership/.env,target=/home/vscode/.config/mothership/.env,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.cargo/credentials.toml,target=/home/vscode/.cargo/credentials.toml,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.npmrc,target=/home/vscode/.npmrc,type=bind,consistency=cached",

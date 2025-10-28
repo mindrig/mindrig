@@ -23,11 +23,15 @@ go = "latest"
 "cargo:watchexec-cli" = "latest"
 # TODO: Will include with latest Mothership image, so can remove after updating
 "cargo:jaq" = "latest"
+"cargo:toml2json" = "latest" # Convert Toml to JSON
 "npm:turbo" = "latest"
 "npm:prettier" = "latest"                  # Code formatter
 "go:github.com/tomwright/dasel/v3/cmd/dasel" = "master" # JSON/YAML/TOML processor
+age = "latest" # Encryption tool
+fnox = "latest" # Secrets
 
 [env]
+_.source = "./scripts/env-vars.sh"
 _.python.venv = { path = ".venv", create = true }
 _.file = ".env.local"
 

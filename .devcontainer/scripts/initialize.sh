@@ -11,6 +11,21 @@ if [ -z "$devcontainer_id" ]; then
 	exit 1
 fi
 
+echo "🌀 Ensuring age key"
+
+age_key_path="$HOME/.config/fnox/age.txt"
+
+if [ ! -f "$age_key_path" ]; then
+	echo -e "🔴 age key is missing, make sure to generate it:\n\n    age-keygen -o $age_key_path\n"
+	exit 1
+fi
+
+public_key=$(grep -Po '(?<=public key:\s*)age[0-9a-z]+' "$age_key_path")
+
+if ! grep -Fq "$public_key" fnox.toml; then
+	echo -e "🔴 Public age key is missing in fnox.toml recipients, make sure to add it and re-encrypt existing keys:\n\n    ./scripts/secrets-rotate.sh\n"
+fi
+
 echo "🌀 Ensuring state directories"
 
 state_dir="$HOME/.local/state/mothership/containers/$devcontainer_id"
@@ -32,7 +47,7 @@ done
 
 echo
 
-echo -e "🌀 Ensuring host directories\n"
+echo -e "🌀 Ensuring host directories"
 
 dirs=(
 	".cargo"
@@ -47,7 +62,7 @@ done
 
 echo
 
-echo -e "🌀 Ensuring host files\n"
+echo -e "🌀 Ensuring host files"
 
 ensure_file() {
 	file="$HOME/$1"
