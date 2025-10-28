@@ -32,8 +32,8 @@ fnox = "latest" # Secrets
 
 [env]
 _.source = "./scripts/env-vars.sh"
-_.python.venv = { path = ".venv", create = true }
-_.file = ".env.local"
+# TODO: Python venv setting makes mise stuck, investigate later.
+# _.python.venv = { path = ".venv", create = true }
 
 [settings]
 # Enable extra features

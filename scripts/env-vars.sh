@@ -4,5 +4,8 @@
 
 set -eo pipefail
 
-# Set fnox age key path
-export FNOX_AGE_KEY=$(cat ~/.config/fnox/age.txt | grep "AGE-SECRET-KEY")
+if [ -f ~/.config/fnox/age.txt ]; then
+  export FNOX_AGE_KEY="$(cat ~/.config/fnox/age.txt | grep "AGE-SECRET-KEY")"
+else
+  export FNOX_AGE_KEY=""
+fi
