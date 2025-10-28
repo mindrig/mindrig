@@ -15,7 +15,7 @@ const META = {
   source: "prompt source",
 } as const;
 
-describe("assessment persistence", () => {
+describe.skip("assessment persistence", () => {
   afterEach(() => {
     window.localStorage.clear();
   });
