@@ -20,13 +20,15 @@ if [ ! -f "$age_key_path" ]; then
 	exit 1
 fi
 
-public_key=$(grep -Po '(?<=public key:\s*)age[0-9a-z]+' "$age_key_path")
+public_key="$(sed -nE 's/.*public key:[[:space:]]*(age[0-9a-z]+).*/\1/p' "$age_key_path")"
 
 if ! grep -Fq "$public_key" fnox.toml; then
 	echo -e "🔴 Public age key is missing in fnox.toml recipients, make sure to add it and re-encrypt existing keys:\n\n    ./scripts/secrets-rotate.sh\n"
 fi
 
-echo "🌀 Ensuring state directories"
+echo "🔹 age key found at $age_key_path"
+
+echo -e "\n🌀 Ensuring state directories"
 
 state_dir="$HOME/.local/state/mothership/containers/$devcontainer_id"
 mkdir -p "$state_dir"

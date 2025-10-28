@@ -30,7 +30,8 @@
   "postStartCommand": ".devcontainer/scripts/post-start.sh",
 
   "features": {
-    "ghcr.io/devcontainers-extra/features/vscode-server:1": {},
+    // TODO: Breaks the build, investigate later.
+    // "ghcr.io/devcontainers-extra/features/vscode-server:1": {},
     "ghcr.io/devcontainers-extra/features/vscode-cli:1": {}
   },
 
