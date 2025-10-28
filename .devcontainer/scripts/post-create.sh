@@ -10,6 +10,9 @@ source ~/.config/mothership/.env || true
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
+# Update it
+mise self-update -y
+# Activate it
 eval "$(mise activate bash --shims)"
 eval "$(mise env -s bash)"
 
