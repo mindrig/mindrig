@@ -2,21 +2,21 @@
 
 1. Install `mise` by running:
 
-    ```sh
-    curl https://mise.run | sh
-    ```
+   ```sh
+   curl https://mise.run | sh
+   ```
 
 2. Integrate it into your shell and restart the terminal to apply the changes:
 
-    ```sh
-    curl "https://mise.run/$(basename $SHELL)" | sh
-    ```
+   ```sh
+   curl "https://mise.run/$(basename $SHELL)" | sh
+   ```
 
 3. Create an `age` key for secrets:
 
-    ```sh
-    mkdir -p ~/.config/fnox/ && mise exec age -- age-keygen -o ~/.config/fnox/age.txt
-    ```
+   ```sh
+   mkdir -p ~/.config/fnox/ && mise exec age -- age-keygen -o ~/.config/fnox/age.txt
+   ```
 
 4. Copy the public key from the previous command output, looking like this: `age1jm5g49tr96kf9qfhwurpkp3f6npucueec4q065pzrqux73d5qe0skawf43`.
 
@@ -26,11 +26,11 @@
 
    Otherwise, run and then commit and push the `knox.toml` changes:
 
-    ```sh
-    ./scripts/secrets-reencrypt.sh
-    ```
+   ```sh
+   ./scripts/secrets-reencrypt.sh
+   ```
 
-7. Open the project in VS Code (or a fork), and install [the Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+7. Open the project in VS Code (or a fork), and install [the Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack).
 
 8. Run the command (`cmd+shift+p`/`ctrl+shift+p`) `Dev Containers: Rebuild and Reopen in Container` to start and set up the dev container.
 

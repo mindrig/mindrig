@@ -8,6 +8,8 @@
   "workspaceFolder": "/wrkspc/${localWorkspaceFolderBasename}",
 
   "mounts": [
+    // Prevent cross-system node_modules conflicts
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/wrkspc/${localWorkspaceFolderBasename}/node_modules,target=/wrkspc/${localWorkspaceFolderBasename}/node_modules,type=bind,consistency=cached",
     // Mount credentials from host machine:
     "source=${localEnv:HOME}/.config/fnox/age.txt,target=/home/vscode/.config/fnox/age.txt,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.config/mothership/.env,target=/home/vscode/.config/mothership/.env,type=bind,consistency=cached",
@@ -23,7 +25,7 @@
     // NOTE: When adding new mounts, make sure to also update ./Dockerfile to ensure the directories
   ],
 
-  "initializeCommand": ".devcontainer/scripts/initialize.sh ${devcontainerId}",
+  "initializeCommand": ".devcontainer/scripts/initialize.sh ${devcontainerId} ${localWorkspaceFolderBasename}",
   "onCreateCommand": ".devcontainer/scripts/on-create.sh",
   "postCreateCommand": ".devcontainer/scripts/post-create.sh",
   "updateContentCommand": ".devcontainer/scripts/on-update.sh",

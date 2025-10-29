@@ -7,7 +7,13 @@ echo -e "⚡️ Bootstrapping host directories and files...\n"
 
 devcontainer_id=$1
 if [ -z "$devcontainer_id" ]; then
-	echo "🔴 No devcontainer ID provided. Usage: ./initialize.sh <devcontainer-id>" >&2
+	echo '🔴 No devcontainer ID provided. Usage: .devcontainer/scripts/initialize.sh ${devcontainerId} ${localWorkspaceFolderBasename}' >&2
+	exit 1
+fi
+
+wrkspc_dir_name=$2
+if [ -z "$wrkspc_dir_name" ]; then
+	echo '🔴 No local workspace dir name provided. Usage: .devcontainer/scripts/initialize.sh ${devcontainerId} ${localWorkspaceFolderBasename}' >&2
 	exit 1
 fi
 
@@ -39,6 +45,7 @@ dirs=(
 	".local/state"
 	".rustup"
 	".codex/sessions"
+	"wrkspc/$wrkspc_dir_name/node_modules"
 )
 
 for rel_dir in "${dirs[@]}"; do
