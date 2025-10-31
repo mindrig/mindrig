@@ -12,7 +12,7 @@ import { ModelsGatewayManager } from "../model/GatewayManager";
 import { PageManager } from "../page/Manager";
 import { PlaygroundManager } from "../playground/Manager";
 import { PromptsManager } from "../prompt/Manager";
-import { PromptRunManager } from "../promptRun/Manager";
+import { RunManager } from "../run/Manager";
 import { SecretsManager } from "../secret/Manager";
 import { SettingsManager } from "../settings/Manager";
 import { StoreManager } from "../store/Manager";
@@ -39,7 +39,7 @@ export class WebviewManager extends Manager {
   #editor: EditorManager;
   #prompts: PromptsManager;
   #playground: PlaygroundManager;
-  #promptRun: PromptRunManager;
+  #run: RunManager;
   #datasets: DatasetsManager;
   #attachments: AttachmentsManager;
   #page: PageManager;
@@ -94,7 +94,7 @@ export class WebviewManager extends Manager {
       store: this.#store,
     });
 
-    this.#promptRun = new PromptRunManager(this, {
+    this.#run = new RunManager(this, {
       messages: this.#messages,
       secrets: this.#secrets,
     });
@@ -123,7 +123,7 @@ export class WebviewManager extends Manager {
       state: this.#clientState,
     });
 
-    this.#messages.listen(this, "lifecycle-wv-ready", this.#onReady);
+    this.#messages.listen(this, "client-client-ready", this.#onReady);
   }
 
   async #onReady() {
@@ -133,7 +133,7 @@ export class WebviewManager extends Manager {
   }
 
   navigateTo(page: Page) {
-    this.#messages.send({ type: "page-ext-open", payload: page });
+    this.#messages.send({ type: "client-server-navigate", payload: page });
   }
 
   logOut() {
@@ -141,6 +141,6 @@ export class WebviewManager extends Manager {
   }
 
   runPrompt() {
-    this.#promptRun.trigger();
+    this.#run.trigger();
   }
 }

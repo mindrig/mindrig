@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { createContext, useContext, useState } from "react";
 
 import type { RunResult } from "@/aspects/assessment/types";
-import type { AvailableModel } from "@/aspects/model/Context";
+import type { AvailableModel } from "@/aspects/model/MapContext";
 import type { ResultsLayout } from "../persistence";
 
 export interface AssessmentResultsState {

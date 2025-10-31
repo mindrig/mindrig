@@ -24,6 +24,7 @@ export namespace ModelProvider {
     | "google"
     | "groq"
     | "inception"
+    | "minimax"
     | "mistral"
     | "moonshotai"
     | "morph"

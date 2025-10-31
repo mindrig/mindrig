@@ -48,6 +48,7 @@ export function playgroundMapFileFactory(
   overrides?: Partial<PlaygroundMap.File>,
 ): PlaygroundMap.File {
   return {
+    v: 1,
     id: buildMapFileId(),
     prompts: [playgroundMapPromptFactory()],
     updatedAt: Date.now(),
@@ -60,9 +61,10 @@ export function playgroundMapPromptFactory(
   overrides?: Partial<PlaygroundMap.Prompt>,
 ): PlaygroundMap.Prompt {
   return {
+    v: 1,
     id: buildMapPromptId(),
     content: DEFAULT_PROMPT,
-    span: { start: 0, end: 0 },
+    span: { v: 1, start: 0, end: 0 },
     updatedAt: Date.now(),
     ...overrides,
   };
@@ -72,9 +74,10 @@ export function playgroundMapPromptFromParsedFactory(
   parsedPrompt: Prompt,
 ): PlaygroundMap.Prompt {
   return {
+    v: 1,
     id: buildMapPromptId(),
     content: parsedPrompt.exp,
-    span: parsedPrompt.span.outer,
+    span: { v: 1, ...parsedPrompt.span.outer },
     updatedAt: Date.now(),
   };
 }
@@ -204,6 +207,7 @@ export function playgroundMapFactory(
     const mapFile = playgroundMapFileFactory({
       prompts: [mapPrompt],
       meta: {
+        v: 1,
         path: file.path,
         languageId: file.languageId,
         isDirty: file.isDirty,
@@ -213,6 +217,7 @@ export function playgroundMapFactory(
   }
 
   return {
+    v: 1,
     files,
     updatedAt: Date.now(),
     ...overrides,
@@ -231,6 +236,7 @@ export function editorFileMetaFactory(
   overrides?: Partial<EditorFile.Meta>,
 ): EditorFile.Meta {
   return {
+    v: 1,
     path: editorFilePathFactory(),
     isDirty: false,
     languageId: "ts",

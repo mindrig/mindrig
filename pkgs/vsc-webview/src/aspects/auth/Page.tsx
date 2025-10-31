@@ -1,5 +1,5 @@
 import { useAuth } from "@/aspects/auth/Context";
-import { PanelSection } from "@/aspects/panel/Section";
+import { LayoutSection } from "@/aspects/layout/Section";
 import { Auth } from "@wrkspc/core/auth";
 import { Button } from "@wrkspc/ds";
 import { useApp } from "../app/Context";
@@ -13,7 +13,7 @@ export function AuthPage() {
   return (
     <AppLayout>
       <div className="flex flex-col gap-4">
-        <PanelSection bordered>
+        <LayoutSection bordered>
           <div className="flex items-center justify-between gap-3">
             <div className="space-y-1">
               <h1 className="text-lg font-semibold text-gray-900">Account</h1>
@@ -27,7 +27,7 @@ export function AuthPage() {
               Close
             </Button>
           </div>
-        </PanelSection>
+        </LayoutSection>
 
         <div className="px-5">
           <Content auth={auth} />

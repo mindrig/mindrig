@@ -44,6 +44,7 @@ describe(PlaygroundManager, () => {
       expect(state).toEqual({
         file: editorFileToMeta(editorFileB),
         prompt: {
+          v: 1,
           fileId: mapFileB.id,
           promptId: mapPromptsB[0].id,
           content: mapPromptsB[0].content,
@@ -51,6 +52,7 @@ describe(PlaygroundManager, () => {
         },
         prompts: [
           {
+            v: 1,
             fileId: mapFileB.id,
             promptId: mapPromptsB[0].id,
             preview: parsedPromptsB[0].exp,
@@ -150,11 +152,13 @@ describe(PlaygroundManager, () => {
         }),
         prompts: [
           {
+            v: 1,
             fileId: expect.any(String),
             promptId: expect.any(String),
             preview: parsedPromptsA[0].exp,
           },
           {
+            v: 1,
             fileId: expect.any(String),
             promptId: expect.any(String),
             preview: parsedPromptsA[1].exp,
@@ -252,12 +256,13 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(unpinnedState);
 
       const pinB: PlaygroundState.Ref = {
+        v: 1,
         fileId: mapFileB.id,
         promptId: mapPromptsB[0].id,
       };
 
       await vsc.emit(vsc.webview, "onDidReceiveMessage", {
-        type: "playground-wv-pin",
+        type: "playground-client-pin",
         payload: pinB,
       });
 
@@ -272,17 +277,18 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(pinnedStateB);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-update",
+        type: "playground-server-update",
         payload: pinnedStateB,
       });
 
       const pinA: PlaygroundState.Ref = {
+        v: 1,
         fileId: mapFileA.id,
         promptId: mapPromptsA[1].id,
       };
 
       await vsc.emit(vsc.webview, "onDidReceiveMessage", {
-        type: "playground-wv-pin",
+        type: "playground-client-pin",
         payload: pinA,
       });
 
@@ -297,13 +303,13 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(pinnedStateA);
 
       vsc.emit(vsc.webview, "onDidReceiveMessage", {
-        type: "playground-wv-unpin",
+        type: "playground-client-unpin",
       });
 
       expect(await manager.state).toEqual(unpinnedState);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-update",
+        type: "playground-server-update",
         payload: unpinnedState,
       });
     });
@@ -340,7 +346,7 @@ describe(PlaygroundManager, () => {
       });
 
       await vsc.emit(vsc.webview, "onDidReceiveMessage", {
-        type: "playground-wv-prompt-change",
+        type: "playground-client-prompt-change",
         payload: {
           fileId: mapFileA.id,
           promptId: mapPromptsA[1].id,
@@ -363,7 +369,7 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toMatchObject(pinChangedState);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-update",
+        type: "playground-server-update",
         payload: pinChangedState,
       });
     });
@@ -402,7 +408,7 @@ describe(PlaygroundManager, () => {
       });
 
       await vsc.emit(vsc.webview, "onDidReceiveMessage", {
-        type: "playground-wv-prompt-change",
+        type: "playground-client-prompt-change",
         payload: null,
       });
 
@@ -419,7 +425,7 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toMatchObject(pinChangedState);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-update",
+        type: "playground-server-update",
         payload: pinChangedState,
       });
     });
@@ -444,7 +450,7 @@ describe(PlaygroundManager, () => {
       vi.spyOn(editor, "openFile");
 
       await vsc.emit(vsc.webview, "onDidReceiveMessage", {
-        type: "playground-wv-prompt-change",
+        type: "playground-client-prompt-change",
         payload: {
           fileId: mapFileA.id,
           promptId: mapPromptsA[0].id,
@@ -491,7 +497,7 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(activeStateB);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-update",
+        type: "playground-server-update",
         payload: activeStateB,
       });
     });
@@ -526,7 +532,7 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(changedCursorState);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-update",
+        type: "playground-server-update",
         payload: changedCursorState,
       });
     });
@@ -593,7 +599,7 @@ describe(PlaygroundManager, () => {
       expect(savedFileState).toEqual(expectedSavedFileState);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-update",
+        type: "playground-server-update",
         payload: expectedSavedFileState,
       });
     });
@@ -656,7 +662,7 @@ describe(PlaygroundManager, () => {
       expect(await manager.state).toEqual(updatedFileState);
 
       expect(messages.send).toHaveBeenCalledWith({
-        type: "playground-ext-update",
+        type: "playground-server-update",
         payload: updatedFileState,
       });
     });

@@ -2,8 +2,9 @@ import {
   Attachment,
   attachmentDialogTitle,
   attachmentFilters,
+  AttachmentMessage,
 } from "@wrkspc/core/attachment";
-import { VscMessageAttachment } from "@wrkspc/core/message";
+import { FileContent } from "@wrkspc/core/file";
 import { always } from "alwaysly";
 import Mime from "mime/lite";
 import * as vscode from "vscode";
@@ -24,10 +25,10 @@ export class AttachmentsManager extends Manager {
 
     this.#messages = props.messages;
 
-    this.#messages.listen(this, "attachment-wv-request", this.#onRequest);
+    this.#messages.listen(this, "attachment-client-request", this.#onRequest);
   }
 
-  async #onRequest(message: VscMessageAttachment.WvRequest) {
+  async #onRequest(message: AttachmentMessage.ClientRequest) {
     const { requestId, modalities } = message.payload;
 
     const uris = await vscode.window.showOpenDialog({
@@ -39,7 +40,7 @@ export class AttachmentsManager extends Manager {
 
     if (!uris || uris.length === 0)
       return this.#messages.send({
-        type: "attachment-ext-content",
+        type: "attachment-server-content",
         payload: {
           status: "error",
           requestId,
@@ -47,27 +48,29 @@ export class AttachmentsManager extends Manager {
         },
       });
 
-    const data = await Promise.all(
-      uris.map(async (uri) => {
-        const data = await vscode.workspace.fs.readFile(uri);
-        const base64 = Buffer.from(data).toString("base64");
-        const name = uri.path.split("/").pop();
-        always(name);
-        const path = uri.fsPath;
-        const mime = Mime.getType(name) || "application/octet-stream";
+    const data = uris.map((uri) => {
+      const name = uri.path.split("/").pop();
+      always(name);
+      const path = uri.fsPath as Attachment.Path;
+      const mime = Mime.getType(name) || "application/octet-stream";
 
-        const content: Attachment = { name, path, mime, base64 };
-        return content;
-      }),
-    );
+      const attachment: Attachment = { name, path, mime };
+      return attachment;
+    });
 
     this.#messages.send({
-      type: "attachment-ext-content",
+      type: "attachment-server-content",
       payload: {
         status: "ok",
         requestId,
         data,
       },
     });
+  }
+
+  async read(attachment: Attachment): Promise<FileContent.Base64> {
+    const uri = vscode.Uri.file(attachment.path);
+    const data = await vscode.workspace.fs.readFile(uri);
+    return Buffer.from(data).toString("base64") as FileContent.Base64;
   }
 }

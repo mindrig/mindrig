@@ -1,5 +1,5 @@
 import { useVsc } from "@/aspects/vsc/Context";
-import type { VscMessage } from "@wrkspc/core/message";
+import type { Message } from "@wrkspc/core/message";
 import {
   PropsWithChildren,
   createContext,
@@ -9,10 +9,9 @@ import {
   useRef,
   type DependencyList,
 } from "react";
-import { Message } from "./types";
 
-export type VscMessageHandler<Type extends VscMessage.ExtensionType> = (
-  message: VscMessage.Extension & { type: Type },
+export type VscMessageHandler<Type extends Message.ServerType> = (
+  message: Message.Server & { type: Type },
 ) => void;
 
 export interface MessageSubscription {
@@ -27,20 +26,20 @@ export interface MessageLoggerEntry {
 }
 
 export interface MessagesContextValue {
-  send: (message: VscMessage.Webview) => void;
+  send: (message: Message.Client) => void;
 
-  listen: <Type extends VscMessage.ExtensionType>(
+  listen: <Type extends Message.ServerType>(
     type: Type,
     handler: VscMessageHandler<Type>,
   ) => MessageOff;
 
-  useListen: <Type extends VscMessage.ExtensionType>(
+  useListen: <Type extends Message.ServerType>(
     type: Type,
     handler: VscMessageHandler<Type>,
     deps?: DependencyList,
   ) => void;
 
-  useSend: (message: VscMessage.Webview) => void;
+  useSend: (message: Message.Client) => void;
 }
 
 export interface MessageProviderOptions {
@@ -62,31 +61,29 @@ export function MessagesProvider(
 ) {
   const { debug, logger, onUnhandledMessage, children } = props;
   const { vsc } = useVsc();
-  type InternalHandler = (message: VscMessage.Extension) => void;
+  type InternalHandler = (message: Message.Server) => void;
   const handlersRef = useRef(new Map<string, Set<InternalHandler>>());
 
   const listen = useCallback(
-    <Type extends VscMessage.ExtensionType>(
+    <Type extends Message.ServerType>(
       type: Type,
       handler: Message.Callback<Type>,
-    ): MessageSubscription => {
+    ): MessageOff => {
       const bucket =
         handlersRef.current.get(type) ?? new Set<InternalHandler>();
       const wrapped: InternalHandler = (incoming) =>
-        handler(incoming as VscMessage.Extension & { type: Type });
+        handler(incoming as Message.Server & { type: Type });
 
       bucket.add(wrapped);
       handlersRef.current.set(type, bucket);
 
-      return {
-        dispose: () => {
-          const listeners = handlersRef.current.get(type);
-          listeners?.delete(wrapped);
-          if (listeners && listeners.size === 0)
-            handlersRef.current.delete(type);
-        },
+      return () => {
+        const listeners = handlersRef.current.get(type);
+        listeners?.delete(wrapped);
+        if (listeners && listeners.size === 0) handlersRef.current.delete(type);
       };
     },
+
     [],
   );
 
@@ -98,7 +95,7 @@ export function MessagesProvider(
     [logger, vsc],
   );
 
-  const useListen = <Type extends VscMessage.ExtensionType>(
+  const useListen = <Type extends Message.ServerType>(
     type: Type,
     handler: VscMessageHandler<Type>,
     deps: DependencyList = [],
@@ -160,11 +157,11 @@ export function MessagesProvider(
 export function useMessages(): MessagesContextValue {
   const context = useContext(MessagesContext);
   if (!context)
-    throw new Error("useMessage must be used within a MessageProvider");
+    throw new Error("useMessage must be used within MessageProvider");
   return context;
 }
 
-export function useListenMessage<Type extends VscMessage.ExtensionType>(
+export function useListenMessage<Type extends Message.ServerType>(
   type: Type,
   handler: VscMessageHandler<Type>,
   deps: DependencyList,
@@ -173,21 +170,18 @@ export function useListenMessage<Type extends VscMessage.ExtensionType>(
   useListen(type, handler, deps);
 }
 
-export function useSendMessage(
-  message: VscMessage.Webview,
-  deps?: DependencyList,
-) {
+export function useSendMessage(message: Message.Client, deps?: DependencyList) {
   const { send } = useMessages();
   useEffect(() => send(message), [send, ...(deps ?? [])]);
 }
 
 export namespace UseWaitMessage {
-  export type Callback<Type extends VscMessage.ExtensionType> = (
-    message: VscMessage.Extension & { type: Type },
+  export type Callback<Type extends Message.ServerType> = (
+    message: Message.Server & { type: Type },
   ) => boolean | void;
 }
 
-export function useWaitMessage<Type extends VscMessage.ExtensionType>(
+export function useWaitMessage<Type extends Message.ServerType>(
   type: Type,
   handler: UseWaitMessage.Callback<Type>,
   deps: DependencyList,

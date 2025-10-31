@@ -1,5 +1,6 @@
 import { PlaygroundState } from "@wrkspc/core/playground";
 import { TextArea } from "@wrkspc/form";
+import { LayoutSection } from "../layout/Section";
 
 export namespace PromptSource {
   export interface Props {
@@ -10,6 +11,8 @@ export namespace PromptSource {
 export function PromptSource(props: PromptSource.Props) {
   const { prompt } = props;
   return (
-    <TextArea label={{ a11y: "Prompt" }} value={prompt.content} isReadOnly />
+    <LayoutSection bordered>
+      <TextArea label={{ a11y: "Prompt" }} value={prompt.content} isReadOnly />
+    </LayoutSection>
   );
 }

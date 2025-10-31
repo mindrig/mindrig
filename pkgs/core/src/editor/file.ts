@@ -1,4 +1,5 @@
 import { Language } from "@wrkspc/core/lang";
+import { Versioned } from "../versioned";
 
 export interface EditorFile extends EditorFile.Meta {
   content: string;
@@ -8,7 +9,9 @@ export namespace EditorFile {
   export type Path = string & { [pathBrand]: true };
   declare const pathBrand: unique symbol;
 
-  export interface Meta {
+  export type Meta = MetaV1;
+
+  export interface MetaV1 extends Versioned<1> {
     path: Path;
     isDirty: boolean;
     languageId: Language.Id;
@@ -34,7 +37,7 @@ export namespace EditorFile {
 
 export function editorFileToMeta(file: EditorFile): EditorFile.Meta {
   const { path, isDirty, languageId } = file;
-  return { path, isDirty, languageId };
+  return { v: 1, path, isDirty, languageId };
 }
 
 export function areFileMetasEqual(

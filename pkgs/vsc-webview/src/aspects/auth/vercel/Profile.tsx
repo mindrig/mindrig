@@ -43,7 +43,7 @@ export function AuthVercelProfile(props: AuthVercelProfile.Props) {
                 maskedKey: state.context.maskedKey,
               });
 
-              send({ type: "auth-wv-vercel-gateway-revalidate" });
+              send({ type: "auth-client-vercel-gateway-revalidate" });
             }}
             isDisabled={!!statechart.in("profileValidating")}
           >

@@ -1,4 +1,4 @@
-import { VscMessageDataset } from "@wrkspc/core/message";
+import { DatasetMessage } from "@wrkspc/core/dataset";
 import { always } from "alwaysly";
 import * as vscode from "vscode";
 import { Manager } from "../manager/Manager.js";
@@ -36,10 +36,14 @@ export class DatasetsManager extends Manager {
 
     this.#messages = props.messages;
 
-    this.#messages.listen(this, "dataset-wv-csv-request", this.#onCsvRequest);
+    this.#messages.listen(
+      this,
+      "dataset-client-csv-request",
+      this.#onCsvRequest,
+    );
   }
 
-  async #onCsvRequest(message: VscMessageDataset.WvCsvRequest) {
+  async #onCsvRequest(message: DatasetMessage.ClientCsvRequest) {
     const { requestId } = message.payload;
     const uri = await this.#selectCsvViaQuickPick();
     if (!uri) return;
@@ -49,7 +53,7 @@ export class DatasetsManager extends Manager {
     const utf8 = new TextDecoder("utf-8").decode(bytes);
 
     this.#messages.send({
-      type: "dataset-ext-csv-content",
+      type: "dataset-server-csv-content",
       payload: {
         status: "ok",
         requestId,

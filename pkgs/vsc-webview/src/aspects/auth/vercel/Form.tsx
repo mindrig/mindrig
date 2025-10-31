@@ -22,9 +22,8 @@ export namespace AuthVercelForm {
 
 export function AuthVercelForm(props: AuthVercelForm.Props) {
   const { form, statechart, state } = props;
-
   const { send } = useMessages();
-  const submitting = form.useSubmitting();
+  const submitting = form.submitting;
 
   return (
     <Form.Component

@@ -1,6 +1,7 @@
 import type { Prompt, PromptVar } from "@mindrig/types";
 
 export * from "./argument.js";
+export * from "./message.js";
 export * from "./parse.js";
 
 export function extractPromptText(

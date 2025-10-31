@@ -41,7 +41,7 @@ export class SettingsManager extends Manager<SettingsManager.EventMap> {
     this.emit("update", this.state);
 
     this.#messages.send({
-      type: "settings-ext-update",
+      type: "settings-server-update",
       payload: this.state,
     });
   }

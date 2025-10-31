@@ -1,6 +1,6 @@
 import { Button } from "@wrkspc/ds";
 import { useAuth } from "../auth/Context";
-import { useModels } from "../model/Context";
+import { useModelsMap } from "../model/MapContext";
 import { pageHrefs } from "../page/route";
 
 export namespace PlaygroundErrors {
@@ -9,7 +9,7 @@ export namespace PlaygroundErrors {
 
 export function PlaygroundErrors(props: PlaygroundErrors.Props) {
   const { auth } = useAuth();
-  const { payload, sources } = useModels();
+  const { payload, sources } = useModelsMap();
 
   if (!payload || payload?.status !== "error") return null;
 

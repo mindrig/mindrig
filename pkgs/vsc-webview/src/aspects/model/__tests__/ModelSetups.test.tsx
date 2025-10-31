@@ -8,14 +8,14 @@ import {
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import type { AvailableModel } from "@/aspects/model/Context";
+import type { AvailableModel } from "@/aspects/model/MapContext";
 
 import {
-  ModelSetups,
+  Setups,
   useModelSetupsState,
   type ModelCapabilities,
   type ModelConfig,
-} from "../Setups";
+} from "../../setup/Setups";
 
 describe.skip("ModelSetups", () => {
   it("renders settings for expanded configuration and triggers callbacks", async () => {
@@ -73,7 +73,7 @@ describe.skip("ModelSetups", () => {
       addDisabled: false,
     };
 
-    render(<ModelSetups {...props} />);
+    render(<Setups {...props} />);
 
     expect(screen.getByText("Model")).toBeInTheDocument();
     expect(screen.getByText("Attach Files")).toBeInTheDocument();
@@ -101,7 +101,7 @@ describe.skip("ModelSetups", () => {
 
   it("disables add button when requested", () => {
     render(
-      <ModelSetups
+      <Setups
         status="loading"
         modelsLoading
         modelsError={null}

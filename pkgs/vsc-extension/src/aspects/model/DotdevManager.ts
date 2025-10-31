@@ -32,7 +32,7 @@ export class ModelsDotdevManager extends Manager {
 
     this.#messages = props.messages;
 
-    this.#messages.listen(this, "models-wv-dotdev-refresh", this.#fetch);
+    this.#messages.listen(this, "models-client-dotdev-refresh", this.#fetch);
 
     this.#fetch();
   }
@@ -52,7 +52,7 @@ export class ModelsDotdevManager extends Manager {
 
       // Send models to webview
       this.#messages.send({
-        type: "models-ext-dotdev-response",
+        type: "models-server-dotdev-response",
         payload: response,
       });
 

@@ -1,4 +1,5 @@
 import type { EditorFile } from "../editor/index.js";
+import { Versioned } from "../versioned/versioned.js";
 import type { PlaygroundMap } from "./map.js";
 
 export interface PlaygroundState {
@@ -21,7 +22,9 @@ export namespace PlaygroundState {
 
   export type PromptReason = "pinned" | "cursor";
 
-  export interface Ref {
+  export type Ref = RefV1;
+
+  export interface RefV1 extends Versioned<1> {
     fileId: PlaygroundMap.FileId;
     promptId: PlaygroundMap.PromptId;
   }
@@ -44,11 +47,23 @@ export function buildPlaygroundState(): PlaygroundState {
   };
 }
 
-export function playgroundStatePromptToRef(
-  prompt: PlaygroundState.Prompt | null,
-): PlaygroundState.Ref | null {
-  if (!prompt) return null;
+export namespace PlaygroundStatePromptToRef {
+  export type Constraint = Pick<
+    PlaygroundState.Prompt,
+    "promptId" | "fileId"
+  > | null;
+
+  export type Result<Prompt extends Constraint> = Prompt extends {}
+    ? PlaygroundState.Ref
+    : PlaygroundState.Ref | null;
+}
+
+export function playgroundStatePromptToRef<
+  Prompt extends PlaygroundStatePromptToRef.Constraint,
+>(prompt: Prompt): PlaygroundStatePromptToRef.Result<Prompt> {
+  if (!prompt) return null as PlaygroundStatePromptToRef.Result<Prompt>;
   return {
+    v: 1,
     promptId: prompt.promptId,
     fileId: prompt.fileId,
   };

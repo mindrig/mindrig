@@ -1,43 +1,40 @@
-import type { VscMessageAttachment } from "./message/attachment.js";
-import type { VscMessageAuth } from "./message/auth.js";
-import type { VscMessageDataset } from "./message/dataset.js";
-import type { VscMessageLifecycle } from "./message/lifecycle.js";
-import type { VscMessageModels } from "./message/models.js";
-import type { VscMessagePage } from "./message/page.js";
-import type { VscMessagePlayground } from "./message/playground.js";
-import type { VscMessagePrompt } from "./message/prompt.js";
-import type { VscMessagePromptRun } from "./message/promptRun.js";
-import type { VscMessageSettings } from "./message/settings.js";
-import type { VscMessageStore } from "./message/store.js";
+import type { AttachmentMessage } from "../attachment/message.js";
+import type { AuthMessage } from "../auth/message.js";
+import type { ClientMessage } from "../client/message.js";
+import type { DatasetMessage } from "../dataset/message.js";
+import type { ModelsMessage } from "../model/message.js";
+import type { PlaygroundMessage } from "../playground/message.js";
+import type { PromptMessage } from "../prompt/message.js";
+import type { RunMessage } from "../run/message.js";
+import type { SettingsMessage } from "../settings/message.js";
+import type { StoreMessage } from "../store/message.js";
 
-export namespace VscMessage {
-  export type Extension =
-    | VscMessageStore.Extension
-    | VscMessagePrompt.Extension
-    | VscMessagePromptRun.Extension
-    | VscMessageSettings.Extension
-    | VscMessageAuth.Extension
-    | VscMessageAttachment.Extension
-    | VscMessageDataset.Extension
-    | VscMessageModels.Extension
-    | VscMessageLifecycle.Extension
-    | VscMessagePage.Extension
-    | VscMessagePlayground.Extension;
+export namespace Message {
+  export type Server =
+    | StoreMessage.Server
+    | PromptMessage.Server
+    | RunMessage.Server
+    | SettingsMessage.Server
+    | AuthMessage.Server
+    | AttachmentMessage.Server
+    | DatasetMessage.Server
+    | ModelsMessage.Server
+    | ClientMessage.Server
+    | PlaygroundMessage.Server;
 
-  export type ExtensionType = Extension["type"];
+  export type ServerType = Server["type"];
 
-  export type Webview =
-    | VscMessageStore.Webview
-    | VscMessagePrompt.Webview
-    | VscMessagePromptRun.Webview
-    | VscMessageSettings.Webview
-    | VscMessageAuth.Webview
-    | VscMessageAttachment.Webview
-    | VscMessageDataset.Webview
-    | VscMessageModels.Webview
-    | VscMessageLifecycle.Webview
-    | VscMessagePage.Webview
-    | VscMessagePlayground.Webview;
+  export type Client =
+    | StoreMessage.Client
+    | PromptMessage.Client
+    | RunMessage.Client
+    | SettingsMessage.Client
+    | AuthMessage.Client
+    | AttachmentMessage.Client
+    | DatasetMessage.Client
+    | ModelsMessage.Client
+    | ClientMessage.Client
+    | PlaygroundMessage.Client;
 
-  export type WebviewType = Webview["type"];
+  export type ClientType = Client["type"];
 }

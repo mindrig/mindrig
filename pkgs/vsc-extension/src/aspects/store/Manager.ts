@@ -1,6 +1,6 @@
 import { Manager } from "@/aspects/manager/Manager.js";
-import { VscMessageStore } from "@wrkspc/core/message";
-import { Store } from "@wrkspc/core/store";
+import { Store, StoreMessage } from "@wrkspc/core/store";
+import { Versioned } from "@wrkspc/core/versioned";
 import * as vscode from "vscode";
 import { MessagesManager } from "../message/Manager";
 
@@ -21,7 +21,7 @@ export class StoreManager extends Manager {
     this.#context = props.context;
     this.#messages = props.messages;
 
-    this.#messages.listen(this, "store-wv-get", this.#onRequest);
+    this.#messages.listen(this, "store-client-get", this.#onRequest);
   }
 
   async get<Key extends Store.Key>(
@@ -34,7 +34,7 @@ export class StoreManager extends Manager {
   async set<Key extends Store.Key>(
     scope: Store.Scope,
     key: Key,
-    value: Store[Key],
+    value: Versioned.Only<Store[Key]>,
   ): Promise<void> {
     await this.#scoped(scope).update(key as string, value);
   }
@@ -46,11 +46,11 @@ export class StoreManager extends Manager {
     await this.#scoped(scope).update(key as string, undefined);
   }
 
-  async #onRequest(message: VscMessageStore.WvGet<any, any>) {
+  async #onRequest(message: StoreMessage.ClientGet<any, any>) {
     const { scope, key } = message.payload;
     const value = await this.get(scope, key);
     return this.#messages.send({
-      type: "store-ext-get-response",
+      type: "store-server-get-response",
       requestId: message.requestId,
       payload: value,
     });

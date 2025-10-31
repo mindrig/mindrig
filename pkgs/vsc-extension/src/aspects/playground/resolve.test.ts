@@ -1,5 +1,6 @@
 import { editorFileToMeta } from "@wrkspc/core/editor";
 import {
+  playgroundMapSpanFromPrompt,
   type PlaygroundMap,
   type PlaygroundState,
 } from "@wrkspc/core/playground";
@@ -128,6 +129,7 @@ describe(resolvePlaygroundState, () => {
         playgroundSetupFactory();
 
       const pin: PlaygroundState.Ref = {
+        v: 1,
         fileId: mapFileB.id,
         promptId: mapPromptsB[0].id,
       };
@@ -167,6 +169,7 @@ describe(resolvePlaygroundState, () => {
       } = playgroundSetupFactory();
 
       const pin: PlaygroundState.Ref = {
+        v: 1,
         fileId: "missing" as PlaygroundMap.FileId,
         promptId: mapPromptsB[0].id,
       };
@@ -207,6 +210,7 @@ describe(resolvePlaygroundState, () => {
       } = playgroundSetupFactory();
 
       const pin: PlaygroundState.Ref = {
+        v: 1,
         fileId: mapFileB.id,
         promptId: "missing" as PlaygroundMap.PromptId,
       };
@@ -264,6 +268,7 @@ describe(resolvePlaygroundMapPair, () => {
   it("resolves map pair by ref", () => {
     const { map, mapFileA, mapPromptsA } = playgroundSetupFactory();
     const ref: PlaygroundState.Ref = {
+      v: 1,
       fileId: mapFileA.id,
       promptId: mapPromptsA[0].id,
     };
@@ -274,6 +279,7 @@ describe(resolvePlaygroundMapPair, () => {
   it("returns null when map prompt id does not exist", () => {
     const { map, mapFileA } = playgroundSetupFactory();
     const ref: PlaygroundState.Ref = {
+      v: 1,
       fileId: mapFileA.id,
       promptId: "non-existent-id" as PlaygroundMap.PromptId,
     };
@@ -328,6 +334,7 @@ describe(resolvePlaygroundMap, () => {
     expect(result.files[editorFileB.path]).toBe(mapFileB);
 
     expect(result.files[file.path]).toEqual({
+      v: 1,
       id: expect.any(String),
       meta: editorFileToMeta(file),
       prompts: [
@@ -414,20 +421,23 @@ describe(matchPlaygroundMapFile, () => {
 
     expect(match).toEqual({
       mapFile: {
+        v: 1,
         id: mapFileA.id,
         updatedAt: timestamp,
         meta: editorFileToMeta(file),
         prompts: [
           {
+            v: 1,
             id: mapPromptsA[0].id,
             content: parsedPrompts[0].exp,
-            span: parsedPrompts[0].span.outer,
+            span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
             updatedAt: mapPromptsA[0].updatedAt,
           },
           {
+            v: 1,
             id: mapPromptsA[1].id,
             content: parsedPrompts[1].exp,
-            span: parsedPrompts[1].span.outer,
+            span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
             updatedAt: timestamp,
           },
         ],
@@ -457,10 +467,16 @@ describe(matchPlaygroundMapFile, () => {
 
     expect(match).toEqual({
       mapFile: {
+        v: 1,
         id: mapFileB.id,
         updatedAt: timestamp,
         meta: editorFileToMeta(file),
-        prompts: [{ ...mapPromptsB[0], span: parsedPrompts[0].span.outer }],
+        prompts: [
+          {
+            ...mapPromptsB[0],
+            span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
+          },
+        ],
       },
       matchedPromptsScore: 1,
       matchingScore: 1,
@@ -490,6 +506,7 @@ describe(matchPlaygroundMapFile, () => {
 
     expect(match).toEqual({
       mapFile: {
+        v: 1,
         id: expect.any(String),
         meta: editorFileToMeta(file),
         updatedAt: timestamp,
@@ -587,23 +604,29 @@ describe(matchPlaygroundMapFileByDistance, () => {
 
     expect(match).toEqual({
       mapFile: {
+        v: 1,
         id: mapFile3.id,
         updatedAt: timestamp,
         meta: editorFileToMeta(file),
         prompts: [
           {
+            v: 1,
             id: mapPrompts3[2].id,
             content: parsedPrompts[0].exp,
-            span: parsedPrompts[0].span.outer,
+            span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
             updatedAt: timestamp,
           },
           {
+            v: 1,
             id: mapPrompts3[0].id,
             content: parsedPrompts[1].exp,
-            span: parsedPrompts[1].span.outer,
+            span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
             updatedAt: timestamp,
           },
-          { ...mapPrompts3[1], span: parsedPrompts[2].span.outer },
+          {
+            ...mapPrompts3[1],
+            span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
+          },
         ],
       },
       matchedPromptsScore: 1,
@@ -665,9 +688,18 @@ describe(matchPlaygroundMapFileByDistance, () => {
       mapFile: {
         ...mapFile2,
         prompts: [
-          { ...mapPrompts2[0], span: parsedPrompts[0].span.outer },
-          { ...mapPrompts2[1], span: parsedPrompts[1].span.outer },
-          { ...mapPrompts2[2], span: parsedPrompts[2].span.outer },
+          {
+            ...mapPrompts2[0],
+            span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
+          },
+          {
+            ...mapPrompts2[1],
+            span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
+          },
+          {
+            ...mapPrompts2[2],
+            span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
+          },
         ],
         meta: editorFileToMeta(file),
         updatedAt: timestamp,
@@ -773,9 +805,18 @@ describe(matchPlaygroundMapFileByDistance, () => {
     expect(match?.mapFile).toEqual({
       ...mapFile2,
       prompts: [
-        { ...mapPrompts2[0], span: parsedPrompts[0].span.outer },
-        { ...mapPrompts2[1], span: parsedPrompts[1].span.outer },
-        { ...mapPrompts2[2], span: parsedPrompts[2].span.outer },
+        {
+          ...mapPrompts2[0],
+          span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
+        },
+        {
+          ...mapPrompts2[1],
+          span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
+        },
+        {
+          ...mapPrompts2[2],
+          span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
+        },
       ],
     });
   });
@@ -820,29 +861,36 @@ describe(matchPlaygroundMapPrompts, () => {
 
     expect(result).toEqual({
       nextMapPrompts: [
-        { ...mapPrompts[2], span: parsedPrompts[0].span.outer },
         {
+          ...mapPrompts[2],
+          span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
+        },
+        {
+          v: 1,
           id: mapPrompts[1].id,
           content: parsedPrompts[1].exp,
-          span: parsedPrompts[1].span.outer,
+          span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
           updatedAt: timestamp,
         },
         {
+          v: 1,
           id: expect.any(String),
           content: parsedPrompts[2].exp,
-          span: parsedPrompts[2].span.outer,
+          span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
           updatedAt: timestamp,
         },
         {
+          v: 1,
           id: expect.any(String),
           content: parsedPrompts[3].exp,
-          span: parsedPrompts[3].span.outer,
+          span: playgroundMapSpanFromPrompt(parsedPrompts[3]),
           updatedAt: timestamp,
         },
         {
+          v: 1,
           id: mapPrompts[0].id,
           content: parsedPrompts[4].exp,
-          span: parsedPrompts[4].span.outer,
+          span: playgroundMapSpanFromPrompt(parsedPrompts[4]),
           updatedAt: timestamp,
         },
       ],
@@ -955,7 +1003,7 @@ describe(matchPlaygroundMapPromptsByContent, () => {
     const matchedMapPrompts = new Map();
     matchedMapPrompts.set(parsedPrompts[0], {
       ...mapPromptsA[1],
-      span: parsedPrompts[0].span.outer,
+      span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
     });
 
     expect(result).toEqual({
@@ -1000,15 +1048,17 @@ describe(matchPlaygroundMapPromptsByDistance, () => {
 
     const matchedMapPrompts = new Map();
     matchedMapPrompts.set(parsedPrompts[0], {
+      v: 1,
       id: mapPromptsA[1].id,
       content: parsedPrompts[0].exp,
-      span: parsedPrompts[0].span.outer,
+      span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
       updatedAt: expect.any(Number),
     });
     matchedMapPrompts.set(parsedPrompts[2], {
+      v: 1,
       id: mapPromptsA[0].id,
       content: parsedPrompts[2].exp,
-      span: parsedPrompts[2].span.outer,
+      span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
       updatedAt: expect.any(Number),
     });
 
@@ -1121,21 +1171,24 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
 
     const matchedMapPrompts = new Map();
     matchedMapPrompts.set(parsedPrompts[0], {
+      v: 1,
       id: mapPrompts[0].id,
       content: parsedPrompts[0].exp,
-      span: parsedPrompts[0].span.outer,
+      span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
       updatedAt: expect.any(Number),
     });
     matchedMapPrompts.set(parsedPrompts[1], {
+      v: 1,
       id: mapPrompts[1].id,
       content: parsedPrompts[1].exp,
-      span: parsedPrompts[1].span.outer,
+      span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
       updatedAt: expect.any(Number),
     });
     matchedMapPrompts.set(parsedPrompts[2], {
+      v: 1,
       id: mapPrompts[2].id,
       content: parsedPrompts[2].exp,
-      span: parsedPrompts[2].span.outer,
+      span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
       updatedAt: expect.any(Number),
     });
 

@@ -13,6 +13,7 @@ export namespace ModelDotdev {
   // NOTE: Get up-to-date ids using command:
   //     curl --silent https://models.dev/api.json | jaq -r '[keys[] | "\"\(.)\""] | join(" | ")'
   export type ProviderId =
+    | "aihubmix"
     | "alibaba"
     | "alibaba-cn"
     | "amazon-bedrock"
@@ -44,12 +45,14 @@ export namespace ModelDotdev {
     | "moonshotai"
     | "moonshotai-cn"
     | "morph"
+    | "nebius"
     | "nvidia"
     | "openai"
     | "opencode"
     | "openrouter"
     | "perplexity"
     | "requesty"
+    | "scaleway"
     | "submodel"
     | "synthetic"
     | "togetherai"
@@ -57,6 +60,7 @@ export namespace ModelDotdev {
     | "v0"
     | "venice"
     | "vercel"
+    | "vultr"
     | "wandb"
     | "xai"
     | "zai"
@@ -318,6 +322,7 @@ export const modelsDotdevUnmatchedVendorIdsMap = {
   amazon: "amazon-bedrock",
   meituan: null,
   meta: null,
+  minimax: null,
 } satisfies ModelDotdev.UnmatchedVendorIdsMap;
 
 // TODO: Find logos for the unaliased ones. Right now they will render
@@ -331,6 +336,7 @@ export const modelsDotdevUnaliasedVendorIdsLogoUrlsMap: ModelDotdev.UnaliasedVen
     voyage: "https://models.dev/logos/voyage.svg",
     meituan: "https://models.dev/logos/meituan.svg",
     meta: "https://models.dev/logos/meta.svg",
+    minimax: "https://models.dev/logos/minimax.svg",
   };
 
 //#endregion

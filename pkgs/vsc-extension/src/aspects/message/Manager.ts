@@ -1,5 +1,5 @@
 import { Manager } from "@/aspects/manager/Manager.js";
-import { VscMessage } from "@wrkspc/core/message";
+import type { Message } from "@wrkspc/core/message";
 import { always } from "alwaysly";
 import * as vscode from "vscode";
 
@@ -8,34 +8,34 @@ export namespace MessagesManager {
     webview: vscode.Webview;
   }
 
-  export type ListenCallback<Type extends VscMessage.WebviewType> = (
-    message: VscMessage.Webview & { type: Type },
+  export type ListenCallback<Type extends Message.ClientType> = (
+    message: Message.Client & { type: Type },
   ) => unknown;
 }
 
 export class MessagesManager extends Manager {
   #webview: vscode.Webview;
   #target = new EventTarget();
-  #queue: VscMessage.Extension[] | null = [];
+  #queue: Message.Server[] | null = [];
 
   constructor(parent: Manager | null, props: MessagesManager.Props) {
     super(parent);
 
     this.#webview = props.webview;
 
-    this.#webview.onDidReceiveMessage((message: VscMessage.Webview) =>
+    this.#webview.onDidReceiveMessage((message: Message.Client) =>
       this.#target.dispatchEvent(
         new CustomEvent(message.type, { detail: message }),
       ),
     );
   }
 
-  listen<Type extends VscMessage.WebviewType>(
+  listen<Type extends Message.ClientType>(
     manager: Manager<any> | null,
     type: Type,
     callback: MessagesManager.ListenCallback<Type>,
   ): Manager.Disposable {
-    const handler = (ev: CustomEvent<VscMessage.Webview & Type>) => {
+    const handler = (ev: CustomEvent<Message.Client & Type>) => {
       callback.call(manager, ev.detail as any);
     };
 
@@ -49,7 +49,7 @@ export class MessagesManager extends Manager {
     return this.register(off);
   }
 
-  async send(message: VscMessage.Extension): Promise<boolean> {
+  async send(message: Message.Server): Promise<boolean> {
     // While webview is not ready, queue messages
     if (this.#queue) {
       this.#queue.push(message);

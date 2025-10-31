@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 //   createDatasourceContextValue,
 // } from "@/testUtils/assessment";
 import { DatasourceDataset } from "../Dataset";
-import { DatasourceSelector } from "../Selector";
+import { Datasource } from "../Datasource";
 import { DatasourceVariables } from "../Variables";
 
 describe.skip("DatasourceVariables", () => {
@@ -167,7 +167,7 @@ describe.skip("DatasourceSelector", () => {
 
     render(
       <AssessmentDatasourceProvider value={value}>
-        <DatasourceSelector />
+        <Datasource />
       </AssessmentDatasourceProvider>,
     );
 

@@ -18,25 +18,25 @@ export function ClientStateProvider(props: React.PropsWithChildren) {
 
   const [state, setState] = useState<ClientState>(
     window.initialState || {
-      auth: { gateway: undefined },
+      auth: { gateway: null },
       playground: buildPlaygroundState(),
     },
   );
 
   useListen(
-    "auth-ext-update",
+    "auth-server-update",
     (message) => setState((state) => ({ ...state, auth: message.payload })),
     [setState],
   );
 
   useListen(
-    "settings-ext-update",
+    "settings-server-update",
     (message) => setState((state) => ({ ...state, settings: message.payload })),
     [setState],
   );
 
   useListen(
-    "playground-ext-update",
+    "playground-server-update",
     (message) =>
       setState((state) => ({ ...state, playground: message.payload })),
     [setState],
@@ -52,6 +52,6 @@ export function ClientStateProvider(props: React.PropsWithChildren) {
 export function useClientState(): ClientStateContext.Value {
   const value = useContext(ClientStateContext);
   if (!value)
-    throw new Error("useClientState must be used within a ClientStateProvider");
+    throw new Error("useClientState must be used within ClientStateProvider");
   return value;
 }

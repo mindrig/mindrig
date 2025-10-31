@@ -34,7 +34,7 @@ export function AuthVercel(props: AuthVercel.Props) {
       },
       profileErrored: {
         "revalidate() -> revalidate!": () =>
-          send({ type: "auth-wv-vercel-gateway-revalidate" }),
+          send({ type: "auth-client-vercel-gateway-revalidate" }),
       },
     });
 

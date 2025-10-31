@@ -1,9 +1,10 @@
 import type { PlaygroundMap, PlaygroundState } from "../playground/index.js";
+import { Versioned } from "../versioned/versioned.js";
 
 export type Store = {
-  "playground.map"?: PlaygroundMap | undefined;
+  "playground.map"?: Versioned.Only<PlaygroundMap> | undefined;
   "playground.streaming"?: boolean | undefined;
-  "playground.pin"?: PlaygroundState.Ref | null | undefined;
+  "playground.pin"?: Versioned.Only<PlaygroundState.Ref> | null | undefined;
 };
 
 export namespace Store {

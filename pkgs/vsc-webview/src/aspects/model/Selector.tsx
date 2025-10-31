@@ -1,87 +1,69 @@
-import { Select } from "@wrkspc/ds";
+import { mapModelItems, ModelSetup } from "@wrkspc/core/model";
+import { SelectController } from "@wrkspc/ds";
+import { Field } from "enso";
+import { useModelsMap } from "./MapContext";
 
-export interface ProviderOption {
-  id: string;
-  label: string;
+export namespace ModelSelector {
+  export interface Props {
+    field: Field<ModelSetup.Ref>;
+  }
 }
 
-export interface ModelOption {
-  id: string;
-  label: string;
-}
+export function ModelSelector(props: ModelSelector.Props) {
+  const { field } = props;
+  const { payload: modelsPayload, useModels } = useModelsMap();
 
-export interface ModelSelectorErrors {
-  provider?: string | null;
-  model?: string | null;
-}
+  field.$.developerId.useWatch(
+    (developerId) => {
+      if (!developerId) return field.set({ v: 1, developerId, modelId: null });
 
-export interface ModelSelectorProps {
-  providerOptions: ProviderOption[];
-  modelOptions: ModelOption[];
-  providerId: string | null;
-  modelId: string | null;
-  providerError?: string | null;
-  modelError?: string | null;
-  disabled?: boolean;
-  onProviderChange: (providerId: string | null) => void;
-  onModelChange: (modelId: string | null) => void;
-}
+      const models =
+        modelsPayload?.map && mapModelItems(modelsPayload.map, developerId);
+      field.set({
+        v: 1,
+        developerId,
+        modelId: models?.[0]?.id || null,
+      });
+    },
+    [modelsPayload?.map],
+  );
 
-export function ModelSelector(props: ModelSelectorProps) {
-  const {
-    providerOptions,
-    modelOptions,
-    providerId,
-    modelId,
-    providerError,
-    modelError,
-    disabled,
-    onProviderChange,
-    onModelChange,
-  } = props;
+  const developerId = field.$.developerId.useValue();
+  const models = useModels(developerId);
+
+  const developerIdField = field.$.developerId.useDefined("string");
+  const modelIdField = field.$.modelId.useDefined("string");
 
   return (
     <div className="grid grid-cols-2 gap-3">
-      <Select
+      <SelectController
+        field={developerIdField}
         label={{ a11y: "Select model provider" }}
-        options={providerOptions.map((option) => ({
-          label: option.label,
-          value: option.id,
-        }))}
-        selectedKey={providerId ?? null}
-        onSelectionChange={(value) => {
-          if (value === null) {
-            onProviderChange(null);
-            return;
-          }
-          const next = typeof value === "string" ? value : String(value);
-          onProviderChange(next === "" ? null : next);
-        }}
+        options={
+          modelsPayload?.developers?.map((option) => ({
+            label: option.name,
+            value: option.id,
+          })) || []
+        }
         placeholder="Select provider..."
         size="small"
-        errors={providerError}
-        isDisabled={!!disabled}
+        // isDisabled={!!disabled}
+        // errors={...}
       />
 
-      <Select
+      <SelectController
+        field={modelIdField}
         label={{ a11y: "Select model" }}
-        options={modelOptions.map((option) => ({
-          label: option.label,
-          value: option.id,
-        }))}
-        selectedKey={modelId ?? null}
-        onSelectionChange={(value) => {
-          if (value === null) {
-            onModelChange(null);
-            return;
-          }
-          const next = typeof value === "string" ? value : String(value);
-          onModelChange(next === "" ? null : next);
-        }}
-        isDisabled={Boolean(disabled || modelOptions.length === 0)}
+        options={
+          models?.map((option) => ({
+            label: option.name,
+            value: option.id,
+          })) || []
+        }
         placeholder="Select model..."
         size="small"
-        errors={modelError}
+        // isDisabled={!!disabled}
+        // errors={modelError}
       />
     </div>
   );

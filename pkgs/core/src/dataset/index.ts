@@ -1,10 +1,12 @@
 import type { Prompt, PromptVar } from "@mindrig/types";
 import { Datasource } from "../datasource";
 import { PromptArguments, substituteVariables } from "../prompt";
-import { PromptRun } from "../promptRun";
+import { Run } from "../run";
 import { DatasetSelection } from "./selection.js";
 
 export * from "./content.js";
+export * from "./datasource.js";
+export * from "./message.js";
 export * from "./request.js";
 export * from "./selection.js";
 
@@ -42,10 +44,10 @@ export function buildRunsAndSettings(args: {
   prompt: Prompt;
   headers: string[] | null;
 }): {
-  runs: Array<PromptRun.Info>;
+  runs: Array<Run.Info>;
   runSettings: Datasource;
 } {
-  const runs: Array<PromptRun.Info> = [];
+  const runs: Array<Run.Info> = [];
 
   if (args.inputSource === "manual") {
     runs.push({

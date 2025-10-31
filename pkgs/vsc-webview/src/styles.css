@@ -57,6 +57,23 @@
 
   --text-base: var(--vscode-font-size);
 
+  /*## Button */
+
+  /*### Colors */
+
+  /* Solid */
+  --color-button-solid-canvas: var(--vscode-button-background);
+  --color-button-solid-canvas-hover: var(--color-gray-400);
+  --color-button-solid-ink: var(--vscode-button-foreground);
+  --color-button-solid-ink-hover: var(--color-white);
+  /* Label */
+  --color-button-label-ink: var(--vscode-foreground);
+  --color-button-label-ink-hover: var(--vscode-textLink-activeForeground);
+  /* Transparent */
+  --color-button-transparent-canvas-hover: var(--color-gray-50);
+  --color-button-transparent-border: var(--color-gray-300);
+  --color-button-transparent-border-hover: var(--color-gray-400);
+
   /* Input */
 
   /* Radius */

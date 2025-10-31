@@ -1,6 +1,8 @@
 import { PlaygroundState } from "@wrkspc/core/playground";
-import { ModelSetups } from "../model/Setups";
-import { Results } from "../result";
+import { Setups } from "../setup/Setups";
+import { Tests } from "../test/Tests";
+import { AssessmentProvider } from "./Context";
+import { AssessmentManager } from "./Manager";
 
 //#region Legacy
 
@@ -26,15 +28,15 @@ import { Results } from "../result";
 
 //#endregion
 
-export namespace Assessment {
+export { AssessmentComponent as Assessment };
+
+export namespace AssessmentComponent {
   export interface Props {
     prompt: PlaygroundState.Prompt;
   }
 }
 
-export { AssessmentComponent as Assessment };
-
-function AssessmentComponent(props: Assessment.Props) {
+function AssessmentComponent(props: AssessmentComponent.Props) {
   //#region Legacy
 
   // const { send, useListen } = useMessages();
@@ -52,7 +54,7 @@ function AssessmentComponent(props: Assessment.Props) {
   // const promptVariables = useMemo(() => prompt?.vars ?? [], [prompt]);
   // const datasourceState = useAssessmentDatasourceState({
   //   promptVariables,
-  //   onRequestCsv: () => send({ type: "dataset-wv-csv-request" }),
+  //   onRequestCsv: () => send({ type: "dataset-client-csv-request" }),
   // });
   // const {
   //   inputSource,
@@ -665,7 +667,7 @@ function AssessmentComponent(props: Assessment.Props) {
   // );
 
   // useListen(
-  //   "prompt-run-ext-start",
+  //   "run-server-start",
   //   (message) => {
   //     handleRunStarted(message.payload);
   //   },
@@ -673,7 +675,7 @@ function AssessmentComponent(props: Assessment.Props) {
   // );
 
   // useListen(
-  //   "prompt-run-ext-update",
+  //   "run-server-update",
   //   (message) => {
   //     handleRunUpdate(message.payload);
   //   },
@@ -681,7 +683,7 @@ function AssessmentComponent(props: Assessment.Props) {
   // );
 
   // useListen(
-  //   "prompt-run-ext-complete",
+  //   "run-server-complete",
   //   (message) => {
   //     handleRunCompleted(message.payload);
   //   },
@@ -689,7 +691,7 @@ function AssessmentComponent(props: Assessment.Props) {
   // );
 
   // useListen(
-  //   "prompt-run-ext-error",
+  //   "run-server-error",
   //   (message) => {
   //     handleRunError(message.payload);
   //   },
@@ -697,7 +699,7 @@ function AssessmentComponent(props: Assessment.Props) {
   // );
 
   // useListen(
-  //   "prompt-run-ext-result-complete",
+  //   "run-server-result-complete",
   //   (message) => {
   //     handleRunResultCompleted(message.payload);
   //   },
@@ -705,16 +707,11 @@ function AssessmentComponent(props: Assessment.Props) {
   // );
 
   // useListen(
-  //   "prompt-run-ext-execution-result",
+  //   "run-server-execution-result",
   //   (message) => {
   //     handleExecutionResult(message.payload);
   //   },
   //   [handleExecutionResult],
-  // );
-
-  // const [streamingEnabled, setStreamingEnabled] = useStoreState(
-  //   "global",
-  //   "playground.streaming",
   // );
 
   // const handleStop = useCallback(() => {
@@ -725,7 +722,7 @@ function AssessmentComponent(props: Assessment.Props) {
   //     null;
   //   if (!runId || isStopping) return;
   //   setIsStopping(true);
-  //   send({ type: "prompt-run-vw-stop", payload: { runId } });
+  //   send({ type: "run-vw-stop", payload: { runId } });
   // }, [executionState.runId, isStopping, send, streamingState.runId]);
 
   // const promptSource = useMemo(
@@ -893,7 +890,7 @@ function AssessmentComponent(props: Assessment.Props) {
   //   async (
   //     payload: Extract<
   //       VscMessageDataset,
-  //       { type: "dataset-ext-csv-content" }
+  //       { type: "dataset-server-csv-content" }
   //     >["payload"],
   //   ) => {
   //     if (payload.status === "error") {
@@ -930,7 +927,7 @@ function AssessmentComponent(props: Assessment.Props) {
   //   (
   //     payload: Extract<
   //       VscMessageAttachment,
-  //       { type: "attachment-ext-content" }
+  //       { type: "attachment-server-content" }
   //     >["payload"],
   //   ) => {
   //     if (payload.status === "error") {
@@ -962,7 +959,7 @@ function AssessmentComponent(props: Assessment.Props) {
   // );
 
   // useListen(
-  //   "dataset-ext-csv-content",
+  //   "dataset-server-csv-content",
   //   (message) => {
   //     void handleDatasetLoad(message.payload);
   //   },
@@ -970,7 +967,7 @@ function AssessmentComponent(props: Assessment.Props) {
   // );
 
   // useListen(
-  //   "attachment-ext-content",
+  //   "attachment-server-content",
   //   (message) => {
   //     handleAttachmentsLoad(message.payload);
   //   },
@@ -983,7 +980,7 @@ function AssessmentComponent(props: Assessment.Props) {
   //     const caps = getModelCapabilities(config);
   //     attachmentTargetKeyRef.current = config.key;
   //     send({
-  //       type: "attachment-wv-request",
+  //       type: "attachment-client-request",
   //       payload: { imagesOnly: caps.supportsImages && !caps.supportsFiles },
   //     });
   //   },
@@ -1416,14 +1413,14 @@ function AssessmentComponent(props: Assessment.Props) {
   //     })),
   //   };
 
-  //   send({ type: "prompt-run-wv-execute", payload });
+  //   send({ type: "run-client-execute", payload });
   // };
 
   // const handleExecuteRef = useRef<() => void>(() => {});
   // handleExecuteRef.current = handleExecute;
 
   // useListen(
-  //   "prompts-ext-execute-from-command",
+  //   "prompts-server-execute-from-command",
   //   () => {
   //     handleExecuteRef.current();
   //   },
@@ -1594,69 +1591,13 @@ function AssessmentComponent(props: Assessment.Props) {
   //#endregion
 
   const { prompt } = props;
+  const assessment = AssessmentManager.use(prompt);
 
   return (
-    <div className="flex flex-col gap-2">
-      <ModelSetups
-      // configs={modelConfigs}
-      // errors={modelErrors}
-      // expandedKey={expandedModelKey}
-      // providerOptions={providerOptions}
-      // getModelOptions={getModelsForProvider}
-      // getCapabilities={getModelCapabilities}
-      // onAddModel={handleAddModel}
-      // onRemoveModel={handleRemoveModel}
-      // onToggleExpand={setExpandedKey}
-      // onProviderChange={handleProviderChange}
-      // onModelChange={handleModelChange}
-      // onGenerationOptionChange={updateGenerationOption}
-      // onReasoningChange={updateReasoning}
-      // onToolsJsonChange={updateToolsJson}
-      // onProviderOptionsJsonChange={updateProviderOptionsJson}
-      // onRequestAttachments={(key) =>
-      //   requestAttachments(
-      //     modelConfigs.find((config) => config.key === key) ?? null,
-      //   )
-      // }
-      // onClearAttachments={clearAttachments}
-      // addDisabled={modelsLoading}
-      />
+    <AssessmentProvider assessment={assessment}>
+      <Setups field={assessment.form.$.setups} />
 
-      {/* <AssessmentDatasourceProvider value={datasourceContextValue}>
-        <DatasourceSelector />
-      </AssessmentDatasourceProvider> */}
-
-      {/* <AssessmentRun
-        canRunPrompt={canRunPrompt}
-        runInFlight={runInFlight}
-        isStopping={isStopping}
-        showStopButton={showStopButton}
-        stopDisabled={stopDisabled}
-        streamingEnabled={streamingEnabled}
-        streamingToggleId={streamingToggleId}
-        hasResultsOrError={
-          executionState.results.length > 0 || executionState.error !== null
-        }
-        onExecute={handleExecute}
-        onStop={handleStop}
-        onClear={handleClear}
-        onStreamingToggle={setStreamingEnabled}
-      /> */}
-
-      {/* <AssessmentResultsProvider value={resultsContextValue}> */}
-      <Results />
-      {/* </AssessmentResultsProvider> */}
-
-      {/* {executionState.error && (
-        <div className="space-y-2">
-          <h5 className="text-sm font-medium">Error</h5>
-          <div className="p-3 rounded border">
-            <pre className="text-sm whitespace-pre-wrap">
-              {executionState.error}
-            </pre>
-          </div>
-        </div>
-      )} */}
-    </div>
+      <Tests field={assessment.form.$.tests} />
+    </AssessmentProvider>
   );
 }

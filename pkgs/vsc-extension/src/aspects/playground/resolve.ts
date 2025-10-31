@@ -8,6 +8,7 @@ import {
   buildMapFileId,
   buildMapPromptId,
   PlaygroundMap,
+  playgroundMapSpanFromPrompt,
   PlaygroundState,
 } from "@wrkspc/core/playground";
 import { distance } from "fastest-levenshtein";
@@ -179,7 +180,8 @@ export function resolvePlaygroundMap(
 
   if (!match.changed) return map;
 
-  const nextMap = {
+  const nextMap: PlaygroundMap = {
+    v: 1,
     files: {
       ...map.files,
       [file.path]: match.mapFile,
@@ -226,6 +228,7 @@ export function matchPlaygroundMapFile(
       const newMeta = editorFileToMeta(file);
       const changed = matchChanged || !areFileMetasEqual(byPath.meta, newMeta);
       const mapFile: PlaygroundMap.File = {
+        v: 1,
         id: byPath.id,
         updatedAt: changed ? timestamp : byPath.updatedAt,
         meta: newMeta,
@@ -250,14 +253,16 @@ export function matchPlaygroundMapFile(
   if (byDistance) return byDistance;
 
   const mapFile: PlaygroundMap.File = {
+    v: 1,
     id: buildMapFileId(),
     updatedAt: timestamp,
     meta: editorFileToMeta(file),
-    prompts: parsedPrompts.map((prompt) => ({
+    prompts: parsedPrompts.map<PlaygroundMap.PromptV1>((prompt) => ({
+      v: 1,
       id: buildMapPromptId(),
       content: prompt.exp,
       updatedAt: timestamp,
-      span: prompt.span.outer,
+      span: playgroundMapSpanFromPrompt(prompt),
     })),
   };
 
@@ -348,6 +353,7 @@ export function matchPlaygroundMapFileByDistance(
     const newMeta = editorFileToMeta(file);
     const changed = bestMatchChanged || !areFileMetasEqual(meta, newMeta);
     const mapFile: PlaygroundMap.File = {
+      v: 1,
       id,
       updatedAt:
         changed || !areFileMetasEqual(meta, newMeta) ? timestamp : updatedAt,
@@ -423,9 +429,10 @@ export function matchPlaygroundMapPrompts(
       matchedCount++;
     } else {
       nextMapPrompts.push({
+        v: 1,
         id: buildMapPromptId(),
         content: parsedPrompt.exp,
-        span: parsedPrompt.span.outer,
+        span: playgroundMapSpanFromPrompt(parsedPrompt),
         updatedAt: props.timestamp,
       });
     }
@@ -483,7 +490,7 @@ export function matchPlaygroundMapPromptsByContent(
       if (mapPrompt.content !== parsedPrompt.exp) return;
       matchedMapPrompts.set(parsedPrompt, {
         ...mapPrompt,
-        span: parsedPrompt.span.outer,
+        span: playgroundMapSpanFromPrompt(parsedPrompt),
       });
       matchingScores.set(
         mapPrompt,
@@ -569,9 +576,10 @@ export function matchPlaygroundMapPromptsByDistance(
       return;
 
     const nextMapPrompt: PlaygroundMap.Prompt = {
+      v: 1,
       id: mapPrompt.id,
       content: parsedPrompt.exp,
-      span: parsedPrompt.span.outer,
+      span: playgroundMapSpanFromPrompt(parsedPrompt),
       updatedAt: timestamp,
     };
 
@@ -694,6 +702,7 @@ function toPromptItem(
   prompt: PlaygroundMap.Prompt,
 ): PlaygroundState.PromptItem {
   return {
+    v: 1,
     fileId,
     promptId: prompt.id,
     preview: truncatePromptContent(prompt.content),
@@ -706,6 +715,7 @@ function toPromptState(
   reason: PlaygroundState.PromptReason,
 ): PlaygroundState.Prompt {
   return {
+    v: 1,
     fileId,
     promptId: prompt.id,
     content: prompt.content,

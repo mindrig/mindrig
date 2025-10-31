@@ -8,6 +8,7 @@
     "./assessment": "./src/assessment/index.ts",
     "./attachment": "./src/attachment/index.ts",
     "./auth": "./src/auth/index.ts",
+    "./blueprint": "./src/blueprint/index.ts",
     "./client": "./src/client/index.ts",
     "./dataset": "./src/dataset/index.ts",
     "./datasource": "./src/datasource/index.ts",
@@ -19,10 +20,14 @@
     "./page": "./src/page/index.ts",
     "./playground": "./src/playground/index.ts",
     "./prompt": "./src/prompt/index.ts",
-    "./promptRun": "./src/promptRun/index.ts",
+    "./run": "./src/run/index.ts",
+    "./runResult": "./src/runResult/index.ts",
     "./settings": "./src/settings/index.ts",
+    "./setup": "./src/setup/index.ts",
     "./store": "./src/store/index.ts",
-    "./state": "./src/state/index.ts"
+    "./test": "./src/test/index.ts",
+    "./state": "./src/state/index.ts",
+    "./versioned": "./src/versioned/index.ts"
   },
   "scripts": {
     "test": "vitest run",
@@ -45,7 +50,9 @@
     "@wrkspc/ts": "workspace:*",
     "oxlint": "^1.23.0",
     "prettier": "^3.6.2",
+    "tdollar": "^0.6.0",
     "typescript": "^5.9.3",
+    "tyst": "1.0.0-alpha.2",
     "vitest": "^3.2.4"
   }
 }

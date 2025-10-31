@@ -37,9 +37,9 @@ function Content() {
 
   const { send, useListen } = useMessages();
 
-  useEffect(() => send({ type: "lifecycle-wv-ready" }), [send]);
+  useEffect(() => send({ type: "client-client-ready" }), [send]);
 
-  useListen("page-ext-open", (message) =>
+  useListen("client-server-navigate", (message) =>
     navigate(pageHrefs[message.payload.type]()),
   );
 
@@ -84,7 +84,7 @@ function PageRoute(props: React.PropsWithChildren<PageRoute.Props>) {
 
   const { send } = useMessages();
   useEffect(() => {
-    send({ type: "page-wv-update", payload: props.page });
+    send({ type: "client-client-navigated", payload: props.page });
   }, [send]);
 
   return children;

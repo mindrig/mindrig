@@ -1,5 +1,5 @@
 import { Manager } from "@/aspects/manager/Manager.js";
-import { VscMessagePage } from "@wrkspc/core/message";
+import { ClientMessage } from "@wrkspc/core/client";
 import { Page } from "@wrkspc/core/page";
 import { MessagesManager } from "../message/Manager";
 
@@ -20,16 +20,16 @@ export class PageManager extends Manager {
 
     this.#page = { type: "playground" };
 
-    this.#messages.listen(this, "page-wv-update", this.#onUpdate);
+    this.#messages.listen(this, "client-client-navigated", this.#onUpdate);
   }
 
   navigate(page: Page) {
     // NOTE: We don't update internal state here, we wait for the webview to
     // send us the update instead.
-    this.#messages.send({ type: "page-ext-open", payload: page });
+    this.#messages.send({ type: "client-server-navigate", payload: page });
   }
 
-  #onUpdate(message: VscMessagePage.WvUpdate) {
+  #onUpdate(message: ClientMessage.ClientNavigated) {
     this.#page = message.payload;
   }
 }

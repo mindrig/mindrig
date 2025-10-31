@@ -54,9 +54,15 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
+      tdollar:
+        specifier: ^0.6.0
+        version: 0.6.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      tyst:
+        specifier: 1.0.0-alpha.2
+        version: 1.0.0-alpha.2
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/browser@3.2.4)(happy-dom@18.0.1)(jiti@2.5.1)(jsdom@25.0.1)(lightningcss@1.30.1)(tsx@4.20.5)(yaml@2.8.1)
@@ -395,11 +401,14 @@ importers:
         specifier: ^1.13.0
         version: 1.13.0
       enso:
-        specifier: ^2.0.4
-        version: 2.0.4
+        specifier: ^2.1.0
+        version: 2.1.0
       leven:
         specifier: ^4.1.0
         version: 4.1.0
+      nanoid:
+        specifier: ^5.1.6
+        version: 5.1.6
       react:
         specifier: ^19.2.0
         version: 19.2.0
@@ -488,6 +497,9 @@ importers:
       tailwindcss-react-aria-components:
         specifier: ^2.0.1
         version: 2.0.1(tailwindcss@4.1.15)
+      tdollar:
+        specifier: ^0.6.0
+        version: 0.6.0
       tsx:
         specifier: ^4.20.5
         version: 4.20.5
@@ -550,8 +562,8 @@ importers:
         specifier: ^1.12.0
         version: 1.13.0
       enso:
-        specifier: ^2.0.4
-        version: 2.0.4
+        specifier: ^2.1.0
+        version: 2.1.0
       react:
         specifier: 19.2.0
         version: 19.2.0
@@ -680,8 +692,8 @@ importers:
         specifier: ^1.12.0
         version: 1.13.0
       enso:
-        specifier: ^2.0.4
-        version: 2.0.4
+        specifier: ^2.1.0
+        version: 2.1.0
       react:
         specifier: 19.2.0
         version: 19.2.0
@@ -3406,6 +3418,9 @@ packages:
   alwaysly@0.3.0:
     resolution: {integrity: sha512-/N+jYaWuemRDmc131zgJj0ry/sShC7uIuIUKvK+61sB6gdqTyEYZrx5yKa6Jdlo2K3XPsPBMRSZqq8+O2WZ2HA==}
 
+  alwaysly@0.3.1:
+    resolution: {integrity: sha512-fjfotPh4u1Ndf7Y+tk3IgqfLTf3JdjStcx6r6QJkLF2ZY98QlT1FfOjXZrR7Hx5tG4Akv/QCn9uexIMl9jaPvw==}
+
   ansi-align@3.0.1:
     resolution: {integrity: sha512-IOfwwBF5iczOjp/WeY4YxyjqAFMQoZufdQWDd19SEExbVLNXqvpzSJ/M7Za4/sCPmQ0+GRquoA7bGcINcxew6w==}
 
@@ -3633,10 +3648,6 @@ packages:
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
-
-  chalk@5.6.0:
-    resolution: {integrity: sha512-46QrSQFyVSEyYAgQ22hQ+zDa60YHA4fBstHmtSApj1Y5vKtG27fWowW03jCk5KcbXEWPZUIR894aARCA/G1kfQ==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   chalk@5.6.2:
     resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
@@ -4192,8 +4203,8 @@ packages:
     resolution: {integrity: sha512-d4lC8xfavMeBjzGr2vECC3fsGXziXZQyJxD868h2M/mBI3PwAuODxAkLkq5HYuvrPYcUtiLzsTo8U3PgX3Ocww==}
     engines: {node: '>=10.13.0'}
 
-  enso@2.0.4:
-    resolution: {integrity: sha512-pMnsTEROiFlNFccB7m5llVZNZWerq3xobPAclx7uu8dLWFp9zDrXaKVI9C5DsPqXLNI75eX2c+9dyKK5yPtSAw==}
+  enso@2.1.0:
+    resolution: {integrity: sha512-DAMvyq6nMBa3c746keDpz1VkPnsf1ckZpqOg2kqKD1OQzfQtG4Jg5A/m6qus6eZ24WuWVQxSxmXS9waih1N6dw==}
 
   entities@4.5.0:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
@@ -6450,6 +6461,12 @@ packages:
     resolution: {integrity: sha512-5S7Va8hKfV7W5U6g3aYxXmlPoZVAwUMy9AOKyF2fVuZa2UD3qZjg578OrLRt8PcNN1PleVaL/5/yYATNL0ICUw==}
     engines: {node: '>=18'}
 
+  tdollar@0.1.1:
+    resolution: {integrity: sha512-LefzPvVPVyuD+Kfb0lyoGjrq3bJi8jCn+JgVgK0HgNGoo1/AVCcj8Kosaui51er837Ux1Txwf3671y6fZCZqRA==}
+
+  tdollar@0.6.0:
+    resolution: {integrity: sha512-Q3WHc+0rjoUaEgHqXP0FJ+iqIOumR57CQrcY74zaT4e9jUVqo0GuPkGH+nSrbolobUOAZu4/cDGPEb7k0Z2aWQ==}
+
   terminal-link@4.0.0:
     resolution: {integrity: sha512-lk+vH+MccxNqgVqSnkMVKx4VLJfnLjDBGzH16JVZjKE2DoxP57s6/vt6JmXV5I3jBcfGrxNrYtC+mPtU7WJztA==}
     engines: {node: '>=18'}
@@ -6640,6 +6657,9 @@ packages:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  tyst@1.0.0-alpha.2:
+    resolution: {integrity: sha512-F1hJapm2L5FLNpF6rJf8Xq7YqjzoNYPn2D04bHrU1PfGKQvU4qbMc2IpcyqISjeT2kyjtChEFy9riIzcD/plbw==}
 
   uc.micro@2.1.0:
     resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
@@ -10498,6 +10518,8 @@ snapshots:
 
   alwaysly@0.3.0: {}
 
+  alwaysly@0.3.1: {}
+
   ansi-align@3.0.1:
     dependencies:
       string-width: 4.2.3
@@ -10843,8 +10865,6 @@ snapshots:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
-
-  chalk@5.6.0: {}
 
   chalk@5.6.2: {}
 
@@ -11402,9 +11422,10 @@ snapshots:
       graceful-fs: 4.2.11
       tapable: 2.2.3
 
-  enso@2.0.4:
+  enso@2.1.0:
     dependencies:
-      nanoid: 5.1.5
+      alwaysly: 0.3.1
+      nanoid: 5.1.6
       react: 19.2.0
 
   entities@4.5.0: {}
@@ -12446,7 +12467,7 @@ snapshots:
 
   log-symbols@6.0.0:
     dependencies:
-      chalk: 5.6.0
+      chalk: 5.6.2
       is-unicode-supported: 1.3.0
 
   longest-streak@3.1.0: {}
@@ -13247,7 +13268,7 @@ snapshots:
 
   ora@8.2.0:
     dependencies:
-      chalk: 5.6.0
+      chalk: 5.6.2
       cli-cursor: 5.0.0
       cli-spinners: 2.9.2
       is-interactive: 2.0.0
@@ -14420,6 +14441,10 @@ snapshots:
       mkdirp: 3.0.1
       yallist: 5.0.0
 
+  tdollar@0.1.1: {}
+
+  tdollar@0.6.0: {}
+
   terminal-link@4.0.0:
     dependencies:
       ansi-escapes: 7.0.0
@@ -14593,6 +14618,10 @@ snapshots:
       semver: 7.7.3
 
   typescript@5.9.3: {}
+
+  tyst@1.0.0-alpha.2:
+    dependencies:
+      tdollar: 0.1.1
 
   uc.micro@2.1.0: {}
 

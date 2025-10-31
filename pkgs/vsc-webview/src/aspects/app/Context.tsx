@@ -1,21 +1,24 @@
 import { AuthProvider } from "@/aspects/auth/Context";
 import { MessagesProvider } from "@/aspects/message/Context";
-import { ModelsProvider } from "@/aspects/model/Context";
 import { defaultPageHref, pageHrefs } from "@/aspects/page/route";
 import { VscProvider } from "@/aspects/vsc/Context";
 import { Page } from "@wrkspc/core/page";
 import React, { useCallback } from "react";
 import { NavigateOptions, useNavigate } from "react-router-dom";
 import { ClientStateProvider } from "../client/StateContext";
+import { ClientStoreProvider } from "../client/StoreContext";
+import { ModelsMapProvider } from "../model/MapContext";
 
 export function AppContext(props: React.PropsWithChildren) {
   return (
     <VscProvider>
       <MessagesProvider>
         <ClientStateProvider>
-          <AuthProvider>
-            <ModelsProvider>{props.children}</ModelsProvider>
-          </AuthProvider>
+          <ClientStoreProvider>
+            <AuthProvider>
+              <ModelsMapProvider>{props.children}</ModelsMapProvider>
+            </AuthProvider>
+          </ClientStoreProvider>
         </ClientStateProvider>
       </MessagesProvider>
     </VscProvider>

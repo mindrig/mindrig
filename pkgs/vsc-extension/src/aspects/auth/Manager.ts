@@ -1,5 +1,4 @@
-import { Auth } from "@wrkspc/core/auth";
-import { VscMessageAuth } from "@wrkspc/core/message";
+import { Auth, AuthMessage } from "@wrkspc/core/auth";
 import { Manager } from "../manager/Manager.js";
 import { MessagesManager } from "../message/Manager.js";
 import { SecretsManager } from "../secret/Manager.js";
@@ -25,7 +24,7 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
   constructor(parent: Manager, props: AuthManager.Props) {
     super(parent);
 
-    this.#state = { gateway: undefined };
+    this.#state = { gateway: null };
     this.#secrets = props.secrets;
     this.#messages = props.messages;
 
@@ -39,19 +38,19 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
 
     this.#messages.listen(
       this,
-      "auth-wv-vercel-gateway-clear",
+      "auth-client-vercel-gateway-clear",
       this.#onVercelGatewayClear,
     );
 
     this.#messages.listen(
       this,
-      "auth-wv-vercel-gateway-set",
+      "auth-client-vercel-gateway-set",
       this.#onVercelGatewaySet,
     );
 
     this.#messages.listen(
       this,
-      "auth-wv-vercel-gateway-revalidate",
+      "auth-client-vercel-gateway-revalidate",
       this.#validate,
     );
   }
@@ -84,11 +83,11 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
     this.#validate();
   }
 
-  #onVercelGatewaySet(message: VscMessageAuth.WebviewVercelGatewaySet) {
+  #onVercelGatewaySet(message: AuthMessage.ClientVercelGatewaySet) {
     this.#secrets.set("auth-vercel-gateway-key", message.payload);
   }
 
-  #onVercelGatewayClear(_message: VscMessageAuth.WebviewVercelGatewayClear) {
+  #onVercelGatewayClear(_message: AuthMessage.ClientVercelGatewayClear) {
     this.#secrets.clear("auth-vercel-gateway-key");
   }
 
@@ -96,7 +95,7 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
     this.#state = { ...this.#state, gateway };
 
     this.#messages.send({
-      type: "auth-ext-update",
+      type: "auth-server-update",
       payload: this.#state,
     });
   }

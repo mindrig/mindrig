@@ -51,7 +51,7 @@ export class ModelsGatewayManager extends Manager {
 
     this.#auth.on(this, "gateway-resolve", this.#onAuthResolve);
 
-    this.#messages.listen(this, "models-wv-gateway-refresh", () =>
+    this.#messages.listen(this, "models-client-gateway-refresh", () =>
       this.#fetch(this.#auth.state.gateway),
     );
   }
@@ -70,7 +70,7 @@ export class ModelsGatewayManager extends Manager {
 
       // Send models to webview
       this.#messages.send({
-        type: "models-ext-gateway-response",
+        type: "models-server-gateway-response",
         payload: response,
       });
 

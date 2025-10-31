@@ -1,10 +1,10 @@
 import { Manager } from "@/aspects/manager/Manager.js";
 import { EditorFile } from "@wrkspc/core/editor";
-import { VscMessagePlayground } from "@wrkspc/core/message";
 import {
   buildPlaygroundState,
   PlaygroundMap,
   playgroundMapPairToEditorRef,
+  PlaygroundMessage,
   PlaygroundState,
 } from "@wrkspc/core/playground";
 import { always } from "alwaysly";
@@ -19,7 +19,7 @@ import {
 } from "./resolve";
 
 function createEmptyMap(): PlaygroundMap {
-  return { files: {}, updatedAt: Date.now() };
+  return { v: 1, files: {}, updatedAt: Date.now() };
 }
 
 export namespace PlaygroundManager {
@@ -83,13 +83,13 @@ export class PlaygroundManager extends Manager {
       this.#ensureHydrated(this.#onFileUpdate),
     );
 
-    this.#messages.listen(this, "playground-wv-pin", this.#onPin);
+    this.#messages.listen(this, "playground-client-pin", this.#onPin);
 
-    this.#messages.listen(this, "playground-wv-unpin", this.#onUnpin);
+    this.#messages.listen(this, "playground-client-unpin", this.#onUnpin);
 
     this.#messages.listen(
       this,
-      "playground-wv-prompt-change",
+      "playground-client-prompt-change",
       this.#onPromptChange,
     );
 
@@ -157,7 +157,7 @@ export class PlaygroundManager extends Manager {
 
   #sendState(): Promise<boolean> {
     return this.#messages.send({
-      type: "playground-ext-update",
+      type: "playground-server-update",
       payload: this.#state,
     });
   }
@@ -177,7 +177,7 @@ export class PlaygroundManager extends Manager {
     await this.#sendState();
   }
 
-  async #onPromptChange(message: VscMessagePlayground.WvPromptChange) {
+  async #onPromptChange(message: PlaygroundMessage.ClientPromptChange) {
     if (!message.payload) {
       if (!this.#pin) return;
       this.#pin = null;
@@ -214,13 +214,13 @@ export class PlaygroundManager extends Manager {
     }
   }
 
-  async #onPin(message: VscMessagePlayground.WvPin): Promise<void> {
+  async #onPin(message: PlaygroundMessage.ClientPin): Promise<void> {
     this.#pin = await this.#resolvePin(message.payload);
     this.#updateState();
     this.#sendState();
   }
 
-  async #onUnpin(message: VscMessagePlayground.WvUnpin): Promise<void> {
+  async #onUnpin(message: PlaygroundMessage.ClientUnpin): Promise<void> {
     this.#pin = null;
     this.#updateState();
     this.#sendState();

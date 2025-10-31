@@ -1,65 +1,58 @@
-import { DatasetSelection } from "@wrkspc/core/dataset";
+import { DatasetDatasource } from "@wrkspc/core/dataset";
+import { Button } from "@wrkspc/ds";
+import { Field } from "enso";
 
-export interface DatasourceDatasetProps {
-  usingCsv: boolean;
-  csvFileLabel: string | null;
-  csvRows: string[][];
-  headers: string[] | null;
-  datasetMode: DatasetSelection.Type;
-  selectedRowIdx: number | null;
-  rangeStart: string;
-  rangeEnd: string;
-  onDatasetModeChange: (mode: DatasetSelection.Type) => void;
-  onSelectRow: (index: number | null) => void;
-  onRangeStartChange: (value: string) => void;
-  onRangeEndChange: (value: string) => void;
-  onLoadCsv: () => void;
-  onClearCsv: () => void;
+export namespace DatasourceDataset {
+  export interface Props {
+    field: Field<DatasetDatasource>;
+    // usingCsv: boolean;
+    // csvFileLabel: string | null;
+    // csvRows: string[][];
+    // headers: string[] | null;
+    // datasetMode: DatasetSelection.Type;
+    // selectedRowIdx: number | null;
+    // rangeStart: string;
+    // rangeEnd: string;
+    // onDatasetModeChange: (mode: DatasetSelection.Type) => void;
+    // onSelectRow: (index: number | null) => void;
+    // onRangeStartChange: (value: string) => void;
+    // onRangeEndChange: (value: string) => void;
+    // onLoadCsv: () => void;
+    // onClearCsv: () => void;
+  }
 }
 
-export function DatasourceDataset(props: DatasourceDatasetProps) {
-  const {
-    usingCsv,
-    csvFileLabel,
-    csvRows,
-    headers,
-    datasetMode,
-    selectedRowIdx,
-    rangeStart,
-    rangeEnd,
-    onDatasetModeChange,
-    onSelectRow,
-    onRangeStartChange,
-    onRangeEndChange,
-    onLoadCsv,
-    onClearCsv,
-  } = props;
+export function DatasourceDataset(props: DatasourceDataset.Props) {
+  const { field } = props;
+
+  const usingCsv = false;
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <button
-            onClick={onLoadCsv}
-            className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded whitespace-nowrap"
+          <Button
+            size="xsmall"
+            // onClick={onLoadCsv}
           >
             {usingCsv ? "Reload CSV" : "Load CSV"}
-          </button>
+          </Button>
+
           {usingCsv && (
-            <button
-              onClick={onClearCsv}
-              className="inline-flex items-center px-2.5 py-1.5 border text-xs font-medium rounded whitespace-nowrap"
+            <Button
+              size="xsmall"
+              // onClick={onClearCsv}
             >
               Clear CSV
-            </button>
+            </Button>
           )}
         </div>
 
         {usingCsv && (
           <div className="min-w-0 flex-1 text-right">
-            <span className="text-xs font-mono truncate block">
+            {/* <span className="text-xs font-mono truncate block">
               {csvFileLabel ? `Loaded: ${csvFileLabel}` : "CSV loaded"}
-            </span>
+            </span> */}
           </div>
         )}
       </div>
@@ -72,7 +65,7 @@ export function DatasourceDataset(props: DatasourceDatasetProps) {
 
       {usingCsv && (
         <>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <h5 className="text-sm font-medium">Run Scope</h5>
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <label className="inline-flex items-center gap-1">
@@ -85,6 +78,7 @@ export function DatasourceDataset(props: DatasourceDatasetProps) {
                 />
                 Select row
               </label>
+
               <label className="inline-flex items-center gap-1">
                 <input
                   type="radio"
@@ -95,6 +89,7 @@ export function DatasourceDataset(props: DatasourceDatasetProps) {
                 />
                 Enter CSV range
               </label>
+
               <label className="inline-flex items-center gap-1">
                 <input
                   type="radio"
@@ -106,9 +101,9 @@ export function DatasourceDataset(props: DatasourceDatasetProps) {
                 All rows
               </label>
             </div>
-          </div>
+          </div> */}
 
-          {datasetMode === "row" && (
+          {/* {datasetMode === "row" && (
             <div className="space-y-2">
               <h5 className="text-sm font-medium">Select Row</h5>
               <select
@@ -122,6 +117,7 @@ export function DatasourceDataset(props: DatasourceDatasetProps) {
                 <option value="" disabled>
                   Choose a row
                 </option>
+
                 {csvRows.map((row, idx) => {
                   const label = headers
                     ? headers
@@ -139,16 +135,18 @@ export function DatasourceDataset(props: DatasourceDatasetProps) {
                   );
                 })}
               </select>
+
               <p className="text-xs">
                 Selecting a row fills the variables below and overrides manual
                 input.
               </p>
             </div>
-          )}
+          )} */}
 
-          {datasetMode === "range" && (
+          {/* {datasetMode === "range" && (
             <div className="space-y-2">
               <h5 className="text-sm font-medium">Enter CSV Range</h5>
+
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -159,7 +157,9 @@ export function DatasourceDataset(props: DatasourceDatasetProps) {
                   placeholder="Start (1)"
                   className="w-28 px-3 py-2 border rounded text-sm"
                 />
+
                 <span>to</span>
+
                 <input
                   type="number"
                   min={1}
@@ -170,15 +170,16 @@ export function DatasourceDataset(props: DatasourceDatasetProps) {
                   className="w-28 px-3 py-2 border rounded text-sm"
                 />
               </div>
+
               <p className="text-xs">
                 Range is inclusive. 1 to {csvRows.length} available.
               </p>
             </div>
-          )}
+          )} */}
 
-          {datasetMode === "all" && (
+          {/* {datasetMode === "all" && (
             <div className="text-xs">All rows will run ({csvRows.length}).</div>
-          )}
+          )} */}
         </>
       )}
     </div>

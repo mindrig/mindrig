@@ -4,7 +4,9 @@ import { modelDeveloperOrderWeights } from "./order.js";
 
 export interface ModelDeveloper {
   id: ModelDeveloper.Id;
-  meta: ModelDeveloper.Meta;
+  /** Meta data about the developer. It might be missing, when gateway adds
+   * a new developer but we didn't update the fallbacks yet. */
+  meta: ModelDeveloper.Meta | undefined;
   /** Order weight, if defined will be used for sorting. Otherwise, it will be
    * sorted by name. */
   order: number | undefined;
@@ -25,6 +27,7 @@ export namespace ModelDeveloper {
     | "inception"
     | "meituan"
     | "meta"
+    | "minimax"
     | "mistral"
     | "moonshotai"
     | "morph"
@@ -58,7 +61,7 @@ export namespace ModelDeveloper {
 
   export interface Item {
     id: Id;
-    name: string;
+    name: string | undefined;
     logoUrl: string | undefined;
   }
 
@@ -82,8 +85,8 @@ export function mapModelDeveloperItems(
 ): ModelDeveloper.Item[] {
   return Object.values(modelsMap).map((developer) => ({
     id: developer.developer.id,
-    name: developer.developer.meta.name,
-    logoUrl: developer.developer.meta.logoUrl,
+    name: developer.developer.meta?.name,
+    logoUrl: developer.developer.meta?.logoUrl,
   }));
 }
 
@@ -131,6 +134,10 @@ export const modelDevelopersMeta: ModelDeveloper.MetaMap = {
   mistral: {
     name: "Mistral",
     websiteUrl: "https://mistral.ai",
+  },
+  minimax: {
+    name: "MiniMax",
+    websiteUrl: "https://www.minimax.io/",
   },
   moonshotai: {
     name: "Moonshot AI",

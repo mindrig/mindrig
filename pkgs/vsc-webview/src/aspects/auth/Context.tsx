@@ -20,7 +20,10 @@ export function AuthProvider(props: React.PropsWithChildren) {
   const gateway = resolveAuthGateway(state.auth);
   const { send } = useMessages();
 
-  const logOut = useCallback(() => send({ type: "auth-wv-logout" }), [send]);
+  const logOut = useCallback(
+    () => send({ type: "auth-client-logout" }),
+    [send],
+  );
 
   return (
     <AuthContext.Provider value={{ auth: state.auth, gateway, logOut }}>
@@ -31,6 +34,6 @@ export function AuthProvider(props: React.PropsWithChildren) {
 
 export function useAuth(): AuthContext.Value {
   const value = useContext(AuthContext);
-  if (!value) throw new Error("useAuth must be used within an AuthProvider");
+  if (!value) throw new Error("useAuth must be used within AuthProvider");
   return value;
 }

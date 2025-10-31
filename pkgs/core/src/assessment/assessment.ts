@@ -1,18 +1,21 @@
-import { buildAssessmentSetup, type AssessmentSetup } from "./setup.js";
+import { buildSetup, Setup } from "../setup/setup.js";
+import { buildTest, Test } from "../test/test.js";
+import { Versioned } from "../versioned/versioned.js";
 
-export interface Assessment {
-  attachments: [];
-  setups: AssessmentSetup[];
-  datasources: [];
+export type Assessment = Assessment.V1;
+
+export namespace Assessment {
+  export interface V1 extends Versioned<1> {
+    setups: Setup[];
+    tests: Test[];
+  }
 }
-
-export namespace Assessment {}
 
 export function buildAssessment(overrides?: Partial<Assessment>): Assessment {
   return {
-    attachments: [],
-    setups: [buildAssessmentSetup()],
-    datasources: [],
+    v: 1,
+    setups: [buildSetup()],
+    tests: [buildTest()],
     ...overrides,
   };
 }

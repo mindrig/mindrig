@@ -6,9 +6,9 @@ import { Select } from "@wrkspc/form";
 import iconRegularThumbtackAngle from "@wrkspc/icons/svg/regular/thumbtack-angle.js";
 import iconSolidThumbtack from "@wrkspc/icons/svg/solid/thumbtack.js";
 import { cn } from "crab";
+import { LayoutSection } from "../layout/Section";
 import { useMessages } from "../message/Context";
-import { PanelSection } from "../panel/Section";
-import { usePlayground } from "../playground/Context";
+import { usePlaygroundState } from "../playground/StateContext";
 
 export namespace FileHeader {
   export interface Props {
@@ -20,14 +20,14 @@ export function FileHeader(props: FileHeader.Props) {
   const { file } = props;
   const {
     playground: { prompts, prompt, pin },
-  } = usePlayground();
+  } = usePlaygroundState();
   const { send } = useMessages();
 
   const isPinned = !!pin;
   const promptRef = playgroundStatePromptToRef(prompt);
 
   return (
-    <PanelSection bordered pinned={isPinned}>
+    <LayoutSection top bordered pinned={isPinned}>
       <div className="flex items-center justify-between gap-2">
         <FileLabel file={file} isPinned={isPinned} />
 
@@ -45,7 +45,10 @@ export function FileHeader(props: FileHeader.Props) {
             onSelectionChange={(promptId) => {
               const prompt =
                 prompts.find((prompt) => prompt.promptId === promptId) || null;
-              send({ type: "playground-wv-prompt-change", payload: prompt });
+              send({
+                type: "playground-client-prompt-change",
+                payload: prompt,
+              });
             }}
           />
 
@@ -56,9 +59,9 @@ export function FileHeader(props: FileHeader.Props) {
               icon={isPinned ? iconSolidThumbtack : iconRegularThumbtackAngle}
               isDisabled={!promptRef}
               onClick={() => {
-                if (isPinned) send({ type: "playground-wv-unpin" });
+                if (isPinned) send({ type: "playground-client-unpin" });
                 else if (promptRef)
-                  send({ type: "playground-wv-pin", payload: promptRef });
+                  send({ type: "playground-client-pin", payload: promptRef });
               }}
               aria-pressed={isPinned}
               aria-label={isPinned ? "Unpin prompt" : "Pin prompt"}
@@ -66,6 +69,6 @@ export function FileHeader(props: FileHeader.Props) {
           </div>
         </div>
       </div>
-    </PanelSection>
+    </LayoutSection>
   );
 }

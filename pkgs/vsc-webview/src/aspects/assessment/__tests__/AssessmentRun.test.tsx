@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { AssessmentRun } from "../Run";
+import { TestRun } from "../../test/Run";
 
 describe.skip("AssessmentRun", () => {
   const baseProps = {
@@ -18,10 +18,10 @@ describe.skip("AssessmentRun", () => {
     onStop: vi.fn(),
     onClear: vi.fn(),
     onStreamingToggle: vi.fn(),
-  } satisfies Parameters<typeof AssessmentRun>[0];
+  } satisfies Parameters<typeof TestRun>[0];
 
   it("disables run button when prompt cannot run", () => {
-    render(<AssessmentRun {...baseProps} canRunPrompt={false} />);
+    render(<TestRun {...baseProps} canRunPrompt={false} />);
 
     expect(screen.getByRole("button", { name: "Run Prompt" })).toBeDisabled();
   });
@@ -32,7 +32,7 @@ describe.skip("AssessmentRun", () => {
     const onClear = vi.fn();
 
     render(
-      <AssessmentRun
+      <TestRun
         {...baseProps}
         showStopButton
         hasResultsOrError
@@ -51,9 +51,7 @@ describe.skip("AssessmentRun", () => {
   it("invokes streaming toggle callback", () => {
     const onStreamingToggle = vi.fn();
 
-    render(
-      <AssessmentRun {...baseProps} onStreamingToggle={onStreamingToggle} />,
-    );
+    render(<TestRun {...baseProps} onStreamingToggle={onStreamingToggle} />);
 
     const checkbox = screen.getByRole("checkbox", { name: "Stream output" });
     fireEvent.click(checkbox);

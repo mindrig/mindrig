@@ -26,6 +26,6 @@ export function VscProvider(props: React.PropsWithChildren) {
 
 export function useVsc(): VscContext.Value {
   const value = useContext(VscContext);
-  if (!value) throw new Error("useVsc must be used within a VscProvider");
+  if (!value) throw new Error("useVsc must be used within VscProvider");
   return value;
 }
