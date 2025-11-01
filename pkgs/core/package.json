@@ -13,6 +13,7 @@
     "./dataset": "./src/dataset/index.ts",
     "./datasource": "./src/datasource/index.ts",
     "./editor": "./src/editor/index.ts",
+    "./eval": "./src/eval/index.ts",
     "./file": "./src/file/index.ts",
     "./lang": "./src/lang/index.ts",
     "./message": "./src/message/index.ts",
@@ -26,7 +27,7 @@
     "./setup": "./src/setup/index.ts",
     "./store": "./src/store/index.ts",
     "./test": "./src/test/index.ts",
-    "./state": "./src/state/index.ts",
+    "./tool": "./src/tool/index.ts",
     "./versioned": "./src/versioned/index.ts"
   },
   "scripts": {

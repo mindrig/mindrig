@@ -4,14 +4,16 @@ import {
   PlaygroundState,
   playgroundStatePromptToRef,
 } from "@wrkspc/core/playground";
-import { Form } from "enso";
+import { Form, State } from "enso";
 import { useMemo } from "react";
 import { useClientStoreProp } from "../client/StoreContext";
 import { UseStore, useStore } from "../store/Context";
+import { AssessmentState, buildAssessmentState } from "./state";
 
 export namespace AssessmentManager {
   export interface Props {
     form: Form<Assessment>;
+    state: State<AssessmentState>;
     promptId: PlaygroundMap.PromptId;
     streamingEnabledState: UseStore.State<"playground.streaming">;
   }
@@ -38,6 +40,8 @@ export class AssessmentManager {
     );
     const form = Form.use<Assessment>(initialAssessment, [prompt.promptId]);
 
+    const state = State.use(buildAssessmentState(), [prompt.promptId]);
+
     // Sync form changes back to the client store.
     form.useWatch(
       (assessment) =>
@@ -54,27 +58,34 @@ export class AssessmentManager {
       () =>
         new AssessmentManager({
           form,
+          state,
           promptId: prompt.promptId,
           streamingEnabledState: streamingEnabled,
         }),
-      [form, prompt.promptId, streamingEnabled],
+      [form, state, prompt.promptId, streamingEnabled],
     );
 
     return manager;
   }
 
   #form;
+  #state;
   #promptId;
   #streamingEnabledState;
 
   constructor(props: AssessmentManager.Props) {
     this.#form = props.form;
+    this.#state = props.state;
     this.#promptId = props.promptId;
     this.#streamingEnabledState = props.streamingEnabledState;
   }
 
   get form(): Form<Assessment> {
     return this.#form;
+  }
+
+  get state(): State<AssessmentState> {
+    return this.#state;
   }
 
   get streamingEnabled(): boolean {

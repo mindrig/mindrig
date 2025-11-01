@@ -1,345 +1,161 @@
+import {
+  buildModelSettingsReasoning,
+  ModelSettings,
+  modelSettingsReasoningEffort,
+} from "@wrkspc/core/model";
+import { Button } from "@wrkspc/ds";
+import {
+  CheckboxController,
+  InputController,
+  Label,
+  SelectController,
+} from "@wrkspc/form";
+import iconRegularTimes from "@wrkspc/icons/svg/regular/times.js";
+import { Field } from "enso";
+
 export { ModelSettingsComponent as ModelSettings };
 
 export namespace ModelSettingsComponent {
   export interface Props {
-    // TODO:
-    // field: Field<ModelSettings>;
-    // config: ModelConfig;
-    // errors: ModelConfigErrors;
-    // caps: ModelCapabilities;
-    // attachments: AttachmentInput[];
-    // onRequestAttachments: () => void;
-    // onClearAttachments: () => void;
-    // onGenerationOptionChange: (
-    //   field:
-    //     | "maxOutputTokens"
-    //     | "temperature"
-    //     | "topP"
-    //     | "topK"
-    //     | "presencePenalty"
-    //     | "frequencyPenalty"
-    //     | "stopSequences"
-    //     | "seed",
-    //   value: number | string | undefined,
-    // ) => void;
-    // onReasoningChange: (updates: Partial<ModelConfig["reasoning"]>) => void;
-    // onToolsJsonChange: (value: string) => void;
-    // onProviderOptionsJsonChange: (value: string) => void;
+    field: Field<ModelSettings>;
   }
 }
 
 function ModelSettingsComponent(props: ModelSettingsComponent.Props) {
-  const {
-    // config,
-    // errors,
-    // caps,
-    // attachments,
-    // onRequestAttachments,
-    // onClearAttachments,
-    // onGenerationOptionChange,
-    // onReasoningChange,
-    // onToolsJsonChange,
-    // onProviderOptionsJsonChange,
-  } = props;
+  const { field } = props;
 
-  // const canAttach = caps.supportsFiles || caps.supportsImages;
-  // const attachmentLabel = useMemo(() => {
-  //   if (!canAttach) return null;
-  //   return caps.supportsFiles ? "Attach Files" : "Attach Images";
-  // }, [canAttach, caps.supportsFiles]);
+  const enableReasoningField = field.$.reasoning
+    .useInto((reasoning) => !!reasoning?.enabled, [])
+    .from(
+      (enabled) => (enabled ? buildModelSettingsReasoning() : undefined),
+      [],
+    );
+  const decomposedReasoning = field.$.reasoning.useDecompose(
+    (reasoning) => !!reasoning,
+    [],
+  );
 
-  // TODO: Rather than add attachments here, move the code to pkgs/vsc-webview/src/aspects/prompt/Attachments.tsx
-  // and render it in the prompt area.
+  const stopSequencesField = field.$.stopSequences
+    .useDefined("array")
+    .useCollection();
+
   return (
     <div className="space-y-4 border rounded p-3">
-      {/* {(canAttach || attachments.length > 0) && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {canAttach && (
-                <button
-                  type="button"
-                  onClick={onRequestAttachments}
-                  className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded whitespace-nowrap"
-                >
-                  {attachmentLabel}
-                </button>
-              )}
-
-              {attachments.length > 0 && (
-                <button
-                  type="button"
-                  onClick={onClearAttachments}
-                  className="inline-flex items-center px-2.5 py-1.5 border text-xs font-medium rounded whitespace-nowrap"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-
-            {attachments.length > 0 && (
-              <span className="text-xs">
-                {attachments.length} attachment
-                {attachments.length > 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
-
-          {attachments.length > 0 && (
-            <div className="space-y-2 text-xs">
-              {attachments.map((attachment) => {
-                const key = attachment.path || attachment.name;
-                const approximateSize =
-                  typeof attachment.base64 === "string"
-                    ? Math.round((attachment.base64.length * 3) / 4 / 1024)
-                    : null;
-                return (
-                  <div key={key} className="flex items-center gap-2">
-                    <span className="font-medium">{attachment.name}</span>
-                    {approximateSize !== null && (
-                      <span className="text-neutral-500">
-                        {approximateSize} KB
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )} */}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {/* <label className="text-xs">
-          Max output tokens
-          <input
-            type="number"
-            className="mt-1 w-full px-2 py-1 border rounded text-xs"
-            value={config.generationOptions.maxOutputTokens ?? ""}
-            onChange={(event) =>
-              onGenerationOptionChange(
-                "maxOutputTokens",
-                event.target.value === ""
-                  ? undefined
-                  : Number(event.target.value),
-              )
-            }
-            min={1}
-          />
-        </label> */}
+        <InputController
+          field={field.$.maxOutputTokens}
+          label="Max output tokens"
+          type="number"
+          size="small"
+          min={1}
+        />
 
-        {/* <label className="text-xs">
-          Temperature
-          <input
-            type="number"
-            className="mt-1 w-full px-2 py-1 border rounded text-xs"
-            value={config.generationOptions.temperature ?? ""}
-            onChange={(event) =>
-              onGenerationOptionChange(
-                "temperature",
-                event.target.value === ""
-                  ? undefined
-                  : Number(event.target.value),
-              )
-            }
-            step={0.1}
-            min={0}
-            max={2}
-          />
-        </label> */}
+        <InputController
+          field={field.$.temperature}
+          label="Temperature"
+          type="number"
+          step={0.1}
+          min={0}
+          max={2}
+        />
 
-        {/* <label className="text-xs">
-          Top P
-          <input
-            type="number"
-            className="mt-1 w-full px-2 py-1 border rounded text-xs"
-            value={config.generationOptions.topP ?? ""}
-            onChange={(event) =>
-              onGenerationOptionChange(
-                "topP",
-                event.target.value === ""
-                  ? undefined
-                  : Number(event.target.value),
-              )
-            }
-            step={0.01}
-            min={0}
-            max={1}
-          />
-        </label> */}
+        <InputController
+          field={field.$.topP}
+          label="Top P"
+          type="number"
+          step={0.01}
+          min={0}
+          max={1}
+        />
 
-        {/* <label className="text-xs">
-          Top K
-          <input
-            type="number"
-            className="mt-1 w-full px-2 py-1 border rounded text-xs"
-            value={config.generationOptions.topK ?? ""}
-            onChange={(event) =>
-              onGenerationOptionChange(
-                "topK",
-                event.target.value === ""
-                  ? undefined
-                  : Number(event.target.value),
-              )
-            }
-            min={0}
-          />
-        </label> */}
+        <InputController
+          field={field.$.topK}
+          label="Top K"
+          type="number"
+          min={0}
+        />
 
-        {/*
-        <label className="text-xs">
-          Presence penalty
-          <input
-            type="number"
-            className="mt-1 w-full px-2 py-1 border rounded text-xs"
-            value={config.generationOptions.presencePenalty ?? ""}
-            onChange={(event) =>
-              onGenerationOptionChange(
-                "presencePenalty",
-                event.target.value === ""
-                  ? undefined
-                  : Number(event.target.value),
-              )
-            }
-            step={0.1}
-            min={-2}
-            max={2}
-          />
-        </label> */}
+        <InputController
+          field={field.$.presencePenalty}
+          label="Presence penalty"
+          type="number"
+          step={0.1}
+          min={-2}
+          max={2}
+        />
 
-        {/* <label className="text-xs">
-          Frequency penalty
-          <input
-            type="number"
-            className="mt-1 w-full px-2 py-1 border rounded text-xs"
-            value={config.generationOptions.frequencyPenalty ?? ""}
-            onChange={(event) =>
-              onGenerationOptionChange(
-                "frequencyPenalty",
-                event.target.value === ""
-                  ? undefined
-                  : Number(event.target.value),
-              )
-            }
-            step={0.1}
-            min={-2}
-            max={2}
-          />
-        </label> */}
+        <InputController
+          field={field.$.frequencyPenalty}
+          label="Frequency penalty"
+          type="number"
+          step={0.1}
+          min={-2}
+          max={2}
+        />
 
-        {/* <label className="text-xs">
-          Stop sequences
-          <input
-            type="text"
-            className="mt-1 w-full px-2 py-1 border rounded text-xs"
-            value={config.generationOptions.stopSequences ?? ""}
-            onChange={(event) =>
-              onGenerationOptionChange("stopSequences", event.target.value)
-            }
-            placeholder="comma,separated"
-          />
-        </label> */}
+        <div>
+          <Label size="small">Stop sequences</Label>
 
-        {/* <label className="text-xs">
-          Seed
-          <input
-            type="number"
-            className="mt-1 w-full px-2 py-1 border rounded text-xs"
-            value={config.generationOptions.seed ?? ""}
-            onChange={(event) =>
-              onGenerationOptionChange(
-                "seed",
-                event.target.value === ""
-                  ? undefined
-                  : Number(event.target.value),
-              )
-            }
-          />
-        </label> */}
+          {stopSequencesField.map((sequenceField, index) => (
+            <div>
+              <InputController
+                label={{ a11y: `Stop sequence #${index + 1}` }}
+                field={sequenceField}
+                placeholder="Enter stop sequence..."
+                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                key={sequenceField.key}
+              />
+
+              <Button
+                size="small"
+                style="label"
+                icon={iconRegularTimes}
+                onClick={() => sequenceField.self.remove()}
+              />
+            </div>
+          ))}
+
+          <Button
+            size="small"
+            style="transparent"
+            onClick={() => stopSequencesField.push("")}
+          >
+            Add stop sequence
+          </Button>
+        </div>
+
+        <InputController
+          field={field.$.seed}
+          label="Seed"
+          type="number"
+          size="small"
+        />
       </div>
 
       <div className="space-y-2">
-        {/* <label className="inline-flex items-center gap-2 text-xs">
-          <input
-            type="checkbox"
-            checked={caps.supportsReasoning && config.reasoning.enabled}
-            onChange={(event) =>
-              onReasoningChange({
-                enabled: caps.supportsReasoning && event.target.checked,
-              })
-            }
-            disabled={!caps.supportsReasoning}
-          />
-          Enable reasoning
-        </label> */}
+        <CheckboxController
+          field={enableReasoningField}
+          label="Enable reasoning"
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {/* <label className="text-xs">
-            Reasoning effort
-            <select
-              className="mt-1 w-full px-2 py-1 border rounded text-xs"
-              value={config.reasoning.effort}
-              onChange={(event) =>
-                onReasoningChange({
-                  effort: event.target
-                    .value as ModelConfig["reasoning"]["effort"],
-                })
-              }
-              disabled={!caps.supportsReasoning || !config.reasoning.enabled}
-            >
-              <option value="low">low</option>
-              <option value="medium">medium</option>
-              <option value="high">high</option>
-            </select>
-          </label> */}
+        {decomposedReasoning.value?.enabled && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <SelectController
+              field={decomposedReasoning.field.$.effort}
+              options={modelSettingsReasoningEffort.map((effort) => ({
+                value: effort,
+              }))}
+              label="Reasoning effort"
+            />
 
-          {/* <label className="text-xs">
-            Budget tokens (optional)
-            <input
+            <InputController
               type="number"
-              className="mt-1 w-full px-2 py-1 border rounded text-xs"
-              value={config.reasoning.budgetTokens}
-              onChange={(event) =>
-                onReasoningChange({
-                  budgetTokens:
-                    event.target.value === "" ? "" : Number(event.target.value),
-                })
-              }
-              disabled={!caps.supportsReasoning || !config.reasoning.enabled}
+              field={decomposedReasoning.field.$.budgetTokens}
+              label="Budget tokens"
               min={0}
             />
-          </label> */}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {/* <label className="text-xs">
-          Tools (JSON)
-          <textarea
-            className="mt-1 w-full px-2 py-1 border rounded text-xs font-mono"
-            rows={3}
-            value={config.toolsJson}
-            onChange={(event) => onToolsJsonChange(event.target.value)}
-            placeholder="null"
-          />
-          {errors.tools && <span className="text-xs">{errors.tools}</span>}
-        </label> */}
-
-        {/* <label className="text-xs">
-          Provider Options (JSON)
-          <textarea
-            className="mt-1 w-full px-2 py-1 border rounded text-xs font-mono"
-            rows={3}
-            value={config.providerOptionsJson}
-            onChange={(event) =>
-              onProviderOptionsJsonChange(event.target.value)
-            }
-            placeholder="{}"
-          />
-          {errors.providerOptions && (
-            <span className="text-xs">{errors.providerOptions}</span>
-          )}
-        </label> */}
+          </div>
+        )}
       </div>
     </div>
   );

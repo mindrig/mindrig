@@ -30,7 +30,7 @@
     "@wrkspc/icons": "workspace:*",
     "alwaysly": "^0.3.0",
     "crab": "^1.13.0",
-    "enso": "^2.1.0",
+    "enso": "^2.2.0",
     "leven": "^4.1.0",
     "nanoid": "^5.1.6",
     "react": "^19.2.0",

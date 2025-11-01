@@ -1,11 +1,12 @@
-import { mapModelItems, ModelSetup } from "@wrkspc/core/model";
+import { mapModelItems, providerLogoUrl } from "@wrkspc/core/model";
+import { Setup } from "@wrkspc/core/setup";
 import { SelectController } from "@wrkspc/ds";
 import { Field } from "enso";
 import { useModelsMap } from "./MapContext";
 
 export namespace ModelSelector {
   export interface Props {
-    field: Field<ModelSetup.Ref>;
+    field: Field<Setup.Ref>;
   }
 }
 
@@ -40,10 +41,14 @@ export function ModelSelector(props: ModelSelector.Props) {
         field={developerIdField}
         label={{ a11y: "Select model provider" }}
         options={
-          modelsPayload?.developers?.map((option) => ({
-            label: option.name,
-            value: option.id,
-          })) || []
+          modelsPayload?.developers?.map((option) => {
+            const logoHref = providerLogoUrl(option.id);
+            return {
+              label: option.name,
+              value: option.id,
+              icon: { type: "svg", href: logoHref },
+            };
+          }) || []
         }
         placeholder="Select provider..."
         size="small"

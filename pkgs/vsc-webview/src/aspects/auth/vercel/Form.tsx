@@ -35,7 +35,7 @@ export function AuthVercelForm(props: AuthVercelForm.Props) {
           statechart.once(["profile", "formErrored"], () => resolve());
 
           send({
-            type: "auth-wv-vercel-gateway-set",
+            type: "auth-client-vercel-gateway-set",
             payload: values.key,
           });
         });
@@ -65,7 +65,7 @@ export function AuthVercelForm(props: AuthVercelForm.Props) {
             </button>
 
             <button
-              onClick={() => send({ type: "auth-wv-vercel-gateway-clear" })}
+              onClick={() => send({ type: "auth-client-vercel-gateway-clear" })}
               className="px-3 py-2 border border-red-600 text-red-600 text-sm rounded-lg hover:border-red-700 hover:text-red-700 transition-colors duration-200 bg-transparent"
               disabled={submitting}
             >

@@ -1,7 +1,10 @@
 import { buildSetup, Setup } from "@wrkspc/core/setup";
 import { Button } from "@wrkspc/ds";
-import { Field } from "enso";
+import { Field, State } from "enso";
 import { SetupComponent } from "./Setup";
+import { SetupsState } from "./state";
+
+//#region Legacy
 
 // export interface ModelCapabilities {
 //   supportsImages: boolean;
@@ -309,14 +312,17 @@ import { SetupComponent } from "./Setup";
 //   };
 // }
 
+//#endregion
+
 export namespace Setups {
   export interface Props {
     field: Field<Setup[]>;
+    state: State<SetupsState>;
   }
 }
 
 export function Setups(props: Setups.Props) {
-  const {} = props;
+  const { state } = props;
   const field = props.field.useCollection();
   const soloSetup = field.useCompute((setups) => setups.length === 1, []);
 
@@ -337,11 +343,13 @@ export function Setups(props: Setups.Props) {
       </div>
 
       <div className="space-y-3">
-        {field.map((setupField) => (
+        {field.map((setupField, index) => (
           <SetupComponent
             key={setupField.key}
             field={setupField}
             solo={soloSetup}
+            expandedIndexState={state.$.expandedSetupIndex}
+            index={index}
           />
         ))}
       </div>

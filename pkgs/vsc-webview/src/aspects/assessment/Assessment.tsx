@@ -1,6 +1,7 @@
 import { PlaygroundState } from "@wrkspc/core/playground";
 import { Setups } from "../setup/Setups";
 import { Tests } from "../test/Tests";
+import { Tools } from "../tools/Tools";
 import { AssessmentProvider } from "./Context";
 import { AssessmentManager } from "./Manager";
 
@@ -1595,7 +1596,12 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
 
   return (
     <AssessmentProvider assessment={assessment}>
-      <Setups field={assessment.form.$.setups} />
+      <Setups
+        field={assessment.form.$.setups}
+        state={assessment.state.$.setups}
+      />
+
+      <Tools field={assessment.form.$.tools} />
 
       <Tests field={assessment.form.$.tests} />
     </AssessmentProvider>
