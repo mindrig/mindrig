@@ -8,6 +8,7 @@ export type Assessment = Assessment.V1;
 
 export namespace Assessment {
   export interface V1 extends Versioned<1> {
+    type: "language";
     setups: Setup[];
     tools: Tool[];
     tests: Test[];
@@ -18,6 +19,7 @@ export namespace Assessment {
 export function buildAssessment(overrides?: Partial<Assessment>): Assessment {
   return {
     v: 1,
+    type: "language",
     setups: [buildSetup()],
     tools: [],
     tests: [buildTest()],

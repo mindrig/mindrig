@@ -1,9 +1,11 @@
 import { Versioned } from "../versioned";
+import { Model } from "./model";
 
 export type ModelSettings = ModelSettings.V1;
 
 export namespace ModelSettings {
   export interface V1 extends Versioned<1> {
+    type: Model.TypeLanguage["type"];
     maxOutputTokens?: number | undefined | null;
     temperature?: number | undefined | null;
     topP?: number | undefined | null;
@@ -27,7 +29,7 @@ export namespace ModelSettings {
 export const modelSettingsReasoningEffort = ["low", "medium", "high"] as const;
 
 export function buildModelSettings(): ModelSettings {
-  return { v: 1 };
+  return { v: 1, type: "language" };
 }
 
 export function buildModelSettingsReasoning(

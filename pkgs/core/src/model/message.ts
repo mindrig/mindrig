@@ -19,13 +19,13 @@ export namespace ModelsMessage {
 
   //#region Client
 
-  export type Client = WebviewGatewayRefresh | WebviewDotdevRefresh;
+  export type Client = ClientGatewayRefresh | ClientDotdevRefresh;
 
-  export interface WebviewGatewayRefresh {
+  export interface ClientGatewayRefresh {
     type: "models-client-gateway-refresh";
   }
 
-  export interface WebviewDotdevRefresh {
+  export interface ClientDotdevRefresh {
     type: "models-client-dotdev-refresh";
   }
 

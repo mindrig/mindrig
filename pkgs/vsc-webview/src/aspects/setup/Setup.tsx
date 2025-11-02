@@ -2,9 +2,10 @@ import { Setup } from "@wrkspc/core/setup";
 import { Button, Icon } from "@wrkspc/ds";
 import iconRegularTimes from "@wrkspc/icons/svg/regular/times.js";
 import { Field, State } from "enso";
+import { ModelCapabilities } from "../model/Capabilities";
+import { useModelsMap } from "../model/MapContext";
 import { ModelSelector } from "../model/Selector";
 import { ModelSettings } from "../model/Settings";
-import { SetupCapabilities } from "./Capabilities";
 
 export { SetupComponent as ModelSetup };
 
@@ -20,10 +21,24 @@ export namespace SetupComponent {
 
 export function SetupComponent(props: SetupComponent.Props) {
   const { field, solo, expandedIndexState, index } = props;
+  const { payload: modelsPayload } = useModelsMap();
+
+  // modelsPayload?.map
 
   const expanded = expandedIndexState.useCompute(
     (expandedIndex) => expandedIndex === index,
     [index],
+  );
+
+  const model = field.$.ref.useCompute(
+    (ref) =>
+      (ref.developerId &&
+        ref.developerId &&
+        modelsPayload?.map?.[ref.developerId].models.find(
+          (model) => model.id === ref.modelId,
+        )) ||
+      null,
+    [modelsPayload?.map],
   );
 
   return (
@@ -31,13 +46,15 @@ export function SetupComponent(props: SetupComponent.Props) {
       <ModelSelector field={field.$.ref} />
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button
-          size="xsmall"
-          style="transparent"
-          onClick={() => expandedIndexState.set(expanded ? null : index)}
-        >
-          {expanded ? "Hide options" : "Configure"}
-        </Button>
+        {model && (
+          <Button
+            size="xsmall"
+            style="transparent"
+            onClick={() => expandedIndexState.set(expanded ? null : index)}
+          >
+            {expanded ? "Hide options" : "Configure"}
+          </Button>
+        )}
 
         {!solo && (
           <Button
@@ -51,9 +68,15 @@ export function SetupComponent(props: SetupComponent.Props) {
         )}
       </div>
 
-      <SetupCapabilities />
+      {model?.type && (
+        <>
+          <ModelCapabilities type={model.type} />
 
-      {expanded && <ModelSettings field={field.$.settings} />}
+          {expanded && (
+            <ModelSettings field={field.$.settings} type={model.type} />
+          )}
+        </>
+      )}
     </div>
   );
 }
