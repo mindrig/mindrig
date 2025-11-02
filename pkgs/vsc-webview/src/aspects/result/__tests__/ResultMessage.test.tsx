@@ -2,12 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { RunResultMessage } from "../Message";
+import { ResultMessage } from "../Message";
 
 describe.skip("ResultMessage", () => {
   it("renders provided label and highlights current view", () => {
     render(
-      <RunResultMessage
+      <ResultMessage
         label="Response"
         renderedLabel="Rendered"
         currentView="rendered"
@@ -29,7 +29,7 @@ describe.skip("ResultMessage", () => {
     const onChangeView = vi.fn();
 
     render(
-      <RunResultMessage
+      <ResultMessage
         label="Response"
         renderedLabel="Rendered"
         currentView="rendered"

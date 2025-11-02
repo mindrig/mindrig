@@ -1,4 +1,6 @@
-export namespace RunResult {
+export { ResultComponent as Result };
+
+export namespace ResultComponent {
   export interface Props {
     // index: number;
     // result: RunResult;
@@ -20,7 +22,7 @@ export namespace RunResult {
   }
 }
 
-export function RunResult(props: RunResult.Props) {
+export function ResultComponent(props: ResultComponent.Props) {
   // const {
   //   index,
   //   result,

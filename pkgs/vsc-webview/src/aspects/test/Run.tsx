@@ -1,7 +1,9 @@
+import { Run } from "@wrkspc/core/run";
 import { Button } from "@wrkspc/ds";
 import { Checkbox } from "@wrkspc/form";
+import { nanoid } from "nanoid";
 import { useAssessment } from "../assessment/Context";
-import { RunResults } from "../runResult/Results";
+import { Results } from "../result/Results";
 
 export namespace TestRun {
   export interface Props {}
@@ -20,6 +22,9 @@ export function TestRun(props: TestRun.Props) {
             type="submit"
             size="small"
             onClick={() => {
+              const runId: Run.Id = nanoid();
+              assessment.state.$.runId.set(runId);
+
               // TODO: onExecute
             }}
             isDisabled={submitting}
@@ -63,7 +68,7 @@ export function TestRun(props: TestRun.Props) {
         {/* )} */}
 
         {/* <AssessmentResultsProvider value={resultsContextValue}> */}
-        <RunResults />
+        <Results />
         {/* </AssessmentResultsProvider> */}
 
         {/* {executionState.error && (

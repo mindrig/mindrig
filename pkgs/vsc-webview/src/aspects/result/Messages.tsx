@@ -4,9 +4,9 @@ import { StreamingMarkdown } from "@/aspects/assessment/components/StreamingMark
 import type { RunResult } from "@/aspects/assessment/types";
 
 import { shouldExpandNodeInitially } from "./jsonUtils";
-import { RunResultMessage } from "./Message";
+import { ResultMessage } from "./Message";
 
-export namespace RunResultMessages {
+export namespace ResultMessages {
   export interface Props {
     result: RunResult;
     isLoading: boolean;
@@ -15,7 +15,7 @@ export namespace RunResultMessages {
   }
 }
 
-export function RunResultMessages(props: RunResultMessages.Props) {
+export function ResultMessages(props: ResultMessages.Props) {
   const { result, isLoading, view, onViewChange } = props;
 
   const rawText = result.text ?? "";
@@ -69,7 +69,7 @@ export function RunResultMessages(props: RunResultMessages.Props) {
   );
 
   return (
-    <RunResultMessage
+    <ResultMessage
       label="Response"
       renderedLabel={renderedLabel}
       currentView={view}

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export namespace RunResultMessage {
+export namespace ResultMessage {
   export interface Props {
     label: string;
     renderedLabel: string;
@@ -11,7 +11,7 @@ export namespace RunResultMessage {
   }
 }
 
-export function RunResultMessage(props: RunResultMessage.Props) {
+export function ResultMessage(props: ResultMessage.Props) {
   const {
     label,
     renderedLabel,

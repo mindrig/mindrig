@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 // import { createRunResult } from "@/testUtils/assessment";
-import { RunResultMessages } from "../Messages";
+import { ResultMessages } from "../Messages";
 
 vi.mock("@uiw/react-json-view", () => ({
   __esModule: true,
@@ -37,7 +37,7 @@ describe.skip("ResultMessages", () => {
     const result = createRunResult({ text: '{"foo":"bar"}' });
 
     render(
-      <RunResultMessages
+      <ResultMessages
         result={result}
         isLoading={false}
         view="rendered"
@@ -54,7 +54,7 @@ describe.skip("ResultMessages", () => {
     const onViewChange = vi.fn();
 
     render(
-      <RunResultMessages
+      <ResultMessages
         result={createRunResult({ text: "" })}
         isLoading={false}
         view="rendered"

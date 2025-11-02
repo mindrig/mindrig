@@ -3,7 +3,7 @@ import iconRegularRightLeft from "@wrkspc/icons/svg/regular/right-left.js";
 import iconRegularTableColumns from "@wrkspc/icons/svg/regular/table-columns.js";
 import iconRegularTableRows from "@wrkspc/icons/svg/regular/table-rows.js";
 
-export function RunResults() {
+export function Results() {
   // const {
   //   results,
   //   models,

@@ -9,7 +9,7 @@ import type { ResultsLayout } from "@/aspects/assessment/persistence";
 //   renderWithAssessmentProviders,
 // } from "@/testUtils/assessment";
 
-import { RunResults } from "../Results";
+import { Results } from "../Results";
 
 // const baseResult = createRunResult({
 //   runId: "run-1",
@@ -31,7 +31,7 @@ import { RunResults } from "../Results";
 
 describe.skip("Results", () => {
   const renderComponent = (overrides: Partial<ResultsContextValue> = {}) => {
-    return renderWithAssessmentProviders(<RunResults />, {
+    return renderWithAssessmentProviders(<Results />, {
       results: {
         results: [baseResult],
         models,

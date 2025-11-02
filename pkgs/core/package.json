@@ -22,7 +22,7 @@
     "./playground": "./src/playground/index.ts",
     "./prompt": "./src/prompt/index.ts",
     "./run": "./src/run/index.ts",
-    "./runResult": "./src/runResult/index.ts",
+    "./result": "./src/result/index.ts",
     "./settings": "./src/settings/index.ts",
     "./setup": "./src/setup/index.ts",
     "./store": "./src/store/index.ts",
