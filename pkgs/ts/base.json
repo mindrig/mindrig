@@ -34,6 +34,9 @@
     "skipLibCheck": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true
+    "exactOptionalPropertyTypes": true,
+    // Project references
+    "composite": true,
+    "incremental": true,
   }
 }

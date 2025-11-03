@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./pkgs/core/" },
+    { "path": "./pkgs/gateway/" },
+    { "path": "./pkgs/home/" },
+    { "path": "./pkgs/logo/" },
+    { "path": "./pkgs/storybook/" },
+    { "path": "./pkgs/types/pkgs/ts/" },
+    { "path": "./pkgs/vsc-extension/" },
+    { "path": "./pkgs/vsc-webview/" }
+  ]
+}
