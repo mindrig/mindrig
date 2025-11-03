@@ -1,9 +1,9 @@
 export interface SetupsState {
-  expandedSetupIndex: number | null;
+  expandedIndex: number | null;
 }
 
 export function buildSetupsState(): SetupsState {
   return {
-    expandedSetupIndex: null,
+    expandedIndex: null,
   };
 }

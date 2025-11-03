@@ -1,3 +1,4 @@
+import { resolveModel } from "@wrkspc/core/model";
 import { Setup } from "@wrkspc/core/setup";
 import { Button, Icon } from "@wrkspc/ds";
 import iconRegularTimes from "@wrkspc/icons/svg/regular/times.js";
@@ -23,21 +24,13 @@ export function SetupComponent(props: SetupComponent.Props) {
   const { field, solo, expandedIndexState, index } = props;
   const { payload: modelsPayload } = useModelsMap();
 
-  // modelsPayload?.map
-
   const expanded = expandedIndexState.useCompute(
     (expandedIndex) => expandedIndex === index,
     [index],
   );
 
   const model = field.$.ref.useCompute(
-    (ref) =>
-      (ref.developerId &&
-        ref.developerId &&
-        modelsPayload?.map?.[ref.developerId].models.find(
-          (model) => model.id === ref.modelId,
-        )) ||
-      null,
+    (ref) => resolveModel(ref, modelsPayload?.map),
     [modelsPayload?.map],
   );
 

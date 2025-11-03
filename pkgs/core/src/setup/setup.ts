@@ -1,9 +1,4 @@
-import {
-  buildModelSettings,
-  Model,
-  ModelDeveloper,
-  ModelSettings,
-} from "../model";
+import { buildModelSettings, Model, ModelSettings } from "../model";
 import { Versioned } from "../versioned";
 
 export type Setup = Setup.V1;
@@ -13,17 +8,14 @@ export namespace Setup {
     ref: Setup.Ref;
     settings: ModelSettings;
   }
+
   export type Ref = RefDeveloper | RefModel;
 
-  export interface RefDeveloper extends Versioned<1> {
-    developerId: ModelDeveloper.Id | null;
-    modelId: null;
-  }
+  export interface RefDeveloper
+    extends Versioned<1>,
+      Model.RefPartialDeveloper {}
 
-  export interface RefModel extends Versioned<1> {
-    developerId: ModelDeveloper.Id;
-    modelId: Model.Id | null;
-  }
+  export interface RefModel extends Versioned<1>, Model.RefPartialModel {}
 }
 
 export function buildSetup(): Setup {

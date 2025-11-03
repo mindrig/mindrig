@@ -37,6 +37,23 @@ export namespace Model {
   export type Id = string & { [idBrand]: true };
   declare const idBrand: unique symbol;
 
+  export interface Ref {
+    developerId: ModelDeveloper.Id;
+    modelId: Model.Id;
+  }
+
+  export type RefPartial = RefPartialDeveloper | RefPartialModel;
+
+  export interface RefPartialDeveloper {
+    developerId: ModelDeveloper.Id | null;
+    modelId: null;
+  }
+
+  export interface RefPartialModel {
+    developerId: ModelDeveloper.Id;
+    modelId: Model.Id | null;
+  }
+
   //#endregion
 
   //#region Type
@@ -221,6 +238,16 @@ export namespace Model {
 }
 
 //#region Utils
+
+export function resolveModel(
+  ref: Model.RefPartial | undefined | null,
+  modelsMap: Model.ModelsMap | undefined | null,
+): Model | undefined | null {
+  if (!ref?.developerId || !ref?.modelId || !modelsMap) return null;
+  return modelsMap[ref.developerId].models.find(
+    (model) => model.id === ref.modelId,
+  );
+}
 
 export function buildModelsMap(
   gateway: ModelGateway.ListResponseOk,

@@ -1,7 +1,16 @@
-import { createContext, useContext } from "react";
+import { Model, resolveModel } from "@wrkspc/core/model";
+import { Result } from "@wrkspc/core/result";
+import { State } from "enso";
+import { createContext, useCallback, useContext } from "react";
+import { useModelsMap } from "../model/MapContext";
 
 export namespace ResultContext {
-  export interface Value {}
+  export interface Value {
+    resultState: State<Result>;
+    useResultModel: UseResultModel;
+  }
+
+  export type UseResultModel = () => Model | undefined | null;
 }
 
 export const ResultContext = createContext<ResultContext.Value | undefined>(
@@ -9,15 +18,30 @@ export const ResultContext = createContext<ResultContext.Value | undefined>(
 );
 
 export namespace ResultProvider {
-  export interface Props {}
+  export interface Props {
+    state: State<Result>;
+  }
 }
 
 export function ResultProvider(
   props: React.PropsWithChildren<ResultProvider.Props>,
 ) {
-  const {} = props;
+  const { state } = props;
+  const { payload: modelsPayload } = useModelsMap();
+
+  const useResultModel = useCallback<ResultContext.UseResultModel>(
+    () =>
+      state.$.init.$.setup.$.ref.useCompute(
+        (ref) => resolveModel(ref, modelsPayload?.map),
+        [modelsPayload?.map],
+      ),
+    [state, modelsPayload?.map],
+  );
+
   return (
-    <ResultContext.Provider value={{}}>{props.children}</ResultContext.Provider>
+    <ResultContext.Provider value={{ resultState: state, useResultModel }}>
+      {props.children}
+    </ResultContext.Provider>
   );
 }
 

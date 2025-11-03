@@ -1,18 +1,21 @@
 import JsonView from "@uiw/react-json-view";
 
+import { Result } from "@wrkspc/core/result";
+import { State } from "enso";
 import { shouldExpandNodeInitially } from "./jsonUtils";
 
 export namespace ResultInit {
   export interface Props {
-    settings: object | null;
-    collapsed: boolean;
-    onToggle: () => void;
+    state: State<Result.Init>;
+    // settings: object | null;
+    // collapsed: boolean;
+    // onToggle: () => void;
   }
 }
 
 export function ResultInit(props: ResultInit.Props) {
-  const { settings, collapsed, onToggle } = props;
-  if (!settings) return null;
+  const { state } = props;
+  // if (!settings) return null;
 
   return (
     <div className="space-y-2">

@@ -813,6 +813,8 @@ export class RunManager extends Manager {
         },
       });
 
+      stream.request;
+
       await stream.consumeStream();
 
       if (!summary) {

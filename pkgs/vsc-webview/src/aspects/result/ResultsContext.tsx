@@ -1,23 +1,24 @@
+import { State } from "enso";
 import { createContext, useContext } from "react";
+import { ResultsState } from "./state";
 
 export namespace ResultsContext {
-  export interface Value {}
+  export interface Value {
+    // TODO: Kill manager?
+    // manager: ResultsManager;
+    state: State<ResultsState>;
+  }
 }
 
 export const ResultsContext = createContext<ResultsContext.Value | undefined>(
   undefined,
 );
 
-export namespace ResultsProvider {
-  export interface Props {}
-}
-
 export function ResultsProvider(
-  props: React.PropsWithChildren<ResultsProvider.Props>,
+  props: React.PropsWithChildren<ResultsContext.Value>,
 ) {
-  const {} = props;
   return (
-    <ResultsContext.Provider value={{}}>
+    <ResultsContext.Provider value={props}>
       {props.children}
     </ResultsContext.Provider>
   );

@@ -33,7 +33,7 @@ export function ModelTypeLanguageSettings(
       [],
     );
   const decomposedReasoning = field.$.reasoning.useDecompose(
-    (reasoning) => !!reasoning,
+    (nextReasoning, prevReasoning) => nextReasoning !== prevReasoning,
     [],
   );
 

@@ -348,7 +348,7 @@ export function Setups(props: Setups.Props) {
             key={setupField.key}
             field={setupField}
             solo={soloSetup}
-            expandedIndexState={state.$.expandedSetupIndex}
+            expandedIndexState={state.$.expandedIndex}
             index={index}
           />
         ))}

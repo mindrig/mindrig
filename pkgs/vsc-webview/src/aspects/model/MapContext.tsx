@@ -15,11 +15,16 @@ export namespace ModelsMapContext {
     payload: PayloadValue;
     sources: Sources;
     useModels: UseModels;
+    useModel: UseModel;
   }
 
   export type UseModels = (
     developerId: ModelDeveloper.Id | undefined | null,
   ) => Model.Items | undefined;
+
+  export type UseModel = (
+    ref: Model.Ref | undefined | null,
+  ) => Model | undefined | null;
 
   export interface Sources {
     dotdev: ModelsSource<"dotdev">;
@@ -125,9 +130,23 @@ export function ModelsMapProvider(props: React.PropsWithChildren) {
     [payload?.map],
   );
 
+  const useModel = useCallback<ModelsMapContext.UseModel>(
+    (ref) =>
+      useMemo<Model | undefined | null>(
+        () =>
+          ref &&
+          payload?.map?.[ref.developerId].models.find(
+            (model) => model.id === ref.modelId,
+          ),
+        [payload?.map, ref?.developerId, ref?.modelId],
+      ),
+    [payload?.map],
+  );
+
   const value: ModelsMapContext.Value = {
     payload,
     useModels,
+    useModel,
     sources: { dotdev, gateway },
   };
 

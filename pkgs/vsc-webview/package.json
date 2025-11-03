@@ -30,7 +30,7 @@
     "@wrkspc/icons": "workspace:*",
     "alwaysly": "^0.3.0",
     "crab": "^1.13.0",
-    "enso": "^2.2.0",
+    "enso": "^2.4.0",
     "leven": "^4.1.0",
     "nanoid": "^5.1.6",
     "react": "^19.2.0",
@@ -42,6 +42,7 @@
     "streamdown": "^1.3.0",
     "superstate": "1.0.0-beta.7",
     "swr": "^2.3.6",
+    "tinyfloat": "^1.0.2",
     "yjs": "^13.6.27"
   },
   "devDependencies": {
