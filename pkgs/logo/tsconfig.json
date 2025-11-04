@@ -1,3 +1,8 @@
 {
-  "extends": "@wrkspc/ts/base"
+  "extends": "@wrkspc/ts/base",
+  "references": [
+    { "path": "../../subs/ds/pkgs/icons/" },
+    { "path": "../../subs/ds/pkgs/theme/" },
+    { "path": "../../subs/ds/pkgs/ui/" }
+  ]
 }

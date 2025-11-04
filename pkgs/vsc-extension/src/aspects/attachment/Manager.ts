@@ -54,7 +54,7 @@ export class AttachmentsManager extends Manager {
       const path = uri.fsPath as Attachment.Path;
       const mime = Mime.getType(name) || "application/octet-stream";
 
-      const attachment: Attachment = { name, path, mime };
+      const attachment: Attachment = { v: 1, name, path, mime };
       return attachment;
     });
 

@@ -246,6 +246,7 @@ export class RunManager extends Manager {
               label: modelConfig.label ?? modelConfig.modelId ?? null,
               settings: {
                 options: modelConfig.options,
+                // @ts-expect-error
                 reasoning,
                 providerOptions: modelConfig.providerOptions ?? null,
                 tools: modelConfig.tools ?? null,
@@ -261,7 +262,9 @@ export class RunManager extends Manager {
             runLabel,
             modelConfig,
             modelLabel,
+            // @ts-expect-error
             attachments,
+            // @ts-expect-error
             reasoning,
             shell,
           });

@@ -39,6 +39,19 @@
 
     "types:watch": {},
 
+    "//#root/types": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "**/pkgs/*/tsconfig.json",
+        "**/pkgs/*/src/**/*.ts",
+        "**/pkgs/*/src/**/*.tsx"
+      ],
+      "outputs": ["**/pkgs/*/.ts/**/*"],
+      "dependsOn": []
+    },
+
+    "//#root/types:watch": {},
+
     "lint": {},
 
     "lint:fix": {},

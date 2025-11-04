@@ -1,7 +1,6 @@
 import { Button } from "@wrkspc/ds";
 import iconRegularAngleLeft from "@wrkspc/icons/svg/regular/angle-left.js";
 import iconRegularAngleRight from "@wrkspc/icons/svg/regular/angle-right.js";
-import { always } from "alwaysly";
 import { State } from "enso";
 import { Result } from "./Result";
 import { useResults } from "./ResultsContext";
@@ -23,11 +22,11 @@ export function ResultsLayoutCarousel(props: ResultsLayoutCarousel.Props) {
   const { state } = useResults();
   const resultsState = state.$.results.useCollection();
   const currentIndex = layoutState.$.current.useValue();
-  const decomposedResult = resultsState
-    .at(currentIndex)
-    .useDecompose((nextResult, prevResult) => nextResult !== prevResult, []);
-  always(decomposedResult.value);
-  const resultState = decomposedResult.state;
+  // TODO: Add opposite of useDefined to Enso. See @ts-expect-error below.
+  // Good name option is useUnwrapNullish, but then `Field.useDefined` should be
+  // `Field.useWrapNullish`. Alternative is the `useNullish`, but it feels a bit
+  // less clear.
+  const resultState = resultsState.at(currentIndex);
   const solo = resultsState.size === 1;
 
   return (
@@ -55,6 +54,7 @@ export function ResultsLayoutCarousel(props: ResultsLayoutCarousel.Props) {
       </div>
 
       <Result
+        // @ts-expect-error
         state={resultState}
         index={currentIndex}
         discriminatedLayout={discriminatedLayout}

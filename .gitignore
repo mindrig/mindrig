@@ -3,6 +3,8 @@
 # Node.js
 node_modules/
 .pnpm-store/
+# TypeScript
+.ts/
 # Rust
 /target/
 # Python

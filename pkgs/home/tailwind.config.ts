@@ -1,7 +1,7 @@
+import type { Config } from "tailwindcss";
 import pluginCapsize from "tailwindcss-capsize";
 
-/** @type {import("tailwindcss").Config} */
-export default {
+const config: Config = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     // UI packages
@@ -60,3 +60,4 @@ export default {
   },
   plugins: [pluginCapsize],
 };
+export default config;

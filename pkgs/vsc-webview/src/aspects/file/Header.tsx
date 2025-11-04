@@ -18,9 +18,7 @@ export namespace FileHeader {
 
 export function FileHeader(props: FileHeader.Props) {
   const { file } = props;
-  const {
-    playground: { prompts, prompt, pin },
-  } = usePlaygroundState();
+  const { prompts, prompt, pin } = usePlaygroundState();
   const { send } = useMessages();
 
   const isPinned = !!pin;

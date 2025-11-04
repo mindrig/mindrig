@@ -19,7 +19,8 @@
     "target": "esnext",
     "outDir": "${configDir}/.ts",
     "tsBuildInfoFile": "${configDir}/.ts/tsconfig.tsbuildinfo",
-    "noEmit": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
     // Modules
     "module": "esnext",
     "moduleResolution": "bundler",

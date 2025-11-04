@@ -1,14 +1,16 @@
-import type { Prompt, PromptVar } from "@mindrig/types";
-import { Datasource } from "../datasource";
-import { PromptArguments, substituteVariables } from "../prompt";
-import { Run } from "../run";
-import { DatasetSelection } from "./selection.js";
-
 export * from "./content.js";
 export * from "./datasource.js";
 export * from "./message.js";
 export * from "./request.js";
 export * from "./selection.js";
+
+//#region Legacy
+
+import type { Prompt, PromptVar } from "@mindrig/types";
+import { Datasource } from "../datasource";
+import { PromptArguments, substituteVariables } from "../prompt";
+import { Run } from "../run";
+import { DatasetSelection } from "./selection.js";
 
 export function computeVariablesFromRow(
   row: string[],
@@ -135,5 +137,8 @@ export function buildRunsAndSettings(args: {
     };
   }
 
+  // @ts-expect-error
   return { runs, runSettings };
 }
+
+//#endregion

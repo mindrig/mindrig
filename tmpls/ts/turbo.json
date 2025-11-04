@@ -13,7 +13,8 @@
         "./tsconfig.json",
         "./src/**/*.ts",
         "./src/**/*.tsx"
-      ]
+      ],
+      "outputs": ["./.ts/**/*"]
     },
 
     "types:watch": {},

@@ -2,5 +2,6 @@
   "extends": "@wrkspc/ts/base",
   "compilerOptions": {
     "types": ["vite/client"]
-  }
+  },
+  "references": []
 }

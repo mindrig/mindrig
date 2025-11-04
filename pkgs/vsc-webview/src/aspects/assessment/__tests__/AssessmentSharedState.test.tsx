@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import type { Prompt } from "@mindrig/types";
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";

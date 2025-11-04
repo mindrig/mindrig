@@ -1,3 +1,7 @@
 {
-  "extends": "@wrkspc/ts/base"
+  "extends": "@wrkspc/ts/base",
+  "references": [
+    // TODO: Generate tsconfigs.json in Genotype projects
+    // { "path": "../types/pkgs/ts/" },
+  ]
 }

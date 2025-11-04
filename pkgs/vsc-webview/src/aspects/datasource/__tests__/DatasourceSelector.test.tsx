@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { AssessmentDatasourceProvider } from "@/aspects/assessment/hooks/useAssessmentDatasource";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";

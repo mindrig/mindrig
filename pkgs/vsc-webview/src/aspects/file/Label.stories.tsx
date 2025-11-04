@@ -30,7 +30,7 @@ export const Default: Story = {};
 export const PythonFile: Story = {
   args: {
     file: syncFile({
-      path: "/wrkspc/project/data_ingest.py",
+      path: "/wrkspc/project/data_ingest.py" as EditorFile.Path,
       languageId: "py",
     }),
   },
@@ -39,7 +39,7 @@ export const PythonFile: Story = {
 export const LongPath: Story = {
   args: {
     file: syncFile({
-      path: "/wrkspc/mindrig/pkgs/webview/src/aspects/file/LabelPreview.tsx",
+      path: "/wrkspc/mindrig/pkgs/webview/src/aspects/file/LabelPreview.tsx" as EditorFile.Path,
       languageId: "js",
     }),
   },
@@ -47,10 +47,10 @@ export const LongPath: Story = {
 
 function syncFile(overrides: Partial<EditorFile> = {}): EditorFile {
   return {
-    path: "/wrkspc/project/src/index.ts",
+    v: 1,
+    path: "/wrkspc/project/src/index.ts" as EditorFile.Path,
     content: 'export const title = "Mind Rig Storybook sample";\n',
     isDirty: false,
-    lastSaved: new Date("2025-09-15T12:00:00Z"),
     languageId: "ts",
     ...overrides,
   };

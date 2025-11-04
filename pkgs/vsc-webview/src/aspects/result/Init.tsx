@@ -1,38 +1,35 @@
-import JsonView from "@uiw/react-json-view";
-
 import { Result } from "@wrkspc/core/result";
+import { Button } from "@wrkspc/ds";
 import { State } from "enso";
-import { shouldExpandNodeInitially } from "./jsonUtils";
+import { useState } from "react";
 
 export namespace ResultInit {
   export interface Props {
     state: State<Result.Init>;
-    // settings: object | null;
-    // collapsed: boolean;
-    // onToggle: () => void;
   }
 }
 
 export function ResultInit(props: ResultInit.Props) {
   const { state } = props;
-  // if (!settings) return null;
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h5 className="text-sm font-medium">Model Settings</h5>
-        <button className="text-xs hover:underline" onClick={onToggle}>
-          {collapsed ? "Show settings" : "Hide settings"}
-        </button>
+
+        <Button
+          size="xsmall"
+          style="transparent"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? "Hide response" : "Show response"}
+        </Button>
       </div>
 
-      {!collapsed && (
+      {expanded && (
         <div className="p-3 rounded border overflow-auto">
-          <JsonView
-            value={settings}
-            displayObjectSize={false}
-            shouldExpandNodeInitially={shouldExpandNodeInitially}
-          />
+          TODO: Render init particulars
         </div>
       )}
     </div>

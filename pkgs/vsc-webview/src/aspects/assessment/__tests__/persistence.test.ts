@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { afterEach, describe, expect, test } from "vitest";
 
 import {

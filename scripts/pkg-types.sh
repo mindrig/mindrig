@@ -19,4 +19,5 @@ fi
 
 cd ../..
 
-tsc --project $pkg_path $watch_mode
+echo -e "🌀 Running TypeScript in the context of the monorepo $(pwd):\n\n    pnpm tsc --build $pkg_path $watch_mode\n"
+pnpm tsc --build $pkg_path $watch_mode

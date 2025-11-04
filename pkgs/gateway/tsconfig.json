@@ -6,5 +6,6 @@
     "composite": false,
     "skipLibCheck": true,
     "jsxImportSource": "hono/jsx"
-  }
+  },
+  "references": []
 }

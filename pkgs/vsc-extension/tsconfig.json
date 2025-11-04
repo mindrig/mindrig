@@ -18,5 +18,13 @@
     // Env
     "lib": ["ES2022"],
     "types": ["./env.d.ts", "vscode", "mocha"]
-  }
+  },
+  "references": [
+    { "path": "../core/" },
+    // TODO: Add tsconfig.json to parser's pkg
+    // { "path": "../parser/pkg/" },
+    // TODO: Generate tsconfigs.json in Genotype projects
+    // { "path": "../types/pkgs/ts/" },
+    { "path": "../../subs/ds/pkgs/theme/" }
+  ]
 }

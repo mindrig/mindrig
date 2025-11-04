@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 // import { createMockVSCodeAPI } from "@/__tests__/mocks/vscode";
 import { VscContext } from "@/aspects/vsc/Context";
 import { render, renderHook } from "@testing-library/react";

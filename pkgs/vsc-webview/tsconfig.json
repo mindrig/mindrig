@@ -8,5 +8,15 @@
     },
     // Env
     "lib": ["ESNext", "DOM"]
-  }
+  },
+  "references": [
+    { "path": "../core/" },
+    { "path": "../logo/" },
+    // TODO: Generate tsconfigs.json in Genotype projects
+    // { "path": "../types/pkgs/ts/" },
+    // TODO: Get rid of ds or move everything in there
+    { "path": "../../subs/ds/pkgs/ds/" },
+    { "path": "../../subs/ds/pkgs/form/" },
+    { "path": "../../subs/ds/pkgs/icons/" }
+  ]
 }

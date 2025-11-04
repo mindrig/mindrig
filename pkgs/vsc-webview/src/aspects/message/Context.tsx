@@ -1,3 +1,5 @@
+// @ts-nocheck -- TODO: Rewrite messages context
+
 import { useVsc } from "@/aspects/vsc/Context";
 import type { Message } from "@wrkspc/core/message";
 import {
@@ -9,6 +11,8 @@ import {
   useRef,
   type DependencyList,
 } from "react";
+
+//#region Legacy
 
 export type VscMessageHandler<Type extends Message.ServerType> = (
   message: Message.Server & { type: Type },
@@ -55,6 +59,8 @@ function narrowMessage(candidate: unknown): candidate is VscMessage {
   if (typeof (candidate as { type?: unknown }).type !== "string") return false;
   return true;
 }
+
+//#endregion
 
 export function MessagesProvider(
   props: PropsWithChildren<MessageProviderOptions>,

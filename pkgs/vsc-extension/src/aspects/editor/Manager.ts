@@ -115,6 +115,7 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
     }
 
     return {
+      v: 1,
       path: document.uri.fsPath as EditorFile.Path,
       content: document.getText(),
       isDirty: document.isDirty,

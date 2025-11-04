@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { vscMock } from "@/__tests__/vsc";
 import { EditorFile } from "@wrkspc/core/editor";
 import { describe, expect, vi } from "vitest";

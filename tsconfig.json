@@ -5,9 +5,19 @@
     { "path": "./pkgs/gateway/" },
     { "path": "./pkgs/home/" },
     { "path": "./pkgs/logo/" },
+    // TODO: Add tsconfig.json to parser's pkg
+    // { "path": "./pkgs/parser/pkg/" },
     { "path": "./pkgs/storybook/" },
-    { "path": "./pkgs/types/pkgs/ts/" },
+    // TODO: Generate tsconfigs.json in Genotype projects
+    // { "path": "./pkgs/types/pkgs/ts/" },
     { "path": "./pkgs/vsc-extension/" },
-    { "path": "./pkgs/vsc-webview/" }
+    { "path": "./pkgs/vsc-webview/" },
+    { "path": "./subs/ds/pkgs/ds/" },
+    { "path": "./subs/ds/pkgs/form/" },
+    { "path": "./subs/ds/pkgs/icons/" },
+    { "path": "./subs/ds/pkgs/modal/" },
+    { "path": "./subs/ds/pkgs/props/" },
+    { "path": "./subs/ds/pkgs/theme/" },
+    { "path": "./subs/ds/pkgs/ui/" }
   ]
 }
