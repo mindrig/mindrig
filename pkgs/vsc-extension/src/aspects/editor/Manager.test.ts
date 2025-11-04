@@ -22,6 +22,7 @@ describe(EditorManager, () => {
         );
 
         expect(spy).toHaveBeenCalledWith<[EditorFile]>({
+          v: 1,
           content,
           isDirty,
           path: fsPath as EditorFile.Path,

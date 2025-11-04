@@ -36,6 +36,7 @@ export function buildDatasource(type: Datasource.Type): Datasource {
   switch (type) {
     case "dataset":
       return buildDatasetDatasource();
+
     case "manual":
       return buildDatasourceManual();
   }
