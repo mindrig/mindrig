@@ -1,6 +1,9 @@
 import { editorFileToMeta } from "@wrkspc/core/editor";
 import {
+  buildMapPromptVarId,
   playgroundMapSpanFromPrompt,
+  playgroundMapVarFromPromptVar,
+  playgroundMapVarsFromPrompt,
   type PlaygroundMap,
   type PlaygroundState,
 } from "@wrkspc/core/playground";
@@ -11,6 +14,8 @@ import {
   editorFileMetaFactory,
   editorFilePathFactory,
   parsedPromptFactory,
+  parsedPromptSpanShapeFactory,
+  parsedPromptVarFactory,
   playgroundMapFactory,
   playgroundMapFileFactory,
   playgroundMapPromptFactory,
@@ -23,6 +28,9 @@ import {
   matchPlaygroundMapPrompts,
   matchPlaygroundMapPromptsByContent,
   matchPlaygroundMapPromptsByDistance,
+  matchPlaygroundMapPromptVars,
+  matchPlaygroundMapPromptVarsByContent,
+  matchPlaygroundMapPromptVarsByDistance,
   resolvePlaygroundMap,
   resolvePlaygroundMapFile,
   resolvePlaygroundMapPair,
@@ -394,20 +402,21 @@ describe(matchPlaygroundMapFile, () => {
     expect(match).toEqual({
       mapFile: mapFileA,
       matchedPromptsScore: 1,
-      matchingScore: 1,
+      matchingDistance: 1,
       matchedCount: 2,
       changed: false,
     });
   });
 
   it("falls back to distance matching when path differs", () => {
-    const { map, mapFileA, mapPromptsA } = playgroundSetupFactory();
+    const { map, parsedPromptsA, mapFileA, mapPromptsA } =
+      playgroundSetupFactory();
 
     const file = editorFileFactory();
 
     const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha" }),
-      parsedPromptFactory({ exp: "beta b" }),
+      parsedPromptFactory({ exp: "alpha", vars: [...parsedPromptsA[0].vars] }),
+      parsedPromptFactory({ exp: "beta b", vars: [...parsedPromptsA[1].vars] }),
     ] as const;
 
     const timestamp = 1234567890;
@@ -430,6 +439,7 @@ describe(matchPlaygroundMapFile, () => {
             v: 1,
             id: mapPromptsA[0].id,
             content: parsedPrompts[0].exp,
+            vars: playgroundMapVarsFromPrompt(parsedPrompts[0]),
             span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
             updatedAt: mapPromptsA[0].updatedAt,
           },
@@ -437,13 +447,14 @@ describe(matchPlaygroundMapFile, () => {
             v: 1,
             id: mapPromptsA[1].id,
             content: parsedPrompts[1].exp,
+            vars: playgroundMapVarsFromPrompt(parsedPrompts[1]),
             span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
             updatedAt: timestamp,
           },
         ],
       },
       matchedPromptsScore: 1,
-      matchingScore: expect.closeTo(0.67),
+      matchingDistance: expect.closeTo(0.67),
       matchedCount: 2,
       changed: true,
     });
@@ -479,7 +490,7 @@ describe(matchPlaygroundMapFile, () => {
         ],
       },
       matchedPromptsScore: 1,
-      matchingScore: 1,
+      matchingDistance: 1,
       matchedCount: 1,
       changed: true,
     });
@@ -522,7 +533,7 @@ describe(matchPlaygroundMapFile, () => {
         ],
       },
       matchedPromptsScore: 0,
-      matchingScore: 0,
+      matchingDistance: 0,
       matchedCount: 0,
       changed: true,
     });
@@ -613,6 +624,7 @@ describe(matchPlaygroundMapFileByDistance, () => {
             v: 1,
             id: mapPrompts3[2].id,
             content: parsedPrompts[0].exp,
+            vars: [],
             span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
             updatedAt: timestamp,
           },
@@ -620,6 +632,7 @@ describe(matchPlaygroundMapFileByDistance, () => {
             v: 1,
             id: mapPrompts3[0].id,
             content: parsedPrompts[1].exp,
+            vars: [],
             span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
             updatedAt: timestamp,
           },
@@ -630,7 +643,7 @@ describe(matchPlaygroundMapFileByDistance, () => {
         ],
       },
       matchedPromptsScore: 1,
-      matchingScore: expect.closeTo(0.59),
+      matchingDistance: expect.closeTo(0.59),
       matchedCount: 3,
       changed: true,
     });
@@ -705,7 +718,7 @@ describe(matchPlaygroundMapFileByDistance, () => {
         updatedAt: timestamp,
       },
       matchedPromptsScore: 1,
-      matchingScore: 1,
+      matchingDistance: 1,
       matchedCount: 3,
       changed: true,
     });
@@ -869,6 +882,7 @@ describe(matchPlaygroundMapPrompts, () => {
           v: 1,
           id: mapPrompts[1].id,
           content: parsedPrompts[1].exp,
+          vars: [],
           span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
           updatedAt: timestamp,
         },
@@ -876,6 +890,7 @@ describe(matchPlaygroundMapPrompts, () => {
           v: 1,
           id: expect.any(String),
           content: parsedPrompts[2].exp,
+          vars: [],
           span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
           updatedAt: timestamp,
         },
@@ -883,6 +898,7 @@ describe(matchPlaygroundMapPrompts, () => {
           v: 1,
           id: expect.any(String),
           content: parsedPrompts[3].exp,
+          vars: [],
           span: playgroundMapSpanFromPrompt(parsedPrompts[3]),
           updatedAt: timestamp,
         },
@@ -890,12 +906,13 @@ describe(matchPlaygroundMapPrompts, () => {
           v: 1,
           id: mapPrompts[0].id,
           content: parsedPrompts[4].exp,
+          vars: [],
           span: playgroundMapSpanFromPrompt(parsedPrompts[4]),
           updatedAt: timestamp,
         },
       ],
       matchedPromptsScore: expect.closeTo(1),
-      matchingScore: expect.closeTo(0.6),
+      matchingDistance: expect.closeTo(0.6),
       matchedCount: 3,
       changed: true,
     });
@@ -1010,10 +1027,10 @@ describe(matchPlaygroundMapPromptsByContent, () => {
       matchedMapPrompts,
       unmatchedParsedPrompts: new Set([parsedPrompts[1]]),
       unmatchedMapPrompts: new Set([mapPromptsA[0]]),
-      matchingScores: expect.any(Object),
+      matchingDistances: expect.any(Object),
     });
 
-    expect([...result.matchingScores.values()]).toEqual([1]);
+    expect([...result.matchingDistances.values()]).toEqual([1]);
   });
 
   it("clones argument sets", () => {
@@ -1051,6 +1068,7 @@ describe(matchPlaygroundMapPromptsByDistance, () => {
       v: 1,
       id: mapPromptsA[1].id,
       content: parsedPrompts[0].exp,
+      vars: playgroundMapVarsFromPrompt(parsedPrompts[0]),
       span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
       updatedAt: expect.any(Number),
     });
@@ -1058,6 +1076,7 @@ describe(matchPlaygroundMapPromptsByDistance, () => {
       v: 1,
       id: mapPromptsA[0].id,
       content: parsedPrompts[2].exp,
+      vars: playgroundMapVarsFromPrompt(parsedPrompts[2]),
       span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
       updatedAt: expect.any(Number),
     });
@@ -1066,10 +1085,10 @@ describe(matchPlaygroundMapPromptsByDistance, () => {
       matchedMapPrompts,
       unmatchedParsedPrompts: new Set([parsedPrompts[1], parsedPrompts[3]]),
       unmatchedMapPrompts: new Set([]),
-      matchingScores: expect.any(Object),
+      matchingDistances: expect.any(Object),
     });
 
-    expect([...result.matchingScores.values()]).toEqual([
+    expect([...result.matchingDistances.values()]).toEqual([
       expect.closeTo(0.29),
       expect.closeTo(0.6),
     ]);
@@ -1174,6 +1193,7 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
       v: 1,
       id: mapPrompts[0].id,
       content: parsedPrompts[0].exp,
+      vars: playgroundMapVarsFromPrompt(parsedPrompts[0]),
       span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
       updatedAt: expect.any(Number),
     });
@@ -1181,6 +1201,7 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
       v: 1,
       id: mapPrompts[1].id,
       content: parsedPrompts[1].exp,
+      vars: playgroundMapVarsFromPrompt(parsedPrompts[1]),
       span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
       updatedAt: expect.any(Number),
     });
@@ -1188,6 +1209,7 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
       v: 1,
       id: mapPrompts[2].id,
       content: parsedPrompts[2].exp,
+      vars: playgroundMapVarsFromPrompt(parsedPrompts[2]),
       span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
       updatedAt: expect.any(Number),
     });
@@ -1196,10 +1218,10 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
       matchedMapPrompts,
       unmatchedParsedPrompts: new Set([]),
       unmatchedMapPrompts: new Set([]),
-      matchingScores: expect.any(Object),
+      matchingDistances: expect.any(Object),
     });
 
-    expect([...result.matchingScores.values()]).toEqual([
+    expect([...result.matchingDistances.values()]).toEqual([
       expect.closeTo(0.26),
       expect.closeTo(0.53),
       expect.closeTo(0.58),
@@ -1286,6 +1308,378 @@ describe(calcMatchedPromptsScore, () => {
     });
 
     expect(score).toBe(0);
+  });
+});
+
+//#endregion
+
+//#region Map prompt vars
+
+describe(matchPlaygroundMapPromptVars, () => {
+  it("preserves matched prompt var ids and inserts new prompt vars in parsed order", () => {
+    const { mapPrompts } = playgroundSetupFactory();
+    const parsedPrompts = [
+      parsedPromptFactory({ exp: "gamma" }),
+      parsedPromptFactory({ exp: "alp beta" }),
+      parsedPromptFactory({ exp: "alpha abc" }),
+      parsedPromptFactory({ exp: "alpha ab" }),
+      parsedPromptFactory({ exp: "alpha a" }),
+    ] as const;
+
+    const timestamp = 1234567890;
+
+    const result = matchPlaygroundMapPrompts({
+      timestamp,
+      mapPrompts,
+      parsedPrompts,
+    });
+
+    expect(result).toEqual({
+      nextMapPrompts: [
+        {
+          ...mapPrompts[2],
+          span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
+        },
+        {
+          v: 1,
+          id: mapPrompts[1].id,
+          content: parsedPrompts[1].exp,
+          vars: [],
+          span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
+          updatedAt: timestamp,
+        },
+        {
+          v: 1,
+          id: expect.any(String),
+          content: parsedPrompts[2].exp,
+          vars: [],
+          span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
+          updatedAt: timestamp,
+        },
+        {
+          v: 1,
+          id: expect.any(String),
+          content: parsedPrompts[3].exp,
+          vars: [],
+          span: playgroundMapSpanFromPrompt(parsedPrompts[3]),
+          updatedAt: timestamp,
+        },
+        {
+          v: 1,
+          id: mapPrompts[0].id,
+          content: parsedPrompts[4].exp,
+          vars: [],
+          span: playgroundMapSpanFromPrompt(parsedPrompts[4]),
+          updatedAt: timestamp,
+        },
+      ],
+      matchedPromptsScore: expect.closeTo(1),
+      matchingDistance: expect.closeTo(0.6),
+      matchedCount: 3,
+      changed: true,
+    });
+  });
+});
+
+describe(matchPlaygroundMapPromptVarsByContent, () => {
+  it("matches vars with identical expressions", () => {
+    const { mapPromptsA } = playgroundSetupFactory();
+    const parsedPromptVars = [
+      parsedPromptVarFactory({ exp: "${two}" }),
+      parsedPromptVarFactory({ exp: "${1}" }),
+    ] as const;
+
+    const result = matchPlaygroundMapPromptVarsByContent({
+      matchedMapPromptVarExps: {},
+      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
+      unmatchedParsedPromptVars: new Set(parsedPromptVars),
+      promptSpan: { start: 50, end: 100 },
+    });
+
+    expect(result).toEqual({
+      matchedMapPromptVars: new Map([
+        [
+          parsedPromptVars[0],
+          { ...mapPromptsA[1].vars[0], span: { v: 1, start: 10, end: 30 } },
+        ],
+      ]),
+      matchedMapPromptVarExps: { "${two}": mapPromptsA[1].vars[0]!.id },
+      unmatchedParsedPromptVars: new Set([parsedPromptVars[1]]),
+      unmatchedMapPromptVars: new Set([mapPromptsA[1].vars[1]]),
+    });
+  });
+
+  it("assigns same ids to multiple vars with same expressions", () => {
+    const { mapPromptsA } = playgroundSetupFactory();
+    const parsedPromptVars = [
+      parsedPromptVarFactory({
+        exp: "${two}",
+        span: parsedPromptSpanShapeFactory({ outer: { start: 65, end: 70 } }),
+      }),
+      parsedPromptVarFactory({
+        exp: "${one}",
+        span: parsedPromptSpanShapeFactory({ outer: { start: 70, end: 75 } }),
+      }),
+      parsedPromptVarFactory({
+        exp: "${two}",
+        span: parsedPromptSpanShapeFactory({ outer: { start: 75, end: 80 } }),
+      }),
+    ] as const;
+    const promptSpan = { start: 50, end: 80 };
+    const varOneId = buildMapPromptVarId();
+
+    const result = matchPlaygroundMapPromptVarsByContent({
+      matchedMapPromptVarExps: { "${one}": varOneId },
+      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
+      unmatchedParsedPromptVars: new Set(parsedPromptVars),
+      promptSpan,
+    });
+
+    expect(result).toEqual({
+      matchedMapPromptVars: new Map([
+        [
+          parsedPromptVars[0],
+          { ...mapPromptsA[1].vars[0], span: { v: 1, start: 15, end: 20 } },
+        ],
+        [
+          parsedPromptVars[1],
+          {
+            ...mapPromptsA[1].vars[1],
+            id: varOneId,
+            span: { v: 1, start: 20, end: 25 },
+          },
+        ],
+        [
+          parsedPromptVars[2],
+          {
+            ...playgroundMapVarFromPromptVar(parsedPromptVars[2], promptSpan),
+            id: mapPromptsA[1].vars[0]!.id,
+            span: { v: 1, start: 25, end: 30 },
+          },
+        ],
+      ]),
+      matchedMapPromptVarExps: {
+        "${two}": mapPromptsA[1].vars[0]!.id,
+        "${one}": varOneId,
+      },
+      unmatchedParsedPromptVars: new Set(),
+      unmatchedMapPromptVars: new Set(),
+    });
+  });
+
+  it("assigns latest spans", () => {
+    const { mapPromptsA } = playgroundSetupFactory();
+    const parsedPromptVars = [
+      parsedPromptVarFactory({
+        exp: "${two}",
+        span: parsedPromptSpanShapeFactory({ outer: { start: 66, end: 71 } }),
+      }),
+      parsedPromptVarFactory({
+        exp: "${one}",
+        span: parsedPromptSpanShapeFactory({ outer: { start: 71, end: 76 } }),
+      }),
+    ] as const;
+
+    const result = matchPlaygroundMapPromptVarsByContent({
+      matchedMapPromptVarExps: {},
+      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
+      unmatchedParsedPromptVars: new Set(parsedPromptVars),
+      promptSpan: { start: 50, end: 100 },
+    });
+
+    expect(result).toEqual({
+      matchedMapPromptVars: new Map([
+        [
+          parsedPromptVars[0],
+          { ...mapPromptsA[1].vars[0], span: { v: 1, start: 16, end: 21 } },
+        ],
+        [
+          parsedPromptVars[1],
+          { ...mapPromptsA[1].vars[1], span: { v: 1, start: 21, end: 26 } },
+        ],
+      ]),
+      matchedMapPromptVarExps: {
+        "${two}": mapPromptsA[1].vars[0]!.id,
+        "${one}": mapPromptsA[1].vars[1]!.id,
+      },
+      unmatchedParsedPromptVars: new Set([]),
+      unmatchedMapPromptVars: new Set([]),
+    });
+  });
+
+  it("clones argument sets", () => {
+    const matchedMapPromptVarExps = {};
+    const unmatchedMapPromptVars = new Set<any>();
+    const unmatchedParsedPromptVars = new Set<any>();
+
+    const result = matchPlaygroundMapPromptVarsByContent({
+      matchedMapPromptVarExps,
+      unmatchedMapPromptVars,
+      unmatchedParsedPromptVars,
+      promptSpan: { start: 50, end: 80 },
+    });
+
+    expect(result.matchedMapPromptVars).not.toBe(unmatchedMapPromptVars);
+    expect(result.unmatchedMapPromptVars).not.toBe(unmatchedMapPromptVars);
+    expect(result.unmatchedParsedPromptVars).not.toBe(
+      unmatchedParsedPromptVars,
+    );
+  });
+});
+
+describe(matchPlaygroundMapPromptVarsByDistance, () => {
+  it("matches prompts within Levenshtein threshold", () => {
+    const { mapPromptsA } = playgroundSetupFactory();
+    const parsedPromptVars = [
+      parsedPromptVarFactory({ exp: "${twos}" }),
+      parsedPromptVarFactory({ exp: "${1}" }),
+    ] as const;
+
+    const result = matchPlaygroundMapPromptVarsByDistance({
+      matchedMapPromptVarExps: {},
+      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
+      unmatchedParsedPromptVars: new Set(parsedPromptVars),
+      promptSpan: { start: 50, end: 100 },
+    });
+
+    expect(result).toEqual({
+      matchedMapPromptVars: new Map([
+        [
+          parsedPromptVars[0],
+          {
+            ...mapPromptsA[1].vars[0],
+            exp: parsedPromptVars[0].exp,
+            span: { v: 1, start: 10, end: 30 },
+          },
+        ],
+      ]),
+      matchedMapPromptVarExps: { "${twos}": mapPromptsA[1].vars[0]!.id },
+      unmatchedParsedPromptVars: new Set([parsedPromptVars[1]]),
+      unmatchedMapPromptVars: new Set([mapPromptsA[1].vars[1]]),
+    });
+  });
+
+  it("returns nothing when matches does not pass threshold", () => {
+    const { mapPromptsA } = playgroundSetupFactory();
+    const parsedPromptVars = [
+      parsedPromptVarFactory({ exp: "${twotwotwo}" }),
+      parsedPromptVarFactory({ exp: "${oneoneone}" }),
+    ] as const;
+
+    const result = matchPlaygroundMapPromptVarsByDistance({
+      matchedMapPromptVarExps: {},
+      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
+      unmatchedParsedPromptVars: new Set(parsedPromptVars),
+      promptSpan: { start: 50, end: 100 },
+    });
+
+    expect(result).toEqual({
+      matchedMapPromptVars: new Map(),
+      matchedMapPromptVarExps: {},
+      unmatchedParsedPromptVars: new Set(parsedPromptVars),
+      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
+    });
+  });
+
+  it("matches prompts with significant changes that pass the threshold", () => {
+    const { mapPromptsA } = playgroundSetupFactory();
+    const parsedPromptVars = [
+      parsedPromptVarFactory({ exp: "${twoish}" }),
+      parsedPromptVarFactory({ exp: "${oneish}" }),
+    ] as const;
+
+    const result = matchPlaygroundMapPromptVarsByDistance({
+      matchedMapPromptVarExps: {},
+      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
+      unmatchedParsedPromptVars: new Set(parsedPromptVars),
+      promptSpan: { start: 50, end: 100 },
+    });
+
+    expect(result).toEqual({
+      matchedMapPromptVars: new Map([
+        [
+          parsedPromptVars[0],
+          {
+            ...mapPromptsA[1].vars[0],
+            exp: parsedPromptVars[0].exp,
+            span: { v: 1, start: 10, end: 30 },
+          },
+        ],
+        [
+          parsedPromptVars[1],
+          {
+            ...mapPromptsA[1].vars[1],
+            exp: parsedPromptVars[1].exp,
+            span: { v: 1, start: 10, end: 30 },
+          },
+        ],
+      ]),
+      matchedMapPromptVarExps: {
+        "${twoish}": mapPromptsA[1].vars[0]!.id,
+        "${oneish}": mapPromptsA[1].vars[1]!.id,
+      },
+      unmatchedParsedPromptVars: new Set([]),
+      unmatchedMapPromptVars: new Set([]),
+    });
+  });
+
+  it("assigns same ids to multiple vars with same expressions", () => {
+    const { mapPromptsA } = playgroundSetupFactory();
+    const parsedPromptVars = [
+      parsedPromptVarFactory({ exp: "${twos}" }),
+      parsedPromptVarFactory({ exp: "${1}" }),
+      parsedPromptVarFactory({ exp: "${twos}" }),
+    ] as const;
+
+    const result = matchPlaygroundMapPromptVarsByDistance({
+      matchedMapPromptVarExps: {},
+      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
+      unmatchedParsedPromptVars: new Set(parsedPromptVars),
+      promptSpan: { start: 50, end: 100 },
+    });
+
+    expect(result).toEqual({
+      matchedMapPromptVars: new Map([
+        [
+          parsedPromptVars[0],
+          {
+            ...mapPromptsA[1].vars[0],
+            exp: parsedPromptVars[0].exp,
+            span: { v: 1, start: 10, end: 30 },
+          },
+        ],
+        [
+          parsedPromptVars[2],
+          {
+            v: 1,
+            exp: parsedPromptVars[2].exp,
+            span: { v: 1, start: 10, end: 30 },
+          },
+        ],
+      ]),
+      matchedMapPromptVarExps: { "${twos}": mapPromptsA[1].vars[0]!.id },
+      unmatchedParsedPromptVars: new Set([parsedPromptVars[1]]),
+      unmatchedMapPromptVars: new Set([mapPromptsA[1].vars[1]]),
+    });
+  });
+
+  it("clones argument sets", () => {
+    const matchedMapPromptVarExps = {};
+    const unmatchedMapPromptVars = new Set<any>();
+    const unmatchedParsedPromptVars = new Set<any>();
+
+    const result = matchPlaygroundMapPromptVarsByDistance({
+      matchedMapPromptVarExps,
+      unmatchedMapPromptVars,
+      unmatchedParsedPromptVars,
+      promptSpan: { start: 50, end: 80 },
+    });
+
+    expect(result.matchedMapPromptVars).not.toBe(unmatchedMapPromptVars);
+    expect(result.unmatchedMapPromptVars).not.toBe(unmatchedMapPromptVars);
+    expect(result.unmatchedParsedPromptVars).not.toBe(
+      unmatchedParsedPromptVars,
+    );
   });
 });
 

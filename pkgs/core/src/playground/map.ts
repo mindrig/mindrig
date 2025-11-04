@@ -1,4 +1,4 @@
-import { Prompt, Span } from "@mindrig/types";
+import { Prompt, PromptVar, Span, Span as TypesSpan } from "@mindrig/types";
 import { nanoid } from "nanoid";
 import type { EditorFile } from "../editor/index.js";
 import { Versioned } from "../versioned/versioned.js";
@@ -21,6 +21,9 @@ export namespace PlaygroundMap {
   export type PromptId = string & { [promptIdBrand]: true };
   declare const promptIdBrand: unique symbol;
 
+  export type PromptVarId = string & { [promptVarIdBrand]: true };
+  declare const promptVarIdBrand: unique symbol;
+
   export type File = FileV1;
 
   export interface FileV1 extends Versioned<1> {
@@ -35,13 +38,22 @@ export namespace PlaygroundMap {
   export interface PromptV1 extends Versioned<1> {
     id: PromptId;
     content: string;
+    vars: readonly PromptVar[];
     updatedAt: number;
-    span: PromptSpanV1;
+    span: SpanV1;
   }
 
-  export type PromptSpan = PromptSpanV1;
+  export type PromptVar = PromptVarV1;
 
-  export interface PromptSpanV1 extends Versioned<1>, Span {}
+  export interface PromptVarV1 extends Versioned<1> {
+    id: PromptVarId;
+    exp: string;
+    span: SpanV1;
+  }
+
+  export type Span = SpanV1;
+
+  export interface SpanV1 extends Versioned<1>, TypesSpan {}
 
   export interface Matching {
     reason: MatchingReason;
@@ -65,6 +77,10 @@ export function buildMapPromptId(): PlaygroundMap.PromptId {
   return `prompt-${nanoid()}` as PlaygroundMap.PromptId;
 }
 
+export function buildMapPromptVarId(): PlaygroundMap.PromptVarId {
+  return `prompt-var-${nanoid()}` as PlaygroundMap.PromptVarId;
+}
+
 export function playgroundMapPairToEditorRef(
   pair: PlaygroundMap.Pair,
 ): EditorFile.Ref {
@@ -76,6 +92,33 @@ export function playgroundMapPairToEditorRef(
 
 export function playgroundMapSpanFromPrompt(
   prompt: Prompt,
-): PlaygroundMap.PromptSpan {
+): PlaygroundMap.Span {
   return { v: 1, ...prompt.span.outer };
+}
+
+export function playgroundMapVarsFromPrompt(
+  prompt: Prompt,
+): PlaygroundMap.PromptVar[] {
+  return prompt.vars.map((promptVar) =>
+    playgroundMapVarFromPromptVar(promptVar, prompt.span.inner),
+  );
+}
+
+export function playgroundMapVarFromPromptVar(
+  promptVar: PromptVar,
+  promptSpan: Span,
+  id?: PlaygroundMap.PromptVarId,
+): PlaygroundMap.PromptVar {
+  const span: PlaygroundMap.Span = {
+    v: 1,
+    start: promptVar.span.outer.start - promptSpan.start,
+    end: promptVar.span.outer.end - promptSpan.start,
+  };
+
+  return {
+    v: 1,
+    id: id || buildMapPromptVarId(),
+    exp: promptVar.exp,
+    span,
+  };
 }

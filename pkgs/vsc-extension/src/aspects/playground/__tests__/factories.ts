@@ -1,9 +1,11 @@
-import { Prompt, Span, SpanShape } from "@mindrig/types";
+import { Prompt, PromptVar, Span, SpanShape } from "@mindrig/types";
 import { EditorFile, editorFileToMeta } from "@wrkspc/core/editor";
 import {
   buildMapFileId,
   buildMapPromptId,
+  buildMapPromptVarId,
   PlaygroundMap,
+  playgroundMapVarsFromPrompt,
 } from "@wrkspc/core/playground";
 import { nanoid } from "nanoid";
 import { ResolvePlaygroundState } from "../resolve";
@@ -30,6 +32,19 @@ export function parsedPromptFactory(overrides?: Partial<Prompt>): Prompt {
     exp: DEFAULT_PROMPT,
     vars: [],
     span: parsedPromptSpanShapeFactory(),
+    ...overrides,
+  };
+}
+
+export function parsedPromptVarFactory(
+  overrides?: Partial<PromptVar>,
+): PromptVar {
+  return {
+    exp: "${name}",
+    span: {
+      outer: { start: 60, end: 80 },
+      inner: { start: 60, end: 80 },
+    },
     ...overrides,
   };
 }
@@ -66,6 +81,19 @@ export function playgroundMapPromptFactory(
     content: DEFAULT_PROMPT,
     span: { v: 1, start: 0, end: 0 },
     updatedAt: Date.now(),
+    vars: [playgroundMapVarFactory()],
+    ...overrides,
+  };
+}
+
+export function playgroundMapVarFactory(
+  overrides?: Partial<PlaygroundMap.PromptVar>,
+): PlaygroundMap.PromptVar {
+  return {
+    v: 1,
+    id: buildMapPromptVarId(),
+    exp: "${name}",
+    span: { v: 1, start: 0, end: 0 },
     ...overrides,
   };
 }
@@ -77,6 +105,7 @@ export function playgroundMapPromptFromParsedFactory(
     v: 1,
     id: buildMapPromptId(),
     content: parsedPrompt.exp,
+    vars: playgroundMapVarsFromPrompt(parsedPrompt),
     span: { v: 1, ...parsedPrompt.span.outer },
     updatedAt: Date.now(),
   };
@@ -109,6 +138,7 @@ export function playgroundSetupFactory(
   const parsedPromptAlpha = parsedPromptFactory({
     file: editorFileA.path,
     exp: props.expAlpha ?? "alpha",
+    vars: [parsedPromptVarFactory({ exp: "${one}" })],
     span: parsedPromptSpanShapeFactory({ outer: spanAlpha }),
   });
   const mapPromptAlpha =
@@ -118,6 +148,10 @@ export function playgroundSetupFactory(
   const parsedPromptBeta = parsedPromptFactory({
     file: editorFileA.path,
     exp: props.expBeta ?? "beta",
+    vars: [
+      parsedPromptVarFactory({ exp: "${two}" }),
+      parsedPromptVarFactory({ exp: "${one}" }),
+    ],
     span: parsedPromptSpanShapeFactory({ outer: spanBeta }),
   });
   const mapPromptBeta = playgroundMapPromptFromParsedFactory(parsedPromptBeta);
@@ -142,6 +176,10 @@ export function playgroundSetupFactory(
   const parsedPromptGamma = parsedPromptFactory({
     file: editorFileB.path,
     exp: props.expGamma ?? "gamma",
+    vars: [
+      parsedPromptVarFactory({ exp: "${three}" }),
+      parsedPromptVarFactory({ exp: "${four}" }),
+    ],
     span: parsedPromptSpanShapeFactory({ outer: spanGamma }),
   });
   const mapPromptGamma =

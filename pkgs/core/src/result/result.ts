@@ -1,6 +1,6 @@
-import { Prompt } from "@mindrig/types";
 import { Attachment } from "../attachment";
 import { ModelType } from "../model/type";
+import { PlaygroundMap } from "../playground";
 import { Setup } from "../setup";
 import { Tool } from "../tool";
 
@@ -50,7 +50,7 @@ export namespace Result {
   export type Layout = "vertical" | "horizontal" | "carousel";
 
   export interface Init {
-    prompt: Prompt;
+    prompt: PlaygroundMap.Prompt;
     setup: Setup;
     tools: Tool[];
     datasources: InitDatasource[];
