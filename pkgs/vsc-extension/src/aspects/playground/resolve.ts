@@ -7,6 +7,7 @@ import {
 import {
   buildMapFileId,
   buildMapPromptId,
+  buildMapPromptVarId,
   PlaygroundMap,
   playgroundMapSpanFromPrompt,
   playgroundMapVarFromPromptVar,
@@ -79,10 +80,15 @@ export namespace PlaygroundResolve {
 
   export interface MatchPromptVarsResult {
     matchedMapPromptVars: Map<PromptVar, PlaygroundMap.PromptVar>;
-    matchedMapPromptVarExps: Record<string, PlaygroundMap.PromptVarId>;
+    matchedMapPromptVarExps: MatchedMapPromptVarExps;
     unmatchedMapPromptVars: Set<PlaygroundMap.PromptVar>;
     unmatchedParsedPromptVars: Set<PromptVar>;
   }
+
+  export type MatchedMapPromptVarExps = Record<
+    string,
+    PlaygroundMap.PromptVarId
+  >;
 }
 
 //#endregion
@@ -506,8 +512,16 @@ export function matchPlaygroundMapPromptsByContent(
   unmatchedParsedPrompts.forEach((parsedPrompt) => {
     unmatchedMapPrompts.forEach((mapPrompt) => {
       if (mapPrompt.content !== parsedPrompt.exp) return;
+
+      const { nextMapPromptVars: vars } = matchPlaygroundMapPromptVars({
+        mapPromptVars: mapPrompt.vars,
+        parsedPromptVars: parsedPrompt.vars,
+        promptSpan: parsedPrompt.span.inner,
+      });
+
       matchedMapPrompts.set(parsedPrompt, {
         ...mapPrompt,
+        vars,
         span: playgroundMapSpanFromPrompt(parsedPrompt),
       });
       matchingDistances.set(
@@ -592,11 +606,17 @@ export function matchPlaygroundMapPromptsByDistance(
     )
       return;
 
+    const { nextMapPromptVars: vars } = matchPlaygroundMapPromptVars({
+      mapPromptVars: mapPrompt.vars,
+      parsedPromptVars: parsedPrompt.vars,
+      promptSpan: parsedPrompt.span.inner,
+    });
+
     const nextMapPrompt: PlaygroundMap.Prompt = {
       v: 1,
       id: mapPrompt.id,
       content: parsedPrompt.exp,
-      vars: playgroundMapVarsFromPrompt(parsedPrompt),
+      vars,
       span: playgroundMapSpanFromPrompt(parsedPrompt),
       updatedAt: timestamp,
     };
@@ -623,7 +643,6 @@ export namespace CalcMatchingPromptsScore {
   export interface Props {
     matchedMapPrompts: Map<Prompt, PlaygroundMap.Prompt>;
     unmatchedMapPrompts: Set<PlaygroundMap.Prompt>;
-    // unmatchedParsedPrompts: Set<Prompt>;
   }
 }
 
@@ -649,10 +668,59 @@ export function calcMatchedPromptsScore(
 //#region matchPlaygroundMapPromptVars
 
 export namespace MatchPlaygroundMapPromptVars {
-  export interface Props {}
+  export interface Props {
+    mapPromptVars: readonly PlaygroundMap.PromptVar[];
+    parsedPromptVars: readonly PromptVar[];
+    promptSpan: Span;
+  }
+
+  export interface Result {
+    nextMapPromptVars: PlaygroundMap.PromptVar[];
+  }
 }
 
-export function matchPlaygroundMapPromptVars() {}
+export function matchPlaygroundMapPromptVars(
+  props: MatchPlaygroundMapPromptVars.Props,
+): MatchPlaygroundMapPromptVars.Result {
+  const { mapPromptVars, parsedPromptVars, promptSpan } = props;
+  const nextMapPromptVars: PlaygroundMap.PromptVar[] = [];
+
+  const byContent = matchPlaygroundMapPromptVarsByContent({
+    matchedMapPromptVarExps: {},
+    unmatchedMapPromptVars: new Set(mapPromptVars),
+    unmatchedParsedPromptVars: new Set(parsedPromptVars),
+    promptSpan,
+  });
+
+  const byDistance = matchPlaygroundMapPromptVarsByDistance({
+    matchedMapPromptVarExps: byContent.matchedMapPromptVarExps,
+    unmatchedMapPromptVars: byContent.unmatchedMapPromptVars,
+    unmatchedParsedPromptVars: byContent.unmatchedParsedPromptVars,
+    promptSpan,
+  });
+
+  const matchedMapPromptVars = new Map([
+    ...byContent.matchedMapPromptVars,
+    ...byDistance.matchedMapPromptVars,
+  ]);
+
+  const matchedMapPromptVarExps: PlaygroundResolve.MatchedMapPromptVarExps = {};
+
+  for (const parsedVar of parsedPromptVars) {
+    const mapVar = matchedMapPromptVars.get(parsedVar);
+    if (mapVar) {
+      nextMapPromptVars.push(structuredClone(mapVar));
+    } else {
+      const mapPromptVarId = (matchedMapPromptVarExps[parsedVar.exp] ||=
+        buildMapPromptVarId());
+      nextMapPromptVars.push(
+        playgroundMapVarFromPromptVar(parsedVar, promptSpan, mapPromptVarId),
+      );
+    }
+  }
+
+  return { nextMapPromptVars };
+}
 
 //#endregion
 
