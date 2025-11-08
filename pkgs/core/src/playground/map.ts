@@ -38,7 +38,7 @@ export namespace PlaygroundMap {
   export interface PromptV1 extends Versioned<1> {
     id: PromptId;
     content: string;
-    vars: readonly PromptVar[];
+    vars: PromptVar[];
     updatedAt: number;
     span: SpanV1;
   }

@@ -1,5 +1,3 @@
-import { Auth } from ".";
-
 export type AuthGateway = AuthGateway.Vercel;
 
 export namespace AuthGateway {
@@ -17,15 +15,6 @@ export namespace AuthGateway {
     type: Type;
     gateway: (AuthGateway & { type: Type }) | undefined | null;
   }
-}
-
-export function resolveAuthGateway(
-  auth: Auth,
-): AuthGateway.Resolve<AuthGateway.Type> {
-  return {
-    type: auth.gateway?.type || defaultAuthGatewayType,
-    gateway: auth.gateway,
-  };
 }
 
 export const defaultAuthGatewayType = "vercel" satisfies AuthGateway.Type;

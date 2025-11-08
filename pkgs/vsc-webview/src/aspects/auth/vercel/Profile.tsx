@@ -15,7 +15,7 @@ export namespace AuthVercelProfile {
 
 export function AuthVercelProfile(props: AuthVercelProfile.Props) {
   const { statechart, state } = props;
-  const { send } = useMessages();
+  const { sendMessage } = useMessages();
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between">
@@ -43,7 +43,7 @@ export function AuthVercelProfile(props: AuthVercelProfile.Props) {
                 maskedKey: state.context.maskedKey,
               });
 
-              send({ type: "auth-client-vercel-gateway-revalidate" });
+              sendMessage({ type: "auth-client-vercel-gateway-revalidate" });
             }}
             isDisabled={!!statechart.in("profileValidating")}
           >

@@ -6,46 +6,56 @@ import { Select } from "@wrkspc/form";
 import iconRegularThumbtackAngle from "@wrkspc/icons/svg/regular/thumbtack-angle.js";
 import iconSolidThumbtack from "@wrkspc/icons/svg/solid/thumbtack.js";
 import { cn } from "crab";
+import { State } from "enso";
+import { useClientState } from "../client/StateContext";
 import { LayoutSection } from "../layout/Section";
 import { useMessages } from "../message/Context";
-import { usePlaygroundState } from "../playground/StateContext";
 
 export namespace FileHeader {
   export interface Props {
-    file: EditorFile.Meta;
+    fileState: State<EditorFile.Meta>;
   }
 }
 
 export function FileHeader(props: FileHeader.Props) {
-  const { file } = props;
-  const { prompts, prompt, pin } = usePlaygroundState();
-  const { send } = useMessages();
+  const { fileState } = props;
+  const clientState = useClientState();
+  const { sendMessage } = useMessages();
 
-  const isPinned = !!pin;
-  const promptRef = playgroundStatePromptToRef(prompt);
+  const prompts = clientState.$.playground.$.prompts.useCollection();
+  const isPinned = clientState.$.playground.$.pin.useCompute(
+    (pin) => !!pin,
+    [],
+  );
+
+  const [promptId, promptRef] = clientState.$.playground.$.prompt.useCompute(
+    (prompt) => [prompt?.promptId, playgroundStatePromptToRef(prompt)],
+    [],
+  );
 
   return (
     <LayoutSection top bordered pinned={isPinned}>
       <div className="flex items-center justify-between gap-2">
-        <FileLabel file={file} isPinned={isPinned} />
+        <FileLabel fileState={fileState} isPinned={isPinned} />
 
         <div className="flex items-center gap-2">
           <Select
             label={{ a11y: "Select prompt" }}
             size="xsmall"
-            selectedKey={prompt?.promptId || null}
+            selectedKey={promptId || null}
             options={prompts.map((prompt) => ({
-              label: prompt.preview,
-              value: prompt.promptId,
+              label: prompt.$.preview.value,
+              value: prompt.$.promptId.value,
             }))}
-            placeholder={prompts.length ? "Select prompt" : "No prompts"}
-            isDisabled={!prompts.length}
-            onSelectionChange={(promptId) => {
-              const prompt =
-                prompts.find((prompt) => prompt.promptId === promptId) || null;
-              send({
+            placeholder={prompts.size ? "Select prompt" : "No prompts"}
+            isDisabled={!prompts.size}
+            onSelectionChange={(itemPromptId) => {
+              const prompt = prompts.find(
+                (prompt) => promptId === itemPromptId,
+              );
+              sendMessage({
                 type: "playground-client-prompt-change",
-                payload: prompt,
+                payload: prompt?.value || null,
               });
             }}
           />
@@ -57,9 +67,12 @@ export function FileHeader(props: FileHeader.Props) {
               icon={isPinned ? iconSolidThumbtack : iconRegularThumbtackAngle}
               isDisabled={!promptRef}
               onClick={() => {
-                if (isPinned) send({ type: "playground-client-unpin" });
+                if (isPinned) sendMessage({ type: "playground-client-unpin" });
                 else if (promptRef)
-                  send({ type: "playground-client-pin", payload: promptRef });
+                  sendMessage({
+                    type: "playground-client-pin",
+                    payload: promptRef,
+                  });
               }}
               aria-pressed={isPinned}
               aria-label={isPinned ? "Unpin prompt" : "Pin prompt"}

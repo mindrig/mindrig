@@ -61,7 +61,7 @@ export function useClientStore(): ClientStoreContext.Value {
   return store;
 }
 
-export function useClientStoreProp<Prop extends keyof ClientStore>(
+export function useClientStoreState<Prop extends keyof ClientStore>(
   prop: Prop,
 ): ClientStoreContext.PropState<Prop> {
   const { store, setStore } = useClientStore();

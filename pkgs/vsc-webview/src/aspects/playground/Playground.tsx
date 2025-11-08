@@ -1,22 +1,34 @@
 import { Blueprint } from "../blueprint/Blueprint";
 import { BlueprintEmpty } from "../blueprint/Empty";
+import { useClientState } from "../client/StateContext";
 import { FileHeader } from "../file/Header";
 import { PlaygroundEmpty } from "./Empty";
 import { PlaygroundErrors } from "./Errors";
-import { usePlaygroundState } from "./StateContext";
 
 export function Playground() {
-  const { file, prompt } = usePlaygroundState();
+  const state = useClientState();
+  const decomposedFile = state.$.playground.$.file.useDecompose(
+    (nextFile, prevFile) => !!nextFile !== !!prevFile,
+    [],
+  );
+  const decomposedPrompt = state.$.playground.$.prompt.useDecompose(
+    (nextFile, prevFile) => !!nextFile !== !!prevFile,
+    [],
+  );
 
   return (
     <>
       <PlaygroundErrors />
 
-      {file ? (
+      {decomposedFile.value ? (
         <>
-          <FileHeader file={file} />
+          <FileHeader fileState={decomposedFile.state} />
 
-          {prompt ? <Blueprint prompt={prompt} /> : <BlueprintEmpty />}
+          {decomposedPrompt.value ? (
+            <Blueprint promptState={decomposedPrompt.state} />
+          ) : (
+            <BlueprintEmpty />
+          )}
         </>
       ) : (
         <PlaygroundEmpty />

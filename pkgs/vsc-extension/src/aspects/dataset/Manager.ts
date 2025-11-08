@@ -1,5 +1,12 @@
-import { DatasetMessage } from "@wrkspc/core/dataset";
+import {
+  DatasetCsv,
+  DatasetMessage,
+  DatasetRequest,
+} from "@wrkspc/core/dataset";
+import { EditorFile } from "@wrkspc/core/editor";
 import { always } from "alwaysly";
+import { parseStream } from "smolcsv";
+import { xxh32 } from "smolxxh";
 import * as vscode from "vscode";
 import { Manager } from "../manager/Manager.js";
 import { MessagesManager } from "../message/Manager.js";
@@ -26,6 +33,11 @@ export namespace DatasetsManager {
   export interface CsvQuickPickItemDelimiter extends vscode.QuickPickItem {
     type: "delimiter";
   }
+
+  export interface LoadAndSendCsvMetaProps {
+    requestId: DatasetRequest.CsvId;
+    path: EditorFile.Path;
+  }
 }
 
 export class DatasetsManager extends Manager {
@@ -38,28 +50,36 @@ export class DatasetsManager extends Manager {
 
     this.#messages.listen(
       this,
-      "dataset-client-csv-request",
-      this.#onCsvRequest,
+      "dataset-client-csv-select-request",
+      this.#onCsvSelectRequest,
+    );
+
+    this.#messages.listen(
+      this,
+      "dataset-client-csv-load-request",
+      this.#onCsvLoadRequest,
     );
   }
 
-  async #onCsvRequest(message: DatasetMessage.ClientCsvRequest) {
+  async #onCsvSelectRequest(message: DatasetMessage.ClientCsvSelectRequest) {
     const { requestId } = message.payload;
+
     const uri = await this.#selectCsvViaQuickPick();
-    if (!uri) return;
+    if (!uri) {
+      return this.#messages.send({
+        type: "dataset-server-csv-select-cancel",
+        payload: { requestId },
+      });
+    }
 
-    const path = uri.fsPath;
-    const bytes = await vscode.workspace.fs.readFile(uri);
-    const utf8 = new TextDecoder("utf-8").decode(bytes);
-
-    this.#messages.send({
-      type: "dataset-server-csv-content",
-      payload: {
-        status: "ok",
-        requestId,
-        data: { path, utf8 },
-      },
+    return this.#loadAndSendCsvMeta({
+      path: uri.fsPath as EditorFile.Path,
+      requestId,
     });
+  }
+
+  #onCsvLoadRequest(message: DatasetMessage.ClientCsvLoadRequest) {
+    return this.#loadAndSendCsvMeta(message.payload);
   }
 
   async #selectCsvViaQuickPick() {
@@ -136,6 +156,49 @@ export class DatasetsManager extends Manager {
       },
     });
     return uris?.[0];
+  }
+
+  async #loadAndSendCsvMeta(props: DatasetsManager.LoadAndSendCsvMetaProps) {
+    const { requestId, path } = props;
+    const uri = vscode.Uri.file(path);
+
+    const bytes = await vscode.workspace.fs.readFile(uri);
+    const size = bytes.length;
+    const hash = xxh32(Buffer.from(bytes)).toString(16);
+
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(bytes);
+        controller.close();
+      },
+    });
+
+    let rows = 0;
+    let header: string[] | undefined;
+    for await (const row of parseStream(stream)) {
+      if (!header) {
+        header = row;
+        // Skip header from row count
+        continue;
+      }
+      rows++;
+    }
+
+    // Assign empty array if no header found
+    header ||= [];
+
+    const meta: DatasetCsv.Meta = {
+      path,
+      hash,
+      size,
+      rows,
+      header,
+    };
+
+    return this.#messages.send({
+      type: "dataset-server-csv-data",
+      payload: { status: "ok", requestId, data: meta },
+    });
   }
 }
 

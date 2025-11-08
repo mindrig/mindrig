@@ -6,6 +6,9 @@ export interface EditorFile extends EditorFile.Meta {
 }
 
 export namespace EditorFile {
+  // TODO: Move it to "server" rather than editor as files can be outside of
+  // the editor workspace as well as come from another backend source, i.e.
+  // desktop app or remote server (not a case right now though).
   export type Path = string & { [pathBrand]: true };
   declare const pathBrand: unique symbol;
 

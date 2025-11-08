@@ -6,7 +6,7 @@ import {
   useWaitMessage,
 } from "../message/Context";
 
-export namespace UseStore {
+export namespace useServerStoreState {
   export type Mapper<Key extends Store.Key, Result> = (
     message: StoreMessage.ServerGetResponse<Key> | undefined,
   ) => Result;
@@ -19,11 +19,11 @@ export namespace UseStore {
   ];
 }
 
-export function useStore<Key extends Store.Key>(
+export function useServerStoreState<Key extends Store.Key>(
   scope: Store.Scope,
   key: Key,
-): UseStore.State<Key> {
-  const { send } = useMessages();
+): useServerStoreState.State<Key> {
+  const { sendMessage } = useMessages();
   const [value, setResult] = useState<Store[Key] | undefined>(undefined);
   const requestId = useId() as Store.RequestId;
 
@@ -46,19 +46,19 @@ export function useStore<Key extends Store.Key>(
     [requestId, setResult],
   );
 
-  const set = useCallback<UseStore.Setter<Key>>(
+  const set = useCallback<useServerStoreState.Setter<Key>>(
     (value) => {
       setResult(() => value);
-      send({
+      sendMessage({
         type: "store-client-set",
         payload: { ref: { scope, key }, value },
       });
     },
-    [send],
+    [sendMessage],
   );
 
   const state = useMemo(
-    () => [value, set] as UseStore.State<Key>,
+    () => [value, set] as useServerStoreState.State<Key>,
     [value, set],
   );
 

@@ -1,18 +1,20 @@
+import { EditorFile } from "@wrkspc/core/editor";
 import { fileNameView } from "@wrkspc/core/file";
 import { textCn } from "@wrkspc/ds";
 import { cn } from "crab";
-import { useMemo } from "react";
+import { State } from "enso";
 
 export namespace FileNameLabel {
   export interface Props {
-    path: string;
+    pathState: State<EditorFile.Path>;
     isPinned: boolean;
   }
 }
 
 export function FileNameLabel(props: FileNameLabel.Props) {
-  const { path, isPinned } = props;
-  const nameView = useMemo(() => fileNameView(path), [path]);
+  const { pathState, isPinned } = props;
+  const nameView = pathState.useCompute((path) => fileNameView(path), []);
+
   return (
     <div className={cn(isPinned ? "text-active-text" : "")}>
       <span>{nameView.main}</span>

@@ -1,27 +1,33 @@
 import { PlaygroundState } from "@wrkspc/core/playground";
+import { State } from "enso";
 import { Assessment } from "../assessment/Assessment";
+import { useClientState } from "../client/StateContext";
 import { PromptSource } from "../prompt/Source";
-import { useSettings } from "../settings/Context";
 import { BlueprintProvider } from "./Context";
 
 export namespace Blueprint {
   export interface Props {
-    prompt: PlaygroundState.Prompt;
+    promptState: State<PlaygroundState.Prompt>;
   }
 }
 
 export function Blueprint(props: Blueprint.Props) {
-  const { prompt } = props;
-  const { settings } = useSettings();
+  const { promptState } = props;
+  const clientState = useClientState();
+  const promptId = promptState.$.promptId.useValue();
+  const showSource = clientState.$.settings.useCompute(
+    (settings) => !!settings?.playground?.showSource,
+    [],
+  );
 
   return (
-    <BlueprintProvider manager={{}}>
-      {settings.playground?.showSource && <PromptSource prompt={prompt} />}
+    <BlueprintProvider manager={{}} promptState={promptState}>
+      {showSource && <PromptSource promptState={promptState} />}
 
       <Assessment
-        prompt={prompt}
+        promptState={promptState}
         // NOTE: The key is required to reset the component state.
-        key={prompt.promptId}
+        key={promptId}
       />
     </BlueprintProvider>
   );

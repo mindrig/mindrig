@@ -7,10 +7,14 @@ export namespace DatasetSelection {
 
   export type Type = DatasetSelection["type"];
 
+  export type Row = RowV1;
+
   export interface RowV1 extends Versioned<1> {
     type: "row";
     index: number | null;
   }
+
+  export type Range = RangeV1;
 
   export interface RangeV1 extends Versioned<1> {
     type: "range";
@@ -22,8 +26,23 @@ export namespace DatasetSelection {
     end: number;
   }
 
+  export type All = AllV1;
+
   export interface AllV1 extends Versioned<1> {
     type: "all";
+  }
+}
+
+export function buildDatasetSelection(
+  type: DatasetSelection.Type,
+): DatasetSelection {
+  switch (type) {
+    case "row":
+      return buildDatasetSelectionRow();
+    case "range":
+      return buildDatasetSelectionRange();
+    case "all":
+      return buildDatasetSelectionAll();
   }
 }
 

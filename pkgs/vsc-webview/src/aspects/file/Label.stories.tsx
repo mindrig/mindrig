@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
 import { EditorFile } from "@wrkspc/core/editor";
+import { State } from "enso";
 import { FileLabel } from "./Label";
 
 const meta = {
@@ -16,7 +16,7 @@ const meta = {
     },
   },
   args: {
-    file: syncFile(),
+    fileState: editorFileMetaStateFactory(),
     isPinned: false,
   },
 } satisfies Meta<typeof FileLabel>;
@@ -29,7 +29,7 @@ export const Default: Story = {};
 
 export const PythonFile: Story = {
   args: {
-    file: syncFile({
+    fileState: editorFileMetaStateFactory({
       path: "/wrkspc/project/data_ingest.py" as EditorFile.Path,
       languageId: "py",
     }),
@@ -38,20 +38,21 @@ export const PythonFile: Story = {
 
 export const LongPath: Story = {
   args: {
-    file: syncFile({
+    fileState: editorFileMetaStateFactory({
       path: "/wrkspc/mindrig/pkgs/webview/src/aspects/file/LabelPreview.tsx" as EditorFile.Path,
       languageId: "js",
     }),
   },
 };
 
-function syncFile(overrides: Partial<EditorFile> = {}): EditorFile {
-  return {
+function editorFileMetaStateFactory(
+  overrides: Partial<EditorFile.Meta> = {},
+): State<EditorFile.Meta> {
+  return new State<EditorFile.Meta>({
     v: 1,
     path: "/wrkspc/project/src/index.ts" as EditorFile.Path,
-    content: 'export const title = "Mind Rig Storybook sample";\n',
     isDirty: false,
     languageId: "ts",
     ...overrides,
-  };
+  });
 }

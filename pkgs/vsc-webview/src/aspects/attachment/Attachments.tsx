@@ -14,7 +14,7 @@ export namespace Attachments {
 }
 
 export function Attachments(props: Attachments.Props) {
-  const { send } = useMessages();
+  const { sendMessage } = useMessages();
   const field = props.field.useCollection();
 
   if (!field.size) return null;
@@ -29,7 +29,7 @@ export function Attachments(props: Attachments.Props) {
             size="xsmall"
             onClick={() => {
               const requestId: AttachmentRequest.Id = nanoid();
-              send({
+              sendMessage({
                 type: "attachment-client-request",
                 payload: {
                   requestId,

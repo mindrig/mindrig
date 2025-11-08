@@ -1,11 +1,12 @@
 import { useMessages } from "@/aspects/message/Context";
-import { Auth, AuthGateway, resolveAuthGateway } from "@wrkspc/core/auth";
+import { Auth, AuthGateway, defaultAuthGatewayType } from "@wrkspc/core/auth";
+import { State } from "enso";
 import { createContext, useCallback, useContext } from "react";
 import { useClientState } from "../client/StateContext";
 
 export namespace AuthContext {
   export interface Value {
-    auth: Auth;
+    authState: State<Auth>;
     gateway: AuthGateway.Resolve<AuthGateway.Type>;
     logOut(): void;
   }
@@ -16,17 +17,24 @@ export const AuthContext = createContext<AuthContext.Value | undefined>(
 );
 
 export function AuthProvider(props: React.PropsWithChildren) {
-  const { state } = useClientState();
-  const gateway = resolveAuthGateway(state.auth);
-  const { send } = useMessages();
+  const state = useClientState();
+  // TODO: Consider adding observable refs derived from state/fields to Enso.
+  const gateway = state.$.auth.useCompute(
+    (auth) => ({
+      type: auth.gateway?.type || defaultAuthGatewayType,
+      gateway: auth.gateway,
+    }),
+    [],
+  );
+  const { sendMessage } = useMessages();
 
   const logOut = useCallback(
-    () => send({ type: "auth-client-logout" }),
-    [send],
+    () => sendMessage({ type: "auth-client-logout" }),
+    [sendMessage],
   );
 
   return (
-    <AuthContext.Provider value={{ auth: state.auth, gateway, logOut }}>
+    <AuthContext.Provider value={{ authState: state.$.auth, gateway, logOut }}>
       {props.children}
     </AuthContext.Provider>
   );

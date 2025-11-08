@@ -172,6 +172,8 @@
     "mime": "^4.1.0",
     "nanoid": "^5.0.7",
     "p-queue": "^8.0.1",
+    "smolcsv": "^0.1.0",
+    "smolxxh": "^0.1.0",
     "yjs": "^13.6.27"
   },
   "devDependencies": {

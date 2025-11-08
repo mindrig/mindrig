@@ -2,7 +2,7 @@ import { Tabs } from "@wrkspc/ds";
 import iconRegularRightLeft from "@wrkspc/icons/svg/regular/right-left.js";
 import iconRegularTableColumns from "@wrkspc/icons/svg/regular/table-columns.js";
 import iconRegularTableRows from "@wrkspc/icons/svg/regular/table-rows.js";
-import { useStore } from "../store/Context";
+import { useServerStoreState } from "../server/StoreContext";
 import { ResultsLayout } from "./Layout";
 import { useResults } from "./ResultsContext";
 import { buildResultsStateLayout } from "./state";
@@ -10,7 +10,10 @@ import { buildResultsStateLayout } from "./state";
 export function Results() {
   const { state } = useResults();
 
-  const [, setDefaultLayout] = useStore("global", "playground.results.layout");
+  const [, setDefaultLayout] = useServerStoreState(
+    "global",
+    "playground.results.layout",
+  );
   state.$.layout.$.type.useWatch(setDefaultLayout, [setDefaultLayout]);
 
   const layout = state.$.layout.$.type.useValue();

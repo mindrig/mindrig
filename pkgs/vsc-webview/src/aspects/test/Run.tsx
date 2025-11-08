@@ -12,7 +12,7 @@ export namespace TestRun {
 export function TestRun(props: TestRun.Props) {
   const {} = props;
   const { assessment } = useAssessment();
-  const submitting = assessment.form.submitting;
+  const submitting = assessment.assessmentForm.submitting;
 
   return (
     <>
@@ -23,7 +23,7 @@ export function TestRun(props: TestRun.Props) {
             size="small"
             onClick={() => {
               const runId: Run.Id = nanoid();
-              assessment.state.$.runId.set(runId);
+              assessment.assessmentState.$.runId.set(runId);
 
               // TODO: onExecute
             }}

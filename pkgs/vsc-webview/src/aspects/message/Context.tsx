@@ -12,6 +12,10 @@ import {
   type DependencyList,
 } from "react";
 
+export namespace MessagesContext {
+  export type SendMessage = (message: Message.Client) => void;
+}
+
 //#region Legacy
 
 export type VscMessageHandler<Type extends Message.ServerType> = (
@@ -30,7 +34,7 @@ export interface MessageLoggerEntry {
 }
 
 export interface MessagesContextValue {
-  send: (message: Message.Client) => void;
+  sendMessage: MessagesContext.SendMessage;
 
   listen: <Type extends Message.ServerType>(
     type: Type,
@@ -93,7 +97,7 @@ export function MessagesProvider(
     [],
   );
 
-  const send = useCallback<MessagesContextValue["send"]>(
+  const sendMessage = useCallback<MessagesContextValue["sendMessage"]>(
     (message) => {
       logger?.({ direction: "out", message });
       vsc.postMessage?.(message);
@@ -148,7 +152,7 @@ export function MessagesProvider(
   }, [debug, logger, onUnhandledMessage]);
 
   const value: MessagesContextValue = {
-    send,
+    sendMessage,
     listen,
     useListen,
   };
@@ -177,8 +181,8 @@ export function useListenMessage<Type extends Message.ServerType>(
 }
 
 export function useSendMessage(message: Message.Client, deps?: DependencyList) {
-  const { send } = useMessages();
-  useEffect(() => send(message), [send, ...(deps ?? [])]);
+  const { sendMessage } = useMessages();
+  useEffect(() => sendMessage(message), [sendMessage, ...(deps ?? [])]);
 }
 
 export namespace UseWaitMessage {

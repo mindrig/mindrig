@@ -1,9 +1,12 @@
+import { PlaygroundState } from "@wrkspc/core/playground";
+import { State } from "enso";
 import { createContext, useContext } from "react";
 import { BlueprintManager } from "./Manager";
 
 export namespace BlueprintContext {
   export interface Value {
     manager: BlueprintManager;
+    promptState: State<PlaygroundState.Prompt>;
   }
 }
 
@@ -11,18 +14,11 @@ export const BlueprintContext = createContext<
   BlueprintContext.Value | undefined
 >(undefined);
 
-export namespace BlueprintProvider {
-  export interface Props {
-    manager: BlueprintManager;
-  }
-}
-
 export function BlueprintProvider(
-  props: React.PropsWithChildren<BlueprintProvider.Props>,
+  props: React.PropsWithChildren<BlueprintContext.Value>,
 ) {
-  const { manager } = props;
   return (
-    <BlueprintContext.Provider value={{ manager }}>
+    <BlueprintContext.Provider value={props}>
       {props.children}
     </BlueprintContext.Provider>
   );

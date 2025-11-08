@@ -1,34 +1,37 @@
 import { Assessment, buildAssessment } from "@wrkspc/core/assessment";
-import {
-  PlaygroundMap,
-  PlaygroundState,
-  playgroundStatePromptToRef,
-} from "@wrkspc/core/playground";
+import { PlaygroundState } from "@wrkspc/core/playground";
 import { Form, State } from "enso";
 import { useMemo } from "react";
-import { useClientStoreProp } from "../client/StoreContext";
-import { UseStore, useStore } from "../store/Context";
+import { useClientStoreState } from "../client/StoreContext";
+import { useServerStoreState } from "../server/StoreContext";
+import { useMemoWithProps } from "../utils/hooks";
 import { AssessmentState, buildAssessmentState } from "./state";
 
 export namespace AssessmentManager {
   export interface Props {
-    form: Form<Assessment>;
-    state: State<AssessmentState>;
-    promptId: PlaygroundMap.PromptId;
-    streamingEnabledState: UseStore.State<"playground.streaming">;
+    assessmentForm: Form<Assessment>;
+    assessmentState: State<AssessmentState>;
+    promptState: State.Immutable<PlaygroundState.Prompt>;
+    streamingEnabledStoreState: useServerStoreState.State<"playground.streaming">;
   }
 }
 
 export class AssessmentManager {
-  static use(prompt: PlaygroundState.Prompt) {
-    const streamingEnabled = useStore("global", "playground.streaming");
-    const assessmentStoreState = useClientStoreProp(
-      `playground.assessments.${prompt.promptId}`,
+  static use(promptState: State<PlaygroundState.Prompt>) {
+    const promptId = promptState.$.promptId.useValue();
+    const fileId = promptState.$.fileId.useValue();
+
+    const streamingEnabledStoreState = useServerStoreState(
+      "global",
+      "playground.streaming",
+    );
+    const assessmentStoreState = useClientStoreState(
+      `playground.assessments.${promptId}`,
     );
 
-    const ref = useMemo(
-      () => playgroundStatePromptToRef(prompt),
-      [prompt.promptId, prompt.fileId],
+    const ref = useMemo<PlaygroundState.Ref>(
+      () => ({ v: 1, promptId, fileId }),
+      [promptId, fileId],
     );
 
     // Set up assessment form.
@@ -38,12 +41,12 @@ export class AssessmentManager {
       // to further changes in the client store.
       [],
     );
-    const form = Form.use<Assessment>(initialAssessment, [prompt.promptId]);
+    const assessmentForm = Form.use<Assessment>(initialAssessment, [promptId]);
 
-    const state = State.use(buildAssessmentState(), [prompt.promptId]);
+    const assessmentState = State.use(buildAssessmentState(), [promptId]);
 
     // Sync form changes back to the client store.
-    form.useWatch(
+    assessmentForm.useWatch(
       (assessment) =>
         assessmentStoreState[1]((prevPromptStore) => ({
           ...prevPromptStore,
@@ -54,46 +57,50 @@ export class AssessmentManager {
       [ref, initialAssessment, assessmentStoreState[1]],
     );
 
-    const manager = useMemo(
-      () =>
-        new AssessmentManager({
-          form,
-          state,
-          promptId: prompt.promptId,
-          streamingEnabledState: streamingEnabled,
-        }),
-      [form, state, prompt.promptId, streamingEnabled],
+    const manager = useMemoWithProps(
+      {
+        assessmentForm,
+        assessmentState,
+        promptState,
+        streamingEnabledStoreState,
+      },
+      (props) => new AssessmentManager(props),
+      [],
     );
 
     return manager;
   }
 
-  #form;
-  #state;
-  #promptId;
-  #streamingEnabledState;
+  #assessmentForm;
+  #assessmentState;
+  #promptState;
+  #streamingEnabledStoreState;
 
   constructor(props: AssessmentManager.Props) {
-    this.#form = props.form;
-    this.#state = props.state;
-    this.#promptId = props.promptId;
-    this.#streamingEnabledState = props.streamingEnabledState;
+    this.#assessmentForm = props.assessmentForm;
+    this.#assessmentState = props.assessmentState;
+    this.#promptState = props.promptState;
+    this.#streamingEnabledStoreState = props.streamingEnabledStoreState;
   }
 
-  get form(): Form<Assessment> {
-    return this.#form;
+  get assessmentForm(): Form<Assessment> {
+    return this.#assessmentForm;
   }
 
-  get state(): State<AssessmentState> {
-    return this.#state;
+  get assessmentState(): State<AssessmentState> {
+    return this.#assessmentState;
+  }
+
+  get promptState(): State.Immutable<PlaygroundState.Prompt> {
+    return this.#promptState;
   }
 
   get streamingEnabled(): boolean {
-    return !!this.#streamingEnabledState[0];
+    return !!this.#streamingEnabledStoreState[0];
   }
 
   toggleStreamingEnabled() {
-    const enabled = this.#streamingEnabledState[0];
-    this.#streamingEnabledState[1](!enabled);
+    const enabled = this.#streamingEnabledStoreState[0];
+    this.#streamingEnabledStoreState[1](!enabled);
   }
 }

@@ -35,9 +35,9 @@ export function App() {
 function Content() {
   const navigate = useNavigate();
 
-  const { send, useListen } = useMessages();
+  const { sendMessage, useListen } = useMessages();
 
-  useEffect(() => send({ type: "client-client-ready" }), [send]);
+  useEffect(() => sendMessage({ type: "client-client-ready" }), [sendMessage]);
 
   useListen("client-server-navigate", (message) =>
     navigate(pageHrefs[message.payload.type]()),
@@ -82,10 +82,10 @@ export namespace PageRoute {
 function PageRoute(props: React.PropsWithChildren<PageRoute.Props>) {
   const { page, children } = props;
 
-  const { send } = useMessages();
+  const { sendMessage } = useMessages();
   useEffect(() => {
-    send({ type: "client-client-navigated", payload: props.page });
-  }, [send]);
+    sendMessage({ type: "client-client-navigated", payload: props.page });
+  }, [sendMessage]);
 
   return children;
 }

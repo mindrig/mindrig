@@ -18,6 +18,7 @@ export namespace PlaygroundState {
   export interface Prompt extends Ref {
     content: string;
     reason: PromptReason;
+    vars: PlaygroundMap.PromptVar[];
   }
 
   export type PromptReason = "pinned" | "cursor";

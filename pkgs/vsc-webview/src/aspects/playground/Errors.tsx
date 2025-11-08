@@ -8,8 +8,9 @@ export namespace PlaygroundErrors {
 }
 
 export function PlaygroundErrors(props: PlaygroundErrors.Props) {
-  const { auth } = useAuth();
+  const { authState } = useAuth();
   const { payload, sources } = useModelsMap();
+  const hasGateway = authState.$.gateway.useCompute((gateway) => !!gateway, []);
 
   if (!payload || payload?.status !== "error") return null;
 
@@ -18,7 +19,7 @@ export function PlaygroundErrors(props: PlaygroundErrors.Props) {
       <div>{payload.message}</div>
 
       <div className="flex gap-2">
-        {auth.gateway && (
+        {hasGateway && (
           <Button
             size="xsmall"
             style="transparent"
@@ -30,7 +31,7 @@ export function PlaygroundErrors(props: PlaygroundErrors.Props) {
         )}
 
         <Button size="xsmall" href={pageHrefs.auth()}>
-          {auth.gateway ? "Update" : "Set up"}
+          {hasGateway ? "Update" : "Set up"}
         </Button>
       </div>
     </div>

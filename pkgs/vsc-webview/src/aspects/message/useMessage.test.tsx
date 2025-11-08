@@ -29,7 +29,7 @@ describe.skip("message context", () => {
     const { result } = renderHook(() => useMessages(), { wrapper: Wrapper });
 
     const message: VscMessage = { type: "settings-streaming-get" };
-    result.current.send(message);
+    result.current.sendMessage(message);
 
     expect(mock.postMessage).toHaveBeenCalledWith(message);
   });

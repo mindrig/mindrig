@@ -1,12 +1,11 @@
 import { ClientState } from "@wrkspc/core/client";
 import { buildPlaygroundState } from "@wrkspc/core/playground";
-import { createContext, useContext, useState } from "react";
+import { State } from "enso";
+import { createContext, useContext } from "react";
 import { useMessages } from "../message/Context";
 
 export namespace ClientStateContext {
-  export interface Value {
-    state: ClientState;
-  }
+  export type Value = State<ClientState>;
 }
 
 export const ClientStateContext = createContext<
@@ -16,34 +15,34 @@ export const ClientStateContext = createContext<
 export function ClientStateProvider(props: React.PropsWithChildren) {
   const { useListen } = useMessages();
 
-  const [state, setState] = useState<ClientState>(
+  const state = State.use<ClientState>(
     window.initialState || {
       auth: { gateway: null },
       playground: buildPlaygroundState(),
     },
+    [],
   );
 
   useListen(
     "auth-server-update",
-    (message) => setState((state) => ({ ...state, auth: message.payload })),
-    [setState],
+    (message) => state.$.auth.set(message.payload),
+    [state],
   );
 
   useListen(
     "settings-server-update",
-    (message) => setState((state) => ({ ...state, settings: message.payload })),
-    [setState],
+    (message) => state.$.settings.set(message.payload),
+    [state],
   );
 
   useListen(
     "playground-server-update",
-    (message) =>
-      setState((state) => ({ ...state, playground: message.payload })),
-    [setState],
+    (message) => state.$.playground.set(message.payload),
+    [state],
   );
 
   return (
-    <ClientStateContext.Provider value={{ state }}>
+    <ClientStateContext.Provider value={state}>
       {props.children}
     </ClientStateContext.Provider>
   );

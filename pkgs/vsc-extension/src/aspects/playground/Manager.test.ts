@@ -48,6 +48,7 @@ describe(PlaygroundManager, () => {
           fileId: mapFileB.id,
           promptId: mapPromptsB[0].id,
           content: mapPromptsB[0].content,
+          vars: mapPromptsB[0].vars,
           reason: "pinned",
         },
         prompts: [

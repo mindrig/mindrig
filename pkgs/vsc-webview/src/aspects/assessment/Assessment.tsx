@@ -1,4 +1,5 @@
 import { PlaygroundState } from "@wrkspc/core/playground";
+import { State } from "enso";
 import { Setups } from "../setup/Setups";
 import { Tests } from "../test/Tests";
 import { Tools } from "../tools/Tools";
@@ -33,7 +34,7 @@ export { AssessmentComponent as Assessment };
 
 export namespace AssessmentComponent {
   export interface Props {
-    prompt: PlaygroundState.Prompt;
+    promptState: State<PlaygroundState.Prompt>;
   }
 }
 
@@ -55,7 +56,7 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
   // const promptVariables = useMemo(() => prompt?.vars ?? [], [prompt]);
   // const datasourceState = useAssessmentDatasourceState({
   //   promptVariables,
-  //   onRequestCsv: () => send({ type: "dataset-client-csv-request" }),
+  //   onRequestCsv: () => send({ type: "dataset-client-csv-select-request" }),
   // });
   // const {
   //   inputSource,
@@ -891,7 +892,7 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
   //   async (
   //     payload: Extract<
   //       VscMessageDataset,
-  //       { type: "dataset-server-csv-content" }
+  //       { type: "dataset-server-csv-data" }
   //     >["payload"],
   //   ) => {
   //     if (payload.status === "error") {
@@ -960,7 +961,7 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
   // );
 
   // useListen(
-  //   "dataset-server-csv-content",
+  //   "dataset-server-csv-data",
   //   (message) => {
   //     void handleDatasetLoad(message.payload);
   //   },
@@ -1591,19 +1592,19 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
 
   //#endregion
 
-  const { prompt } = props;
-  const assessment = AssessmentManager.use(prompt);
+  const { promptState } = props;
+  const assessment = AssessmentManager.use(promptState);
 
   return (
     <AssessmentProvider assessment={assessment}>
       <Setups
-        field={assessment.form.$.setups}
-        state={assessment.state.$.setups}
+        field={assessment.assessmentForm.$.setups}
+        state={assessment.assessmentState.$.setups}
       />
 
-      <Tools field={assessment.form.$.tools} />
+      <Tools field={assessment.assessmentForm.$.tools} />
 
-      <Tests field={assessment.form.$.tests} />
+      <Tests field={assessment.assessmentForm.$.tests} />
     </AssessmentProvider>
   );
 }

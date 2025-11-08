@@ -4,7 +4,7 @@ import iconRegularInputText from "@wrkspc/icons/svg/regular/input-text.js";
 import iconRegularTable from "@wrkspc/icons/svg/regular/table.js";
 import { never } from "alwaysly";
 import { Field } from "enso";
-import { DatasourceDataset } from "./Dataset";
+import { DatasetDatasource } from "../dataset/datasource/Datasource";
 import { DatasourceManual } from "./Manual";
 
 export { DatasourceComponent as Datasource };
@@ -57,9 +57,9 @@ export function DatasourceComponent(props: DatasourceComponent.Props) {
       </div>
 
       {discriminated.discriminator === "dataset" ? (
-        <DatasourceDataset field={discriminated.field} />
+        <DatasetDatasource datasourceField={discriminated.field} />
       ) : discriminated.discriminator === "manual" ? (
-        <DatasourceManual field={discriminated.field} />
+        <DatasourceManual datasourceField={discriminated.field} />
       ) : (
         never()
       )}

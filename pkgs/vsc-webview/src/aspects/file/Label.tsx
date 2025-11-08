@@ -1,16 +1,18 @@
 import { EditorFile } from "@wrkspc/core/editor";
+import { State } from "enso";
 import { LanguageIcon } from "../language/Icon";
 import { FileNameLabel } from "./NameLabel";
 
 export namespace FileLabel {
   export interface Props {
-    file: EditorFile.Meta;
+    fileState: State<EditorFile.Meta>;
     isPinned: boolean;
   }
 }
 
 export function FileLabel(props: FileLabel.Props) {
-  const { file, isPinned } = props;
+  const { fileState, isPinned } = props;
+
   return (
     <div>
       <div
@@ -18,8 +20,13 @@ export function FileLabel(props: FileLabel.Props) {
           "inline-flex items-center gap-1 px-1 -mx-1 rounded hover:bg-item-hover"
         }
       >
-        <LanguageIcon id={file.languageId} color="support" size="xsmall" />
-        <FileNameLabel path={file.path} isPinned={isPinned} />
+        <LanguageIcon
+          id={fileState.$.languageId}
+          color="support"
+          size="xsmall"
+        />
+
+        <FileNameLabel pathState={fileState.$.path} isPinned={isPinned} />
       </div>
     </div>
   );

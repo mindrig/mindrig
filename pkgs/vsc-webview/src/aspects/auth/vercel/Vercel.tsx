@@ -1,15 +1,15 @@
 import { useMessages } from "@/aspects/message/Context";
 import { AuthGateway } from "@wrkspc/core/auth";
 import { never } from "alwaysly";
-import { Form } from "enso";
-import { useEffect, useMemo, useRef } from "react";
+import { Form, State } from "enso";
+import { useMemo, useRef } from "react";
 import { AuthVercelForm } from "./Form";
 import { AuthVercelProfile } from "./Profile";
 import { authVercelStatechart } from "./statechart";
 
 export namespace AuthVercel {
   export interface Props {
-    gateway: AuthGateway.Vercel | null;
+    gatewayState: State<AuthGateway.Vercel> | State<null>;
   }
 
   export interface FormValues {
@@ -18,9 +18,9 @@ export namespace AuthVercel {
 }
 
 export function AuthVercel(props: AuthVercel.Props) {
-  const { gateway } = props;
+  const { gatewayState } = props;
   const form = Form.use<AuthVercel.FormValues>({ key: "" }, []);
-  const { send } = useMessages();
+  const { sendMessage } = useMessages();
 
   const statechart = useMemo(() => {
     const clearKey = () => form.set({ key: "" });
@@ -34,10 +34,11 @@ export function AuthVercel(props: AuthVercel.Props) {
       },
       profileErrored: {
         "revalidate() -> revalidate!": () =>
-          send({ type: "auth-client-vercel-gateway-revalidate" }),
+          sendMessage({ type: "auth-client-vercel-gateway-revalidate" }),
       },
     });
 
+    const gateway = gatewayState.value;
     if (gateway?.error)
       statechart.send.error("-> profileErrored", {
         maskedKey: gateway.maskedKey,
@@ -50,30 +51,37 @@ export function AuthVercel(props: AuthVercel.Props) {
     else statechart.send.missing();
 
     return statechart;
-  }, [form, send]);
+  }, [form, sendMessage]);
 
-  const prevGateway = useRef<AuthGateway.Vercel | undefined | null>(gateway);
-  useEffect(() => {
-    if (gateway === prevGateway.current) return;
+  const prevGatewayRef = useRef<AuthGateway.Vercel | undefined | null>(
+    gatewayState.value,
+  );
+  gatewayState.useWatch(
+    (gateway) => {
+      if (gateway === prevGatewayRef.current) return;
 
-    if (prevGateway.current === undefined) {
-      prevGateway.current = gateway;
-      return;
-    }
+      if (prevGatewayRef.current === undefined) {
+        prevGatewayRef.current = gateway;
+        return;
+      }
 
-    if (gateway?.error)
-      if (statechart.in("formSubmitting"))
-        statechart.send.error("-> formErrored", {
-          error: gateway.error,
-        });
-      else
-        statechart.send.error("-> profileErrored", {
+      if (gateway?.error)
+        if (statechart.in("formSubmitting"))
+          statechart.send.error("-> formErrored", {
+            error: gateway.error,
+          });
+        else
+          statechart.send.error("-> profileErrored", {
+            maskedKey: gateway.maskedKey,
+            error: gateway.error,
+          });
+      else if (gateway)
+        statechart.send.valid("-> profile", {
           maskedKey: gateway.maskedKey,
-          error: gateway.error,
         });
-    else if (gateway)
-      statechart.send.valid("-> profile", { maskedKey: gateway.maskedKey });
-  }, [gateway, prevGateway, statechart]);
+    },
+    [prevGatewayRef, statechart],
+  );
 
   switch (statechart.state.name) {
     case "pending":

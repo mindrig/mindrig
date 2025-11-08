@@ -41,7 +41,7 @@ export namespace UseModelsSource {
 export function useModelsSource<Type extends ModelsSource.Type>(
   type: Type,
 ): ModelsSource<Type> {
-  const { send, useListen } = useMessages();
+  const { sendMessage, useListen } = useMessages();
   const [response, setResponse] = useState<
     ModelsSource.Response<Type> | undefined
   >(undefined);
@@ -58,7 +58,7 @@ export function useModelsSource<Type extends ModelsSource.Type>(
 
   const refresh = useCallback(() => {
     setWaiting(true);
-    send({ type: messageRefreshType(type) });
+    sendMessage({ type: messageRefreshType(type) });
   }, []);
 
   return { response, waiting, refresh };

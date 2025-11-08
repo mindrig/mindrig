@@ -123,14 +123,18 @@ export function resolvePlaygroundState(
     if (pinPrompt)
       return {
         file: pinFile.meta,
-        prompt: toPromptState(pinFile.id, pinPrompt, "pinned"),
-        prompts: mapFilePromptItems(pinFile),
+        prompt: buildStatePrompt({
+          fileId: pinFile.id,
+          prompt: pinPrompt,
+          reason: "pinned",
+        }),
+        prompts: buildStatePromptItems(pinFile),
         pin,
       };
   }
 
   const fileMeta = file ? editorFileToMeta(file) : null;
-  const prompts = mapFile ? mapFilePromptItems(mapFile) : [];
+  const prompts = mapFile ? buildStatePromptItems(mapFile) : [];
 
   const cursor = file?.cursor;
   const parsedPromptIdx =
@@ -155,7 +159,11 @@ export function resolvePlaygroundState(
 
   return {
     file: fileMeta,
-    prompt: toPromptState(mapFile.id, cursorPrompt, "cursor"),
+    prompt: buildStatePrompt({
+      fileId: mapFile.id,
+      prompt: cursorPrompt,
+      reason: "cursor",
+    }),
     prompts,
     pin: null,
   };
@@ -929,16 +937,25 @@ function truncatePromptContent(content: string): string {
   return `${firstLine.slice(0, PROMPT_PREVIEW_LENGTH - 1)}…`;
 }
 
-function mapFilePromptItems(
+function buildStatePromptItems(
   mapFile: PlaygroundMap.File,
 ): PlaygroundState.PromptItem[] {
-  return mapFile.prompts.map(toPromptItem.bind(null, mapFile.id));
+  return mapFile.prompts.map((prompt) =>
+    buildStatePromptItem({ fileId: mapFile.id, prompt }),
+  );
 }
 
-function toPromptItem(
-  fileId: PlaygroundMap.FileId,
-  prompt: PlaygroundMap.Prompt,
+export namespace buildPromptItem {
+  export interface Props {
+    fileId: PlaygroundMap.FileId;
+    prompt: PlaygroundMap.Prompt;
+  }
+}
+
+function buildStatePromptItem(
+  props: buildPromptItem.Props,
 ): PlaygroundState.PromptItem {
+  const { fileId, prompt } = props;
   return {
     v: 1,
     fileId,
@@ -947,16 +964,24 @@ function toPromptItem(
   };
 }
 
-function toPromptState(
-  fileId: PlaygroundMap.FileId,
-  prompt: PlaygroundMap.Prompt,
-  reason: PlaygroundState.PromptReason,
+export namespace buildStatePrompt {
+  export interface Props {
+    fileId: PlaygroundMap.FileId;
+    prompt: PlaygroundMap.Prompt;
+    reason: PlaygroundState.PromptReason;
+  }
+}
+
+function buildStatePrompt(
+  props: buildStatePrompt.Props,
 ): PlaygroundState.Prompt {
+  const { fileId, prompt, reason } = props;
   return {
     v: 1,
     fileId,
     promptId: prompt.id,
     content: prompt.content,
+    vars: prompt.vars,
     reason,
   };
 }
