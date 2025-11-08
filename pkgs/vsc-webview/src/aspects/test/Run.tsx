@@ -1,9 +1,8 @@
-import { Run } from "@wrkspc/core/run";
 import { Button } from "@wrkspc/ds";
 import { Checkbox } from "@wrkspc/form";
-import { nanoid } from "nanoid";
 import { useAssessment } from "../assessment/Context";
 import { Results } from "../result/Results";
+import { useTest } from "./Context";
 
 export namespace TestRun {
   export interface Props {}
@@ -12,6 +11,7 @@ export namespace TestRun {
 export function TestRun(props: TestRun.Props) {
   const {} = props;
   const { assessment } = useAssessment();
+  const { test } = useTest();
   const submitting = assessment.assessmentForm.submitting;
 
   return (
@@ -21,12 +21,7 @@ export function TestRun(props: TestRun.Props) {
           <Button
             type="submit"
             size="small"
-            onClick={() => {
-              const runId: Run.Id = nanoid();
-              assessment.assessmentState.$.runId.set(runId);
-
-              // TODO: onExecute
-            }}
+            onClick={() => test.startRun()}
             isDisabled={submitting}
             // disabled={submitting || !canRunPrompt}
           >
@@ -49,8 +44,8 @@ export function TestRun(props: TestRun.Props) {
 
         <Checkbox
           label="Stream output"
-          value={assessment.streamingEnabled}
-          onChange={assessment.toggleStreamingEnabled.bind(assessment)}
+          value={test.streaming}
+          onChange={test.toggleStreaming.bind(assessment)}
           size="small"
         />
 

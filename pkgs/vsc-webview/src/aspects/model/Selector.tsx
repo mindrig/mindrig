@@ -12,7 +12,7 @@ export namespace ModelSelector {
 
 export function ModelSelector(props: ModelSelector.Props) {
   const { field } = props;
-  const { payload: modelsPayload, useModels } = useModelsMap();
+  const { modelsPayload: modelsPayload, useModels } = useModelsMap();
 
   field.$.developerId.useWatch(
     (developerId) => {

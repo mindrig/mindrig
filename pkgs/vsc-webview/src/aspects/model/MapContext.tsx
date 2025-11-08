@@ -12,7 +12,7 @@ import { ModelsSource, useModelsSource } from "./SourceContext";
 
 export namespace ModelsMapContext {
   export interface Value {
-    payload: PayloadValue;
+    modelsPayload: PayloadValue;
     sources: Sources;
     useModels: UseModels;
     useModel: UseModel;
@@ -78,7 +78,7 @@ export function ModelsMapProvider(props: React.PropsWithChildren) {
   const dotdev = useModelsSource("dotdev");
   const gateway = useModelsSource("gateway");
 
-  const payload = useMemo<ModelsMapContext.PayloadValue>(() => {
+  const modelsPayload = useMemo<ModelsMapContext.PayloadValue>(() => {
     // Gateway is still loading
     if (!gateway.response) return undefined;
 
@@ -122,12 +122,12 @@ export function ModelsMapProvider(props: React.PropsWithChildren) {
     (developerId) =>
       useMemo<Model.Items | undefined>(
         () =>
-          payload?.map && developerId
-            ? mapModelItems(payload.map, developerId)
+          modelsPayload?.map && developerId
+            ? mapModelItems(modelsPayload.map, developerId)
             : undefined,
-        [payload?.map, developerId],
+        [modelsPayload?.map, developerId],
       ),
-    [payload?.map],
+    [modelsPayload?.map],
   );
 
   const useModel = useCallback<ModelsMapContext.UseModel>(
@@ -135,16 +135,16 @@ export function ModelsMapProvider(props: React.PropsWithChildren) {
       useMemo<Model | undefined | null>(
         () =>
           ref &&
-          payload?.map?.[ref.developerId].models.find(
+          modelsPayload?.map?.[ref.developerId].models.find(
             (model) => model.id === ref.modelId,
           ),
-        [payload?.map, ref?.developerId, ref?.modelId],
+        [modelsPayload?.map, ref?.developerId, ref?.modelId],
       ),
-    [payload?.map],
+    [modelsPayload?.map],
   );
 
   const value: ModelsMapContext.Value = {
-    payload,
+    modelsPayload,
     useModels,
     useModel,
     sources: { dotdev, gateway },

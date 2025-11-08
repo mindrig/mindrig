@@ -27,7 +27,7 @@ export function ResultProvider(
   props: React.PropsWithChildren<ResultProvider.Props>,
 ) {
   const { state } = props;
-  const { payload: modelsPayload } = useModelsMap();
+  const { modelsPayload: modelsPayload } = useModelsMap();
 
   const useResultModel = useCallback<ResultContext.UseResultModel>(
     () =>

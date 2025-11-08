@@ -1,9 +1,9 @@
 import { State } from "enso";
-import { DatasetDatasourceState } from "./state";
+import { DatasetDatasourceClientState } from "./clientState";
 
 export namespace DatasetDatasourceCsvError {
   export interface Props {
-    csvState: State<DatasetDatasourceState.CsvError>;
+    csvState: State<DatasetDatasourceClientState.CsvError>;
   }
 }
 

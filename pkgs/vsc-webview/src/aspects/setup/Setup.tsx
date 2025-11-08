@@ -12,7 +12,7 @@ export { SetupComponent as ModelSetup };
 
 export namespace SetupComponent {
   export interface Props {
-    field: Field<Setup, "detachable">;
+    setupField: Field<Setup, "detachable">;
     expandedIndexState: State<number | null>;
     solo: boolean;
     // TODO: Add ability to access index/key from the detachable field to Enso
@@ -21,22 +21,22 @@ export namespace SetupComponent {
 }
 
 export function SetupComponent(props: SetupComponent.Props) {
-  const { field, solo, expandedIndexState, index } = props;
-  const { payload: modelsPayload } = useModelsMap();
+  const { setupField, solo, expandedIndexState, index } = props;
+  const { modelsPayload: modelsPayload } = useModelsMap();
 
   const expanded = expandedIndexState.useCompute(
     (expandedIndex) => expandedIndex === index,
     [index],
   );
 
-  const model = field.$.ref.useCompute(
+  const model = setupField.$.ref.useCompute(
     (ref) => resolveModel(ref, modelsPayload?.map),
     [modelsPayload?.map],
   );
 
   return (
     <div className="border rounded p-3 space-y-3">
-      <ModelSelector field={field.$.ref} />
+      <ModelSelector field={setupField.$.ref} />
 
       <div className="flex flex-wrap items-center gap-3">
         {model && (
@@ -53,7 +53,7 @@ export function SetupComponent(props: SetupComponent.Props) {
           <Button
             style="label"
             size="small"
-            onClick={() => field.self.remove()}
+            onClick={() => setupField.self.remove()}
             className="ml-auto inline-flex items-center justify-center h-6 w-6 rounded-full border text-xs"
           >
             <Icon id={iconRegularTimes} aria-hidden />
@@ -66,7 +66,7 @@ export function SetupComponent(props: SetupComponent.Props) {
           <ModelCapabilities type={model.type} />
 
           {expanded && (
-            <ModelSettings field={field.$.settings} type={model.type} />
+            <ModelSettings field={setupField.$.settings} type={model.type} />
           )}
         </>
       )}

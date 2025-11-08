@@ -1,11 +1,11 @@
 import { State } from "enso";
 import { DatasetSelectionComponent } from "../selection/Selection";
 import { useDatasetDatasource } from "./Context";
-import { DatasetDatasourceState } from "./state";
+import { DatasetDatasourceClientState } from "./clientState";
 
 export namespace DatasetDatasourceCsvLoaded {
   export interface Props {
-    csvState: State<DatasetDatasourceState.CsvLoaded>;
+    csvState: State<DatasetDatasourceClientState.CsvLoaded>;
   }
 }
 

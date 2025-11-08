@@ -1598,8 +1598,8 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
   return (
     <AssessmentProvider assessment={assessment}>
       <Setups
-        field={assessment.assessmentForm.$.setups}
-        state={assessment.assessmentState.$.setups}
+        setupsField={assessment.assessmentForm.$.setups}
+        setupsClientState={assessment.assessmentClientState.$.setups}
       />
 
       <Tools field={assessment.assessmentForm.$.tools} />

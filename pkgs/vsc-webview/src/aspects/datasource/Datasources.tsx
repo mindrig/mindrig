@@ -10,7 +10,6 @@ export namespace Datasources {
 }
 
 export function Datasources(props: Datasources.Props) {
-  const {} = props;
   const field = props.field.useCollection();
 
   return (

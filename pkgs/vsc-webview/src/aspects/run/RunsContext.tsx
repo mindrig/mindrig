@@ -1,23 +1,22 @@
 import { createContext, useContext } from "react";
+import { RunsManager } from "./RunsManager";
 
 export namespace RunsContext {
-  export interface Value {}
+  export interface Value {
+    runs: RunsManager;
+  }
 }
 
 export const RunsContext = createContext<RunsContext.Value | undefined>(
   undefined,
 );
 
-export namespace RunsProvider {
-  export interface Props {}
-}
-
-export function RunsProvider(
-  props: React.PropsWithChildren<RunsProvider.Props>,
-) {
-  const {} = props;
+export function RunsProvider(props: React.PropsWithChildren) {
+  const runs = RunsManager.use();
   return (
-    <RunsContext.Provider value={{}}>{props.children}</RunsContext.Provider>
+    <RunsContext.Provider value={{ runs }}>
+      {props.children}
+    </RunsContext.Provider>
   );
 }
 

@@ -9,11 +9,14 @@ import { Field, State } from "enso";
 import { nanoid } from "nanoid";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MessagesContext, useMessages } from "../../message/Context";
-import { buildDatasetDatasourceState, DatasetDatasourceState } from "./state";
+import {
+  buildDatasetDatasourceClientState,
+  DatasetDatasourceClientState,
+} from "./clientState";
 
 export namespace DatasetDatasourceManager {
   export interface Props {
-    datasetState: State<DatasetDatasourceState>;
+    datasetState: State<DatasetDatasourceClientState>;
     datasourceField: Field<DatasetDatasource>;
     sendMessage: MessagesContext.SendMessage;
   }
@@ -24,25 +27,25 @@ export namespace DatasetDatasourceManager {
   }
 
   export type DiscriminatedCsv = State.Discriminated<
-    DatasetDatasourceState.Csv | null,
+    DatasetDatasourceClientState.Csv | null,
     "status"
   >;
 
   export type UseSyncDatasetToDatasourceCallback = (
-    csv: DatasetDatasourceState.CsvLoaded,
+    csv: DatasetDatasourceClientState.CsvLoaded,
   ) => Field<DatasetDatasource.DataCsv>;
 }
 
 export class DatasetDatasourceManager {
   static use(datasourceField: Field<DatasetDatasource>) {
-    const initialCsv = useMemo<DatasetDatasourceState.Csv | null>(() => {
+    const initialCsv = useMemo<DatasetDatasourceClientState.Csv | null>(() => {
       const value = datasourceField.$.data.value;
       if (!value) return null;
       const requestId: DatasetRequest.CsvId = nanoid();
       return { status: "loading", requestId, path: value.path };
     }, [datasourceField]);
-    const datasetState = State.use<DatasetDatasourceState>(
-      buildDatasetDatasourceState({ csv: initialCsv }),
+    const datasetState = State.use<DatasetDatasourceClientState>(
+      buildDatasetDatasourceClientState({ csv: initialCsv }),
       [],
     );
     const { useListen, sendMessage } = useMessages();
@@ -127,7 +130,7 @@ export class DatasetDatasourceManager {
   }
 
   useSyncDatasetToDatasource(
-    datasourceCsvState: State<DatasetDatasourceState.CsvLoaded>,
+    datasourceCsvState: State<DatasetDatasourceClientState.CsvLoaded>,
   ): Field<DatasetDatasource.DataCsv> {
     const syncField =
       useCallback<DatasetDatasourceManager.UseSyncDatasetToDatasourceCallback>(

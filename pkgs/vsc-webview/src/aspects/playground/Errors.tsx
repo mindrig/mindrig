@@ -9,7 +9,7 @@ export namespace PlaygroundErrors {
 
 export function PlaygroundErrors(props: PlaygroundErrors.Props) {
   const { authState } = useAuth();
-  const { payload, sources } = useModelsMap();
+  const { modelsPayload: payload, sources } = useModelsMap();
   const hasGateway = authState.$.gateway.useCompute((gateway) => !!gateway, []);
 
   if (!payload || payload?.status !== "error") return null;

@@ -8,6 +8,7 @@ import { NavigateOptions, useNavigate } from "react-router-dom";
 import { ClientStateProvider } from "../client/StateContext";
 import { ClientStoreProvider } from "../client/StoreContext";
 import { ModelsMapProvider } from "../model/MapContext";
+import { RunsProvider } from "../run/RunsContext";
 
 export function AppContext(props: React.PropsWithChildren) {
   return (
@@ -16,7 +17,9 @@ export function AppContext(props: React.PropsWithChildren) {
         <ClientStateProvider>
           <ClientStoreProvider>
             <AuthProvider>
-              <ModelsMapProvider>{props.children}</ModelsMapProvider>
+              <ModelsMapProvider>
+                <RunsProvider>{props.children}</RunsProvider>
+              </ModelsMapProvider>
             </AuthProvider>
           </ClientStoreProvider>
         </ClientStateProvider>

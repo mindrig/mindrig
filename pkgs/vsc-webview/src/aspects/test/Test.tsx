@@ -9,18 +9,18 @@ export { TestComponent as Test };
 
 export namespace TestComponent {
   export interface Props {
-    field: Field<Test>;
+    testField: Field<Test>;
   }
 }
 
 export function TestComponent(props: TestComponent.Props) {
-  const { field } = props;
+  const { testField } = props;
 
   return (
-    <TestProvider>
-      <Attachments field={field.$.attachments} />
+    <TestProvider testField={testField}>
+      <Attachments field={testField.$.attachments} />
 
-      <Datasources field={field.$.datasources} />
+      <Datasources field={testField.$.datasources} />
 
       <TestRun />
     </TestProvider>

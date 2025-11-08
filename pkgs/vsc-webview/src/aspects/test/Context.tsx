@@ -1,25 +1,25 @@
 import { createContext, useContext } from "react";
+import { TestManager } from "./Manager";
 
 export namespace TestContext {
-  export interface Value {}
+  export interface Value {
+    test: TestManager;
+  }
 }
 
 export const TestContext = createContext<TestContext.Value | undefined>(
   undefined,
 );
 
-export namespace TestProvider {
-  export interface Props {
-    // manager: AssessmentManager;
-  }
-}
-
 export function TestProvider(
-  props: React.PropsWithChildren<TestProvider.Props>,
+  props: React.PropsWithChildren<TestManager.UseProps>,
 ) {
-  const {} = props;
+  const test = TestManager.use(props);
+
   return (
-    <TestContext.Provider value={{}}>{props.children}</TestContext.Provider>
+    <TestContext.Provider value={{ test }}>
+      {props.children}
+    </TestContext.Provider>
   );
 }
 

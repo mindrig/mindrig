@@ -14,7 +14,7 @@ export function Tests(props: Tests.Props) {
   return (
     <div className="space-y-3">
       {field.map((testField) => (
-        <TestComponent key={testField.key} field={testField} />
+        <TestComponent key={testField.key} testField={testField} />
       ))}
     </div>
   );

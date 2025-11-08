@@ -2,7 +2,7 @@ import { buildSetup, Setup } from "@wrkspc/core/setup";
 import { Button } from "@wrkspc/ds";
 import { Field, State } from "enso";
 import { SetupComponent } from "./Setup";
-import { SetupsState } from "./state";
+import { SetupsClientState } from "./clientState";
 
 //#region Legacy
 
@@ -316,14 +316,14 @@ import { SetupsState } from "./state";
 
 export namespace Setups {
   export interface Props {
-    field: Field<Setup[]>;
-    state: State<SetupsState>;
+    setupsField: Field<Setup[]>;
+    setupsClientState: State<SetupsClientState>;
   }
 }
 
 export function Setups(props: Setups.Props) {
-  const { state } = props;
-  const field = props.field.useCollection();
+  const { setupsClientState } = props;
+  const field = props.setupsField.useCollection();
   const soloSetup = field.useCompute((setups) => setups.length === 1, []);
 
   return (
@@ -346,9 +346,9 @@ export function Setups(props: Setups.Props) {
         {field.map((setupField, index) => (
           <SetupComponent
             key={setupField.key}
-            field={setupField}
+            setupField={setupField}
             solo={soloSetup}
-            expandedIndexState={state.$.expandedIndex}
+            expandedIndexState={setupsClientState.$.expandedIndex}
             index={index}
           />
         ))}
