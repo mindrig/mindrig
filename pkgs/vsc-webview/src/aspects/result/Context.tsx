@@ -47,6 +47,6 @@ export function ResultProvider(
 
 export function useResult(): ResultContext.Value {
   const value = useContext(ResultContext);
-  if (!value) throw new Error("useResult must be used within RunProvider");
+  if (!value) throw new Error("useResult must be used within ResultProvider");
   return value;
 }

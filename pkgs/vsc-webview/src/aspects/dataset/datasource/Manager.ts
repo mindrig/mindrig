@@ -33,7 +33,7 @@ export namespace DatasetDatasourceManager {
 
   export type UseSyncDatasetToDatasourceCallback = (
     csv: DatasetDatasourceClientState.CsvLoaded,
-  ) => Field<DatasetDatasource.DataCsv>;
+  ) => Field<DatasetDatasource.DataRefCsvV1>;
 }
 
 export class DatasetDatasourceManager {
@@ -131,7 +131,7 @@ export class DatasetDatasourceManager {
 
   useSyncDatasetToDatasource(
     datasourceCsvState: State<DatasetDatasourceClientState.CsvLoaded>,
-  ): Field<DatasetDatasource.DataCsv> {
+  ): Field<DatasetDatasource.DataRefCsv> {
     const syncField =
       useCallback<DatasetDatasourceManager.UseSyncDatasetToDatasourceCallback>(
         (csv) => {
@@ -156,7 +156,7 @@ export class DatasetDatasourceManager {
             path: csv.meta.path,
             selection,
             mapping,
-          }) as Field<DatasetDatasource.DataCsv>;
+          }) as Field<DatasetDatasource.DataRefCsv>;
         },
         [this.#datasourceField],
       );

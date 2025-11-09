@@ -1,64 +1,69 @@
-import { Attachment } from "../attachment";
+import { Datasource } from "../datasource";
+import { ModelUsage } from "../model";
 import { ModelType } from "../model/type";
-import { PlaygroundMap } from "../playground";
 import { Setup } from "../setup";
-import { Tool } from "../tool";
 
 export type Result =
-  | Result.ResultInitialized
-  | Result.ResultRunning
-  | Result.ResultError
-  | Result.ResultComplete;
+  | Result.Initialized
+  | Result.Running
+  | Result.Error
+  | Result.Success;
 
 export namespace Result {
-  export interface ResultBase<Status extends string> {
+  export type Id = string & { [idBrand]: true };
+  declare const idBrand: unique symbol;
+
+  export interface Base<Status extends string> {
+    id: Id;
     status: Status;
     createdAt: number;
     init: Init;
   }
 
-  export interface ResultInitialized extends ResultBase<"initialized"> {}
+  export interface Initialized extends Base<"initialized"> {}
 
-  export interface ResultBaseStarted<Status extends string>
-    extends ResultBase<Status> {
+  export interface BaseStarted<Status extends string> extends Base<Status> {
+    assignments: Assignments;
     startedAt: number;
   }
 
-  export interface ResultRunning extends ResultBaseStarted<"running"> {
+  export interface Running extends BaseStarted<"running"> {
     updatedAt: number;
-    usage: Usage | null;
+    usage: ModelUsage | null;
     payload: ModelType.Payload | null;
   }
 
-  export interface ResultError extends ResultBaseStarted<"error"> {
+  export interface Error extends BaseStarted<"error"> {
     erroredAt: number;
     request: Request;
     response: Response | null;
     error: string;
-    usage: Usage | null;
+    usage: ModelUsage | null;
     payload: ModelType.Payload | null;
   }
 
-  export interface ResultComplete extends ResultBaseStarted<"complete"> {
+  export interface Success extends BaseStarted<"success"> {
     completedAt: number;
     request: Request;
     response: Response;
-    usage: Usage;
+    usage: ModelUsage;
     payload: ModelType.Payload;
   }
 
   export type Layout = "vertical" | "horizontal" | "carousel";
 
   export interface Init {
-    prompt: PlaygroundMap.Prompt;
     setup: Setup;
-    tools: Tool[];
-    datasources: InitDatasource[];
-    attachments: Attachment[];
-    streaming: boolean;
   }
 
-  export interface InitDatasource {}
+  export interface Assignments {
+    datasources: AssignmentsDatasources;
+  }
+
+  export type AssignmentsDatasources = Record<
+    Datasource.Id,
+    Datasource.Assignment
+  >;
 
   export interface Request {
     // TODO: Add details
@@ -68,10 +73,5 @@ export namespace Result {
   export interface Response {
     // TODO: Add details
     payload: object;
-  }
-
-  export interface Usage {
-    input: number;
-    output: number;
   }
 }

@@ -4,12 +4,7 @@ import { useAssessment } from "../assessment/Context";
 import { Results } from "../result/Results";
 import { useTest } from "./Context";
 
-export namespace TestRun {
-  export interface Props {}
-}
-
-export function TestRun(props: TestRun.Props) {
-  const {} = props;
+export function TestRunComponent() {
   const { assessment } = useAssessment();
   const { test } = useTest();
   const submitting = assessment.assessmentForm.submitting;

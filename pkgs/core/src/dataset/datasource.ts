@@ -1,3 +1,4 @@
+import { buildDatasourceId, Datasource } from "../datasource";
 import { EditorFile } from "../editor";
 import { PlaygroundMap } from "../playground";
 import { Versioned } from "../versioned";
@@ -14,12 +15,17 @@ export namespace DatasetDatasource {
 
   export interface V1 extends Versioned<1> {
     type: "dataset";
-    data: Data | null;
+    id: Datasource.Id;
+    data: DataRef | null;
   }
 
-  export type Data = DataCsv;
+  export type DataRef = DataRefV1;
 
-  export interface DataCsv extends Versioned<1> {
+  export type DataRefV1 = DataRefCsvV1;
+
+  export type DataRefCsv = DataRefCsvV1;
+
+  export interface DataRefCsvV1 extends Versioned<1> {
     type: "csv";
     path: EditorFile.Path;
     selection: DatasetSelection.V1;
@@ -27,6 +33,14 @@ export namespace DatasetDatasource {
   }
 
   export type Mapping = Record<ColumnIndex, PlaygroundMap.PromptVarId>;
+
+  export type ItemRef = ItemRefV1;
+
+  export interface ItemRefV1 extends Versioned<1> {
+    type: "dataset";
+    path: EditorFile.Path;
+    row: RowIndex;
+  }
 }
 
 export function buildDatasetDatasource(
@@ -35,6 +49,7 @@ export function buildDatasetDatasource(
   return {
     v: 1,
     type: "dataset",
+    id: buildDatasourceId(),
     data: null,
     ...overrides,
   };

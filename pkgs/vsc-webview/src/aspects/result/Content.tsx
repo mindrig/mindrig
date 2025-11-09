@@ -22,7 +22,7 @@ export function ResultContent(props: ResultContent.Props) {
       return <ResultError state={discriminatedResult.state} />;
 
     case "running":
-    case "complete":
+    case "success":
       return <ResultPayload state={discriminatedResult.state.$.payload} />;
   }
 }

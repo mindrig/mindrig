@@ -21,9 +21,7 @@ export function Results() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <div>
-          <h5 className="text-sm font-medium">Results</h5>
-        </div>
+        <h5 className="text-sm font-medium">Results</h5>
 
         <Tabs
           initial={layout}

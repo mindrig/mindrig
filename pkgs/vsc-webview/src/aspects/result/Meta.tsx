@@ -49,7 +49,7 @@ function useMetaStates(state: State<Result>): ResolveMetaStates.Result {
   const discriminatedState = state.useDiscriminate("status");
   switch (discriminatedState.discriminator) {
     case "error":
-    case "complete":
+    case "success":
       requestState = discriminatedState.state.$.request;
       responseState = discriminatedState.state.$.response;
       usageState = discriminatedState.state.$.usage;

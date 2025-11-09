@@ -3,7 +3,7 @@ import { Field } from "enso";
 import { Attachments } from "../attachment/Attachments";
 import { Datasources } from "../datasource/Datasources";
 import { TestProvider } from "./Context";
-import { TestRun } from "./Run";
+import { TestRunComponent } from "./Run";
 
 export { TestComponent as Test };
 
@@ -22,7 +22,7 @@ export function TestComponent(props: TestComponent.Props) {
 
       <Datasources field={testField.$.datasources} />
 
-      <TestRun />
+      <TestRunComponent />
     </TestProvider>
   );
 }

@@ -3,7 +3,7 @@ import { State } from "enso";
 
 export namespace ResultInitialized {
   export interface Props {
-    state: State<Result.ResultInitialized>;
+    state: State<Result.Initialized>;
   }
 }
 

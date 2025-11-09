@@ -1,11 +1,11 @@
-import { Result } from "@wrkspc/core/result";
+import { ModelUsage } from "@wrkspc/core/model";
 import { State } from "enso";
 import { TinyFloat } from "tinyfloat";
 import { useResult } from "./Context";
 
 export namespace ResultUsage {
   export interface Props {
-    state: State<Result.Usage> | State<Result.Usage | null> | State<null>;
+    state: State<ModelUsage> | State<ModelUsage | null> | State<null>;
   }
 }
 
