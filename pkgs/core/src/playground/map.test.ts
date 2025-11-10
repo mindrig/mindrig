@@ -1,4 +1,4 @@
-import { PromptVar } from "@mindrig/types";
+import { Prompt, PromptVar } from "@mindrig/types";
 import { describe, expect, it } from "vitest";
 import {
   playgroundMapVarFromPromptVar,
@@ -24,14 +24,14 @@ describe(playgroundMapVarsFromPrompt, () => {
       },
     ];
 
-    const prompt = {
-      exp: "Hello ${name}, you are ${age} years old.",
+    const prompt: Prompt = {
+      exp: "`Hello ${name}, you are ${age} years old.`",
+      vars: promptVars,
+      file: "template.ts",
       span: {
         outer: { start: 0, end: 0 },
         inner: { start: 0, end: 0 },
       },
-      vars: promptVars,
-      file: "file1",
     };
 
     const result = playgroundMapVarsFromPrompt(prompt);
@@ -57,43 +57,42 @@ describe(playgroundMapVarsFromPrompt, () => {
       {
         exp: "${name}",
         span: {
-          outer: { start: 12, end: 14 },
-          inner: { start: 0, end: 0 },
+          outer: { start: 27, end: 34 },
+          inner: { start: 29, end: 33 },
         },
       },
       {
         exp: "${age}",
         span: {
-          outer: { start: 16, end: 18 },
-          inner: { start: 0, end: 0 },
+          outer: { start: 44, end: 50 },
+          inner: { start: 46, end: 49 },
         },
       },
     ];
 
-    const prompt = {
-      exp: "Hello ${name}, you are ${age} years old.",
-      span: {
-        outer: { start: 8, end: 22 },
-        inner: { start: 10, end: 20 },
-      },
+    const prompt: Prompt = {
+      exp: "`Hello ${name}, you are ${age} years old.`",
       vars: promptVars,
-      file: "file1",
+      file: "template.ts",
+      span: {
+        outer: { start: 20, end: 62 },
+        inner: { start: 21, end: 61 },
+      },
     };
 
     const result = playgroundMapVarsFromPrompt(prompt);
-
     expect(result).toEqual([
       {
         v: 1,
         id: expect.any(String),
         exp: "${name}",
-        span: { v: 1, start: 2, end: 4 },
+        span: { v: 1, start: 7, end: 14 },
       },
       {
         v: 1,
         id: expect.any(String),
         exp: "${age}",
-        span: { v: 1, start: 6, end: 8 },
+        span: { v: 1, start: 24, end: 30 },
       },
     ]);
   });

@@ -1,82 +1,59 @@
-import { Result } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
 import { State } from "enso";
-import { useMemo } from "react";
+import { MessagesContext } from "../message/Context";
+import { RunsManager } from "./RunsManager";
 
 export namespace RunManager {
   export interface Props {
-    runAppState: State<Run>;
+    runState: State<Run>;
+    sendMessage: MessagesContext.SendMessage;
   }
 
   export interface Meta {
-    running: boolean;
-    complete: boolean;
+    pending: boolean;
+    error: string | null;
   }
 }
 
 export class RunManager {
-  static use(
-    runAppState: State<Run> | State<Run | undefined>,
-  ): RunManager | undefined {
-    const decomposedRun = runAppState.useDecomposeNullish();
-
-    const manager = useMemo(
-      () =>
-        decomposedRun.value &&
-        new RunManager({ runAppState: decomposedRun.state }),
-      [!!decomposedRun.value],
-    );
-
-    return manager;
-  }
-
-  static running(run: Run | undefined) {
-    return run?.status === "initialized" || run?.status === "running";
-  }
-
-  static useRunning(runAppState: State<Run> | State<Run | undefined>) {
-    return runAppState.useCompute(RunManager.running, []);
-  }
-
-  // static complete(run: Run | undefined) {
-  //   return run?.status === "complete";
-  // }
-
-  // static useComplete(runAppState: State<Run> | State<Run | undefined>) {
-  //   return runAppState.useCompute(RunManager.complete, []);
-  // }
-
-  // static meta(run: Run | undefined): Run.Meta {
-  //   return {
-  //     running: RunManager.running(run),
-  //     complete: RunManager.running(run),
-  //   };
-  // }
-
-  // static useMeta(runAppState: State<Run> | State<Run | undefined>): Run.Meta {
-  //   return runAppState.useCompute(RunManager.meta, []);
-  // }
-
-  #runAppState;
+  #runAppState: State<Run>;
+  #sendMessage: MessagesContext.SendMessage;
 
   constructor(props: RunManager.Props) {
-    this.#runAppState = props.runAppState;
-  }
-
-  useRunning() {
-    return RunManager.useRunning(this.#runAppState);
+    this.#runAppState = props.runState;
+    this.#sendMessage = props.sendMessage;
   }
 
   stopRun() {
-    if (!RunManager.running(this.#runAppState.value)) return;
+    if (!RunsManager.running(this.#runAppState.value)) return;
 
-    // TODO: Send message
+    this.#sendMessage({
+      type: "run-client-stop",
+      payload: {
+        runId: this.#runAppState.$.id.value,
+        reason: "Run stopped",
+      },
+    });
   }
 
-  useResultsState(): State<Result[]> | undefined {
-    const discriminatedRun = this.#runAppState.useDiscriminate("status");
-    if (discriminatedRun.discriminator === "initialized") return;
-    return discriminatedRun.state.$.results;
+  useMeta(): RunManager.Meta {
+    const pending = this.usePending();
+    const error = this.useError();
+    return { pending, error };
+  }
+
+  usePending(): boolean {
+    return this.#runAppState.useCompute(
+      (run) => run.status === "initialized",
+      [],
+    );
+  }
+
+  useError(): string | null {
+    return this.#runAppState.useCompute(
+      (run) => (run.status === "error" ? run.error : null),
+      [],
+    );
   }
 
   get runId(): Run.Id {

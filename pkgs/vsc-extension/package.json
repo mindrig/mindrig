@@ -29,11 +29,11 @@
     "commands": [
       {
         "command": "mindrig.showPlayground",
-        "title": "Show Playground"
+        "title": "Mind Rig: Show Playground"
       },
       {
         "command": "mindrig.runPrompt",
-        "title": "Run Prompt"
+        "title": "Mind Rig: Run Prompt"
       },
       {
         "command": "mindrig.logIn",
@@ -49,6 +49,10 @@
         "command": "mindrig.showProfile",
         "title": "Show Profile",
         "icon": "$(account)"
+      },
+      {
+        "command": "mindrig.dev.clearState",
+        "title": "Mind Rig Dev: Clear All State"
       }
     ],
     "configuration": {
@@ -59,31 +63,23 @@
           "default": false,
           "description": "Show prompt source code in the playground"
         },
-        "mindrig.run.parallel": {
+        "mindrig.playground.parallelRequests": {
           "type": "integer",
           "default": 4,
           "minimum": 1,
-          "description": "Maximum number of prompt requests to stream in parallel"
+          "description": "Maximum number of AI requests to run in parallel"
         },
-        "mindrig.exampleSetting": {
+        "mindrig.dev.logsVerbosity": {
           "type": "string",
-          "default": "default value",
-          "description": "An example setting for demonstration"
-        },
-        "mindrig.enableFileTracking": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable tracking of active files"
-        },
-        "mindrig.showFileContent": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show file content in the webview"
-        },
-        "mindrig.autoSaveIndicator": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show auto-save indicator in the webview"
+          "default": "warn",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "silent"
+          ],
+          "description": "Logging verbosity level"
         }
       }
     },
@@ -164,15 +160,16 @@
     "gen/webview/html": "tsx ./scripts/gen/webviewHtml.ts"
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^1.0.15",
+    "@ai-sdk/gateway": "^2.0.9",
     "@mindrig/parser-wasm": "0.1.0",
-    "ai": "^5.0.28",
+    "ai": "^5.0.93",
     "alwaysly": "^0.3.0",
     "fastest-levenshtein": "^1.0.16",
     "mime": "^4.1.0",
     "nanoid": "^5.0.7",
     "p-queue": "^8.0.1",
     "smolcsv": "^0.1.0",
+    "smollog": "^0.2.0",
     "smolxxh": "^0.1.0",
     "yjs": "^13.6.27"
   },

@@ -2,7 +2,7 @@ import { Assessment, buildAssessment } from "@wrkspc/core/assessment";
 import { PlaygroundState } from "@wrkspc/core/playground";
 import { Field, State } from "enso";
 import { useAppState } from "../app/state/Context";
-import { useStoreField } from "../store/Context";
+import { useStorePropField } from "../store/Context";
 import { useMemoWithProps } from "../utils/hooks";
 import { AssessmentAppState, buildAssessmentAppState } from "./appState";
 
@@ -18,18 +18,19 @@ export class AssessmentManager {
   static use(
     promptState: State<PlaygroundState.Prompt>,
   ): AssessmentManager | undefined {
-    const promptId = promptState.$.promptId.useValue();
+    const promptId = promptState.$.prompt.$.id.useValue();
 
-    const assessmentField = useStoreField(
+    const assessmentField = useStorePropField(
       "workspace",
       `playground.assessments.${promptId}`,
       buildAssessment,
     );
 
-    const assessmentAppState = useAppState(
-      `assessments.${promptId}`,
-      buildAssessmentAppState,
-    );
+    const { appState } = useAppState();
+
+    const assessmentAppState = appState.$.assessments
+      .at(promptId)
+      .pave(buildAssessmentAppState());
 
     const manager = useMemoWithProps(
       {

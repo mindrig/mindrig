@@ -1,6 +1,7 @@
 import { Manager } from "@/aspects/manager/Manager.js";
 import type { Message } from "@wrkspc/core/message";
 import { always } from "alwaysly";
+import { log } from "smollog";
 import * as vscode from "vscode";
 
 export namespace MessagesManager {
@@ -23,20 +24,21 @@ export class MessagesManager extends Manager {
 
     this.#webview = props.webview;
 
-    this.#webview.onDidReceiveMessage((message: Message.Client) =>
+    this.#webview.onDidReceiveMessage((message: Message.Client) => {
+      log.debug("Received message from webview:", message);
       this.#target.dispatchEvent(
         new CustomEvent(message.type, { detail: message }),
-      ),
-    );
+      );
+    });
   }
 
   listen<Type extends Message.ClientType>(
-    manager: Manager<any> | null,
+    parent: Manager<any> | null,
     type: Type,
     callback: MessagesManager.ListenCallback<Type>,
   ): Manager.Disposable {
-    const handler = (ev: CustomEvent<Message.Client & Type>) => {
-      callback.call(manager, ev.detail as any);
+    const handler = (ev: CustomEvent<Message.Client & { type: Type }>) => {
+      callback.call(parent, ev.detail);
     };
 
     this.#target.addEventListener(type, handler as any);
@@ -45,7 +47,7 @@ export class MessagesManager extends Manager {
       dispose: () => this.#target.removeEventListener(type, handler as any),
     };
 
-    manager?.register(off);
+    parent?.register(off);
     return this.register(off);
   }
 
@@ -53,14 +55,20 @@ export class MessagesManager extends Manager {
     // While webview is not ready, queue messages
     if (this.#queue) {
       this.#queue.push(message);
+      log.debug("Queuing message until webview is ready:", message);
       return true;
     }
+
+    log.debug("Sending message to webview:", message);
     return this.#webview.postMessage(message);
   }
 
   async ready() {
     always(this.#queue);
     const queue = this.#queue;
+    log.debug(
+      `Webview is ready, sending ${this.#queue.length} queued messages`,
+    );
     // Mark as ready to send
     this.#queue = null;
     return Promise.all(queue.map(this.send.bind(this)));

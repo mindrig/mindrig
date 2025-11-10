@@ -1,8 +1,11 @@
 import {
   DatasetCsv,
+  DatasetDatasource,
   DatasetMessage,
   DatasetRequest,
+  DatasetSelection,
 } from "@wrkspc/core/dataset";
+import { Datasource } from "@wrkspc/core/datasource";
 import { EditorFile } from "@wrkspc/core/editor";
 import { always } from "alwaysly";
 import { parseStream } from "smolcsv";
@@ -38,6 +41,15 @@ export namespace DatasetsManager {
     requestId: DatasetRequest.CsvId;
     path: EditorFile.Path;
   }
+
+  export type Selector = (index: DatasetDatasource.RowIndex) => SelectorCommand;
+
+  export type SelectorCommand = "break" | "continue" | "add";
+
+  export interface Selected {
+    index: DatasetDatasource.RowIndex;
+    row: string[];
+  }
 }
 
 export class DatasetsManager extends Manager {
@@ -59,6 +71,82 @@ export class DatasetsManager extends Manager {
       "dataset-client-csv-load-request",
       this.#onCsvLoadRequest,
     );
+  }
+
+  async datasourceToInput(
+    datasource: DatasetDatasource,
+  ): Promise<Datasource.Input[]> {
+    const { data } = datasource;
+    if (!data) return [];
+
+    const selector = this.#selector(data.selection);
+
+    const uri = vscode.Uri.file(data.path);
+    const bytes = await vscode.workspace.fs.readFile(uri);
+
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(bytes);
+        controller.close();
+      },
+    });
+
+    let index: DatasetDatasource.RowIndex = 0 as DatasetDatasource.RowIndex;
+    let header: string[] | undefined;
+    const selected: DatasetsManager.Selected[] = [];
+    loop: for await (const row of parseStream(stream)) {
+      if (!header) {
+        header = row;
+        // Skip header from row count
+        continue;
+      }
+
+      switch (selector(index)) {
+        case "break":
+          break loop;
+
+        case "add":
+          selected.push({ index, row });
+      }
+      index++;
+    }
+
+    // Assign empty array if no header found
+    header ||= [];
+
+    return selected.map((selectedItem) => {
+      const values: Datasource.Values = {};
+      const input: DatasetDatasource.Input = {
+        type: "dataset",
+        datasourceId: datasource.id,
+        index: selectedItem.index,
+        values,
+      };
+      return input;
+    });
+  }
+
+  #selector(selection: DatasetSelection): DatasetsManager.Selector {
+    switch (selection.type) {
+      case "all":
+        return () => "add";
+
+      case "range":
+        const { span } = selection;
+        return (index) => {
+          if (!span || index > span.end) return "break";
+          if (index < span.start) return "continue";
+          return "add";
+        };
+
+      case "row":
+        return (index) => {
+          if (selection.index === null || index > selection.index)
+            return "break";
+          if (index < selection.index) return "continue";
+          return "add";
+        };
+    }
   }
 
   async #onCsvSelectRequest(message: DatasetMessage.ClientCsvSelectRequest) {

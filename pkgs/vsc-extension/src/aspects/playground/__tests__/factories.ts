@@ -5,6 +5,7 @@ import {
   buildMapPromptId,
   buildMapPromptVarId,
   PlaygroundMap,
+  playgroundMapSpanFromPrompt,
   playgroundMapVarsFromPrompt,
 } from "@wrkspc/core/playground";
 import { nanoid } from "nanoid";
@@ -79,7 +80,11 @@ export function playgroundMapPromptFactory(
     v: 1,
     id: buildMapPromptId(),
     content: DEFAULT_PROMPT,
-    span: { v: 1, start: 0, end: 0 },
+    span: {
+      v: 1,
+      outer: { v: 1, start: 0, end: 0 },
+      inner: { v: 1, start: 0, end: 0 },
+    },
     updatedAt: Date.now(),
     vars: [playgroundMapVarFactory()],
     ...overrides,
@@ -106,7 +111,7 @@ export function playgroundMapPromptFromParsedFactory(
     id: buildMapPromptId(),
     content: parsedPrompt.exp,
     vars: playgroundMapVarsFromPrompt(parsedPrompt),
-    span: { v: 1, ...parsedPrompt.span.outer },
+    span: playgroundMapSpanFromPrompt(parsedPrompt),
     updatedAt: Date.now(),
   };
 }

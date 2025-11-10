@@ -1,4 +1,6 @@
 import { Manager } from "@/aspects/manager/Manager.js";
+import { createLogWrap, formatLogEntries } from "@wrkspc/core/log";
+import { log } from "smollog";
 import * as vscode from "vscode";
 import { WebviewProviderManager } from "../webview/ProviderManager";
 
@@ -15,11 +17,15 @@ export class ExtensionManager extends Manager {
   constructor(props: ExtensionManager.Props) {
     super(null);
 
+    this.#bufferLogs();
+
     this.#context = props.context;
 
     this.#webviewProvider = new WebviewProviderManager(this, {
       context: this.#context,
     });
+
+    this.#webviewProvider.on(this, "webview-initialized", this.#releaseLogs);
 
     this.register(
       vscode.window.registerWebviewViewProvider(
@@ -72,5 +78,33 @@ export class ExtensionManager extends Manager {
 
   get #isDevelopment(): boolean {
     return this.#context.extensionMode === vscode.ExtensionMode.Development;
+  }
+
+  #logsBuffer: WebviewProviderManager.LogBufferEntry[] = [];
+
+  #bufferLogs() {
+    log.wrap = (level, ...entries) => {
+      // Buffer logs until webview and hence settings are ready
+      this.#logsBuffer.push({
+        level,
+        entries: formatLogEntries(entries),
+      });
+      return false;
+    };
+
+    log.debug("Buffering logs until webview is ready");
+  }
+
+  #releaseLogs() {
+    log.wrap = undefined;
+
+    this.#logsBuffer.forEach((entry) => {
+      log[entry.level](...entry.entries);
+    });
+    this.#logsBuffer = [];
+
+    log.wrap = createLogWrap();
+
+    log.debug("Logs buffering released");
   }
 }

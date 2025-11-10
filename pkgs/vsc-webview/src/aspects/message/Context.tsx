@@ -1,5 +1,3 @@
-// @ts-nocheck -- TODO: Rewrite messages context
-
 import { useVsc } from "@/aspects/vsc/Context";
 import type { Message } from "@wrkspc/core/message";
 import {
@@ -8,163 +6,111 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
+  useMemo,
   type DependencyList,
 } from "react";
+import { log } from "smollog";
 
 export namespace MessagesContext {
-  export type SendMessage = (message: Message.Client) => void;
-}
+  export interface Value {
+    sendMessage: SendMessage;
 
-//#region Legacy
+    listen: ListenMessage;
 
-export type VscMessageHandler<Type extends Message.ServerType> = (
-  message: Message.Server & { type: Type },
-) => void;
+    useListen: UseListenMessage;
+  }
 
-export interface MessageSubscription {
-  dispose(): void;
-}
-
-export type MessageOff = () => void;
-
-export interface MessageLoggerEntry {
-  direction: "in" | "out";
-  message: unknown;
-}
-
-export interface MessagesContextValue {
-  sendMessage: MessagesContext.SendMessage;
-
-  listen: <Type extends Message.ServerType>(
+  export type ListenMessage = <Type extends Message.ServerType>(
     type: Type,
-    handler: VscMessageHandler<Type>,
-  ) => MessageOff;
+    callback: ListenMessageCallback<Type>,
+  ) => ListenMessageOff;
 
-  useListen: <Type extends Message.ServerType>(
-    type: Type,
-    handler: VscMessageHandler<Type>,
-    deps?: DependencyList,
+  export type ListenMessageCallback<Type extends Message.ServerType> = (
+    message: Message.Server & { type: Type },
   ) => void;
 
-  useSend: (message: Message.Client) => void;
+  export type ListenMessageOff = () => void;
+
+  export type UseListenMessage = <Type extends Message.ServerType>(
+    type: Type,
+    callback: ListenMessageCallback<Type>,
+    deps: DependencyList,
+  ) => void;
+
+  export type SendMessage = (message: Message.Client) => void;
+
+  export type UseSend = (message: Message.Client) => void;
 }
 
-export interface MessageProviderOptions {
-  debug?: boolean;
-  logger?: (entry: MessageLoggerEntry) => void;
-  onUnhandledMessage?: (message: unknown) => void;
-}
+const MessagesContext = createContext<MessagesContext.Value | undefined>(
+  undefined,
+);
 
-const MessagesContext = createContext<MessagesContextValue | null>(null);
-
-function narrowMessage(candidate: unknown): candidate is VscMessage {
-  if (!candidate || typeof candidate !== "object") return false;
-  if (typeof (candidate as { type?: unknown }).type !== "string") return false;
-  return true;
-}
-
-//#endregion
-
-export function MessagesProvider(
-  props: PropsWithChildren<MessageProviderOptions>,
-) {
-  const { debug, logger, onUnhandledMessage, children } = props;
+export function MessagesProvider(props: PropsWithChildren) {
   const { vsc } = useVsc();
-  type InternalHandler = (message: Message.Server) => void;
-  const handlersRef = useRef(new Map<string, Set<InternalHandler>>());
 
-  const listen = useCallback(
+  const target = useMemo(() => new EventTarget(), []);
+
+  const listen = useCallback<MessagesContext.ListenMessage>(
     <Type extends Message.ServerType>(
       type: Type,
-      handler: Message.Callback<Type>,
-    ): MessageOff => {
-      const bucket =
-        handlersRef.current.get(type) ?? new Set<InternalHandler>();
-      const wrapped: InternalHandler = (incoming) =>
-        handler(incoming as Message.Server & { type: Type });
-
-      bucket.add(wrapped);
-      handlersRef.current.set(type, bucket);
-
-      return () => {
-        const listeners = handlersRef.current.get(type);
-        listeners?.delete(wrapped);
-        if (listeners && listeners.size === 0) handlersRef.current.delete(type);
+      callback: MessagesContext.ListenMessageCallback<Type>,
+    ) => {
+      const handler = (ev: CustomEvent<Message.Server & { type: Type }>) => {
+        callback.call(parent, ev.detail);
       };
-    },
 
-    [],
+      target.addEventListener(type, handler as any);
+
+      return () => target.removeEventListener(type, handler as any);
+    },
+    [target],
   );
 
-  const sendMessage = useCallback<MessagesContextValue["sendMessage"]>(
+  const sendMessage = useCallback<MessagesContext.SendMessage>(
     (message) => {
-      logger?.({ direction: "out", message });
-      vsc.postMessage?.(message);
+      log.debug("Sending message to server:", message);
+      vsc.postMessage(message);
     },
-    [logger, vsc],
+    [vsc],
   );
 
-  const useListen = <Type extends Message.ServerType>(
-    type: Type,
-    handler: VscMessageHandler<Type>,
-    deps: DependencyList = [],
-  ) => {
-    useEffect(() => {
-      const subscription = listen(type, handler);
-      return () => subscription.dispose();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [listen, type, ...deps]);
-  };
+  const useListen = useCallback<MessagesContext.UseListenMessage>(
+    (type, callback, deps) => {
+      useEffect(
+        () => listen(type, callback),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [listen, type, ...deps],
+      );
+    },
+    [listen],
+  );
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      const payload = event.data;
-      if (!narrowMessage(payload)) {
-        onUnhandledMessage?.(payload);
-        if (debug) console.warn("Received unknown message", payload);
-        return;
-      }
-
-      logger?.({ direction: "in", message: payload });
-
-      const listeners = handlersRef.current.get(payload.type);
-      if (!listeners || listeners.size === 0) return;
-
-      listeners.forEach((handler) => {
-        try {
-          handler(payload as never);
-        } catch (error) {
-          console.error(
-            `Message handler for ${payload.type} threw an error`,
-            error,
-          );
-        }
-      });
+    const onMessage = (event: MessageEvent) => {
+      const message: Message.Server = event.data;
+      log.debug("Received message from server:", message);
+      target.dispatchEvent(new CustomEvent(message.type, { detail: message }));
     };
 
-    window.addEventListener("message", handleMessage);
-    const handlersMap = handlersRef.current;
-    return () => {
-      window.removeEventListener("message", handleMessage);
-      handlersMap.clear();
-    };
-  }, [debug, logger, onUnhandledMessage]);
+    window.addEventListener("message", onMessage);
 
-  const value: MessagesContextValue = {
-    sendMessage,
-    listen,
-    useListen,
-  };
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
+  const value = useMemo<MessagesContext.Value>(
+    () => ({ sendMessage, listen, useListen }),
+    [sendMessage, listen, useListen],
+  );
 
   return (
     <MessagesContext.Provider value={value}>
-      {children}
+      {props.children}
     </MessagesContext.Provider>
   );
 }
 
-export function useMessages(): MessagesContextValue {
+export function useMessages(): MessagesContext.Value {
   const context = useContext(MessagesContext);
   if (!context)
     throw new Error("useMessage must be used within MessageProvider");
@@ -173,11 +119,11 @@ export function useMessages(): MessagesContextValue {
 
 export function useListenMessage<Type extends Message.ServerType>(
   type: Type,
-  handler: VscMessageHandler<Type>,
+  callback: MessagesContext.ListenMessageCallback<Type>,
   deps: DependencyList,
 ) {
   const { useListen } = useMessages();
-  useListen(type, handler, deps);
+  useListen(type, callback, deps);
 }
 
 export function useSendMessage(message: Message.Client, deps?: DependencyList) {
@@ -188,7 +134,7 @@ export function useSendMessage(message: Message.Client, deps?: DependencyList) {
 export namespace UseWaitMessage {
   export type Callback<Type extends Message.ServerType> = (
     message: Message.Server & { type: Type },
-  ) => boolean | void;
+  ) => boolean;
 }
 
 export function useWaitMessage<Type extends Message.ServerType>(

@@ -5,22 +5,20 @@ import { useResult } from "./Context";
 
 export namespace ResultUsage {
   export interface Props {
-    state: State<ModelUsage> | State<ModelUsage | null> | State<null>;
+    usageState: State<ModelUsage> | State<ModelUsage | null> | State<null>;
   }
 }
 
 export function ResultUsage(props: ResultUsage.Props) {
-  const { state } = props;
+  const { usageState } = props;
   const { useResultModel } = useResult();
   const model = useResultModel();
+  const usage = usageState.useValue();
 
-  const decomposedState = state.useDecomposeNullish();
+  if (!usage) return <Empty />;
 
-  if (!decomposedState.value) {
-    return <div>No usage data available.</div>;
-  }
-
-  const usage = decomposedState.state.useValue();
+  if (!(typeof usage.input === "number" && typeof usage.output === "number"))
+    return <Empty />;
 
   const inputPrice =
     (model?.pricing?.input &&
@@ -79,4 +77,8 @@ namespace Price {
 
 function Price(props: Price.Props) {
   return <>est. ${props.price.toNumber().toFixed(6)}</>;
+}
+
+function Empty() {
+  return <div>No usage data available.</div>;
 }

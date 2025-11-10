@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => ({
         "alwaysly",
         "fastest-levenshtein",
         "nanoid",
+        "smollog",
       ],
     },
     outDir: "dist/extension",

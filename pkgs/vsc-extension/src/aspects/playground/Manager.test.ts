@@ -44,11 +44,15 @@ describe(PlaygroundManager, () => {
       expect(state).toEqual({
         file: editorFileToMeta(editorFileB),
         prompt: {
-          v: 1,
           fileId: mapFileB.id,
-          promptId: mapPromptsB[0].id,
-          content: mapPromptsB[0].content,
-          vars: mapPromptsB[0].vars,
+          prompt: {
+            v: 1,
+            id: mapPromptsB[0].id,
+            content: mapPromptsB[0].content,
+            vars: mapPromptsB[0].vars,
+            span: mapPromptsB[0].span,
+            updatedAt: expect.any(Number),
+          },
           reason: "pinned",
         },
         prompts: [
@@ -148,8 +152,10 @@ describe(PlaygroundManager, () => {
         file: editorFileToMeta(editorFileA),
         prompt: expect.objectContaining({
           fileId: expect.any(String),
-          promptId: expect.any(String),
-          content: mapPromptsA[0].content,
+          prompt: expect.objectContaining({
+            id: expect.any(String),
+            content: mapPromptsA[0].content,
+          }),
         }),
         prompts: [
           {
@@ -194,8 +200,10 @@ describe(PlaygroundManager, () => {
       const activeStateB = expect.objectContaining({
         prompt: expect.objectContaining({
           fileId: expect.any(String),
-          promptId: expect.any(String),
-          content: mapPromptsB[0].content,
+          prompt: expect.objectContaining({
+            id: expect.any(String),
+            content: mapPromptsB[0].content,
+          }),
         }),
         pin: null,
       });
@@ -249,7 +257,9 @@ describe(PlaygroundManager, () => {
       const unpinnedState = expect.objectContaining({
         prompt: expect.objectContaining({
           fileId: mapFileA.id,
-          promptId: mapPromptsA[0].id,
+          prompt: expect.objectContaining({
+            id: mapPromptsA[0].id,
+          }),
         }),
         pin: null,
       });
@@ -270,7 +280,9 @@ describe(PlaygroundManager, () => {
       const pinnedStateB = expect.objectContaining({
         prompt: expect.objectContaining({
           fileId: mapFileB.id,
-          promptId: mapPromptsB[0].id,
+          prompt: expect.objectContaining({
+            id: mapPromptsB[0].id,
+          }),
         }),
         pin: pinB,
       });
@@ -296,7 +308,9 @@ describe(PlaygroundManager, () => {
       const pinnedStateA = expect.objectContaining({
         prompt: expect.objectContaining({
           fileId: mapFileA.id,
-          promptId: mapPromptsA[1].id,
+          prompt: expect.objectContaining({
+            id: mapPromptsA[1].id,
+          }),
         }),
         pin: pinA,
       });
@@ -337,8 +351,10 @@ describe(PlaygroundManager, () => {
         file: editorFileToMeta(editorFileA),
         prompt: expect.objectContaining({
           fileId: mapFileA.id,
-          promptId: mapPromptsA[0].id,
-          content: mapPromptsA[0].content,
+          prompt: expect.objectContaining({
+            id: mapPromptsA[0].id,
+            content: mapPromptsA[0].content,
+          }),
         }),
         pin: {
           fileId: mapFileA.id,
@@ -358,8 +374,10 @@ describe(PlaygroundManager, () => {
         file: editorFileToMeta(editorFileA),
         prompt: expect.objectContaining({
           fileId: mapFileA.id,
-          promptId: mapPromptsA[1].id,
-          content: mapPromptsA[1].content,
+          prompt: expect.objectContaining({
+            id: mapPromptsA[1].id,
+            content: mapPromptsA[1].content,
+          }),
         }),
         pin: {
           fileId: mapFileA.id,
@@ -399,8 +417,10 @@ describe(PlaygroundManager, () => {
         file: editorFileToMeta(editorFileA),
         prompt: expect.objectContaining({
           fileId: mapFileA.id,
-          promptId: mapPromptsA[0].id,
-          content: mapPromptsA[0].content,
+          prompt: expect.objectContaining({
+            id: mapPromptsA[0].id,
+            content: mapPromptsA[0].content,
+          }),
         }),
         pin: {
           fileId: mapFileA.id,
@@ -417,8 +437,10 @@ describe(PlaygroundManager, () => {
         file: editorFileToMeta(editorFileA),
         prompt: expect.objectContaining({
           fileId: mapFileA.id,
-          promptId: mapPromptsA[1].id,
-          content: mapPromptsA[1].content,
+          prompt: expect.objectContaining({
+            id: mapPromptsA[1].id,
+            content: mapPromptsA[1].content,
+          }),
         }),
         pin: null,
       });
@@ -460,7 +482,7 @@ describe(PlaygroundManager, () => {
 
       expect(editor.openFile).toBeCalledWith({
         path: editorFileA.path,
-        selection: mapPromptsA[0].span,
+        selection: mapPromptsA[0].span.outer,
       });
     });
   });
@@ -490,7 +512,9 @@ describe(PlaygroundManager, () => {
       const activeStateB = expect.objectContaining({
         prompt: expect.objectContaining({
           fileId: mapFileB.id,
-          promptId: mapPromptsB[0].id,
+          prompt: expect.objectContaining({
+            id: mapPromptsB[0].id,
+          }),
         }),
         pin: null,
       });
@@ -525,7 +549,9 @@ describe(PlaygroundManager, () => {
       const changedCursorState = expect.objectContaining({
         prompt: expect.objectContaining({
           fileId: mapFileA.id,
-          promptId: mapPromptsA[1].id,
+          prompt: expect.objectContaining({
+            id: mapPromptsA[1].id,
+          }),
         }),
         pin: null,
       });
@@ -577,8 +603,10 @@ describe(PlaygroundManager, () => {
       const expectedSavedFileState = expect.objectContaining({
         prompt: expect.objectContaining({
           fileId: mapFileA.id,
-          promptId: mapPromptsA[0].id,
-          content: "alpha wolf",
+          prompt: expect.objectContaining({
+            id: mapPromptsA[0].id,
+            content: "alpha wolf",
+          }),
         }),
 
         prompts: [
@@ -642,8 +670,10 @@ describe(PlaygroundManager, () => {
       const updatedFileState = expect.objectContaining({
         prompt: expect.objectContaining({
           fileId: mapFileA.id,
-          promptId: mapPromptsA[0].id,
-          content: "alpha wolf",
+          prompt: expect.objectContaining({
+            id: mapPromptsA[0].id,
+            content: "alpha wolf",
+          }),
         }),
 
         prompts: [

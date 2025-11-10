@@ -1,7 +1,9 @@
 import { ClientState } from "@wrkspc/core/client";
+import { logsVerbositySettingToLevel } from "@wrkspc/core/log";
 import { buildPlaygroundState } from "@wrkspc/core/playground";
 import { State } from "enso";
 import { createContext, useContext } from "react";
+import { log } from "smollog";
 import { useMessages } from "../message/Context";
 
 export namespace ClientStateContext {
@@ -31,7 +33,14 @@ export function ClientStateProvider(props: React.PropsWithChildren) {
 
   useListen(
     "settings-server-update",
-    (message) => state.$.settings.set(message.payload),
+    (message) => {
+      state.$.settings.set(message.payload);
+
+      // Update logging level according to the new settings
+      log.level = logsVerbositySettingToLevel(
+        message.payload.dev?.logsVerbosity,
+      );
+    },
     [state],
   );
 

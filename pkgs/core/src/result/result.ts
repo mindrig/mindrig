@@ -1,3 +1,5 @@
+import { nanoid } from "nanoid";
+import { Attachment } from "../attachment";
 import { Datasource } from "../datasource";
 import { ModelUsage } from "../model";
 import { ModelType } from "../model/type";
@@ -7,11 +9,14 @@ export type Result =
   | Result.Initialized
   | Result.Running
   | Result.Error
+  | Result.Cancelled
   | Result.Success;
 
 export namespace Result {
   export type Id = string & { [idBrand]: true };
   declare const idBrand: unique symbol;
+
+  export type Status = Result["status"];
 
   export interface Base<Status extends string> {
     id: Id;
@@ -23,7 +28,6 @@ export namespace Result {
   export interface Initialized extends Base<"initialized"> {}
 
   export interface BaseStarted<Status extends string> extends Base<Status> {
-    assignments: Assignments;
     startedAt: number;
   }
 
@@ -35,9 +39,17 @@ export namespace Result {
 
   export interface Error extends BaseStarted<"error"> {
     erroredAt: number;
-    request: Request;
+    request: Request | null;
     response: Response | null;
     error: string;
+    usage: ModelUsage | null;
+    payload: ModelType.Payload | null;
+  }
+
+  export interface Cancelled extends BaseStarted<"cancelled"> {
+    cancelledAt: number;
+    request: Request | null;
+    response: Response | null;
     usage: ModelUsage | null;
     payload: ModelType.Payload | null;
   }
@@ -54,16 +66,8 @@ export namespace Result {
 
   export interface Init {
     setup: Setup;
+    datasources: Datasource.Input[];
   }
-
-  export interface Assignments {
-    datasources: AssignmentsDatasources;
-  }
-
-  export type AssignmentsDatasources = Record<
-    Datasource.Id,
-    Datasource.Assignment
-  >;
 
   export interface Request {
     // TODO: Add details
@@ -74,4 +78,26 @@ export namespace Result {
     // TODO: Add details
     payload: object;
   }
+
+  export interface Input {
+    attachments: Attachment.Input[];
+  }
+
+  export type Patch<Status extends Result.Status> = Omit<
+    Result & { status: Status },
+    Exclude<keyof Base<Status>, "id" | "status">
+  >;
+}
+
+export function buildResultInitialized(
+  overrides: Partial<Omit<Result.Initialized, "init">> & {
+    init: Result["init"];
+  },
+): Result.Initialized {
+  return {
+    id: nanoid(),
+    status: "initialized",
+    createdAt: Date.now(),
+    init: overrides.init,
+  };
 }

@@ -1,13 +1,9 @@
 import { Run } from "@wrkspc/core/run";
 import { State } from "enso";
-import { useAppState } from "../app/state/Context";
-import { useStoreProp } from "../store/Context";
+import { useRuns } from "../run/RunsContext";
+import { useStorePropState } from "../store/Context";
 import { useMemoWithProps } from "../utils/hooks";
-import {
-  buildResultsAppState,
-  buildResultsAppStateLayout,
-  ResultsAppState,
-} from "./resultsAppState";
+import { buildResultsAppStateLayout, ResultsAppState } from "./resultsAppState";
 
 export namespace ResultsManager {
   export interface Props {
@@ -17,34 +13,32 @@ export namespace ResultsManager {
 
 export class ResultsManager {
   static use(runId: Run.Id): ResultsManager {
-    const resultsAppState = useAppState(
-      `runs.${runId}.results`,
-      buildResultsAppState,
-    );
+    const { runs } = useRuns();
+    const resultsAppState = runs.resultsAppState(runId);
 
     const results = useMemoWithProps(
       { resultsAppState },
       (props) => new ResultsManager(props),
       [],
     );
-
     return results;
   }
 
-  #resultsAppState;
+  #resultsAppState: State<ResultsAppState>;
 
   constructor(props: ResultsManager.Props) {
     this.#resultsAppState = props.resultsAppState;
   }
 
   useLayoutType() {
-    const [, setDefaultLayout] = useStoreProp(
+    const defaultLayoutStoreState = useStorePropState(
       "global",
       "playground.results.layout",
     );
-    this.#resultsAppState.$.layout.$.type.useWatch(setDefaultLayout, [
-      setDefaultLayout,
-    ]);
+    this.#resultsAppState.$.layout.$.type.useWatch(
+      (type) => defaultLayoutStoreState.set(type),
+      [defaultLayoutStoreState],
+    );
     const layout = this.#resultsAppState.$.layout.$.type.useValue();
     return layout;
   }
@@ -55,5 +49,11 @@ export class ResultsManager {
 
   useDiscriminatedLayout() {
     return this.#resultsAppState.$.layout.useDiscriminate("type");
+  }
+
+  useResultsState() {
+    const decomposedResults =
+      this.#resultsAppState.$.results.useDecomposeNullish();
+    return decomposedResults.value && decomposedResults.state;
   }
 }

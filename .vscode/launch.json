@@ -95,7 +95,7 @@
     //#region test
 
     {
-      "name": "vitest#debug",
+      "name": "test#debug",
       "type": "node",
       "request": "launch",
       "autoAttachChildProcesses": true,

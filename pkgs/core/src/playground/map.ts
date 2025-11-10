@@ -38,9 +38,9 @@ export namespace PlaygroundMap {
   export interface PromptV1 extends Versioned<1> {
     id: PromptId;
     content: string;
-    vars: PromptVar[];
+    vars: readonly PromptVar[];
     updatedAt: number;
-    span: SpanV1;
+    span: SpanShapeV1;
   }
 
   export type PromptVar = PromptVarV1;
@@ -49,6 +49,13 @@ export namespace PlaygroundMap {
     id: PromptVarId;
     exp: string;
     span: SpanV1;
+  }
+
+  export type SpanShape = SpanShapeV1;
+
+  export interface SpanShapeV1 extends Versioned<1> {
+    outer: Span;
+    inner: Span;
   }
 
   export type Span = SpanV1;
@@ -86,21 +93,25 @@ export function playgroundMapPairToEditorRef(
 ): EditorFile.Ref {
   return {
     path: pair[0].meta.path,
-    selection: pair[1].span,
+    selection: pair[1].span.outer,
   };
 }
 
 export function playgroundMapSpanFromPrompt(
   prompt: Prompt,
-): PlaygroundMap.Span {
-  return { v: 1, ...prompt.span.outer };
+): PlaygroundMap.SpanShape {
+  return {
+    v: 1,
+    outer: { v: 1, ...prompt.span.outer },
+    inner: { v: 1, ...prompt.span.inner },
+  };
 }
 
 export function playgroundMapVarsFromPrompt(
   prompt: Prompt,
 ): PlaygroundMap.PromptVar[] {
   return prompt.vars.map((promptVar) =>
-    playgroundMapVarFromPromptVar(promptVar, prompt.span.inner),
+    playgroundMapVarFromPromptVar(promptVar, prompt.span.outer),
   );
 }
 

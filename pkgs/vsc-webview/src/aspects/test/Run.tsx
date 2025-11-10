@@ -1,20 +1,17 @@
 import { Button } from "@wrkspc/ds";
 import { Checkbox } from "@wrkspc/form";
-import { useAssessment } from "../assessment/Context";
-import { Results } from "../result/Results";
-import { RunProvider } from "../run/Context";
+import { RunComponent } from "../run/Run";
 import { useTest } from "./Context";
 
 export function TestRunComponent() {
-  const { assessment } = useAssessment();
   const { test } = useTest();
-  const runProvider = test.useRunProvider();
-  const running = runProvider.useRunning();
-  const run = runProvider.useRun();
+  const running = test.useRunning();
+  const run = test.useRun();
+  const streaming = test.useStreaming();
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="grid gap-3">
         <div className="flex items-center gap-2">
           <Button
             type="submit"
@@ -37,8 +34,8 @@ export function TestRunComponent() {
 
           <Checkbox
             label="Stream output"
-            value={test.streaming}
-            onChange={test.toggleStreaming.bind(assessment)}
+            value={streaming}
+            onChange={(enabled) => test.setStreaming(enabled)}
             size="small"
           />
 
@@ -46,7 +43,7 @@ export function TestRunComponent() {
             <Button
               style="label"
               size="small"
-              onClick={() => runProvider.clearRun()}
+              onClick={() => test.clearRun()}
               isDisabled={running}
             >
               Clear
@@ -54,11 +51,7 @@ export function TestRunComponent() {
           )}
         </div>
 
-        {run && (
-          <RunProvider run={run}>
-            <Results />
-          </RunProvider>
-        )}
+        {run && <RunComponent run={run} />}
       </div>
     </>
   );

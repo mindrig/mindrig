@@ -14,8 +14,8 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^1.0.15",
-    "ai": "^5.0.28",
+    "@ai-sdk/gateway": "^2.0.9",
+    "ai": "^5.0.93",
     "hono": "^4.9.7"
   },
   "devDependencies": {

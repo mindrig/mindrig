@@ -6,6 +6,7 @@ import {
   modelResponseErrorData,
   ModelVercel,
 } from "@wrkspc/core/model";
+import { log } from "smollog";
 import { AuthManager } from "../auth/Manager.js";
 import { Manager } from "../manager/Manager.js";
 import { MessagesManager } from "../message/Manager.js";
@@ -47,7 +48,7 @@ export class ModelsGatewayManager extends Manager {
     this.#secrets = props.secrets;
     this.#messages = props.messages;
 
-    this.#fetch(this.#auth.state.gateway);
+    // this.#fetch(this.#auth.state.gateway);
 
     this.#auth.on(this, "gateway-resolve", this.#onAuthResolve);
 
@@ -59,11 +60,17 @@ export class ModelsGatewayManager extends Manager {
   async #fetch(auth: Auth.GatewayValue) {
     if (this.#pendingFetch) return this.#pendingFetch;
 
+    log.debug("Fetching gateway models", { auth: !!auth });
+
     this.#pendingFetch = (
       auth ? this.#fetchAuthScoped(auth) : this.#fetchGlobal()
-    ).then((response) => {
+    ).then(async (response) => {
+      const ok = response.data.status === "ok";
+
+      log.debug("Got gateway response", { ok });
+
       // Set up refetching
-      this.#refetch.update(response.data.status === "ok");
+      this.#refetch.update(ok);
 
       // Cache response
       this.#cache(response.source.type).store(response);
@@ -76,14 +83,10 @@ export class ModelsGatewayManager extends Manager {
 
       // Report status to auth
       if (auth)
-        this.#auth.emit(
-          "gateway-response",
+        await this.#auth.registerGatewayResponse(
           response.data.status === "ok"
             ? auth
-            : {
-                ...auth,
-                error: response.data.message,
-              },
+            : { ...auth, error: response.data.message },
         );
 
       this.#pendingFetch = undefined;

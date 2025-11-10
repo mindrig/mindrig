@@ -15,10 +15,10 @@ export namespace PlaygroundState {
     preview: string;
   }
 
-  export interface Prompt extends Ref {
-    content: string;
+  export interface Prompt {
+    fileId: PlaygroundMap.FileId;
+    prompt: PlaygroundMap.Prompt;
     reason: PromptReason;
-    vars: PlaygroundMap.PromptVar[];
   }
 
   export type PromptReason = "pinned" | "cursor";
@@ -49,10 +49,7 @@ export function buildPlaygroundState(): PlaygroundState {
 }
 
 export namespace PlaygroundStatePromptToRef {
-  export type Constraint = Pick<
-    PlaygroundState.Prompt,
-    "promptId" | "fileId"
-  > | null;
+  export type Constraint = PlaygroundState.Prompt | null;
 
   export type Result<Prompt extends Constraint> = Prompt extends {}
     ? PlaygroundState.Ref
@@ -61,11 +58,11 @@ export namespace PlaygroundStatePromptToRef {
 
 export function playgroundStatePromptToRef<
   Prompt extends PlaygroundStatePromptToRef.Constraint,
->(prompt: Prompt): PlaygroundStatePromptToRef.Result<Prompt> {
-  if (!prompt) return null as PlaygroundStatePromptToRef.Result<Prompt>;
+>(statePrompt: Prompt): PlaygroundStatePromptToRef.Result<Prompt> {
+  if (!statePrompt) return null as PlaygroundStatePromptToRef.Result<Prompt>;
   return {
     v: 1,
-    promptId: prompt.promptId,
-    fileId: prompt.fileId,
+    promptId: statePrompt.prompt.id,
+    fileId: statePrompt.fileId,
   };
 }

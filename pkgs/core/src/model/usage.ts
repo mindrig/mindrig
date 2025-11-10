@@ -1,4 +1,4 @@
 export interface ModelUsage {
-  input: number;
-  output: number;
+  input: number | undefined;
+  output: number | undefined;
 }

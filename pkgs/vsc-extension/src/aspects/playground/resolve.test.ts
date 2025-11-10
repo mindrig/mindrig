@@ -100,7 +100,9 @@ describe(resolvePlaygroundState, () => {
       ).toMatchObject({
         pin: null,
         prompt: expect.objectContaining({
-          promptId: mapPromptsA[1].id,
+          prompt: expect.objectContaining({
+            id: mapPromptsA[1].id,
+          }),
           reason: "cursor",
         }),
       });
@@ -115,7 +117,9 @@ describe(resolvePlaygroundState, () => {
       ).toMatchObject({
         pin: null,
         prompt: expect.objectContaining({
-          promptId: mapPromptsB[0].id,
+          prompt: expect.objectContaining({
+            id: mapPromptsB[0].id,
+          }),
           reason: "cursor",
         }),
       });
@@ -156,7 +160,9 @@ describe(resolvePlaygroundState, () => {
         },
         pin,
         prompt: expect.objectContaining({
-          promptId: mapPromptsB[0].id,
+          prompt: expect.objectContaining({
+            id: mapPromptsB[0].id,
+          }),
           reason: "pinned",
         }),
         prompts: [

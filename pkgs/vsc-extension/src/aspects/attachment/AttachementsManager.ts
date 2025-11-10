@@ -68,6 +68,21 @@ export class AttachmentsManager extends Manager {
     });
   }
 
+  async attachmentsToInput(
+    attachments: Attachment[],
+  ): Promise<Attachment.Input[]> {
+    return Promise.all(attachments.map(this.#attachmentToInput.bind(this)));
+  }
+
+  async #attachmentToInput(attachment: Attachment): Promise<Attachment.Input> {
+    const base64 = await this.read(attachment);
+    return {
+      path: attachment.path,
+      base64,
+      mime: attachment.mime,
+    };
+  }
+
   async read(attachment: Attachment): Promise<FileContent.Base64> {
     const uri = vscode.Uri.file(attachment.path);
     const data = await vscode.workspace.fs.readFile(uri);

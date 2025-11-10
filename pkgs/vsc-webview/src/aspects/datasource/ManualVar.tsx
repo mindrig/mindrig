@@ -1,4 +1,4 @@
-import { DatasourceManual } from "@wrkspc/core/datasource";
+import { Datasource } from "@wrkspc/core/datasource";
 import { PlaygroundMap } from "@wrkspc/core/playground";
 import { InputController } from "@wrkspc/form";
 import { Field, State } from "enso";
@@ -6,7 +6,7 @@ import { Field, State } from "enso";
 export namespace DatasourceManualVar {
   export interface Props {
     varState: State.Immutable<PlaygroundMap.PromptVarV1>;
-    valuesField: Field<DatasourceManual.Values>;
+    valuesField: Field<Datasource.Values>;
   }
 }
 

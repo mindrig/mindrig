@@ -13,14 +13,11 @@ export namespace Datasource {
 
   export type Type = V1["type"];
 
-  export type ItemRef = ItemRefV1;
+  export type Input = InputV1;
 
-  export type ItemRefV1 = DatasourceManual.ItemRef | DatasetDatasource.ItemRef;
+  export type InputV1 = DatasourceManual.Input | DatasetDatasource.Input;
 
-  export interface Assignment {
-    item: ItemRefV1;
-    values: Record<PlaygroundMap.PromptVarId, string>;
-  }
+  export type Values = Record<PlaygroundMap.PromptVarId, string>;
 }
 
 export function buildDatasource(type: Datasource.Type): Datasource {
