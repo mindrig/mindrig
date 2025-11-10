@@ -59,31 +59,11 @@
           "default": false,
           "description": "Show prompt source code in the playground"
         },
-        "mindrig.run.parallel": {
+        "mindrig.playground.parallelRequests": {
           "type": "integer",
           "default": 4,
           "minimum": 1,
-          "description": "Maximum number of prompt requests to stream in parallel"
-        },
-        "mindrig.exampleSetting": {
-          "type": "string",
-          "default": "default value",
-          "description": "An example setting for demonstration"
-        },
-        "mindrig.enableFileTracking": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable tracking of active files"
-        },
-        "mindrig.showFileContent": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show file content in the webview"
-        },
-        "mindrig.autoSaveIndicator": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show auto-save indicator in the webview"
+          "description": "Maximum number of AI requests to run in parallel"
         }
       }
     },

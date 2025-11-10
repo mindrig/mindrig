@@ -1,4 +1,3 @@
-import { PlaygroundMap } from "../playground";
 import { Versioned } from "../versioned";
 import { buildDatasourceId, Datasource } from "./datasource";
 
@@ -8,10 +7,8 @@ export namespace DatasourceManual {
   export interface V1 extends Versioned<1> {
     type: "manual";
     id: Datasource.Id;
-    values: Values;
+    values: Datasource.Values;
   }
-
-  export type Values = Record<PlaygroundMap.PromptVarId, string>;
 
   export type ItemRef = ItemRefV1;
 

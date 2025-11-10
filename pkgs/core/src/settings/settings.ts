@@ -5,5 +5,6 @@ export interface Settings {
 export namespace Settings {
   export interface Playground {
     showSource?: boolean | undefined;
+    parallelRequests?: number | undefined;
   }
 }

@@ -6,13 +6,13 @@ import { Result } from "../result/result.js";
 import { Setup } from "../setup/setup.js";
 import { Tool } from "../tool/tool.js";
 
-export type Run = Run.Initialized | Run.Running | Run.Complete;
+export type Run = Run.Initialized | Run.Error | Run.Running | Run.Complete;
 
 export namespace Run {
   export type Id = string & { [idBrand]: true };
   declare const idBrand: unique symbol;
 
-  export interface V1 {}
+  export type Status = Run["status"];
 
   export interface Base<Status extends string> {
     id: Id;
@@ -30,6 +30,11 @@ export namespace Run {
     // TODO: Include actual data?!
     // - datasources
     // - attachments
+  }
+
+  export interface Error extends Base<"error"> {
+    erroredAt: number;
+    error: string;
   }
 
   export interface Running extends BaseStarted<"running"> {
@@ -61,6 +66,11 @@ export namespace Run {
   export type AssignmentsDatasources = Record<
     Datasource.Id,
     Datasource.ItemRef
+  >;
+
+  export type Patch<Status extends Run.Status> = Omit<
+    Run & { status: Status },
+    Exclude<keyof Base<Status>, "id" | "status">
   >;
 
   export interface Meta {

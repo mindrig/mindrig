@@ -725,7 +725,7 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
   //     null;
   //   if (!runId || isStopping) return;
   //   setIsStopping(true);
-  //   send({ type: "run-vw-stop", payload: { runId } });
+  //   send({ type: "run-client-stop", payload: { runId } });
   // }, [executionState.runId, isStopping, send, streamingState.runId]);
 
   // const promptSource = useMemo(
@@ -1416,7 +1416,7 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
   //     })),
   //   };
 
-  //   send({ type: "run-client-execute", payload });
+  //   send({ type: "run-client-start", payload });
   // };
 
   // const handleExecuteRef = useRef<() => void>(() => {});

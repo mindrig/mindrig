@@ -1,10 +1,10 @@
 import { Manager } from "@/aspects/manager/Manager.js";
 import { Page } from "@wrkspc/core/page";
 import * as vscode from "vscode";
-import { AttachmentsManager } from "../attachment/Manager";
+import { AttachmentsManager } from "../attachment/AttachementsManager";
 import { AuthManager } from "../auth/Manager";
 import { ClientStateManager } from "../client/StateManager";
-import { DatasetsManager } from "../dataset/Manager";
+import { DatasetsManager } from "../dataset/DatasetsManager";
 import { EditorManager } from "../editor/Manager";
 import { MessagesManager } from "../message/Manager";
 import { ModelsDotdevManager } from "../model/DotdevManager";
@@ -12,7 +12,7 @@ import { ModelsGatewayManager } from "../model/GatewayManager";
 import { PageManager } from "../page/Manager";
 import { PlaygroundManager } from "../playground/Manager";
 import { PromptsManager } from "../prompt/Manager";
-import { RunManager } from "../run/Manager";
+import { RunsManager } from "../run/RunsManager";
 import { SecretsManager } from "../secret/Manager";
 import { SettingsManager } from "../settings/Manager";
 import { StoreManager } from "../store/Manager";
@@ -39,7 +39,7 @@ export class WebviewManager extends Manager {
   #editor: EditorManager;
   #prompts: PromptsManager;
   #playground: PlaygroundManager;
-  #run: RunManager;
+  #runs: RunsManager;
   #datasets: DatasetsManager;
   #attachments: AttachmentsManager;
   #page: PageManager;
@@ -94,17 +94,19 @@ export class WebviewManager extends Manager {
       store: this.#store,
     });
 
-    this.#run = new RunManager(this, {
-      messages: this.#messages,
-      secrets: this.#secrets,
-    });
-
     this.#datasets = new DatasetsManager(this, {
       messages: this.#messages,
     });
 
     this.#attachments = new AttachmentsManager(this, {
       messages: this.#messages,
+    });
+
+    this.#runs = new RunsManager(this, {
+      messages: this.#messages,
+      secrets: this.#secrets,
+      attachments: this.#attachments,
+      datasets: this.#datasets,
     });
 
     this.#page = new PageManager(this, {
@@ -141,6 +143,6 @@ export class WebviewManager extends Manager {
   }
 
   runPrompt() {
-    this.#run.trigger();
+    this.#runs.trigger();
   }
 }

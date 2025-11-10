@@ -1,9 +1,13 @@
 import { Manager } from "@/aspects/manager/Manager.js";
 import { createGateway } from "@ai-sdk/gateway";
+import { Attachment } from "@wrkspc/core/attachment";
+import { Datasource } from "@wrkspc/core/datasource";
 import { ModelSettings } from "@wrkspc/core/model";
+import { Result } from "@wrkspc/core/result";
 import {
   PromptRunResultData,
   PromptRunResultShell,
+  Run,
   RunMessage,
 } from "@wrkspc/core/run";
 import {
@@ -18,13 +22,20 @@ import {
 import { nanoid } from "nanoid";
 import PQueue from "p-queue";
 import * as vscode from "vscode";
+import { AttachmentsManager } from "../attachment/AttachementsManager";
+import { DatasetsManager } from "../dataset/DatasetsManager";
 import { MessagesManager } from "../message/Manager";
+import { ResultManager } from "../result/Manager";
 import { SecretsManager } from "../secret/Manager";
 
 export namespace RunManager {
   export interface Props {
     messages: MessagesManager;
     secrets: SecretsManager;
+    attachments: AttachmentsManager;
+    datasets: DatasetsManager;
+    run: Run.Initialized;
+    queue: PQueue;
   }
 
   //#region Legacy types
@@ -85,40 +96,132 @@ export namespace RunManager {
 export class RunManager extends Manager {
   #messages: MessagesManager;
   #secrets: SecretsManager;
+  #attachments: AttachmentsManager;
+  #datasets: DatasetsManager;
+  #run: Run;
+  #queue: PQueue;
+  #abort;
 
   constructor(parent: Manager, props: RunManager.Props) {
     super(parent);
 
     this.#messages = props.messages;
     this.#secrets = props.secrets;
+    this.#attachments = props.attachments;
+    this.#datasets = props.datasets;
+    this.#run = props.run;
+    this.#queue = props.queue;
 
-    this.#messages.listen(this, "run-client-execute", (message) =>
-      this.#handleExecutePrompt(message.payload),
-    );
+    this.#abort = new AbortController();
 
-    this.#messages.listen(this, "run-vw-stop", (message) =>
-      this.#handleStopPromptRun(message.payload),
-    );
+    this.#messages.listen(this, "run-client-stop", this.#onStop);
+
+    this.#start();
   }
 
-  trigger() {
-    this.#messages.send({ type: "run-server-trigger" });
+  async #onStop(message: RunMessage.ClientStop) {
+    if (message.payload.runId !== this.#run.id) return;
+  }
+
+  async #start() {
+    const apiKey = await this.#secrets.get("auth-vercel-gateway-key");
+    if (!apiKey) return this.#crash("No Vercel Gateway API key configured.");
+
+    try {
+      const [attachments, datasources] = await this.#prepare();
+      const results = [];
+
+      for (const setup of this.#run.init.setups) {
+        for (const values in []) {
+          const initialResult: Result.Initialized = {};
+
+          const result = new ResultManager(this, {
+            messages: this.#messages,
+            result: initialResult,
+          });
+
+          this.#queue.add(() => result.generate());
+        }
+      }
+    } catch (err) {
+      const error =
+        err instanceof RunError ? err.message : "Something went wrong";
+      return this.#crash(error);
+    }
+  }
+
+  #prepare() {
+    return Promise.all([
+      Promise.all(
+        this.#run.init.attachments.map((attachment) =>
+          this.#prepareAttachment(attachment),
+        ),
+      ),
+      Promise.all(
+        this.#run.init.datasources.map((datasource) =>
+          this.#prepareDatasource(datasource),
+        ),
+      ),
+    ]);
+  }
+
+  async #prepareAttachment(attachment: Attachment) {
+    const base64 = await this.#attachments.read(attachment);
+    // attachment.path;
+  }
+
+  async #prepareDatasource(datasource: Datasource) {
+    switch (datasource.type) {
+      case "manual":
+        // datasource.values
+        return;
+
+      case "dataset":
+        switch (datasource.data?.type) {
+          case "csv":
+            switch (datasource.data.selection.type) {
+              default:
+              // case "all":
+              // case "range":
+              // case "row":
+            }
+        }
+        return;
+    }
+  }
+
+  async #crash(error: string) {
+    await this.#messages.send({
+      type: "run-server-error",
+      payload: {
+        id: this.#run.id,
+        status: "error",
+        error,
+        erroredAt: Date.now(),
+      },
+    });
+    return this.dispose();
   }
 
   //#region Legacy runtime
 
   #activeRunControllers: Map<string, Set<AbortController>> = new Map();
   #cancelledRuns: Set<string> = new Set();
+  // @ts-expect-error
   #lastExecutionPayload: RunMessage.ClientExecutePayload | null = null;
 
   #cloneExecutionPayload(
+    // @ts-expect-error
     payload: RunMessage.ClientExecutePayload,
+    // @ts-expect-error
   ): RunMessage.ClientExecutePayload {
     return JSON.parse(
       JSON.stringify(payload),
+      // @ts-expect-error
     ) as RunMessage.ClientExecutePayload;
   }
 
+  // @ts-expect-error
   async #handleExecutePrompt(payload: RunMessage.ClientExecutePayload) {
     this.#lastExecutionPayload = this.#cloneExecutionPayload(payload);
 
@@ -127,6 +230,7 @@ export class RunManager extends Manager {
     const now = () => Date.now();
 
     const sendRunError = (error: string, resultId?: string) => {
+      // @ts-expect-error
       const payload: RunMessage.ServerErrorPayload = {
         runId,
         promptId,
@@ -138,6 +242,7 @@ export class RunManager extends Manager {
     };
 
     const sendRunUpdate = (resultId: string, delta: string) => {
+      // @ts-expect-error
       const message: RunMessage.ServerUpdate = {
         type: "run-server-update",
         payload: {
@@ -157,8 +262,10 @@ export class RunManager extends Manager {
         "No Vercel Gateway API key configured. Please set your API key in the panel above.";
       sendRunError(error);
       this.#messages.send({
+        // @ts-expect-error
         type: "run-server-execution-result",
         payload: {
+          // @ts-expect-error
           success: false,
           error,
           promptId,
@@ -246,7 +353,6 @@ export class RunManager extends Manager {
               label: modelConfig.label ?? modelConfig.modelId ?? null,
               settings: {
                 options: modelConfig.options,
-                // @ts-expect-error
                 reasoning,
                 providerOptions: modelConfig.providerOptions ?? null,
                 tools: modelConfig.tools ?? null,
@@ -262,9 +368,7 @@ export class RunManager extends Manager {
             runLabel,
             modelConfig,
             modelLabel,
-            // @ts-expect-error
             attachments,
-            // @ts-expect-error
             reasoning,
             shell,
           });
@@ -272,6 +376,7 @@ export class RunManager extends Manager {
         }
       }
 
+      // @ts-expect-error
       const startedMessage: RunMessage.ServerStart = {
         type: "run-server-start",
         payload: {
@@ -290,6 +395,7 @@ export class RunManager extends Manager {
         const cancelMessage = "Prompt run cancelled.";
         sendRunError(cancelMessage);
 
+        // @ts-expect-error
         const completedMessage: RunMessage.ServerComplete = {
           type: "run-server-complete",
           payload: {
@@ -303,8 +409,10 @@ export class RunManager extends Manager {
         this.#messages.send(completedMessage);
 
         this.#messages.send({
+          // @ts-expect-error
           type: "run-server-execution-result",
           payload: {
+            // @ts-expect-error
             success: false,
             error: cancelMessage,
             results: [],
@@ -408,6 +516,7 @@ export class RunManager extends Manager {
               };
 
               resultDataById.set(job.resultId, completedResult);
+              // @ts-expect-error
               const resultCompletedMessage: RunMessage.ServerResultComplete = {
                 type: "run-server-result-complete",
                 payload: {
@@ -434,6 +543,7 @@ export class RunManager extends Manager {
               };
 
               resultDataById.set(job.resultId, failedResult);
+              // @ts-expect-error
               const failureMessage: RunMessage.ServerResultComplete = {
                 type: "run-server-result-complete",
                 payload: {
@@ -462,6 +572,7 @@ export class RunManager extends Manager {
               };
 
               resultDataById.set(job.resultId, failedResult);
+              // @ts-expect-error
               const failureMessage: RunMessage.ServerResultComplete = {
                 type: "run-server-result-complete",
                 payload: {
@@ -501,6 +612,7 @@ export class RunManager extends Manager {
             model: job.shell.model,
           };
           resultDataById.set(job.resultId, cancelledResult);
+          // @ts-expect-error
           const cancelledMessage: RunMessage.ServerResultComplete = {
             type: "run-server-result-complete",
             payload: {
@@ -526,6 +638,7 @@ export class RunManager extends Manager {
       this.#activeRunControllers.delete(runId);
       this.#cancelledRuns.delete(runId);
 
+      // @ts-expect-error
       const completedMessage: RunMessage.ServerComplete = {
         type: "run-server-complete",
         payload: {
@@ -539,8 +652,10 @@ export class RunManager extends Manager {
       this.#messages.send(completedMessage);
 
       this.#messages.send({
+        // @ts-expect-error
         type: "run-server-execution-result",
         payload: {
+          // @ts-expect-error
           success: !wasCancelled && overallSuccess,
           results: aggregatedResults,
           promptId,
@@ -557,8 +672,10 @@ export class RunManager extends Manager {
       this.#activeRunControllers.delete(runId);
       this.#cancelledRuns.delete(runId);
       this.#messages.send({
+        // @ts-expect-error
         type: "run-server-execution-result",
         payload: {
+          // @ts-expect-error
           success: false,
           error: message,
           promptId,
@@ -938,4 +1055,10 @@ export class RunManager extends Manager {
   }
 
   //#endregion
+}
+
+export class RunError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
 }

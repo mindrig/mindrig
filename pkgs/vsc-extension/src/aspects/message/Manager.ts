@@ -31,12 +31,12 @@ export class MessagesManager extends Manager {
   }
 
   listen<Type extends Message.ClientType>(
-    manager: Manager<any> | null,
+    parent: Manager<any> | null,
     type: Type,
     callback: MessagesManager.ListenCallback<Type>,
   ): Manager.Disposable {
     const handler = (ev: CustomEvent<Message.Client & Type>) => {
-      callback.call(manager, ev.detail as any);
+      callback.call(parent, ev.detail as any);
     };
 
     this.#target.addEventListener(type, handler as any);
@@ -45,7 +45,7 @@ export class MessagesManager extends Manager {
       dispose: () => this.#target.removeEventListener(type, handler as any),
     };
 
-    manager?.register(off);
+    parent?.register(off);
     return this.register(off);
   }
 

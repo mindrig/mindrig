@@ -21,6 +21,8 @@ export namespace Datasource {
     item: ItemRefV1;
     values: Record<PlaygroundMap.PromptVarId, string>;
   }
+
+  export type Values = Record<PlaygroundMap.PromptVarId, string>;
 }
 
 export function buildDatasource(type: Datasource.Type): Datasource {

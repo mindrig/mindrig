@@ -2,10 +2,12 @@ import { Result } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
 import { State } from "enso";
 import { useMemo } from "react";
+import { MessagesContext, useMessages } from "../message/Context";
 
 export namespace RunManager {
   export interface Props {
     runAppState: State<Run>;
+    sendMessage: MessagesContext.SendMessage;
   }
 
   export interface Meta {
@@ -18,13 +20,14 @@ export class RunManager {
   static use(
     runAppState: State<Run> | State<Run | undefined>,
   ): RunManager | undefined {
+    const { sendMessage } = useMessages();
     const decomposedRun = runAppState.useDecomposeNullish();
 
     const manager = useMemo(
       () =>
         decomposedRun.value &&
-        new RunManager({ runAppState: decomposedRun.state }),
-      [!!decomposedRun.value],
+        new RunManager({ runAppState: decomposedRun.state, sendMessage }),
+      [!!decomposedRun.value, sendMessage],
     );
 
     return manager;
@@ -58,9 +61,11 @@ export class RunManager {
   // }
 
   #runAppState;
+  #sendMessage;
 
   constructor(props: RunManager.Props) {
     this.#runAppState = props.runAppState;
+    this.#sendMessage = props.sendMessage;
   }
 
   useRunning() {
@@ -70,13 +75,22 @@ export class RunManager {
   stopRun() {
     if (!RunManager.running(this.#runAppState.value)) return;
 
-    // TODO: Send message
+    this.#sendMessage({
+      type: "run-client-stop",
+      payload: { runId: this.#runAppState.$.id.value },
+    });
   }
 
   useResultsState(): State<Result[]> | undefined {
     const discriminatedRun = this.#runAppState.useDiscriminate("status");
-    if (discriminatedRun.discriminator === "initialized") return;
-    return discriminatedRun.state.$.results;
+    switch (discriminatedRun.discriminator) {
+      case "initialized":
+      case "error":
+        return;
+
+      default:
+        return discriminatedRun.state.$.results;
+    }
   }
 
   get runId(): Run.Id {

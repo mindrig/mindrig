@@ -13,6 +13,8 @@ export namespace Result {
   export type Id = string & { [idBrand]: true };
   declare const idBrand: unique symbol;
 
+  export type Status = Result["status"];
+
   export interface Base<Status extends string> {
     id: Id;
     status: Status;
@@ -74,4 +76,9 @@ export namespace Result {
     // TODO: Add details
     payload: object;
   }
+
+  export type Patch<Status extends Result.Status> = Omit<
+    Result & { status: Status },
+    Exclude<keyof Base<Status>, "id" | "status">
+  >;
 }
