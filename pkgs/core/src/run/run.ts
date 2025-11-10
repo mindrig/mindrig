@@ -2,7 +2,6 @@ import { Attachment } from "../attachment/index.js";
 import { Datasource } from "../datasource/datasource.js";
 import { FileContent } from "../file/content.js";
 import { PlaygroundMap } from "../playground/map.js";
-import { PromptArguments } from "../prompt";
 import { Result } from "../result/result.js";
 import { Setup } from "../setup/setup.js";
 import { Tool } from "../tool/tool.js";
@@ -64,22 +63,8 @@ export namespace Run {
     Datasource.ItemRef
   >;
 
-  // export type AssignmentsDatasources = Record<
-  //   PlaygroundMap.PromptVarId,
-  //   string
-  // >;
-
-  //#region Legacy
-
-  // export interface Attachment extends AspectAttachment {
-  //   base64: FileContent.Base64;
-  // }
-
-  export interface Info {
-    label: string;
-    variables: PromptArguments;
-    substitutedPrompt: string;
+  export interface Meta {
+    running: boolean;
+    complete: boolean;
   }
-
-  //#endregion
 }

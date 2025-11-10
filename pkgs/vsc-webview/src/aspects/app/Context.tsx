@@ -6,22 +6,22 @@ import { Page } from "@wrkspc/core/page";
 import React, { useCallback } from "react";
 import { NavigateOptions, useNavigate } from "react-router-dom";
 import { ClientStateProvider } from "../client/StateContext";
-import { ClientStoreProvider } from "../client/StoreContext";
 import { ModelsMapProvider } from "../model/MapContext";
 import { RunsProvider } from "../run/RunsContext";
+import { AppStateStoreProvider } from "./state/StoreContext";
 
 export function AppContext(props: React.PropsWithChildren) {
   return (
     <VscProvider>
       <MessagesProvider>
         <ClientStateProvider>
-          <ClientStoreProvider>
+          <AppStateStoreProvider>
             <AuthProvider>
               <ModelsMapProvider>
                 <RunsProvider>{props.children}</RunsProvider>
               </ModelsMapProvider>
             </AuthProvider>
-          </ClientStoreProvider>
+          </AppStateStoreProvider>
         </ClientStateProvider>
       </MessagesProvider>
     </VscProvider>

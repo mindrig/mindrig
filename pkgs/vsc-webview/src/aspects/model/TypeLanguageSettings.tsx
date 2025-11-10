@@ -32,10 +32,7 @@ export function ModelTypeLanguageSettings(
       (enabled) => (enabled ? buildModelSettingsReasoning() : undefined),
       [],
     );
-  const decomposedReasoning = field.$.reasoning.useDecompose(
-    (nextReasoning, prevReasoning) => nextReasoning !== prevReasoning,
-    [],
-  );
+  const decomposedReasoning = field.$.reasoning.useDecomposeNullish();
 
   const stopSequencesField = field.$.stopSequences
     .useDefined("array")

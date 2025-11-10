@@ -1,11 +1,11 @@
 import { DatasetCsv, DatasetRequest } from "@wrkspc/core/dataset";
 import { EditorFile } from "@wrkspc/core/editor";
 
-export interface DatasetDatasourceClientState {
-  csv: DatasetDatasourceClientState.Csv | null;
+export interface DatasetDatasourceAppState {
+  csv: DatasetDatasourceAppState.Csv | null;
 }
 
-export namespace DatasetDatasourceClientState {
+export namespace DatasetDatasourceAppState {
   export type Csv = CsvLoading | CsvLoaded | CsvError;
 
   export interface CsvLoading {
@@ -25,9 +25,9 @@ export namespace DatasetDatasourceClientState {
   }
 }
 
-export function buildDatasetDatasourceClientState(
-  overrides: Partial<DatasetDatasourceClientState> = {},
-): DatasetDatasourceClientState {
+export function buildDatasetDatasourceAppState(
+  overrides: Partial<DatasetDatasourceAppState> = {},
+): DatasetDatasourceAppState {
   return {
     csv: null,
   };

@@ -2,11 +2,13 @@ import { Run } from "@wrkspc/core/run";
 import { Test } from "@wrkspc/core/test";
 import { Field, State } from "enso";
 import { nanoid } from "nanoid";
+import { useAppState } from "../app/state/Context";
 import { useAssessment } from "../assessment/Context";
 import { AssessmentManager } from "../assessment/Manager";
-import { useServerStoreState } from "../server/StoreContext";
+import { RunProviderManager } from "../run/ProviderManager";
+import { useStoreProp } from "../store/Context";
 import { useMemoWithProps } from "../utils/hooks";
-import { buildTestClientState, TestClientState } from "./clientState";
+import { buildTestAppState, TestAppState } from "./appState";
 
 export namespace TestManager {
   export interface UseProps {
@@ -15,9 +17,9 @@ export namespace TestManager {
 
   export interface Props {
     testField: Field<Test>;
-    testClientState: State<TestClientState>;
+    testAppState: State<TestAppState>;
     assessment: AssessmentManager;
-    streamingStoreState: useServerStoreState.State<"playground.streaming">;
+    streamingStoreState: useStoreProp.State<"playground.streaming">;
   }
 }
 
@@ -26,17 +28,15 @@ export class TestManager {
     const { testField } = props;
     const { assessment } = useAssessment();
 
-    const streamingStoreState = useServerStoreState(
-      "global",
-      "playground.streaming",
-    );
+    const streamingStoreState = useStoreProp("global", "playground.streaming");
 
-    const testClientState = State.use(buildTestClientState(), [testField]);
+    const testId = testField.$.id.useValue();
+    const testAppState = useAppState(`tests.${testId}`, buildTestAppState);
 
     const manager = useMemoWithProps(
       {
         testField,
-        testClientState,
+        testAppState,
         assessment,
         streamingStoreState,
       },
@@ -48,13 +48,13 @@ export class TestManager {
   }
 
   #testField;
-  #testClientState;
+  #testAppState;
   #assessment;
   #streamingStoreState;
 
   constructor(props: TestManager.Props) {
     this.#testField = props.testField;
-    this.#testClientState = props.testClientState;
+    this.#testAppState = props.testAppState;
     this.#assessment = props.assessment;
     this.#streamingStoreState = props.streamingStoreState;
   }
@@ -70,6 +70,16 @@ export class TestManager {
 
   startRun() {
     const runId: Run.Id = nanoid();
-    this.#testClientState.$.runId.set(runId);
+    this.#testAppState.$.runId.set(runId);
+  }
+
+  useRunId() {
+    return this.#testAppState.$.runId.useValue();
+  }
+
+  useRunProvider(): RunProviderManager {
+    const runId = this.useRunId();
+    const runProvider = RunProviderManager.use(runId);
+    return runProvider;
   }
 }

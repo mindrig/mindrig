@@ -24,14 +24,14 @@ export class StoreManager extends Manager {
     this.#messages.listen(this, "store-client-get", this.#onRequest);
   }
 
-  async get<Key extends Store.Key>(
+  async get<Key extends Store.Prop>(
     scope: Store.Scope,
     key: Key,
   ): Promise<Store[Key] | undefined> {
     return this.#scoped(scope).get(key);
   }
 
-  async set<Key extends Store.Key>(
+  async set<Key extends Store.Prop>(
     scope: Store.Scope,
     key: Key,
     value: Versioned.Only<Store[Key]>,
@@ -39,7 +39,7 @@ export class StoreManager extends Manager {
     await this.#scoped(scope).update(key as string, value);
   }
 
-  async clear<Key extends Store.Key>(
+  async clear<Key extends Store.Prop>(
     scope: Store.Scope,
     key: Key,
   ): Promise<void> {
@@ -47,7 +47,7 @@ export class StoreManager extends Manager {
   }
 
   async #onRequest(message: StoreMessage.ClientGet<any, any>) {
-    const { scope, key } = message.payload;
+    const { scope, prop: key } = message.payload;
     const value = await this.get(scope, key);
     return this.#messages.send({
       type: "store-server-get-response",

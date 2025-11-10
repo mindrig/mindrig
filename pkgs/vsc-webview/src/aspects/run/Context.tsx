@@ -1,7 +1,11 @@
 import { createContext, useContext } from "react";
+import { ResultsProvider } from "../result/ResultsContext";
+import { RunManager } from "./Manager";
 
 export namespace RunContext {
-  export interface Value {}
+  export interface Value {
+    run: RunManager;
+  }
 }
 
 export const RunContext = createContext<RunContext.Value | undefined>(
@@ -10,13 +14,17 @@ export const RunContext = createContext<RunContext.Value | undefined>(
 
 export namespace RunProvider {
   export interface Props {
-    // manager: AssessmentManager;
+    run: RunManager;
   }
 }
 
-export function RunProvider(props: React.PropsWithChildren<RunProvider.Props>) {
-  const {} = props;
-  return <RunContext.Provider value={{}}>{props.children}</RunContext.Provider>;
+export function RunProvider(props: React.PropsWithChildren<RunContext.Value>) {
+  const { run } = props;
+  return (
+    <RunContext.Provider value={{ run }}>
+      <ResultsProvider runId={run.runId}>{props.children}</ResultsProvider>
+    </RunContext.Provider>
+  );
 }
 
 export function useRun(): RunContext.Value {

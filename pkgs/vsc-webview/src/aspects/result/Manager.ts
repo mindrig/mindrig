@@ -1,6 +1,6 @@
 import { State } from "enso";
-import { ResultsState } from "./state";
+import { ResultsAppState } from "./resultsAppState";
 
 export interface ResultsManager {
-  get state(): State<ResultsState>;
+  get state(): State<ResultsAppState>;
 }

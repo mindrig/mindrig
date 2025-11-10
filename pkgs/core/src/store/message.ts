@@ -5,10 +5,10 @@ export namespace StoreMessage {
 
   export type Server = ServerGetResponse<any>;
 
-  export interface ServerGetResponse<Key extends Store.Key> {
+  export interface ServerGetResponse<Prop extends Store.Prop> {
     type: "store-server-get-response";
     requestId: Store.RequestId;
-    payload: Store[Key];
+    payload: Store[Prop];
   }
 
   //#endregion
@@ -17,23 +17,29 @@ export namespace StoreMessage {
 
   export type Client = ClientSet<any, any> | ClientGet<any, any>;
 
-  export interface ClientSet<Scope extends Store.Scope, Key extends Store.Key> {
+  export interface ClientSet<
+    Scope extends Store.Scope,
+    Prop extends Store.Prop,
+  > {
     type: "store-client-set";
-    payload: ClientSetPayload<Scope, Key>;
+    payload: ClientSetPayload<Scope, Prop>;
   }
 
   export interface ClientSetPayload<
     Scope extends Store.Scope,
-    Key extends Store.Key,
+    Prop extends Store.Prop,
   > {
-    ref: Store.Ref<Scope, Key>;
-    value: Store[Key];
+    ref: Store.Ref<Scope, Prop>;
+    value: Store[Prop];
   }
 
-  export interface ClientGet<Scope extends Store.Scope, Key extends Store.Key> {
+  export interface ClientGet<
+    Scope extends Store.Scope,
+    Prop extends Store.Prop,
+  > {
     type: "store-client-get";
     requestId: Store.RequestId;
-    payload: Store.Ref<Scope, Key>;
+    payload: Store.Ref<Scope, Prop>;
   }
 
   //#endregion

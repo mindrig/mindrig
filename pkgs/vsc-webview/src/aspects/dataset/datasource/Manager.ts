@@ -10,13 +10,13 @@ import { nanoid } from "nanoid";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MessagesContext, useMessages } from "../../message/Context";
 import {
-  buildDatasetDatasourceClientState,
-  DatasetDatasourceClientState,
-} from "./clientState";
+  buildDatasetDatasourceAppState,
+  DatasetDatasourceAppState,
+} from "./appState";
 
 export namespace DatasetDatasourceManager {
   export interface Props {
-    datasetState: State<DatasetDatasourceClientState>;
+    datasetDatasourceAppState: State<DatasetDatasourceAppState>;
     datasourceField: Field<DatasetDatasource>;
     sendMessage: MessagesContext.SendMessage;
   }
@@ -27,25 +27,25 @@ export namespace DatasetDatasourceManager {
   }
 
   export type DiscriminatedCsv = State.Discriminated<
-    DatasetDatasourceClientState.Csv | null,
+    DatasetDatasourceAppState.Csv | null,
     "status"
   >;
 
   export type UseSyncDatasetToDatasourceCallback = (
-    csv: DatasetDatasourceClientState.CsvLoaded,
+    csv: DatasetDatasourceAppState.CsvLoaded,
   ) => Field<DatasetDatasource.DataRefCsvV1>;
 }
 
 export class DatasetDatasourceManager {
   static use(datasourceField: Field<DatasetDatasource>) {
-    const initialCsv = useMemo<DatasetDatasourceClientState.Csv | null>(() => {
+    const initialCsv = useMemo<DatasetDatasourceAppState.Csv | null>(() => {
       const value = datasourceField.$.data.value;
       if (!value) return null;
       const requestId: DatasetRequest.CsvId = nanoid();
       return { status: "loading", requestId, path: value.path };
     }, [datasourceField]);
-    const datasetState = State.use<DatasetDatasourceClientState>(
-      buildDatasetDatasourceClientState({ csv: initialCsv }),
+    const datasetDatasourceAppState = State.use<DatasetDatasourceAppState>(
+      buildDatasetDatasourceAppState({ csv: initialCsv }),
       [],
     );
     const { useListen, sendMessage } = useMessages();
@@ -53,11 +53,11 @@ export class DatasetDatasourceManager {
     const datasetDatasourceManager = useMemo(
       () =>
         new DatasetDatasourceManager({
-          datasetState,
+          datasetDatasourceAppState,
           datasourceField,
           sendMessage,
         }),
-      [datasetState, datasourceField, sendMessage],
+      [datasetDatasourceAppState, datasourceField, sendMessage],
     );
 
     useEffect(() => {
@@ -91,7 +91,7 @@ export class DatasetDatasourceManager {
   #sendMessage;
 
   constructor(props: DatasetDatasourceManager.Props) {
-    this.#datasetState = props.datasetState;
+    this.#datasetState = props.datasetDatasourceAppState;
     this.#datasourceField = props.datasourceField;
     this.#sendMessage = props.sendMessage;
   }
@@ -130,7 +130,7 @@ export class DatasetDatasourceManager {
   }
 
   useSyncDatasetToDatasource(
-    datasourceCsvState: State<DatasetDatasourceClientState.CsvLoaded>,
+    datasourceCsvState: State<DatasetDatasourceAppState.CsvLoaded>,
   ): Field<DatasetDatasource.DataRefCsv> {
     const syncField =
       useCallback<DatasetDatasourceManager.UseSyncDatasetToDatasourceCallback>(

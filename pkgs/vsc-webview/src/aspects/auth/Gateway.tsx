@@ -4,10 +4,7 @@ import { AuthVercel } from "./vercel/Vercel";
 export function AuthGateway() {
   const { authState } = useAuth();
 
-  const decomposedGateway = authState.$.gateway.useDecompose(
-    (nextValue, prevValue) => !!nextValue === !!prevValue,
-    [],
-  );
+  const decomposedGateway = authState.$.gateway.useDecomposeNullish();
 
   if (decomposedGateway.value === undefined) return <div>Loading...</div>;
 

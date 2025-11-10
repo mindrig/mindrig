@@ -1,27 +1,32 @@
+import { Run } from "@wrkspc/core/run";
 import { State } from "enso";
 import { useMemo } from "react";
-import { RunsClientState } from "./runsClientState";
+import { buildRunsAppState, RunsAppState } from "./runsAppState";
 
 export namespace RunsManager {
   export interface Props {
-    runsClientState: State<RunsClientState>;
+    runsAppState: State<RunsAppState>;
   }
 }
 
 export class RunsManager {
   static use() {
-    const runsClientState = State.use<RunsClientState>({}, []);
+    const runsAppState = State.use<RunsAppState>(buildRunsAppState(), []);
 
     const runsManager = useMemo(
-      () => new RunsManager({ runsClientState }),
-      [runsClientState],
+      () => new RunsManager({ runsAppState }),
+      [runsAppState],
     );
     return runsManager;
   }
 
-  #runsClientState;
+  #runsAppState;
 
   constructor(props: RunsManager.Props) {
-    this.#runsClientState = props.runsClientState;
+    this.#runsAppState = props.runsAppState;
+  }
+
+  useRun(runId: Run.Id | undefined) {
+    // this.#runsAppState.useCompute
   }
 }

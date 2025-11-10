@@ -7,21 +7,21 @@ import { State } from "enso";
 import { ResultContent } from "./Content";
 import { ResultProvider } from "./Context";
 import { ResultMeta } from "./Meta";
-import { ResultsState } from "./state";
+import { ResultsAppState } from "./resultsAppState";
 
 export { ResultComponent as Result };
 
 export namespace ResultComponent {
   export interface Props {
-    state: State<Result>;
-    index: number;
-    discriminatedLayout: State.Discriminated<ResultsState.Layout, "type">;
+    resultState: State<Result>;
+    resultIndex: number;
+    discriminatedLayout: State.Discriminated<ResultsAppState.Layout, "type">;
     solo: boolean;
   }
 }
 
 export function ResultComponent(props: ResultComponent.Props) {
-  const { state, index, discriminatedLayout, solo } = props;
+  const { resultState, resultIndex, discriminatedLayout, solo } = props;
 
   // const headerTitle =
   //   result.label ||
@@ -31,19 +31,22 @@ export function ResultComponent(props: ResultComponent.Props) {
   //   `Result ${index + 1}`;
 
   const expanded = discriminatedLayout.state.useCompute(
-    (layout) => "expanded" in layout && !!layout.expanded[index],
+    (layout) => "expanded" in layout && !!layout.expanded[resultIndex],
     [],
   );
 
-  const createdAt = state.$.createdAt.useValue();
-  const errored = state.useCompute((result) => result.status === "error", []);
-  const loading = state.useCompute(
+  const createdAt = resultState.$.createdAt.useValue();
+  const errored = resultState.useCompute(
+    (result) => result.status === "error",
+    [],
+  );
+  const loading = resultState.useCompute(
     (result) => result.status === "initialized" || result.status === "running",
     [],
   );
 
   return (
-    <ResultProvider state={state}>
+    <ResultProvider state={resultState}>
       <div className="border rounded">
         <div className="flex items-center justify-between px-3 py-2 border-b">
           <div className="flex items-center gap-2">
@@ -52,12 +55,14 @@ export function ResultComponent(props: ResultComponent.Props) {
                 style="label"
                 icon={expanded ? iconRegularAngleDown : iconRegularAngleRight}
                 onClick={() =>
-                  discriminatedLayout.state.$.expanded.at(index).set(!expanded)
+                  discriminatedLayout.state.$.expanded
+                    .at(resultIndex)
+                    .set(!expanded)
                 }
               />
             )}
             <span className="text-sm font-medium">
-              {!solo && <span>#{index + 1}</span>} Result
+              {!solo && <span>#{resultIndex + 1}</span>} Result
             </span>
 
             <div>TODO: Datasource info</div>
@@ -73,9 +78,9 @@ export function ResultComponent(props: ResultComponent.Props) {
 
         {expanded && (
           <>
-            <ResultMeta state={state} />
+            <ResultMeta state={resultState} />
 
-            <ResultContent state={state} />
+            <ResultContent state={resultState} />
           </>
         )}
       </div>

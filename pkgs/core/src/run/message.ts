@@ -98,6 +98,7 @@ export namespace RunMessage {
     promptId: string;
     streamingEnabled?: boolean;
     modelId?: string | null;
+    // @ts-ignore
     runs?: Array<Run.Info>;
     models?: Array<{
       key: string;

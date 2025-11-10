@@ -1,31 +1,31 @@
+import { Result } from "@wrkspc/core/result";
 import { State } from "enso";
-import { Result } from "./Result";
-import { useResults } from "./ResultsContext";
-import { ResultsState } from "./state";
+import { ResultComponent } from "./Result";
+import { ResultsAppState } from "./resultsAppState";
 
 export namespace ResultsLayoutVertical {
   export interface Props {
     discriminatedLayout: State.DiscriminatedVariant<
-      ResultsState.Layout,
+      ResultsAppState.Layout,
       "type",
       "vertical"
     >;
+    resultsState: State<Result[]>;
   }
 }
 
 export function ResultsLayoutVertical(props: ResultsLayoutVertical.Props) {
   const { discriminatedLayout } = props;
-  const { state } = useResults();
-  const resultsState = state.$.results.useCollection();
+  const resultsState = props.resultsState.useCollection();
   const solo = resultsState.size === 1;
 
   return (
     <div className="space-y-3">
-      {resultsState.map((result, index) => (
-        <div key={result.key}>
-          <Result
-            state={result}
-            index={index}
+      {resultsState.map((resultState, resultIndex) => (
+        <div key={resultState.key}>
+          <ResultComponent
+            resultState={resultState}
+            resultIndex={resultIndex}
             discriminatedLayout={discriminatedLayout}
             solo={solo}
           />

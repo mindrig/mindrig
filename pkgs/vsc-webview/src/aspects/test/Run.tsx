@@ -2,12 +2,15 @@ import { Button } from "@wrkspc/ds";
 import { Checkbox } from "@wrkspc/form";
 import { useAssessment } from "../assessment/Context";
 import { Results } from "../result/Results";
+import { RunProvider } from "../run/Context";
 import { useTest } from "./Context";
 
 export function TestRunComponent() {
   const { assessment } = useAssessment();
   const { test } = useTest();
-  const submitting = assessment.assessmentForm.submitting;
+  const runProvider = test.useRunProvider();
+  const running = runProvider.useRunning();
+  const run = runProvider.useRun();
 
   return (
     <>
@@ -17,60 +20,45 @@ export function TestRunComponent() {
             type="submit"
             size="small"
             onClick={() => test.startRun()}
-            isDisabled={submitting}
-            // disabled={submitting || !canRunPrompt}
+            isDisabled={running}
           >
-            {submitting ? "Running..." : "Run Prompt"}
+            {running ? "Running..." : "Run Prompt"}
           </Button>
 
-          {submitting && (
+          {run && running && (
             <Button
               style="transparent"
               size="small"
-              onClick={() => {
-                // TODO:
-              }}
-              // disabled={stopDisabled}
+              onClick={() => run.stopRun()}
             >
               Stop
             </Button>
           )}
+
+          <Checkbox
+            label="Stream output"
+            value={test.streaming}
+            onChange={test.toggleStreaming.bind(assessment)}
+            size="small"
+          />
+
+          {run && (
+            <Button
+              style="label"
+              size="small"
+              onClick={() => runProvider.clearRun()}
+              isDisabled={running}
+            >
+              Clear
+            </Button>
+          )}
         </div>
 
-        <Checkbox
-          label="Stream output"
-          value={test.streaming}
-          onChange={test.toggleStreaming.bind(assessment)}
-          size="small"
-        />
-
-        {/* {hasResultsOrError && ( */}
-        <Button
-          style="label"
-          size="small"
-          onClick={() => {
-            // TODO: onClear
-          }}
-          // disabled={runInFlight}
-        >
-          Clear
-        </Button>
-        {/* )} */}
-
-        {/* <AssessmentResultsProvider value={resultsContextValue}> */}
-        <Results />
-        {/* </AssessmentResultsProvider> */}
-
-        {/* {executionState.error && (
-        <div className="space-y-2">
-          <h5 className="text-sm font-medium">Error</h5>
-          <div className="p-3 rounded border">
-            <pre className="text-sm whitespace-pre-wrap">
-              {executionState.error}
-            </pre>
-          </div>
-        </div>
-      )} */}
+        {run && (
+          <RunProvider run={run}>
+            <Results />
+          </RunProvider>
+        )}
       </div>
     </>
   );

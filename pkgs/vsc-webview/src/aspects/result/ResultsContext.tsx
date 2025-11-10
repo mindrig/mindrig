@@ -1,12 +1,10 @@
-import { State } from "enso";
+import { Run } from "@wrkspc/core/run";
 import { createContext, useContext } from "react";
-import { ResultsState } from "./state";
+import { ResultsManager } from "./ResultsManager";
 
 export namespace ResultsContext {
   export interface Value {
-    // TODO: Kill manager?
-    // manager: ResultsManager;
-    state: State<ResultsState>;
+    results: ResultsManager;
   }
 }
 
@@ -14,11 +12,20 @@ export const ResultsContext = createContext<ResultsContext.Value | undefined>(
   undefined,
 );
 
+export namespace ResultsProvider {
+  export interface Props {
+    runId: Run.Id;
+  }
+}
+
 export function ResultsProvider(
-  props: React.PropsWithChildren<ResultsContext.Value>,
+  props: React.PropsWithChildren<ResultsProvider.Props>,
 ) {
+  const { runId } = props;
+  const results = ResultsManager.use(runId);
+
   return (
-    <ResultsContext.Provider value={props}>
+    <ResultsContext.Provider value={{ results }}>
       {props.children}
     </ResultsContext.Provider>
   );

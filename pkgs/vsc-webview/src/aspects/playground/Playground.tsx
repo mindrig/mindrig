@@ -7,14 +7,8 @@ import { PlaygroundErrors } from "./Errors";
 
 export function Playground() {
   const state = useClientState();
-  const decomposedFile = state.$.playground.$.file.useDecompose(
-    (nextFile, prevFile) => !!nextFile !== !!prevFile,
-    [],
-  );
-  const decomposedPrompt = state.$.playground.$.prompt.useDecompose(
-    (nextFile, prevFile) => !!nextFile !== !!prevFile,
-    [],
-  );
+  const decomposedFile = state.$.playground.$.file.useDecomposeNullish();
+  const decomposedPrompt = state.$.playground.$.prompt.useDecomposeNullish();
 
   return (
     <>

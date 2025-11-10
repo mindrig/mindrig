@@ -11,10 +11,7 @@ export namespace ResultPayload {
 
 export function ResultPayload(props: ResultPayload.Props) {
   const { state } = props;
-  const decomposedPayload = state.useDecompose(
-    (nextPayload, prevPayload) => nextPayload !== prevPayload,
-    [],
-  );
+  const decomposedPayload = state.useDecomposeNullish();
 
   if (!decomposedPayload.value) return null;
 

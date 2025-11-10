@@ -1,4 +1,5 @@
 import { Eval } from "../eval/eval.js";
+import { PlaygroundMap } from "../playground/map.js";
 import { buildSetup, Setup } from "../setup/setup.js";
 import { buildTest, Test } from "../test/test.js";
 import { Tool } from "../tool/tool.js";
@@ -14,6 +15,10 @@ export namespace Assessment {
     tests: Test[];
     evals: Eval[];
   }
+
+  export type Store = {
+    [Key in `playground.assessments.${PlaygroundMap.PromptId}`]: Assessment;
+  };
 }
 
 export function buildAssessment(overrides?: Partial<Assessment>): Assessment {

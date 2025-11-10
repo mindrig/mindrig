@@ -2,21 +2,15 @@ import { Tabs } from "@wrkspc/ds";
 import iconRegularRightLeft from "@wrkspc/icons/svg/regular/right-left.js";
 import iconRegularTableColumns from "@wrkspc/icons/svg/regular/table-columns.js";
 import iconRegularTableRows from "@wrkspc/icons/svg/regular/table-rows.js";
-import { useServerStoreState } from "../server/StoreContext";
+import { useRun } from "../run/Context";
 import { ResultsLayout } from "./Layout";
 import { useResults } from "./ResultsContext";
-import { buildResultsStateLayout } from "./state";
 
 export function Results() {
-  const { state } = useResults();
-
-  const [, setDefaultLayout] = useServerStoreState(
-    "global",
-    "playground.results.layout",
-  );
-  state.$.layout.$.type.useWatch(setDefaultLayout, [setDefaultLayout]);
-
-  const layout = state.$.layout.$.type.useValue();
+  const { results } = useResults();
+  const { run } = useRun();
+  const layoutType = results.useLayoutType();
+  const resultsState = run.useResultsState();
 
   return (
     <div className="space-y-3">
@@ -24,11 +18,9 @@ export function Results() {
         <h5 className="text-sm font-medium">Results</h5>
 
         <Tabs
-          initial={layout}
-          value={layout}
-          onChange={(newLayout) =>
-            state.$.layout.set(buildResultsStateLayout(newLayout))
-          }
+          initial={layoutType}
+          value={layoutType}
+          onChange={(newLayout) => results.setLayoutType(newLayout)}
           items={[
             {
               id: "vertical",
@@ -51,7 +43,11 @@ export function Results() {
         />
       </div>
 
-      <ResultsLayout />
+      {resultsState ? (
+        <ResultsLayout resultsState={resultsState} />
+      ) : (
+        <div>Loading...</div>
+      )}
     </div>
   );
 }

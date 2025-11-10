@@ -14,10 +14,7 @@ export function ResultUsage(props: ResultUsage.Props) {
   const { useResultModel } = useResult();
   const model = useResultModel();
 
-  const decomposedState = state.useDecompose(
-    (nextUsage, prevUsage) => nextUsage !== prevUsage,
-    [],
-  );
+  const decomposedState = state.useDecomposeNullish();
 
   if (!decomposedState.value) {
     return <div>No usage data available.</div>;

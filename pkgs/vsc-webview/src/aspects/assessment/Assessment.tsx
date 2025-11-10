@@ -4,6 +4,7 @@ import { Setups } from "../setup/Setups";
 import { Tests } from "../test/Tests";
 import { Tools } from "../tools/Tools";
 import { AssessmentProvider } from "./Context";
+import { AssessmentLoading } from "./Loading";
 import { AssessmentManager } from "./Manager";
 
 //#region Legacy
@@ -1595,11 +1596,13 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
   const { promptState } = props;
   const assessment = AssessmentManager.use(promptState);
 
+  if (!assessment) return <AssessmentLoading />;
+
   return (
     <AssessmentProvider assessment={assessment}>
       <Setups
         setupsField={assessment.assessmentForm.$.setups}
-        setupsClientState={assessment.assessmentClientState.$.setups}
+        setupsAppState={assessment.assessmentAppState.$.setups}
       />
 
       <Tools field={assessment.assessmentForm.$.tools} />

@@ -46,9 +46,11 @@ export function buildRunsAndSettings(args: {
   prompt: Prompt;
   headers: string[] | null;
 }): {
+  // @ts-ignore
   runs: Array<Run.Info>;
   runSettings: Datasource;
 } {
+  // @ts-ignore
   const runs: Array<Run.Info> = [];
 
   if (args.inputSource === "manual") {
