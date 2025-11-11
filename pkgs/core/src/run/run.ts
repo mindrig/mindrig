@@ -1,12 +1,17 @@
-import { Attachment } from "../attachment/index.js";
+import { Attachment, AttachmentInput } from "../attachment/index.js";
 import { Datasource } from "../datasource/datasource.js";
-import { FileContent } from "../file/content.js";
+import { DatasourceInput } from "../datasource/input.js";
 import { PlaygroundMap } from "../playground/map.js";
 import { Result } from "../result/result.js";
 import { Setup } from "../setup/setup.js";
 import { Tool } from "../tool/tool.js";
 
-export type Run = Run.Initialized | Run.Error | Run.Running | Run.Complete;
+export type Run =
+  | Run.Initialized
+  | Run.Error
+  | Run.Running
+  | Run.Cancelled
+  | Run.Complete;
 
 export namespace Run {
   export type Id = string & { [idBrand]: true };
@@ -24,12 +29,9 @@ export namespace Run {
   export interface Initialized extends Base<"initialized"> {}
 
   export interface BaseStarted<Status extends string> extends Base<Status> {
-    assignments: Assignments;
-    results: Result[];
+    // assignments: Assignments;
+    // results: Result[];
     startedAt: number;
-    // TODO: Include actual data?!
-    // - datasources
-    // - attachments
   }
 
   export interface Error extends Base<"error"> {
@@ -39,6 +41,10 @@ export namespace Run {
 
   export interface Running extends BaseStarted<"running"> {
     updatedAt: number;
+  }
+
+  export interface Cancelled extends BaseStarted<"cancelled"> {
+    cancelledAt: number;
   }
 
   export interface Complete extends BaseStarted<"complete"> {
@@ -54,19 +60,14 @@ export namespace Run {
     streaming: boolean;
   }
 
-  export interface Assignments {
-    attachments: AssignmentsAttachments;
-  }
+  // export interface Assignments {
+  //   attachments: AssignmentsAttachments;
+  // }
 
-  export type AssignmentsAttachments = Record<
-    Attachment.Path,
-    FileContent.Base64
-  >;
-
-  export type AssignmentsDatasources = Record<
-    Datasource.Id,
-    Datasource.ItemRef
-  >;
+  // export type AssignmentsDatasources = Record<
+  //   Datasource.Id,
+  //   Datasource.ItemRef
+  // >;
 
   export type Patch<Status extends Run.Status> = Omit<
     Run & { status: Status },
@@ -76,5 +77,15 @@ export namespace Run {
   export interface Meta {
     running: boolean;
     complete: boolean;
+  }
+
+  export interface Results {
+    runId: Id;
+    results: Result[];
+  }
+
+  export interface Input {
+    attachments: AttachmentInput[];
+    datasources: DatasourceInput[];
   }
 }

@@ -1,11 +1,14 @@
 import { Manager } from "@/aspects/manager/Manager.js";
 import { Result } from "@wrkspc/core/result";
 import { MessagesManager } from "../message/Manager";
+import { Secret } from "../secret/types";
 
 export namespace ResultManager {
   export interface Props {
     messages: MessagesManager;
     result: Result.Initialized;
+    abort: AbortController;
+    apiKey: Secret.Value;
   }
 
   export type BaseFieldsMap = { [Key in keyof Result.Base<string>]: true };
@@ -14,15 +17,20 @@ export namespace ResultManager {
 export class ResultManager extends Manager {
   #messages: MessagesManager;
   #result: Result;
+  #abort: AbortController;
+  #apiKey: Secret.Value;
 
   constructor(parent: Manager, props: ResultManager.Props) {
     super(parent);
 
     this.#messages = props.messages;
     this.#result = props.result;
+    this.#abort = props.abort;
   }
 
-  async generate() {}
+  async generate() {
+    return 123;
+  }
 
   #assign<Status extends Result.Status>(patch: Result.Patch<Status>) {
     const result = this.#result as Record<string, any>;

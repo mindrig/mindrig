@@ -7,6 +7,7 @@ export type Result =
   | Result.Initialized
   | Result.Running
   | Result.Error
+  | Result.Cancelled
   | Result.Success;
 
 export namespace Result {
@@ -25,7 +26,6 @@ export namespace Result {
   export interface Initialized extends Base<"initialized"> {}
 
   export interface BaseStarted<Status extends string> extends Base<Status> {
-    assignments: Assignments;
     startedAt: number;
   }
 
@@ -44,6 +44,14 @@ export namespace Result {
     payload: ModelType.Payload | null;
   }
 
+  export interface Cancelled extends BaseStarted<"cancelled"> {
+    cancelledAt: number;
+    request: Request | null;
+    response: Response | null;
+    usage: ModelUsage | null;
+    payload: ModelType.Payload | null;
+  }
+
   export interface Success extends BaseStarted<"success"> {
     completedAt: number;
     request: Request;
@@ -56,9 +64,6 @@ export namespace Result {
 
   export interface Init {
     setup: Setup;
-  }
-
-  export interface Assignments {
     datasources: AssignmentsDatasources;
   }
 

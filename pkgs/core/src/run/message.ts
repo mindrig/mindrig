@@ -3,7 +3,7 @@ import type { Run } from "./index.js";
 export namespace RunMessage {
   //#region Server
 
-  export type Server = ServerTrigger | ServerError;
+  export type Server = ServerTrigger | ServerUpdate;
   // | ServerStart
   // | ServerUpdate
   // | ServerResultComplete
@@ -14,9 +14,13 @@ export namespace RunMessage {
     type: "run-server-trigger";
   }
 
-  export interface ServerError {
-    type: "run-server-error";
-    payload: Run.Patch<"error">;
+  export interface ServerUpdate {
+    type: "run-server-update";
+    payload: Run.Status extends infer Status extends Run.Status
+      ? Status extends Status
+        ? Run.Patch<Status>
+        : never
+      : never;
   }
 
   // export interface ServerStart {

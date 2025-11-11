@@ -128,8 +128,9 @@ export class RunManager extends Manager {
     if (!apiKey) return this.#crash("No Vercel Gateway API key configured.");
 
     try {
-      const [attachments, datasources] = await this.#prepare();
+      const [attachments, datasources] = await this.#prepareInput();
       const results = [];
+      const tasks: Promise<unknown>[] = [];
 
       for (const setup of this.#run.init.setups) {
         for (const values in []) {
@@ -138,9 +139,18 @@ export class RunManager extends Manager {
           const result = new ResultManager(this, {
             messages: this.#messages,
             result: initialResult,
+            abort: this.#abort,
+            apiKey,
           });
 
-          this.#queue.add(() => result.generate());
+          const task = this.#queue
+            .add(() => result.generate(), { signal: this.#abort.signal })
+            .catch((err) => {
+              // Ignore aborted task
+              if (err instanceof DOMException) return;
+              throw err;
+            });
+          tasks.push(task);
         }
       }
     } catch (err) {
@@ -150,7 +160,7 @@ export class RunManager extends Manager {
     }
   }
 
-  #prepare() {
+  #prepareInput(): Promise<Run.Input> {
     return Promise.all([
       Promise.all(
         this.#run.init.attachments.map((attachment) =>
@@ -190,9 +200,21 @@ export class RunManager extends Manager {
     }
   }
 
+  async #cancel(error: string) {
+    await this.#messages.send({
+      type: "run-server-update",
+      payload: {
+        id: this.#run.id,
+        status: "cancelled",
+        cancelledAt: Date.now(),
+      },
+    });
+    return this.dispose();
+  }
+
   async #crash(error: string) {
     await this.#messages.send({
-      type: "run-server-error",
+      type: "run-server-update",
       payload: {
         id: this.#run.id,
         status: "error",
