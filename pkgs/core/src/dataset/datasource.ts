@@ -41,6 +41,13 @@ export namespace DatasetDatasource {
     path: EditorFile.Path;
     row: RowIndex;
   }
+
+  export interface Input {
+    type: "dataset";
+    data: DataRef;
+    item: ItemRef;
+    values: Datasource.Values;
+  }
 }
 
 export function buildDatasetDatasource(

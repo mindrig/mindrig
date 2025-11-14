@@ -15,6 +15,12 @@ export namespace DatasourceManual {
   export interface ItemRefV1 extends Versioned<1> {
     type: "manual";
   }
+
+  export interface Input {
+    type: "manual";
+    datasourceId: Datasource.Id;
+    values: Datasource.Values;
+  }
 }
 
 export function buildDatasourceManual(): DatasourceManual {

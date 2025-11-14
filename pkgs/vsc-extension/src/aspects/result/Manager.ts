@@ -1,4 +1,5 @@
 import { Manager } from "@/aspects/manager/Manager.js";
+import { AttachmentInput } from "@wrkspc/core/attachment";
 import { Result } from "@wrkspc/core/result";
 import { MessagesManager } from "../message/Manager";
 import { Secret } from "../secret/types";
@@ -9,14 +10,20 @@ export namespace ResultManager {
     result: Result.Initialized;
     abort: AbortController;
     apiKey: Secret.Value;
+    input: Result.Input;
   }
 
   export type BaseFieldsMap = { [Key in keyof Result.Base<string>]: true };
+
+  export interface GenerateProps {
+    readonly attachments: AttachmentInput[];
+  }
 }
 
 export class ResultManager extends Manager {
   #messages: MessagesManager;
   #result: Result;
+  #input: Result.Input;
   #abort: AbortController;
   #apiKey: Secret.Value;
 
@@ -25,7 +32,9 @@ export class ResultManager extends Manager {
 
     this.#messages = props.messages;
     this.#result = props.result;
+    this.#input = props.input;
     this.#abort = props.abort;
+    this.#apiKey = props.apiKey;
   }
 
   async generate() {

@@ -1,6 +1,8 @@
+import { Result } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
 import { State } from "enso";
 import { useAppState } from "../app/state/Context";
+import { useListenMessage } from "../message/Context";
 import { useStoreProp } from "../store/Context";
 import { useMemoWithProps } from "../utils/hooks";
 import {
@@ -28,6 +30,15 @@ export class ResultsManager {
       [],
     );
 
+    useListenMessage(
+      "run-server-results-init",
+      (message) => {
+        if (message.payload.runId !== runId) return;
+        results.#init(message.payload.results);
+      },
+      [results],
+    );
+
     return results;
   }
 
@@ -35,6 +46,10 @@ export class ResultsManager {
 
   constructor(props: ResultsManager.Props) {
     this.#resultsAppState = props.resultsAppState;
+  }
+
+  #init(results: Result.Initialized[]) {
+    this.#resultsAppState.$.results.set(results);
   }
 
   useLayoutType() {
@@ -55,5 +70,12 @@ export class ResultsManager {
 
   useDiscriminatedLayout() {
     return this.#resultsAppState.$.layout.useDiscriminate("type");
+  }
+
+  useResultsState(): State<Result[]> | null {
+    const decomposedResults =
+      this.#resultsAppState.$.results.useDecomposeNullish();
+    if (!decomposedResults.value) return null;
+    return decomposedResults.state;
   }
 }

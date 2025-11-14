@@ -1,3 +1,5 @@
+import { nanoid } from "nanoid";
+import { AttachmentInput } from "../attachment";
 import { Datasource } from "../datasource";
 import { ModelUsage } from "../model";
 import { ModelType } from "../model/type";
@@ -82,8 +84,25 @@ export namespace Result {
     payload: object;
   }
 
+  export interface Input {
+    attachments: AttachmentInput[];
+  }
+
   export type Patch<Status extends Result.Status> = Omit<
     Result & { status: Status },
     Exclude<keyof Base<Status>, "id" | "status">
   >;
+}
+
+export function buildResultInitialized(
+  overrides: Partial<Omit<Result.Initialized, "init">> & {
+    init: Result["init"];
+  },
+): Result.Initialized {
+  return {
+    id: nanoid(),
+    status: "initialized",
+    createdAt: Date.now(),
+    init: overrides.init,
+  };
 }

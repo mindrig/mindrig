@@ -1,9 +1,10 @@
+import { Result } from "../result/result.js";
 import type { Run } from "./index.js";
 
 export namespace RunMessage {
   //#region Server
 
-  export type Server = ServerTrigger | ServerUpdate;
+  export type Server = ServerTrigger | ServerResultsInit | ServerUpdate;
   // | ServerStart
   // | ServerUpdate
   // | ServerResultComplete
@@ -12,6 +13,16 @@ export namespace RunMessage {
 
   export interface ServerTrigger {
     type: "run-server-trigger";
+  }
+
+  export interface ServerResultsInit {
+    type: "run-server-results-init";
+    payload: ServerResultsInitPayload;
+  }
+
+  export interface ServerResultsInitPayload {
+    runId: Run.Id;
+    results: Result.Initialized[];
   }
 
   export interface ServerUpdate {

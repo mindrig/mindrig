@@ -1,4 +1,3 @@
-import { Result } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
 import { State } from "enso";
 import { useMemo } from "react";
@@ -81,17 +80,17 @@ export class RunManager {
     });
   }
 
-  useResultsState(): State<Result[]> | undefined {
-    const discriminatedRun = this.#runAppState.useDiscriminate("status");
-    switch (discriminatedRun.discriminator) {
-      case "initialized":
-      case "error":
-        return;
+  // useResultsState(): State<Result[]> | undefined {
+  //   const discriminatedRun = this.#runAppState.useDiscriminate("status");
+  //   switch (discriminatedRun.discriminator) {
+  //     case "initialized":
+  //     case "error":
+  //       return;
 
-      default:
-        return discriminatedRun.state.$.results;
-    }
-  }
+  //     default:
+  //       return discriminatedRun.state.$.results;
+  //   }
+  // }
 
   get runId(): Run.Id {
     return this.#runAppState.$.id.value;

@@ -1,5 +1,4 @@
-import { Datasource } from "./datasource";
+import { DatasetDatasource } from "../dataset";
+import { DatasourceManual } from "./manual";
 
-export interface DatasourceInput {
-  datasourceId: Datasource.Id;
-}
+export type DatasourceInput = DatasourceManual.Input | DatasetDatasource.Input;

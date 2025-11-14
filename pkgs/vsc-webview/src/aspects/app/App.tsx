@@ -1,4 +1,4 @@
-import { useMessages } from "@/aspects/message/Context";
+import { useListenMessage, useMessages } from "@/aspects/message/Context";
 import { pageHrefs } from "@/aspects/page/route";
 import { Page } from "@wrkspc/core/page";
 import React, { useEffect } from "react";
@@ -39,8 +39,10 @@ function Content() {
 
   useEffect(() => sendMessage({ type: "client-client-ready" }), [sendMessage]);
 
-  useListen("client-server-navigate", (message) =>
-    navigate(pageHrefs[message.payload.type]()),
+  useListenMessage(
+    "client-server-navigate",
+    (message) => navigate(pageHrefs[message.payload.type]()),
+    [],
   );
 
   return (

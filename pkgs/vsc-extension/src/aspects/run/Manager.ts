@@ -1,9 +1,9 @@
 import { Manager } from "@/aspects/manager/Manager.js";
 import { createGateway } from "@ai-sdk/gateway";
-import { Attachment } from "@wrkspc/core/attachment";
-import { Datasource } from "@wrkspc/core/datasource";
+import { Attachment, AttachmentInput } from "@wrkspc/core/attachment";
+import { Datasource, DatasourceInput } from "@wrkspc/core/datasource";
 import { ModelSettings } from "@wrkspc/core/model";
-import { Result } from "@wrkspc/core/result";
+import { buildResultInitialized, Result } from "@wrkspc/core/result";
 import {
   PromptRunResultData,
   PromptRunResultShell,
@@ -19,6 +19,7 @@ import {
   type StreamTextOnFinishCallback,
   type ToolSet,
 } from "ai";
+import { always } from "alwaysly";
 import { nanoid } from "nanoid";
 import PQueue from "p-queue";
 import * as vscode from "vscode";
@@ -125,26 +126,37 @@ export class RunManager extends Manager {
 
   async #start() {
     const apiKey = await this.#secrets.get("auth-vercel-gateway-key");
-    if (!apiKey) return this.#crash("No Vercel Gateway API key configured.");
+    if (!apiKey) return this.#error("No Vercel Gateway API key configured.");
 
     try {
-      const [attachments, datasources] = await this.#prepareInput();
-      const results = [];
+      const runInput = await this.#prepareInput();
+      const results: Result.Initialized[] = [];
       const tasks: Promise<unknown>[] = [];
 
       for (const setup of this.#run.init.setups) {
-        for (const values in []) {
-          const initialResult: Result.Initialized = {};
+        for (const resultDatasources of []) {
+          const result = buildResultInitialized({
+            init: {
+              setup,
+              datasources: resultDatasources,
+            },
+          });
+          results.push(result);
 
-          const result = new ResultManager(this, {
+          const input: Result.Input = {
+            attachments: runInput.attachments,
+          };
+
+          const resultMng = new ResultManager(this, {
             messages: this.#messages,
-            result: initialResult,
+            result,
+            input,
             abort: this.#abort,
             apiKey,
           });
 
           const task = this.#queue
-            .add(() => result.generate(), { signal: this.#abort.signal })
+            .add(() => resultMng.generate(), { signal: this.#abort.signal })
             .catch((err) => {
               // Ignore aborted task
               if (err instanceof DOMException) return;
@@ -156,31 +168,43 @@ export class RunManager extends Manager {
     } catch (err) {
       const error =
         err instanceof RunError ? err.message : "Something went wrong";
-      return this.#crash(error);
+      return this.#error(error);
     }
   }
 
-  #prepareInput(): Promise<Run.Input> {
-    return Promise.all([
-      Promise.all(
-        this.#run.init.attachments.map((attachment) =>
-          this.#prepareAttachment(attachment),
-        ),
-      ),
-      Promise.all(
-        this.#run.init.datasources.map((datasource) =>
-          this.#prepareDatasource(datasource),
-        ),
-      ),
+  async #prepareInput(): Promise<Run.Input> {
+    const [attachments, datasources] = await Promise.all([
+      this.#prepareAttachments(),
+      this.#prepareDatasources(),
     ]);
+    return { attachments, datasources };
   }
 
-  async #prepareAttachment(attachment: Attachment) {
+  #prepareAttachments(): Promise<AttachmentInput[]> {
+    return Promise.all(
+      this.#run.init.attachments.map((attachment) =>
+        this.#prepareAttachment(attachment),
+      ),
+    );
+  }
+
+  async #prepareAttachment(attachment: Attachment): Promise<AttachmentInput> {
     const base64 = await this.#attachments.read(attachment);
-    // attachment.path;
+    return {
+      path: attachment.path,
+      base64,
+    };
   }
 
-  async #prepareDatasource(datasource: Datasource) {
+  #prepareDatasources(): Promise<DatasourceInput[]> {
+    return Promise.all(
+      this.#run.init.datasources.map((datasource) =>
+        this.#prepareDatasource(datasource),
+      ),
+    );
+  }
+
+  async #prepareDatasource(datasource: Datasource): Promise<DatasourceInput> {
     switch (datasource.type) {
       case "manual":
         // datasource.values
@@ -201,18 +225,21 @@ export class RunManager extends Manager {
   }
 
   async #cancel(error: string) {
+    always("startedAt" in this.#run);
+
     await this.#messages.send({
       type: "run-server-update",
       payload: {
         id: this.#run.id,
         status: "cancelled",
         cancelledAt: Date.now(),
+        startedAt: this.#run.startedAt,
       },
     });
     return this.dispose();
   }
 
-  async #crash(error: string) {
+  async #error(error: string) {
     await this.#messages.send({
       type: "run-server-update",
       payload: {
@@ -260,14 +287,15 @@ export class RunManager extends Manager {
         error,
       };
       if (typeof resultId === "string") payload.resultId = resultId;
+      // @ts-expect-error
       this.#messages.send({ type: "run-server-error", payload });
     };
 
     const sendRunUpdate = (resultId: string, delta: string) => {
-      // @ts-expect-error
       const message: RunMessage.ServerUpdate = {
         type: "run-server-update",
         payload: {
+          // @ts-expect-error
           runId,
           promptId,
           resultId,

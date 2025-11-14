@@ -10,7 +10,7 @@ export function Results() {
   const { results } = useResults();
   const { run } = useRun();
   const layoutType = results.useLayoutType();
-  const resultsState = run.useResultsState();
+  const resultsState = results.useResultsState();
 
   return (
     <div className="space-y-3">
