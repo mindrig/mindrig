@@ -460,7 +460,7 @@ describe(PlaygroundManager, () => {
 
       expect(editor.openFile).toBeCalledWith({
         path: editorFileA.path,
-        selection: mapPromptsA[0].span,
+        selection: mapPromptsA[0].span.outer,
       });
     });
   });

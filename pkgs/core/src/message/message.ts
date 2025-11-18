@@ -5,6 +5,7 @@ import type { DatasetMessage } from "../dataset/message.js";
 import type { ModelsMessage } from "../model/message.js";
 import type { PlaygroundMessage } from "../playground/message.js";
 import type { PromptMessage } from "../prompt/message.js";
+import { ResultMessage } from "../result/message.js";
 import type { RunMessage } from "../run/message.js";
 import type { SettingsMessage } from "../settings/message.js";
 import type { StoreMessage } from "../store/message.js";
@@ -14,6 +15,7 @@ export namespace Message {
     | StoreMessage.Server
     | PromptMessage.Server
     | RunMessage.Server
+    | ResultMessage.Server
     | SettingsMessage.Server
     | AuthMessage.Server
     | AttachmentMessage.Server
@@ -28,6 +30,7 @@ export namespace Message {
     | StoreMessage.Client
     | PromptMessage.Client
     | RunMessage.Client
+    | ResultMessage.Client
     | SettingsMessage.Client
     | AuthMessage.Client
     | AttachmentMessage.Client

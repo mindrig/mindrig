@@ -524,7 +524,7 @@ export function matchPlaygroundMapPromptsByContent(
       const { nextMapPromptVars: vars } = matchPlaygroundMapPromptVars({
         mapPromptVars: mapPrompt.vars,
         parsedPromptVars: parsedPrompt.vars,
-        promptSpan: parsedPrompt.span.inner,
+        promptSpan: parsedPrompt.span.outer,
       });
 
       matchedMapPrompts.set(parsedPrompt, {

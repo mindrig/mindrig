@@ -1,6 +1,5 @@
-import { Attachment, AttachmentInput } from "../attachment/index.js";
+import { Attachment } from "../attachment/index.js";
 import { Datasource } from "../datasource/datasource.js";
-import { DatasourceInput } from "../datasource/input.js";
 import { PlaygroundMap } from "../playground/map.js";
 import { Result } from "../result/result.js";
 import { Setup } from "../setup/setup.js";
@@ -29,8 +28,6 @@ export namespace Run {
   export interface Initialized extends Base<"initialized"> {}
 
   export interface BaseStarted<Status extends string> extends Base<Status> {
-    // assignments: Assignments;
-    // results: Result[];
     startedAt: number;
   }
 
@@ -60,15 +57,6 @@ export namespace Run {
     streaming: boolean;
   }
 
-  // export interface Assignments {
-  //   attachments: AssignmentsAttachments;
-  // }
-
-  // export type AssignmentsDatasources = Record<
-  //   Datasource.Id,
-  //   Datasource.ItemRef
-  // >;
-
   export type Patch<Status extends Run.Status> = Omit<
     Run & { status: Status },
     Exclude<keyof Base<Status>, "id" | "status">
@@ -85,7 +73,7 @@ export namespace Run {
   }
 
   export interface Input {
-    attachments: AttachmentInput[];
-    datasources: DatasourceInput[];
+    attachments: Attachment.Input[];
+    datasourcesMatrix: Datasource.Input[][];
   }
 }

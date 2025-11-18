@@ -1,7 +1,5 @@
 import { Manager } from "@/aspects/manager/Manager.js";
 import { createGateway } from "@ai-sdk/gateway";
-import { Attachment, AttachmentInput } from "@wrkspc/core/attachment";
-import { Datasource, DatasourceInput } from "@wrkspc/core/datasource";
 import { ModelSettings } from "@wrkspc/core/model";
 import { buildResultInitialized, Result } from "@wrkspc/core/result";
 import {
@@ -25,6 +23,10 @@ import PQueue from "p-queue";
 import * as vscode from "vscode";
 import { AttachmentsManager } from "../attachment/AttachementsManager";
 import { DatasetsManager } from "../dataset/DatasetsManager";
+import {
+  DatasourceError,
+  DatasourcesManager,
+} from "../datasource/DatasourcesManager";
 import { MessagesManager } from "../message/Manager";
 import { ResultManager } from "../result/Manager";
 import { SecretsManager } from "../secret/Manager";
@@ -35,6 +37,7 @@ export namespace RunManager {
     secrets: SecretsManager;
     attachments: AttachmentsManager;
     datasets: DatasetsManager;
+    datasources: DatasourcesManager;
     run: Run.Initialized;
     queue: PQueue;
   }
@@ -99,6 +102,7 @@ export class RunManager extends Manager {
   #secrets: SecretsManager;
   #attachments: AttachmentsManager;
   #datasets: DatasetsManager;
+  #datasources: DatasourcesManager;
   #run: Run;
   #queue: PQueue;
   #abort;
@@ -110,6 +114,7 @@ export class RunManager extends Manager {
     this.#secrets = props.secrets;
     this.#attachments = props.attachments;
     this.#datasets = props.datasets;
+    this.#datasources = props.datasources;
     this.#run = props.run;
     this.#queue = props.queue;
 
@@ -134,12 +139,9 @@ export class RunManager extends Manager {
       const tasks: Promise<unknown>[] = [];
 
       for (const setup of this.#run.init.setups) {
-        for (const resultDatasources of []) {
+        for (const datasources of runInput.datasourcesMatrix) {
           const result = buildResultInitialized({
-            init: {
-              setup,
-              datasources: resultDatasources,
-            },
+            init: { setup, datasources },
           });
           results.push(result);
 
@@ -150,13 +152,16 @@ export class RunManager extends Manager {
           const resultMng = new ResultManager(this, {
             messages: this.#messages,
             result,
+            runInit: this.#run.init,
             input,
             abort: this.#abort,
             apiKey,
           });
 
           const task = this.#queue
-            .add(() => resultMng.generate(), { signal: this.#abort.signal })
+            .add(({ signal }) => resultMng.generate(signal), {
+              signal: this.#abort.signal,
+            })
             .catch((err) => {
               // Ignore aborted task
               if (err instanceof DOMException) return;
@@ -165,63 +170,36 @@ export class RunManager extends Manager {
           tasks.push(task);
         }
       }
+
+      this.#messages.send({
+        type: "run-server-update",
+        payload: {
+          id: this.#run.id,
+          status: "running",
+          startedAt: Date.now(),
+          updatedAt: Date.now(),
+        },
+      });
+
+      this.#messages.send({
+        type: "run-server-results-init",
+        payload: { runId: this.#run.id, results },
+      });
     } catch (err) {
       const error =
-        err instanceof RunError ? err.message : "Something went wrong";
+        err instanceof RunError || err instanceof DatasourceError
+          ? err.message
+          : "Something went wrong";
       return this.#error(error);
     }
   }
 
   async #prepareInput(): Promise<Run.Input> {
-    const [attachments, datasources] = await Promise.all([
-      this.#prepareAttachments(),
-      this.#prepareDatasources(),
+    const [attachments, datasourcesMatrix] = await Promise.all([
+      this.#attachments.attachmentsToInput(this.#run.init.attachments),
+      this.#datasources.datasourcesToInputMatrix(this.#run.init.datasources),
     ]);
-    return { attachments, datasources };
-  }
-
-  #prepareAttachments(): Promise<AttachmentInput[]> {
-    return Promise.all(
-      this.#run.init.attachments.map((attachment) =>
-        this.#prepareAttachment(attachment),
-      ),
-    );
-  }
-
-  async #prepareAttachment(attachment: Attachment): Promise<AttachmentInput> {
-    const base64 = await this.#attachments.read(attachment);
-    return {
-      path: attachment.path,
-      base64,
-    };
-  }
-
-  #prepareDatasources(): Promise<DatasourceInput[]> {
-    return Promise.all(
-      this.#run.init.datasources.map((datasource) =>
-        this.#prepareDatasource(datasource),
-      ),
-    );
-  }
-
-  async #prepareDatasource(datasource: Datasource): Promise<DatasourceInput> {
-    switch (datasource.type) {
-      case "manual":
-        // datasource.values
-        return;
-
-      case "dataset":
-        switch (datasource.data?.type) {
-          case "csv":
-            switch (datasource.data.selection.type) {
-              default:
-              // case "all":
-              // case "range":
-              // case "row":
-            }
-        }
-        return;
-    }
+    return { attachments, datasourcesMatrix };
   }
 
   async #cancel(error: string) {

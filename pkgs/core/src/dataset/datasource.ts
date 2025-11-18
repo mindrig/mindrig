@@ -34,18 +34,10 @@ export namespace DatasetDatasource {
 
   export type Mapping = Record<ColumnIndex, PlaygroundMap.PromptVarId>;
 
-  export type ItemRef = ItemRefV1;
-
-  export interface ItemRefV1 extends Versioned<1> {
-    type: "dataset";
-    path: EditorFile.Path;
-    row: RowIndex;
-  }
-
   export interface Input {
     type: "dataset";
-    data: DataRef;
-    item: ItemRef;
+    datasourceId: Datasource.Id;
+    index: RowIndex;
     values: Datasource.Values;
   }
 }

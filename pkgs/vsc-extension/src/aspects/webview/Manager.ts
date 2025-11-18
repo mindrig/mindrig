@@ -5,6 +5,7 @@ import { AttachmentsManager } from "../attachment/AttachementsManager";
 import { AuthManager } from "../auth/Manager";
 import { ClientStateManager } from "../client/StateManager";
 import { DatasetsManager } from "../dataset/DatasetsManager";
+import { DatasourcesManager } from "../datasource/DatasourcesManager";
 import { EditorManager } from "../editor/Manager";
 import { MessagesManager } from "../message/Manager";
 import { ModelsDotdevManager } from "../model/DotdevManager";
@@ -41,6 +42,7 @@ export class WebviewManager extends Manager {
   #playground: PlaygroundManager;
   #runs: RunsManager;
   #datasets: DatasetsManager;
+  #datasources: DatasourcesManager;
   #attachments: AttachmentsManager;
   #page: PageManager;
   #html: WebviewHtmlManager;
@@ -102,11 +104,17 @@ export class WebviewManager extends Manager {
       messages: this.#messages,
     });
 
+    this.#datasources = new DatasourcesManager(this, {
+      datasets: this.#datasets,
+    });
+
     this.#runs = new RunsManager(this, {
       messages: this.#messages,
       secrets: this.#secrets,
       attachments: this.#attachments,
       datasets: this.#datasets,
+      datasources: this.#datasources,
+      settings: this.#settings,
     });
 
     this.#page = new PageManager(this, {

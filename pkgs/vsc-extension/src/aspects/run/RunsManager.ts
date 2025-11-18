@@ -3,6 +3,7 @@ import { RunMessage } from "@wrkspc/core/run";
 import PQueue from "p-queue";
 import { AttachmentsManager } from "../attachment/AttachementsManager";
 import { DatasetsManager } from "../dataset/DatasetsManager";
+import { DatasourcesManager } from "../datasource/DatasourcesManager";
 import { MessagesManager } from "../message/Manager";
 import { SecretsManager } from "../secret/Manager";
 import { SettingsManager } from "../settings/Manager";
@@ -16,6 +17,7 @@ export namespace RunsManager {
     secrets: SecretsManager;
     attachments: AttachmentsManager;
     datasets: DatasetsManager;
+    datasources: DatasourcesManager;
     settings: SettingsManager;
   }
 }
@@ -25,6 +27,7 @@ export class RunsManager extends Manager {
   #secrets: SecretsManager;
   #attachments: AttachmentsManager;
   #datasets: DatasetsManager;
+  #datasources: DatasourcesManager;
   #settings: SettingsManager;
   #queue: PQueue;
 
@@ -35,6 +38,7 @@ export class RunsManager extends Manager {
     this.#secrets = props.secrets;
     this.#attachments = props.attachments;
     this.#datasets = props.datasets;
+    this.#datasources = props.datasources;
     this.#settings = props.settings;
 
     this.#queue = new PQueue({
@@ -56,6 +60,7 @@ export class RunsManager extends Manager {
       secrets: this.#secrets,
       attachments: this.#attachments,
       datasets: this.#datasets,
+      datasources: this.#datasources,
       run: message.payload,
       queue: this.#queue,
     });

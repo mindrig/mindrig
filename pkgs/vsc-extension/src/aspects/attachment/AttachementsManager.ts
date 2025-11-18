@@ -2,6 +2,7 @@ import {
   Attachment,
   attachmentDialogTitle,
   attachmentFilters,
+  AttachmentInput,
   AttachmentMessage,
 } from "@wrkspc/core/attachment";
 import { FileContent } from "@wrkspc/core/file";
@@ -66,6 +67,17 @@ export class AttachmentsManager extends Manager {
         data,
       },
     });
+  }
+
+  async attachmentsToInput(
+    attachments: Attachment[],
+  ): Promise<AttachmentInput[]> {
+    return Promise.all(attachments.map(this.#attachmentToInput.bind(this)));
+  }
+
+  async #attachmentToInput(attachment: Attachment): Promise<AttachmentInput> {
+    const base64 = await this.read(attachment);
+    return { path: attachment.path, base64 };
   }
 
   async read(attachment: Attachment): Promise<FileContent.Base64> {

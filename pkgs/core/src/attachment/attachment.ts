@@ -1,3 +1,4 @@
+import { FileContent } from "../file";
 import { Versioned } from "../versioned";
 
 export type Attachment = Attachment.V1;
@@ -10,5 +11,10 @@ export namespace Attachment {
     path: Attachment.Path;
     name: string;
     mime: string;
+  }
+
+  export interface Input {
+    path: Attachment.Path;
+    base64: FileContent.Base64;
   }
 }

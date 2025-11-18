@@ -14,6 +14,7 @@ export namespace DatasourceManual {
 
   export interface ItemRefV1 extends Versioned<1> {
     type: "manual";
+    datasourceId: Datasource.Id;
   }
 
   export interface Input {

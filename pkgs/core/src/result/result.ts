@@ -39,7 +39,7 @@ export namespace Result {
 
   export interface Error extends BaseStarted<"error"> {
     erroredAt: number;
-    request: Request;
+    request: Request | null;
     response: Response | null;
     error: string;
     usage: ModelUsage | null;
@@ -66,13 +66,8 @@ export namespace Result {
 
   export interface Init {
     setup: Setup;
-    datasources: AssignmentsDatasources;
+    datasources: Datasource.Input[];
   }
-
-  export type AssignmentsDatasources = Record<
-    Datasource.Id,
-    Datasource.Assignment
-  >;
 
   export interface Request {
     // TODO: Add details
