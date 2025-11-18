@@ -6,7 +6,6 @@ import { useAppState } from "../app/state/Context";
 import { useAssessment } from "../assessment/Context";
 import { AssessmentManager } from "../assessment/Manager";
 import { RunManager } from "../run/Manager";
-import { TODORunProviderManager } from "../run/ProviderManager";
 import { useRuns } from "../run/RunsContext";
 import { RunsManager } from "../run/RunsManager";
 import { useStoreProp } from "../store/Context";
@@ -93,12 +92,6 @@ export class TestManager {
   useRun(): RunManager | null {
     const runId = this.useRunId();
     return this.#runs.useRun(runId);
-  }
-
-  TODO_useRunProvider(): TODORunProviderManager {
-    const runId = this.useRunId();
-    const runProvider = TODORunProviderManager.use(runId);
-    return runProvider;
   }
 
   startRun() {

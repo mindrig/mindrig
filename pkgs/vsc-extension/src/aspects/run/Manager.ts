@@ -152,6 +152,7 @@ export class RunManager extends Manager {
           const resultMng = new ResultManager(this, {
             messages: this.#messages,
             result,
+            runId: this.#run.id,
             runInit: this.#run.init,
             input,
             abort: this.#abort,

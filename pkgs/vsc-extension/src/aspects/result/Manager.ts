@@ -17,6 +17,7 @@ export namespace ResultManager {
   export interface Props {
     messages: MessagesManager;
     result: Result.Initialized;
+    runId: Run.Id;
     runInit: Run.Init;
     abort: AbortController;
     apiKey: string;
@@ -57,6 +58,7 @@ export namespace ResultManager {
 export class ResultManager extends Manager {
   #messages: MessagesManager;
   #result: Result;
+  #runId: Run.Id;
   #runInit: Run.Init;
   #input: Result.Input;
   #abort: AbortController;
@@ -67,6 +69,7 @@ export class ResultManager extends Manager {
 
     this.#messages = props.messages;
     this.#result = props.result;
+    this.#runId = props.runId;
     this.#runInit = props.runInit;
     this.#input = props.input;
     this.#abort = props.abort;
@@ -211,8 +214,11 @@ export class ResultManager extends Manager {
 
     await this.#messages.send({
       type: "result-server-update",
-      // TODO: Figure out if TS can infer this type automatically
-      payload: patch as ResultMessage.ServerUpdatePayload,
+      payload: {
+        runId: this.#runId,
+        // TODO: Figure out if TS can infer this type automatically
+        patch: patch as ResultMessage.ServerUpdatePayloadPatch,
+      },
     });
   }
 

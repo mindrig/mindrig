@@ -1,4 +1,4 @@
-import { buildRunInitialized, Run } from "@wrkspc/core/run";
+import { buildRunInitialized, Run, RunMessage } from "@wrkspc/core/run";
 import { State } from "enso";
 import { nanoid } from "nanoid";
 import { useMemo } from "react";
@@ -14,6 +14,8 @@ import {
 import { useMemoWithProps } from "../utils/hooks";
 import { RunManager } from "./Manager";
 import { buildRunsAppState, RunsAppState } from "./runsAppState";
+import { Result, ResultMessage } from "@wrkspc/core/result";
+import { always } from "alwaysly";
 
 export namespace RunsManager {
   export interface Props {
@@ -35,47 +37,31 @@ export class RunsManager {
       [],
     );
 
+    // Run
+
+    useListenMessage(
+      "run-server-update",
+      (message) => runs.#onRunUpdate(message),
+      [runs],
+    );
+
+    // Results
+
     useListenMessage(
       "run-server-results-init",
-      (message) => {
-        if (message.payload.runId !== runId) return;
-        results.#init(message.payload.results);
-      },
+      (message) => runs.#onResultsInit(message),
       [runs],
     );
 
     useListenMessage(
       "result-server-update",
-      (message) => {
-        const resultState = resultsAppState.$.results.find?.(
-          (result) => result.$.id.value === message.payload.id,
-        );
-        if (!resultState) return;
-        results.#update(resultState, message.payload);
-      },
+      (message) => runs.#onResultUpdate(message),
       [runs],
     );
 
     useListenMessage(
       "result-server-stream",
-      (message) => {
-        const resultState = resultsAppState.$.results.find?.(
-          (result) => result.$.id.value === message.payload.resultId,
-        );
-        if (!resultState) return;
-        results.#stream(resultState, message.payload.textChunk);
-      },
-      [runs],
-    );
-
-    useListenMessage(
-      "run-server-update",
-      (message) => {
-        if (!run || message.payload.id !== run.runId) return;
-        // message.payload.id
-        // if (message.payload.id !== runAppState.$.id.value) return;
-        // // runAppState.set(message.payload.run);
-      },
+      (message) => runs.#onResultStream(message),
       [runs],
     );
 
@@ -119,6 +105,15 @@ export class RunsManager {
     this.#runsAppState.$.runs.at(runId).set(run);
   }
 
+  #setResults(runId: Run.Id, results: Result[]) {
+    this.#appStateStore.setStore((store) => ({
+      ...store,
+      [`results.${runId}`]: results,
+    }));
+
+    this.#runsAppState.$.results.at(runId).set(results);
+  }
+
   useRunning(runId: Run.Id | null) {
     return this.#runsAppState.$.runs.useCompute(
       (runs) => !!runId && RunsManager.running(runs[runId]),
@@ -150,4 +145,63 @@ export class RunsManager {
   clearRun(runId: Run.Id) {
     this.#setRun(runId, undefined);
   }
+
+  //#region Events
+
+  #onRunUpdate(message: RunMessage.ServerUpdate) {
+    const runState = this.#runsAppState.$.runs.at(message.payload.id);
+    const run = runState.value;
+    always(run);
+    const { id, init, createdAt } = run;
+    this.#setRun(id, {
+      init,
+      createdAt,
+      ...message.payload,
+    });
+  }
+
+  #onResultsInit(message: RunMessage.ServerResultsInit) {
+    this.#setResults(message.payload.runId, message.payload.results);
+  }
+
+  #onResultUpdate(message: ResultMessage.ServerUpdate) {
+    const resultState = this.#runsAppState.$.results.at(message.payload.id);
+    const result = resultState.value;
+    always(result);
+    const { id, init, createdAt } = result;
+    this.#setResult(id, {
+      init,
+      createdAt,
+      ...message.payload,
+    });
+  }
+
+  #onResultStream(message: ResultMessage.ServerStream) {
+    const runState = this.#runsAppState.$.results.try(message.payload.runId);
+    always(runState);
+    const resultState = runState.at(message.payload.resultId);
+    const result = runState.value;
+    // TODO: Show an error instead?
+    always(result.status === "running");
+    const prevContent = result.payload?.content;
+
+    const parts =
+      prevContent?.type === "text-parts"
+        ? prevContent.parts
+        : prevContent?.type === "text"
+          ? [prevContent.text]
+          : [];
+
+    const content: ModelLanguage.Content = {
+      type: "text-parts",
+      parts: [...parts, textChunk],
+    };
+
+    runState.set({
+      ...result,
+      payload: { type: "language", content },
+    });
+  }
+
+  //#endregion
 }

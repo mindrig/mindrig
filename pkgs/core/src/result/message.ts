@@ -1,4 +1,5 @@
 import { Result } from "../result/result.js";
+import { Run } from "../run/run.js";
 
 export namespace ResultMessage {
   //#region Server
@@ -10,12 +11,17 @@ export namespace ResultMessage {
     payload: ServerUpdatePayload;
   }
 
-  export type ServerUpdatePayload = Result.Status extends infer Status extends
-    Result.Status
-    ? Status extends Status
-      ? Result.Patch<Status>
-      : never
-    : never;
+  export interface ServerUpdatePayload {
+    runId: Run.Id;
+    patch: ServerUpdatePayloadPatch;
+  }
+
+  export type ServerUpdatePayloadPatch =
+    Result.Status extends infer Status extends Result.Status
+      ? Status extends Status
+        ? Result.Patch<Status>
+        : never
+      : never;
 
   export interface ServerStream {
     type: "result-server-stream";
@@ -23,6 +29,7 @@ export namespace ResultMessage {
   }
 
   export interface ServerStreamPayload {
+    runId: Run.Id;
     resultId: Result.Id;
     textChunk: string;
   }

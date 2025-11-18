@@ -3,7 +3,6 @@ import { Run } from "@wrkspc/core/run";
 
 export interface ResultsAppState {
   layout: ResultsAppState.Layout;
-  results: Result[] | null;
 }
 
 export namespace ResultsAppState {
@@ -35,7 +34,6 @@ export function buildResultsAppState(
 ): ResultsAppState {
   return {
     layout: buildResultsAppStateLayoutHorizontal(),
-    results: null,
     ...overrides,
   };
 }
