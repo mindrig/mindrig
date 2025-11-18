@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { AttachmentInput } from "../attachment";
+import { Attachment } from "../attachment";
 import { Datasource } from "../datasource";
 import { ModelUsage } from "../model";
 import { ModelType } from "../model/type";
@@ -80,7 +80,7 @@ export namespace Result {
   }
 
   export interface Input {
-    attachments: AttachmentInput[];
+    attachments: Attachment.Input[];
   }
 
   export type Patch<Status extends Result.Status> = Omit<

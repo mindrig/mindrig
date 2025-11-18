@@ -1,16 +1,13 @@
 import { Button } from "@wrkspc/ds";
 import { Checkbox } from "@wrkspc/form";
-import { useAssessment } from "../assessment/Context";
 import { Results } from "../result/Results";
 import { RunProvider } from "../run/Context";
 import { useTest } from "./Context";
 
 export function TestRunComponent() {
-  const { assessment } = useAssessment();
   const { test } = useTest();
-  const runProvider = test.useRunProvider();
-  const running = runProvider.useRunning();
-  const run = runProvider.useRun();
+  const running = test.useRunning();
+  const run = test.useRun();
 
   return (
     <>
@@ -29,7 +26,7 @@ export function TestRunComponent() {
             <Button
               style="transparent"
               size="small"
-              onClick={() => run.stopRun()}
+              onClick={() => run.TODO_stopRun()}
             >
               Stop
             </Button>
@@ -38,7 +35,7 @@ export function TestRunComponent() {
           <Checkbox
             label="Stream output"
             value={test.streaming}
-            onChange={test.toggleStreaming.bind(assessment)}
+            onChange={(enabled) => test.setStreaming(enabled)}
             size="small"
           />
 
@@ -46,7 +43,7 @@ export function TestRunComponent() {
             <Button
               style="label"
               size="small"
-              onClick={() => runProvider.clearRun()}
+              onClick={() => test.clearRun()}
               isDisabled={running}
             >
               Clear

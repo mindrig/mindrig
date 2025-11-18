@@ -4,9 +4,10 @@ import { useAppState } from "../app/state/Context";
 import { useMemoWithProps } from "../utils/hooks";
 import { RunManager } from "./Manager";
 
-export namespace RunProviderManager {
+export namespace TODORunProviderManager {
   export interface Props {
     runAppState: State<Run | undefined>;
+    runId: Run.Id | null;
   }
 
   export interface Wrapper {
@@ -14,14 +15,14 @@ export namespace RunProviderManager {
   }
 }
 
-export class RunProviderManager {
+export class TODORunProviderManager {
   static use(runId: Run.Id | null) {
     const runAppStateOrNull = useAppState(runId && `runs.${runId}`, () => null);
     const runAppState = State.useEnsure(runAppStateOrNull);
 
     const runProvider = useMemoWithProps(
-      { runAppState },
-      (props) => new RunProviderManager(props),
+      { runAppState, runId },
+      (props) => new TODORunProviderManager(props),
       [],
     );
 
@@ -29,12 +30,14 @@ export class RunProviderManager {
   }
 
   #runAppState;
+  #runId;
 
-  constructor(props: RunProviderManager.Props) {
+  constructor(props: TODORunProviderManager.Props) {
     this.#runAppState = props.runAppState;
+    this.#runId = props.runId;
   }
 
-  useRunning() {
+  TODO_useRunning() {
     return RunManager.useRunning(this.#runAppState);
   }
 
@@ -46,11 +49,17 @@ export class RunProviderManager {
   //   return RunManager.useMeta(this.#runAppState);
   // }
 
-  useRun(): RunManager | undefined {
-    return RunManager.use(this.#runAppState);
+  TODO_useRun(): RunManager | undefined {
+    return RunManager.TODO_use(this.#runAppState);
   }
 
-  clearRun() {
-    this.#runAppState.set(undefined);
-  }
+  // #createRun(runId: Run.Id) {
+  //   const run = buildRunInitialized({
+  //     id: runId,
+  //   });
+  // }
+
+  // clearRun() {
+  //   this.#runAppState.set(undefined);
+  // }
 }

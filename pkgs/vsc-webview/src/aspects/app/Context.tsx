@@ -8,7 +8,7 @@ import { NavigateOptions, useNavigate } from "react-router-dom";
 import { ClientStateProvider } from "../client/StateContext";
 import { ModelsMapProvider } from "../model/MapContext";
 import { RunsProvider } from "../run/RunsContext";
-import { AppStateStoreProvider } from "./state/StoreContext";
+import { AppStateStoreProvider } from "./StateStoreContext";
 
 export function AppContext(props: React.PropsWithChildren) {
   return (

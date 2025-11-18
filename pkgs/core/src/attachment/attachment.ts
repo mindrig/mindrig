@@ -16,5 +16,6 @@ export namespace Attachment {
   export interface Input {
     path: Attachment.Path;
     base64: FileContent.Base64;
+    mime: string;
   }
 }

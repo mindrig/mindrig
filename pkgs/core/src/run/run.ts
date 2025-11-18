@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { Attachment } from "../attachment/index.js";
 import { Datasource } from "../datasource/datasource.js";
 import { PlaygroundMap } from "../playground/map.js";
@@ -76,4 +77,24 @@ export namespace Run {
     attachments: Attachment.Input[];
     datasourcesMatrix: Datasource.Input[][];
   }
+}
+
+export function buildRunId(): Run.Id {
+  return `run-${nanoid()}` as Run.Id;
+}
+
+export namespace buildRunInitialized {
+  export type Overrides = Partial<Exclude<Run.Initialized, "init">> &
+    Pick<Run.Initialized, "init">;
+}
+
+export function buildRunInitialized(
+  overrides: buildRunInitialized.Overrides,
+): Run.Initialized {
+  return {
+    id: buildRunId(),
+    status: "initialized",
+    createdAt: Date.now(),
+    ...overrides,
+  };
 }

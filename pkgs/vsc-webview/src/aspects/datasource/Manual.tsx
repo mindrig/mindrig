@@ -17,7 +17,7 @@ export function DatasourceManualComponent(
   const { datasourceField } = props;
   const { assessment } = useAssessment();
 
-  const varsState = assessment.promptState.$.vars.useCollection();
+  const varsState = assessment.promptState.$.prompt.$.vars.useCollection();
 
   return (
     <div>

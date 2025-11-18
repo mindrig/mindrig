@@ -19,6 +19,9 @@ export namespace ModelSettings {
 
   export interface Reasoning {
     enabled: boolean;
+    // TODO: Not all models support effort, tokens, etc. We have to build
+    // developer/model-specific reasoning capabilities map and also correctly
+    // represent it in the UI.
     effort: ReasoningEffort;
     budgetTokens?: number | undefined | null;
   }

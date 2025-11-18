@@ -18,7 +18,7 @@ export class AssessmentManager {
   static use(
     promptState: State<PlaygroundState.Prompt>,
   ): AssessmentManager | undefined {
-    const promptId = promptState.$.promptId.useValue();
+    const promptId = promptState.$.prompt.$.id.useValue();
 
     const assessmentField = useStoreField(
       "workspace",

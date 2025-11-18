@@ -29,7 +29,7 @@ export function FileHeader(props: FileHeader.Props) {
   );
 
   const [promptId, promptRef] = clientState.$.playground.$.prompt.useCompute(
-    (prompt) => [prompt?.promptId, playgroundStatePromptToRef(prompt)],
+    (prompt) => [prompt?.prompt.id, playgroundStatePromptToRef(prompt)],
     [],
   );
 

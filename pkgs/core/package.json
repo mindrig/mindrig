@@ -5,6 +5,7 @@
   "description": "Shared functionality between Mind Rig client and server",
   "type": "module",
   "exports": {
+    "./aiSdk": "./src/aiSdk/index.ts",
     "./assessment": "./src/assessment/index.ts",
     "./attachment": "./src/attachment/index.ts",
     "./auth": "./src/auth/index.ts",
@@ -40,20 +41,26 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^1.0.15",
+    "@ai-sdk/gateway": "^2.0.9",
     "@mindrig/types": "workspace:^",
     "alwaysly": "^0.3.0",
     "nanoid": "^5.1.6",
     "yjs": "^13.6.27"
   },
   "devDependencies": {
+    "@ai-sdk/anthropic": "^2.0.45",
+    "@ai-sdk/google": "^2.0.34",
+    "@ai-sdk/openai": "^2.0.68",
+    "@ai-sdk/xai": "^2.0.33",
     "@types/vscode": "^1.103.0",
     "@wrkspc/ts": "workspace:*",
+    "ai": "^5.0.93",
     "oxlint": "^1.23.0",
     "prettier": "^3.6.2",
     "tdollar": "^0.6.0",
     "typescript": "^5.9.3",
     "tyst": "1.0.0-alpha.2",
-    "vitest": "^4.0.6"
+    "vitest": "^4.0.6",
+    "zod": "^4.1.12"
   }
 }

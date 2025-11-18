@@ -16,11 +16,12 @@ export function ResultUsage(props: ResultUsage.Props) {
 
   const decomposedState = state.useDecomposeNullish();
 
-  if (!decomposedState.value) {
-    return <div>No usage data available.</div>;
-  }
+  if (!decomposedState.value) return <Empty />;
 
   const usage = decomposedState.state.useValue();
+
+  if (!(typeof usage.input === "number" && typeof usage.output === "number"))
+    return <Empty />;
 
   const inputPrice =
     (model?.pricing?.input &&
@@ -79,4 +80,8 @@ namespace Price {
 
 function Price(props: Price.Props) {
   return <>est. ${props.price.toNumber().toFixed(6)}</>;
+}
+
+function Empty() {
+  return <div>No usage data available.</div>;
 }

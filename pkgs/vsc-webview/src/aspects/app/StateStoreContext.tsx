@@ -57,7 +57,9 @@ export function AppStateStoreProvider(props: React.PropsWithChildren) {
 export function useAppStateStore(): AppStateStoreContext.Value {
   const store = useContext(AppStateStoreContext);
   if (!store)
-    throw new Error("useAppStore must be used within AppStoreProvider");
+    throw new Error(
+      "useAppStateStore must be used within AppStateStoreProvider",
+    );
   return store;
 }
 

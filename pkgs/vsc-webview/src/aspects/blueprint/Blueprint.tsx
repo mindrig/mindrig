@@ -14,7 +14,7 @@ export namespace Blueprint {
 export function Blueprint(props: Blueprint.Props) {
   const { promptState } = props;
   const clientState = useClientState();
-  const promptId = promptState.$.promptId.useValue();
+  const promptId = promptState.$.prompt.$.id.useValue();
   const showSource = clientState.$.settings.useCompute(
     (settings) => !!settings?.playground?.showSource,
     [],

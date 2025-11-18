@@ -1,11 +1,11 @@
 import { Run } from "@wrkspc/core/run";
 import { State } from "enso";
-import { useMemo } from "react";
-import { MessagesContext, useMessages } from "../message/Context";
+import { MessagesContext } from "../message/Context";
+import { RunsManager } from "./RunsManager";
 
 export namespace RunManager {
   export interface Props {
-    runAppState: State<Run>;
+    runState: State<Run>;
     sendMessage: MessagesContext.SendMessage;
   }
 
@@ -16,63 +16,16 @@ export namespace RunManager {
 }
 
 export class RunManager {
-  static use(
-    runAppState: State<Run> | State<Run | undefined>,
-  ): RunManager | undefined {
-    const { sendMessage } = useMessages();
-    const decomposedRun = runAppState.useDecomposeNullish();
-
-    const manager = useMemo(
-      () =>
-        decomposedRun.value &&
-        new RunManager({ runAppState: decomposedRun.state, sendMessage }),
-      [!!decomposedRun.value, sendMessage],
-    );
-
-    return manager;
-  }
-
-  static running(run: Run | undefined) {
-    return run?.status === "initialized" || run?.status === "running";
-  }
-
-  static useRunning(runAppState: State<Run> | State<Run | undefined>) {
-    return runAppState.useCompute(RunManager.running, []);
-  }
-
-  // static complete(run: Run | undefined) {
-  //   return run?.status === "complete";
-  // }
-
-  // static useComplete(runAppState: State<Run> | State<Run | undefined>) {
-  //   return runAppState.useCompute(RunManager.complete, []);
-  // }
-
-  // static meta(run: Run | undefined): Run.Meta {
-  //   return {
-  //     running: RunManager.running(run),
-  //     complete: RunManager.running(run),
-  //   };
-  // }
-
-  // static useMeta(runAppState: State<Run> | State<Run | undefined>): Run.Meta {
-  //   return runAppState.useCompute(RunManager.meta, []);
-  // }
-
   #runAppState;
   #sendMessage;
 
   constructor(props: RunManager.Props) {
-    this.#runAppState = props.runAppState;
+    this.#runAppState = props.runState;
     this.#sendMessage = props.sendMessage;
   }
 
-  useRunning() {
-    return RunManager.useRunning(this.#runAppState);
-  }
-
-  stopRun() {
-    if (!RunManager.running(this.#runAppState.value)) return;
+  TODO_stopRun() {
+    if (!RunsManager.running(this.#runAppState.value)) return;
 
     this.#sendMessage({
       type: "run-client-stop",
@@ -95,4 +48,9 @@ export class RunManager {
   get runId(): Run.Id {
     return this.#runAppState.$.id.value;
   }
+
+  // #update(runPatch: Run.Patch<Run.Status>) {
+  //   const {} = this.#runAppState.value;
+  //   this.#runAppState.set({ ...runPatch });
+  // }
 }

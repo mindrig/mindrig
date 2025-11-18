@@ -144,9 +144,9 @@
     "gen/webview/html": "tsx ./scripts/gen/webviewHtml.ts"
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^1.0.15",
+    "@ai-sdk/gateway": "^2.0.9",
     "@mindrig/parser-wasm": "0.1.0",
-    "ai": "^5.0.28",
+    "ai": "^5.0.93",
     "alwaysly": "^0.3.0",
     "fastest-levenshtein": "^1.0.16",
     "mime": "^4.1.0",

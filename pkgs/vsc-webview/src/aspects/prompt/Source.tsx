@@ -11,7 +11,7 @@ export namespace PromptSource {
 
 export function PromptSource(props: PromptSource.Props) {
   const { promptState } = props;
-  const content = promptState.$.content.useValue();
+  const content = promptState.$.prompt.$.content.useValue();
 
   return (
     <LayoutSection bordered>

@@ -123,11 +123,11 @@ export function resolvePlaygroundState(
     if (pinPrompt)
       return {
         file: pinFile.meta,
-        prompt: buildStatePrompt({
+        prompt: {
           fileId: pinFile.id,
           prompt: pinPrompt,
           reason: "pinned",
-        }),
+        },
         prompts: buildStatePromptItems(pinFile),
         pin,
       };
@@ -159,11 +159,11 @@ export function resolvePlaygroundState(
 
   return {
     file: fileMeta,
-    prompt: buildStatePrompt({
+    prompt: {
       fileId: mapFile.id,
       prompt: cursorPrompt,
       reason: "cursor",
-    }),
+    },
     prompts,
     pin: null,
   };
@@ -961,28 +961,6 @@ function buildStatePromptItem(
     fileId,
     promptId: prompt.id,
     preview: truncatePromptContent(prompt.content),
-  };
-}
-
-export namespace buildStatePrompt {
-  export interface Props {
-    fileId: PlaygroundMap.FileId;
-    prompt: PlaygroundMap.Prompt;
-    reason: PlaygroundState.PromptReason;
-  }
-}
-
-function buildStatePrompt(
-  props: buildStatePrompt.Props,
-): PlaygroundState.Prompt {
-  const { fileId, prompt, reason } = props;
-  return {
-    v: 1,
-    fileId,
-    promptId: prompt.id,
-    content: prompt.content,
-    vars: prompt.vars,
-    reason,
   };
 }
 

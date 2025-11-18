@@ -2,13 +2,11 @@ import { Tabs } from "@wrkspc/ds";
 import iconRegularRightLeft from "@wrkspc/icons/svg/regular/right-left.js";
 import iconRegularTableColumns from "@wrkspc/icons/svg/regular/table-columns.js";
 import iconRegularTableRows from "@wrkspc/icons/svg/regular/table-rows.js";
-import { useRun } from "../run/Context";
 import { ResultsLayout } from "./Layout";
 import { useResults } from "./ResultsContext";
 
 export function Results() {
   const { results } = useResults();
-  const { run } = useRun();
   const layoutType = results.useLayoutType();
   const resultsState = results.useResultsState();
 
