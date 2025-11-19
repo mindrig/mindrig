@@ -10,6 +10,10 @@ export function Playground() {
   const decomposedFile = state.$.playground.$.file.useDecomposeNullish();
   const decomposedPrompt = state.$.playground.$.prompt.useDecomposeNullish();
 
+  state.useWatch((value) => {
+    console.log("❤️ client state", value);
+  }, []);
+
   return (
     <>
       <PlaygroundErrors />

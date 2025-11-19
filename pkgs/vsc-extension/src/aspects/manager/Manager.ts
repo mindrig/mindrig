@@ -12,9 +12,7 @@ export namespace Manager {
     : never;
 }
 
-export class Manager<
-  EventMap extends Manager.EventMap = Record<string, never>,
-> {
+export class Manager<EventMap extends Manager.EventMap = any> {
   #parent: Manager | null = null;
   #disposables: Manager.Disposable[] = [];
   #target = new EventTarget();

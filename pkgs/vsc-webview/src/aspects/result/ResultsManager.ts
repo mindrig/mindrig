@@ -1,5 +1,3 @@
-import { ModelLanguage } from "@wrkspc/core/model";
-import { Result, ResultMessage } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
 import { State } from "enso";
 import { useAppState } from "../app/state/Context";
@@ -57,5 +55,11 @@ export class ResultsManager {
 
   useDiscriminatedLayout() {
     return this.#resultsAppState.$.layout.useDiscriminate("type");
+  }
+
+  useResultsState() {
+    const decomposedResults =
+      this.#resultsAppState.$.results.useDecomposeNullish();
+    return decomposedResults.value && decomposedResults.state;
   }
 }

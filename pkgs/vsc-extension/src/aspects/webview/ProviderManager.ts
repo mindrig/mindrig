@@ -1,6 +1,7 @@
 import { Manager } from "@/aspects/manager/Manager.js";
 import { Page } from "@wrkspc/core/page";
 import { always } from "alwaysly";
+import { Smollog } from "smollog";
 import * as vscode from "vscode";
 import { WebviewManager } from "./Manager";
 
@@ -10,10 +11,19 @@ export namespace WebviewProviderManager {
   }
 
   export type Resolve = (webview: WebviewManager) => void;
+
+  export interface LogBufferEntry {
+    level: Smollog.Level;
+    entries: unknown[];
+  }
+
+  export type EventsMap = {
+    "webview-initialized": undefined;
+  };
 }
 
 export class WebviewProviderManager
-  extends Manager
+  extends Manager<WebviewProviderManager.EventsMap>
   implements vscode.WebviewViewProvider
 {
   #context: vscode.ExtensionContext;
@@ -47,6 +57,8 @@ export class WebviewProviderManager
       view: webviewView,
       context: this.#context,
     });
+
+    this.emit("webview-initialized", undefined);
 
     always(this.#webviewResolve);
     this.#webviewResolve(this.#webview);

@@ -147,6 +147,7 @@ export class ResultManager extends Manager {
       await this.#messages.send({
         type: "result-server-stream",
         payload: {
+          runId: this.#runId,
           resultId: this.#result.id,
           textChunk: textPart,
         },

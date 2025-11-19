@@ -1,6 +1,7 @@
 import { Manager } from "@/aspects/manager/Manager.js";
 import type { Message } from "@wrkspc/core/message";
 import { always } from "alwaysly";
+import { log } from "smollog";
 import * as vscode from "vscode";
 
 export namespace MessagesManager {
@@ -53,8 +54,11 @@ export class MessagesManager extends Manager {
     // While webview is not ready, queue messages
     if (this.#queue) {
       this.#queue.push(message);
+      log.debug("Queuing message until webview is ready:", message);
       return true;
     }
+
+    log.debug("Sending message to webview:", message);
     return this.#webview.postMessage(message);
   }
 

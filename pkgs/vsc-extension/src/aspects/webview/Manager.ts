@@ -1,5 +1,7 @@
 import { Manager } from "@/aspects/manager/Manager.js";
+import { logsVerbositySettingToLevel } from "@wrkspc/core/log";
 import { Page } from "@wrkspc/core/page";
+import { log } from "smollog";
 import * as vscode from "vscode";
 import { AttachmentsManager } from "../attachment/AttachementsManager";
 import { AuthManager } from "../auth/Manager";
@@ -57,16 +59,18 @@ export class WebviewManager extends Manager {
       webview: this.#view.webview,
     });
 
+    this.#settings = new SettingsManager(this, {
+      messages: this.#messages,
+    });
+
+    this.#setupLogging();
+
     this.#secrets = new SecretsManager(this, {
       storage: this.#context.secrets,
     });
 
     this.#auth = new AuthManager(this, {
       secrets: this.#secrets,
-      messages: this.#messages,
-    });
-
-    this.#settings = new SettingsManager(this, {
       messages: this.#messages,
     });
 
@@ -152,5 +156,17 @@ export class WebviewManager extends Manager {
 
   runPrompt() {
     this.#runs.trigger();
+  }
+
+  #setupLogging() {
+    let levelSetting = this.#settings.state.dev?.logsVerbosity;
+    log.level = logsVerbositySettingToLevel(levelSetting);
+
+    this.#settings.on(this, "update", (settings) => {
+      const nextLevel = logsVerbositySettingToLevel(
+        settings.dev?.logsVerbosity,
+      );
+      log.level = nextLevel;
+    });
   }
 }

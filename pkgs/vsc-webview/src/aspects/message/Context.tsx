@@ -9,6 +9,7 @@ import {
   useRef,
   type DependencyList,
 } from "react";
+import { log } from "smollog";
 
 export namespace MessagesContext {
   export interface Value {
@@ -120,6 +121,7 @@ export function MessagesProvider(
   const sendMessage = useCallback<MessagesContextValue["sendMessage"]>(
     (message) => {
       logger?.({ direction: "out", message });
+      log.debug("Sending message to server:", message);
       vsc.postMessage?.(message);
     },
     [logger, vsc],

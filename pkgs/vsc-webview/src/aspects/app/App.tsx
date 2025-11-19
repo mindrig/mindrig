@@ -35,7 +35,7 @@ export function App() {
 function Content() {
   const navigate = useNavigate();
 
-  const { sendMessage, useListen } = useMessages();
+  const { sendMessage } = useMessages();
 
   useEffect(() => sendMessage({ type: "client-client-ready" }), [sendMessage]);
 

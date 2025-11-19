@@ -32,6 +32,7 @@ export class SettingsManager extends Manager<SettingsManager.EventMap> {
     const config = vscode.workspace.getConfiguration(SettingsManager.section);
     return {
       playground: config.get("playground"),
+      dev: config.get("dev"),
     };
   }
 

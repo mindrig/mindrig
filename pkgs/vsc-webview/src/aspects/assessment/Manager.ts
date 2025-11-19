@@ -26,6 +26,8 @@ export class AssessmentManager {
       buildAssessment,
     );
 
+    console.log("ℹ️ assessment id:", `playground.assessments.${promptId}`);
+
     const assessmentAppState = useAppState(
       `assessments.${promptId}`,
       buildAssessmentAppState,

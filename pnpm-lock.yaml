@@ -72,6 +72,9 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
+      smollog:
+        specifier: ^0.2.0
+        version: 0.2.0
       tdollar:
         specifier: ^0.6.0
         version: 0.6.0
@@ -339,6 +342,9 @@ importers:
       smolcsv:
         specifier: ^0.1.0
         version: 0.1.0
+      smollog:
+        specifier: ^0.2.0
+        version: 0.2.0
       smolxxh:
         specifier: ^0.1.0
         version: 0.1.0
@@ -457,6 +463,9 @@ importers:
       react-router-dom:
         specifier: ^7.8.2
         version: 7.8.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      smollog:
+        specifier: ^0.2.0
+        version: 0.2.0
       streamdown:
         specifier: ^1.3.0
         version: 1.3.0(@types/react@19.2.2)(react@19.2.0)
@@ -6336,6 +6345,9 @@ packages:
 
   smolcsv@0.1.0:
     resolution: {integrity: sha512-ztpr0iTYGm6ZuMFTf+8RrTC8oocYeNhLQO+Izy09r0R7JhUVLyk+THCS2xQ+XK4kQyQJarT0ohss3SEiii5yhw==}
+
+  smollog@0.2.0:
+    resolution: {integrity: sha512-VyedMmbvO3y79JbZvPodAs3fI+Lxnx5S9ProaPLi5+TCaornB0I1tR3G152PkbDN+kRAo93wbEdlcfcs2Jh0Vw==}
 
   smolxxh@0.1.0:
     resolution: {integrity: sha512-xDPQDLMibVQyT+KjcXGHqj69y4IyWD3MlRY0EOw5LaYe0MdHyhnEzZMz0mvv6v8Pp8uwgc/DxiLqN9lnsuPJsw==}
@@ -14357,6 +14369,8 @@ snapshots:
   smol-toml@1.4.2: {}
 
   smolcsv@0.1.0: {}
+
+  smollog@0.2.0: {}
 
   smolxxh@0.1.0: {}
 

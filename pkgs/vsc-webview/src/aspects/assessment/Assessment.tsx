@@ -18,7 +18,6 @@ export namespace AssessmentComponent {
 function AssessmentComponent(props: AssessmentComponent.Props) {
   const { promptState } = props;
   const assessment = AssessmentManager.use(promptState);
-
   if (!assessment) return <AssessmentLoading />;
 
   return (
