@@ -1,4 +1,7 @@
+import { ModelLanguage } from "@wrkspc/core/model";
+import { Result, ResultMessage } from "@wrkspc/core/result";
 import { buildRunInitialized, Run, RunMessage } from "@wrkspc/core/run";
+import { always } from "alwaysly";
 import { State } from "enso";
 import { nanoid } from "nanoid";
 import { useMemo } from "react";
@@ -14,8 +17,6 @@ import {
 import { useMemoWithProps } from "../utils/hooks";
 import { RunManager } from "./Manager";
 import { buildRunsAppState, RunsAppState } from "./runsAppState";
-import { Result, ResultMessage } from "@wrkspc/core/result";
-import { always } from "alwaysly";
 
 export namespace RunsManager {
   export interface Props {
@@ -108,10 +109,27 @@ export class RunsManager {
   #setResults(runId: Run.Id, results: Result[]) {
     this.#appStateStore.setStore((store) => ({
       ...store,
-      [`results.${runId}`]: results,
+      [`runs.${runId}.results`]: results,
     }));
 
     this.#runsAppState.$.results.at(runId).set(results);
+  }
+
+  #setResult(runId: Run.Id, resultState: State<Result>, nextResult: Result) {
+    this.#appStateStore.setStore((store) => {
+      const resultKey = `runs.${runId}.results` as const;
+      const resultsStoreState = store[resultKey];
+      always(resultsStoreState?.results);
+      const nextResults = resultsStoreState.results.map((result) =>
+        result.id === nextResult.id ? nextResult : result,
+      );
+      return {
+        ...store,
+        [resultKey]: nextResults,
+      };
+    });
+
+    resultState.set(nextResult);
   }
 
   useRunning(runId: Run.Id | null) {
@@ -152,6 +170,7 @@ export class RunsManager {
     const runState = this.#runsAppState.$.runs.at(message.payload.id);
     const run = runState.value;
     always(run);
+
     const { id, init, createdAt } = run;
     this.#setRun(id, {
       init,
@@ -165,26 +184,30 @@ export class RunsManager {
   }
 
   #onResultUpdate(message: ResultMessage.ServerUpdate) {
-    const resultState = this.#runsAppState.$.results.at(message.payload.id);
-    const result = resultState.value;
-    always(result);
-    const { id, init, createdAt } = result;
-    this.#setResult(id, {
+    const { runId, patch } = message.payload;
+    const runState = this.#runsAppState.$.results.try(runId);
+    always(runState);
+    const resultState = runState.find((run) => run.id === patch.id);
+    always(resultState);
+
+    const { init, createdAt } = resultState.value;
+    this.#setResult(runId, resultState, {
       init,
       createdAt,
-      ...message.payload,
+      ...patch,
     });
   }
 
   #onResultStream(message: ResultMessage.ServerStream) {
+    const { runId, resultId, textChunk } = message.payload;
     const runState = this.#runsAppState.$.results.try(message.payload.runId);
     always(runState);
-    const resultState = runState.at(message.payload.resultId);
-    const result = runState.value;
-    // TODO: Show an error instead?
+    const resultState = runState.find((result) => result.id === resultId);
+    always(resultState);
+    const result = resultState.value;
     always(result.status === "running");
-    const prevContent = result.payload?.content;
 
+    const prevContent = result.payload?.content;
     const parts =
       prevContent?.type === "text-parts"
         ? prevContent.parts
@@ -197,7 +220,7 @@ export class RunsManager {
       parts: [...parts, textChunk],
     };
 
-    runState.set({
+    this.#setResult(runId, resultState, {
       ...result,
       payload: { type: "language", content },
     });
