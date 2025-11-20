@@ -26,7 +26,7 @@ export function TestRunComponent() {
             <Button
               style="transparent"
               size="small"
-              onClick={() => run.TODO_stopRun()}
+              onClick={() => run.stopRun()}
             >
               Stop
             </Button>

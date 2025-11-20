@@ -140,6 +140,9 @@ export function MessagesProvider(
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const payload = event.data;
+
+      log.debug("Received message from server:", payload);
+
       // if (!narrowMessage(payload)) {
       //   onUnhandledMessage?.(payload);
       //   if (debug) console.warn("Received unknown message", payload);

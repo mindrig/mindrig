@@ -69,7 +69,7 @@ export class RunsManager {
     return runs;
   }
 
-  static running(run: Run | undefined) {
+  static running(run: Run | undefined): boolean {
     return run?.status === "initialized" || run?.status === "running";
   }
 
