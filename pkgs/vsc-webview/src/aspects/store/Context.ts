@@ -37,6 +37,7 @@ export function useStoreProp<Prop extends Store.Prop>(
     "store-server-get-response",
     (message: StoreMessage.ServerGetResponse<Prop>) => {
       if (message.requestId !== requestId) return;
+      debugger;
       setResult(() => message.payload || null);
       return true;
     },
@@ -50,6 +51,7 @@ export function useStoreProp<Prop extends Store.Prop>(
         ref: { scope, prop },
         value,
       };
+      debugger;
       sendMessage({ type: "store-client-set", payload });
     },
     [value && true, sendMessage],
@@ -89,6 +91,7 @@ export function useStoreField<Prop extends Store.Prop>(
     (nextState) => {
       // If state is undefined, then we're still waiting for the response, so
       // we don't need to write the change.
+      debugger;
       if (storeState === undefined) return;
       setStoreState(nextState);
     },
