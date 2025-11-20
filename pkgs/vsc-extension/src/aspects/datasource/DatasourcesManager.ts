@@ -13,6 +13,8 @@ export class DatasourcesManager extends Manager {
   async datasourcesToInputMatrix(
     datasources: Datasource[],
   ): Promise<Datasource.Input[][]> {
+    if (datasources.length === 0) return [[]];
+
     const referenceDatasource = datasources.find((ds) => ds.type === "dataset");
     const referenceInput =
       referenceDatasource &&

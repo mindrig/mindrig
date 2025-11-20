@@ -6,7 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
+  useMemo,
   type DependencyList,
 } from "react";
 import { log } from "smollog";
@@ -42,147 +42,70 @@ export namespace MessagesContext {
   export type UseSend = (message: Message.Client) => void;
 }
 
-//#region Legacy
-
-export type VscMessageHandler<Type extends Message.ServerType> = (
-  message: Message.Server & { type: Type },
-) => void;
-
-export interface MessageSubscription {
-  dispose(): void;
-}
-
-export type MessageOff = () => void;
-
-export interface MessageLoggerEntry {
-  direction: "in" | "out";
-  message: unknown;
-}
-
-export interface MessagesContextValue {
-  sendMessage: MessagesContext.SendMessage;
-
-  listen: <Type extends Message.ServerType>(
-    type: Type,
-    handler: VscMessageHandler<Type>,
-  ) => MessageOff;
-
-  useListen: <Type extends Message.ServerType>(
-    type: Type,
-    handler: VscMessageHandler<Type>,
-    deps?: DependencyList,
-  ) => void;
-}
-
-export interface MessageProviderOptions {
-  debug?: boolean;
-  logger?: (entry: MessageLoggerEntry) => void;
-  onUnhandledMessage?: (message: unknown) => void;
-}
-
-// function narrowMessage(candidate: unknown): candidate is VscMessage {
-//   if (!candidate || typeof candidate !== "object") return false;
-//   if (typeof (candidate as { type?: unknown }).type !== "string") return false;
-//   return true;
-// }
-
-//#endregion
-
 const MessagesContext = createContext<MessagesContext.Value | undefined>(
   undefined,
 );
 
-export function MessagesProvider(
-  props: PropsWithChildren<MessageProviderOptions>,
-) {
-  const { debug, logger, onUnhandledMessage, children } = props;
+export function MessagesProvider(props: PropsWithChildren) {
   const { vsc } = useVsc();
-  type InternalHandler = (message: Message.Server) => void;
-  const handlersRef = useRef(new Map<string, Set<InternalHandler>>());
+
+  const target = useMemo(() => new EventTarget(), []);
 
   const listen = useCallback<MessagesContext.ListenMessage>(
-    (type, callback) => {
-      const bucket =
-        handlersRef.current.get(type) ?? new Set<InternalHandler>();
-      const wrapped: InternalHandler = (message) => callback(message as any);
-
-      bucket.add(wrapped);
-      handlersRef.current.set(type, bucket);
-
-      return () => {
-        const listeners = handlersRef.current.get(type);
-        listeners?.delete(wrapped);
-        if (listeners && listeners.size === 0) handlersRef.current.delete(type);
+    <Type extends Message.ServerType>(
+      type: Type,
+      callback: MessagesContext.ListenMessageCallback<Type>,
+    ) => {
+      const handler = (ev: CustomEvent<Message.Server & { type: Type }>) => {
+        callback.call(parent, ev.detail);
       };
+
+      target.addEventListener(type, handler as any);
+
+      return () => target.removeEventListener(type, handler as any);
     },
-    [],
+    [target],
   );
 
-  const sendMessage = useCallback<MessagesContextValue["sendMessage"]>(
+  const sendMessage = useCallback<MessagesContext.SendMessage>(
     (message) => {
-      logger?.({ direction: "out", message });
       log.debug("Sending message to server:", message);
-      vsc.postMessage?.(message);
+      vsc.postMessage(message);
     },
-    [logger, vsc],
+    [vsc],
   );
 
   const useListen = useCallback<MessagesContext.UseListenMessage>(
     (type, callback, deps) => {
-      useEffect(() => {
-        return listen(type, callback);
+      useEffect(
+        () => listen(type, callback),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [listen, type, ...deps]);
+        [listen, type, ...deps],
+      );
     },
     [listen],
   );
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      const payload = event.data;
-
-      log.debug("Received message from server:", payload);
-
-      // if (!narrowMessage(payload)) {
-      //   onUnhandledMessage?.(payload);
-      //   if (debug) console.warn("Received unknown message", payload);
-      //   return;
-      // }
-
-      logger?.({ direction: "in", message: payload });
-
-      const listeners = handlersRef.current.get(payload.type);
-      if (!listeners || listeners.size === 0) return;
-
-      listeners.forEach((handler) => {
-        try {
-          handler(payload as never);
-        } catch (error) {
-          console.error(
-            `Message handler for ${payload.type} threw an error`,
-            error,
-          );
-        }
-      });
+    const onMessage = (event: MessageEvent) => {
+      const message: Message.Server = event.data;
+      log.debug("Received message from server:", message);
+      target.dispatchEvent(new CustomEvent(message.type, { detail: message }));
     };
 
-    window.addEventListener("message", handleMessage);
-    const handlersMap = handlersRef.current;
-    return () => {
-      window.removeEventListener("message", handleMessage);
-      handlersMap.clear();
-    };
-  }, [debug, logger, onUnhandledMessage]);
+    window.addEventListener("message", onMessage);
 
-  const value: MessagesContext.Value = {
-    sendMessage,
-    listen,
-    useListen,
-  };
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
+  const value = useMemo<MessagesContext.Value>(
+    () => ({ sendMessage, listen, useListen }),
+    [sendMessage, listen, useListen],
+  );
 
   return (
     <MessagesContext.Provider value={value}>
-      {children}
+      {props.children}
     </MessagesContext.Provider>
   );
 }
@@ -211,7 +134,7 @@ export function useSendMessage(message: Message.Client, deps?: DependencyList) {
 export namespace UseWaitMessage {
   export type Callback<Type extends Message.ServerType> = (
     message: Message.Server & { type: Type },
-  ) => boolean | void;
+  ) => boolean;
 }
 
 export function useWaitMessage<Type extends Message.ServerType>(

@@ -116,7 +116,6 @@ export class WebviewManager extends Manager {
       messages: this.#messages,
       secrets: this.#secrets,
       attachments: this.#attachments,
-      datasets: this.#datasets,
       datasources: this.#datasources,
       settings: this.#settings,
     });

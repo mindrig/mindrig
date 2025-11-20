@@ -10,8 +10,8 @@ export namespace RunManager {
   }
 
   export interface Meta {
-    running: boolean;
-    complete: boolean;
+    pending: boolean;
+    error: string | null;
   }
 }
 
@@ -31,6 +31,26 @@ export class RunManager {
       type: "run-client-stop",
       payload: { runId: this.#runAppState.$.id.value },
     });
+  }
+
+  useMeta(): RunManager.Meta {
+    const pending = this.usePending();
+    const error = this.useError();
+    return { pending, error };
+  }
+
+  usePending(): boolean {
+    return this.#runAppState.useCompute(
+      (run) => run.status === "initialized",
+      [],
+    );
+  }
+
+  useError(): string | null {
+    return this.#runAppState.useCompute(
+      (run) => (run.status === "error" ? run.error : null),
+      [],
+    );
   }
 
   get runId(): Run.Id {

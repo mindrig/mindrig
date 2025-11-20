@@ -76,9 +76,8 @@ export class ResultManager extends Manager {
     this.#apiKey = props.apiKey;
   }
 
-  async generate(signal: AbortSignal | undefined) {
+  async generate(abortSignal: AbortSignal | undefined) {
     const startedAt = Date.now();
-    const gateway = createGateway({ apiKey: this.#apiKey });
 
     const { setup, datasources } = this.#result.init;
     const { developerId, modelId } = setup.ref;
@@ -116,14 +115,17 @@ export class ResultManager extends Manager {
       },
     ];
 
+    const gateway = createGateway({ apiKey: this.#apiKey });
+
     const aiSdkProps: ResultManager.AiSdkGenerateProps = {
-      model: modelId,
+      model: gateway(modelId),
       messages,
-      abortSignal: this.#abort.signal,
       // TODO: Implement tools
       // tools: this.#runInit.tools,
       ...aiSdkSettings({ developerId, modelId }, setup.settings),
     };
+
+    if (abortSignal) aiSdkProps.abortSignal = abortSignal;
 
     const methodProps: ResultManager.GenerateMethodProps = {
       aiSdkProps,

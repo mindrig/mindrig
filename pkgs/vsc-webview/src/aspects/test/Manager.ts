@@ -1,4 +1,5 @@
 import { Run } from "@wrkspc/core/run";
+import { Store } from "@wrkspc/core/store";
 import { Test } from "@wrkspc/core/test";
 import { always } from "alwaysly";
 import { Field, State } from "enso";
@@ -8,7 +9,7 @@ import { AssessmentManager } from "../assessment/Manager";
 import { RunManager } from "../run/Manager";
 import { useRuns } from "../run/RunsContext";
 import { RunsManager } from "../run/RunsManager";
-import { useStoreProp } from "../store/Context";
+import { useStorePropState } from "../store/Context";
 import { useMemoWithProps } from "../utils/hooks";
 import { buildTestAppState, TestAppState } from "./appState";
 
@@ -21,7 +22,7 @@ export namespace TestManager {
     testField: Field<Test>;
     testAppState: State<TestAppState>;
     assessment: AssessmentManager;
-    streamingStoreState: useStoreProp.State<"playground.streaming">;
+    streamingStoreState: State<Store["playground.streaming"] | null>;
     runs: RunsManager;
   }
 }
@@ -32,7 +33,10 @@ export class TestManager {
     const { runs } = useRuns();
     const { assessment } = useAssessment();
 
-    const streamingStoreState = useStoreProp("global", "playground.streaming");
+    const streamingStoreState = useStorePropState(
+      "global",
+      "playground.streaming",
+    );
 
     const testId = testField.$.id.useValue();
     const testAppState = useAppState(`tests.${testId}`, buildTestAppState);
@@ -66,12 +70,16 @@ export class TestManager {
     this.#runs = props.runs;
   }
 
-  get streaming(): boolean {
-    return !!this.#streamingStoreState[0];
+  get #streaming(): boolean {
+    return !!this.#streamingStoreState.value;
+  }
+
+  useStreaming(): boolean {
+    return this.#streamingStoreState.useCompute((value) => !!value, []);
   }
 
   setStreaming(enabled: boolean) {
-    this.#streamingStoreState[1](enabled);
+    this.#streamingStoreState.set(enabled);
   }
 
   useRunId() {
@@ -122,7 +130,7 @@ export class TestManager {
       tools: assessment.tools,
       datasources: test.datasources,
       attachments: test.attachments,
-      streaming: this.streaming,
+      streaming: this.#streaming,
     };
   }
 }

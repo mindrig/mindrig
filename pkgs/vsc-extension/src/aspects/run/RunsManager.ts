@@ -2,7 +2,6 @@ import { Manager } from "@/aspects/manager/Manager.js";
 import { RunMessage } from "@wrkspc/core/run";
 import PQueue from "p-queue";
 import { AttachmentsManager } from "../attachment/AttachementsManager";
-import { DatasetsManager } from "../dataset/DatasetsManager";
 import { DatasourcesManager } from "../datasource/DatasourcesManager";
 import { MessagesManager } from "../message/Manager";
 import { SecretsManager } from "../secret/Manager";
@@ -16,7 +15,6 @@ export namespace RunsManager {
     messages: MessagesManager;
     secrets: SecretsManager;
     attachments: AttachmentsManager;
-    datasets: DatasetsManager;
     datasources: DatasourcesManager;
     settings: SettingsManager;
   }
@@ -26,7 +24,6 @@ export class RunsManager extends Manager {
   #messages: MessagesManager;
   #secrets: SecretsManager;
   #attachments: AttachmentsManager;
-  #datasets: DatasetsManager;
   #datasources: DatasourcesManager;
   #settings: SettingsManager;
   #queue: PQueue;
@@ -37,7 +34,6 @@ export class RunsManager extends Manager {
     this.#messages = props.messages;
     this.#secrets = props.secrets;
     this.#attachments = props.attachments;
-    this.#datasets = props.datasets;
     this.#datasources = props.datasources;
     this.#settings = props.settings;
 
@@ -59,7 +55,6 @@ export class RunsManager extends Manager {
       messages: this.#messages,
       secrets: this.#secrets,
       attachments: this.#attachments,
-      datasets: this.#datasets,
       datasources: this.#datasources,
       run: message.payload,
       queue: this.#queue,

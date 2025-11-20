@@ -37,8 +37,8 @@ export class MessagesManager extends Manager {
     type: Type,
     callback: MessagesManager.ListenCallback<Type>,
   ): Manager.Disposable {
-    const handler = (ev: CustomEvent<Message.Client & Type>) => {
-      callback.call(parent, ev.detail as any);
+    const handler = (ev: CustomEvent<Message.Client & { type: Type }>) => {
+      callback.call(parent, ev.detail);
     };
 
     this.#target.addEventListener(type, handler as any);

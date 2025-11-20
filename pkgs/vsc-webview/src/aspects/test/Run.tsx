@@ -1,17 +1,17 @@
 import { Button } from "@wrkspc/ds";
 import { Checkbox } from "@wrkspc/form";
-import { Results } from "../result/Results";
-import { RunProvider } from "../run/Context";
+import { RunComponent } from "../run/Run";
 import { useTest } from "./Context";
 
 export function TestRunComponent() {
   const { test } = useTest();
   const running = test.useRunning();
   const run = test.useRun();
+  const streaming = test.useStreaming();
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="grid gap-3">
         <div className="flex items-center gap-2">
           <Button
             type="submit"
@@ -34,7 +34,7 @@ export function TestRunComponent() {
 
           <Checkbox
             label="Stream output"
-            value={test.streaming}
+            value={streaming}
             onChange={(enabled) => test.setStreaming(enabled)}
             size="small"
           />
@@ -51,11 +51,7 @@ export function TestRunComponent() {
           )}
         </div>
 
-        {run && (
-          <RunProvider run={run}>
-            <Results />
-          </RunProvider>
-        )}
+        {run && <RunComponent run={run} />}
       </div>
     </>
   );

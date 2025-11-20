@@ -164,6 +164,13 @@ export class RunsManager {
     this.#setRun(runId, undefined);
   }
 
+  useResults(runId: Run.Id): State<Result[]> | null {
+    const decomposedResults = this.#runsAppState.$.results
+      .at(runId)
+      .useDecomposeNullish();
+    return (decomposedResults.value && decomposedResults.state) || null;
+  }
+
   //#region Events
 
   #onRunUpdate(message: RunMessage.ServerUpdate) {

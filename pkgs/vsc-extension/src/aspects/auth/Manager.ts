@@ -1,4 +1,6 @@
 import { Auth, AuthMessage } from "@wrkspc/core/auth";
+import { log } from "smollog";
+import * as vscode from "vscode";
 import { Manager } from "../manager/Manager.js";
 import { MessagesManager } from "../message/Manager.js";
 import { SecretsManager } from "../secret/Manager.js";
@@ -12,7 +14,6 @@ export namespace AuthManager {
 
   export type EventMap = {
     "gateway-resolve": Auth.GatewayValue;
-    "gateway-response": Auth.GatewayValue;
   };
 }
 
@@ -34,8 +35,6 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
       .get("auth-vercel-gateway-key")
       .then(this.#onVercelKey.bind(this));
 
-    this.on(this, "gateway-response", this.#onGatewayResponse);
-
     this.#messages.listen(
       this,
       "auth-client-vercel-gateway-clear",
@@ -48,10 +47,8 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
       this.#onVercelGatewaySet,
     );
 
-    this.#messages.listen(
-      this,
-      "auth-client-vercel-gateway-revalidate",
-      this.#validate,
+    this.#messages.listen(this, "auth-client-vercel-gateway-revalidate", () =>
+      this.#validate(this.#state.gateway),
     );
   }
 
@@ -60,11 +57,15 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
   }
 
   logOut() {
+    log.debug("User logged out");
+
     authSecrets.forEach(this.#secrets.clear.bind(this.#secrets));
+    this.#reportLoggedIn(false);
+    this.#onVercelKey(undefined);
   }
 
-  #validate() {
-    this.emit("gateway-resolve", this.#state.gateway);
+  #validate(gateway: Auth.GatewayValue) {
+    this.emit("gateway-resolve", gateway);
   }
 
   #onVercelKey(key: Secret.Value) {
@@ -78,9 +79,11 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
         }
       : null;
 
+    log.debug("Got Vercel gateway key", { maskedKey: gateway?.maskedKey });
+
     // Instead of applying the state directly, we first trigger an event,
     // allowing models manager to verify the key before applying it.
-    this.#validate();
+    this.#validate(gateway);
   }
 
   #onVercelGatewaySet(message: AuthMessage.ClientVercelGatewaySet) {
@@ -91,13 +94,28 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
     this.#secrets.clear("auth-vercel-gateway-key");
   }
 
-  #onGatewayResponse(gateway: Auth.GatewayValue) {
+  async registerGatewayResponse(gateway: Auth.GatewayValue) {
     this.#state = { ...this.#state, gateway };
+
+    const error = this.#state.gateway?.error;
+    const loggedIn = !error;
+
+    log.debug("Auth state updated", { loggedIn: !error, error });
+
+    await this.#reportLoggedIn(loggedIn);
 
     this.#messages.send({
       type: "auth-server-update",
       payload: this.#state,
     });
+  }
+
+  #reportLoggedIn(loggedIn: boolean) {
+    return vscode.commands.executeCommand(
+      "setContext",
+      "mindrig.auth.loggedIn",
+      loggedIn,
+    );
   }
 }
 

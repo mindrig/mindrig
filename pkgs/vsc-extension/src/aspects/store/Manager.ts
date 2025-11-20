@@ -21,7 +21,9 @@ export class StoreManager extends Manager {
     this.#context = props.context;
     this.#messages = props.messages;
 
-    this.#messages.listen(this, "store-client-get", this.#onRequest);
+    this.#messages.listen(this, "store-client-get", this.#onGet);
+
+    this.#messages.listen(this, "store-client-set", this.#onSet);
   }
 
   async get<Key extends Store.Prop>(
@@ -46,14 +48,22 @@ export class StoreManager extends Manager {
     await this.#scoped(scope).update(key as string, undefined);
   }
 
-  async #onRequest(message: StoreMessage.ClientGet<any, any>) {
-    const { scope, prop: key } = message.payload;
-    const value = await this.get(scope, key);
+  async #onGet(message: StoreMessage.ClientGet<any, any>) {
+    const { scope, prop } = message.payload;
+    const value = await this.get(scope, prop);
     return this.#messages.send({
       type: "store-server-get-response",
       requestId: message.requestId,
       payload: value,
     });
+  }
+
+  async #onSet(message: StoreMessage.ClientSet<any, any>) {
+    const {
+      ref: { scope, prop },
+      value,
+    } = message.payload;
+    await this.set(scope, prop, value);
   }
 
   #scoped(scope: Store.Scope) {
