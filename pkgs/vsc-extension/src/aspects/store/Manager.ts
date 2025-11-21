@@ -48,6 +48,17 @@ export class StoreManager extends Manager {
     await this.#scoped(scope).update(key as string, undefined);
   }
 
+  async clearAll(scope?: Store.Scope): Promise<void> {
+    if (scope) {
+      const scoped = await this.#scoped(scope);
+      await Promise.all(
+        scoped.keys().map((key) => scoped.update(key, undefined)),
+      );
+    } else {
+      await Promise.all([this.clearAll("global"), this.clearAll("workspace")]);
+    }
+  }
+
   async #onGet(message: StoreMessage.ClientGet<any, any>) {
     const { scope, prop } = message.payload;
     const value = await this.get(scope, prop);

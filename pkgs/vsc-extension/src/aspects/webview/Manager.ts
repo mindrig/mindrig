@@ -8,6 +8,7 @@ import { AuthManager } from "../auth/Manager";
 import { ClientStateManager } from "../client/StateManager";
 import { DatasetsManager } from "../dataset/DatasetsManager";
 import { DatasourcesManager } from "../datasource/DatasourcesManager";
+import { DevManager } from "../dev/Manager";
 import { EditorManager } from "../editor/Manager";
 import { MessagesManager } from "../message/Manager";
 import { ModelsDotdevManager } from "../model/DotdevManager";
@@ -32,6 +33,7 @@ export class WebviewManager extends Manager {
   #view: vscode.WebviewView;
   #context: vscode.ExtensionContext;
   #messages: MessagesManager;
+  #dev: DevManager;
   #settings: SettingsManager;
   #secrets: SecretsManager;
   #auth: AuthManager;
@@ -59,6 +61,16 @@ export class WebviewManager extends Manager {
       webview: this.#view.webview,
     });
 
+    this.#store = new StoreManager(this, {
+      context: this.#context,
+      messages: this.#messages,
+    });
+
+    this.#dev = new DevManager(this, {
+      messages: this.#messages,
+      store: this.#store,
+    });
+
     this.#settings = new SettingsManager(this, {
       messages: this.#messages,
     });
@@ -71,11 +83,6 @@ export class WebviewManager extends Manager {
 
     this.#auth = new AuthManager(this, {
       secrets: this.#secrets,
-      messages: this.#messages,
-    });
-
-    this.#store = new StoreManager(this, {
-      context: this.#context,
       messages: this.#messages,
     });
 

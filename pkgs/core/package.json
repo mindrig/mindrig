@@ -13,6 +13,7 @@
     "./client": "./src/client/index.ts",
     "./dataset": "./src/dataset/index.ts",
     "./datasource": "./src/datasource/index.ts",
+    "./dev": "./src/dev/index.ts",
     "./editor": "./src/editor/index.ts",
     "./eval": "./src/eval/index.ts",
     "./file": "./src/file/index.ts",

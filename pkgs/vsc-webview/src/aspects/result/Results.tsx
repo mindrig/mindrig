@@ -11,7 +11,7 @@ export function Results() {
       <div className="flex items-center justify-between">
         <h5 className="text-sm font-medium">Results</h5>
 
-        <ResultsLayoutPicker />
+        {resultsState && <ResultsLayoutPicker resultsState={resultsState} />}
       </div>
 
       {resultsState ? (

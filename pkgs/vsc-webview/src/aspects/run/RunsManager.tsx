@@ -5,10 +5,8 @@ import { always } from "alwaysly";
 import { State } from "enso";
 import { nanoid } from "nanoid";
 import { useMemo } from "react";
-import {
-  AppStateStoreContext,
-  useAppStateStore,
-} from "../app/StateStoreContext";
+import { useAppState } from "../app/state/Context";
+import { AppState } from "../app/state/state";
 import {
   MessagesContext,
   useListenMessage,
@@ -20,24 +18,21 @@ import {
 } from "../result/resultsAppState";
 import { useMemoWithProps } from "../utils/hooks";
 import { RunManager } from "./Manager";
-import { buildRunsAppState, RunsAppState } from "./runsAppState";
 
 export namespace RunsManager {
   export interface Props {
-    runsAppState: State<RunsAppState>;
-    appStateStore: AppStateStoreContext.Value;
+    appState: State<AppState>;
     sendMessage: MessagesContext.SendMessage;
   }
 }
 
 export class RunsManager {
   static use() {
-    const appStateStore = useAppStateStore();
+    const { appState } = useAppState();
     const { sendMessage } = useMessages();
-    const runsAppState = State.use<RunsAppState>(buildRunsAppState(), []);
 
     const runs = useMemoWithProps(
-      { runsAppState, appStateStore, sendMessage },
+      { appState, sendMessage },
       (props) => new RunsManager(props),
       [],
     );
@@ -77,13 +72,11 @@ export class RunsManager {
     return run?.status === "initialized" || run?.status === "running";
   }
 
-  #runsAppState;
-  #appStateStore;
+  #appState;
   #sendMessage;
 
   constructor(props: RunsManager.Props) {
-    this.#runsAppState = props.runsAppState;
-    this.#appStateStore = props.appStateStore;
+    this.#appState = props.appState;
     this.#sendMessage = props.sendMessage;
   }
 
@@ -102,46 +95,15 @@ export class RunsManager {
   }
 
   #setRun(runId: Run.Id, run: Run | undefined) {
-    this.#appStateStore.setStore((store) => ({
-      ...store,
-      [`runs.${runId}`]: run,
-    }));
-
-    this.#runsAppState.$.runs.at(runId).set(run);
+    this.#appState.$.runs.at(runId).set(run);
   }
 
   #setResults(runId: Run.Id, results: Result[]) {
-    this.#appStateStore.setStore((store) => ({
-      ...store,
-      [`runs.${runId}.results`]: results,
-    }));
-
     this.resultsAppState(runId).$.results.set(results);
   }
 
-  #setResult(runId: Run.Id, resultState: State<Result>, nextResult: Result) {
-    this.#appStateStore.setStore((store) => {
-      const resultKey = `runs.${runId}.results` as const;
-      const resultsStoreState = store[resultKey];
-      always(resultsStoreState?.results);
-      const nextResults = resultsStoreState.results.map((result) =>
-        result.id === nextResult.id ? nextResult : result,
-      );
-      return {
-        ...store,
-        [resultKey]: nextResults,
-      };
-    });
-
-    resultState.set(nextResult);
-  }
-
-  #pavedResults(runId: Run.Id): State<ResultsAppState> {
-    return this.#runsAppState.$.results.at(runId).pave(buildResultsAppState());
-  }
-
   useRunning(runId: Run.Id | null) {
-    return this.#runsAppState.$.runs.useCompute(
+    return this.#appState.$.runs.useCompute(
       (runs) => !!runId && RunsManager.running(runs[runId]),
       [runId],
     );
@@ -150,7 +112,7 @@ export class RunsManager {
   useRun(runId: Run.Id | null): RunManager | null {
     // TODO: Make Enso accept falsy keys, so then we can ensure hooks
     // consistency.
-    const decomposedRun = this.#runsAppState.$.runs
+    const decomposedRun = this.#appState.$.runs
       .at(runId || ("nope" as any))
       .useDecomposeNullish();
 
@@ -173,13 +135,13 @@ export class RunsManager {
   }
 
   resultsAppState(runId: Run.Id): State<ResultsAppState> {
-    return this.#runsAppState.$.results.at(runId).pave(buildResultsAppState());
+    return this.#appState.$.results.at(runId).pave(buildResultsAppState());
   }
 
   //#region Events
 
   #onRunUpdate(message: RunMessage.ServerUpdate) {
-    const runState = this.#runsAppState.$.runs.at(message.payload.id);
+    const runState = this.#appState.$.runs.at(message.payload.id);
     const run = runState.value;
     always(run);
 
@@ -200,11 +162,7 @@ export class RunsManager {
     const resultState = this.#result(runId, patch.id);
 
     const { init, createdAt } = resultState.value;
-    this.#setResult(runId, resultState, {
-      init,
-      createdAt,
-      ...patch,
-    });
+    resultState.set({ init, createdAt, ...patch });
   }
 
   #onResultStream(message: ResultMessage.ServerStream) {
@@ -227,18 +185,16 @@ export class RunsManager {
       parts: [...parts, textChunk],
     };
 
-    this.#setResult(runId, resultState, {
+    resultState.set({
       ...result,
       payload: { type: "language", content },
     });
   }
 
   #result(runId: Run.Id, resultId: Result.Id) {
-    const runState = this.#runsAppState.$.results.try(runId);
-    always(runState);
-    const resultState = runState
-      .try("results")
-      ?.find?.((result) => result.id === resultId);
+    const resultState = this.#appState.$.results
+      .try(runId)
+      ?.$.results?.find?.((result) => result.value.id === resultId);
     always(resultState);
     return resultState;
   }

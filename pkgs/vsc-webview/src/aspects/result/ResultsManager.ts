@@ -53,7 +53,7 @@ export class ResultsManager {
 
   useResultsState() {
     const decomposedResults =
-      this.#resultsAppState.$.results.decomposeNullish();
+      this.#resultsAppState.$.results.useDecomposeNullish();
     return decomposedResults.value && decomposedResults.state;
   }
 }

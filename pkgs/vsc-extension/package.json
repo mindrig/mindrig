@@ -29,11 +29,11 @@
     "commands": [
       {
         "command": "mindrig.showPlayground",
-        "title": "Show Playground"
+        "title": "Mind Rig: Show Playground"
       },
       {
         "command": "mindrig.runPrompt",
-        "title": "Run Prompt"
+        "title": "Mind Rig: Run Prompt"
       },
       {
         "command": "mindrig.logIn",
@@ -49,6 +49,10 @@
         "command": "mindrig.showProfile",
         "title": "Show Profile",
         "icon": "$(account)"
+      },
+      {
+        "command": "mindrig.dev.clearState",
+        "title": "Mind Rig Dev: Clear All State"
       }
     ],
     "configuration": {

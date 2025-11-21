@@ -1,5 +1,7 @@
 import { PlaygroundState } from "@wrkspc/core/playground";
 import { State } from "enso";
+import { useEffect } from "react";
+import { log } from "smollog";
 import { Assessment } from "../assessment/Assessment";
 import { useClientState } from "../client/StateContext";
 import { PromptSource } from "../prompt/Source";
@@ -19,6 +21,10 @@ export function Blueprint(props: Blueprint.Props) {
     (settings) => !!settings?.playground?.showSource,
     [],
   );
+
+  useEffect(() => {
+    log.debug("Displaying prompt:", promptId);
+  }, [promptId]);
 
   return (
     <BlueprintProvider manager={{}} promptState={promptState}>

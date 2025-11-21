@@ -26,10 +26,11 @@ export class AssessmentManager {
       buildAssessment,
     );
 
-    const assessmentAppState = useAppState(
-      `assessments.${promptId}`,
-      buildAssessmentAppState,
-    );
+    const { appState } = useAppState();
+
+    const assessmentAppState = appState.$.assessments
+      .at(promptId)
+      .pave(buildAssessmentAppState());
 
     const manager = useMemoWithProps(
       {

@@ -30,10 +30,12 @@ export function ResultComponent(props: ResultComponent.Props) {
   //     .join(" • ") ||
   //   `Result ${index + 1}`;
 
-  const expanded = discriminatedLayout.state.useCompute(
+  const expandedValue = discriminatedLayout.state.useCompute(
     (layout) => "expanded" in layout && !!layout.expanded[resultIndex],
-    [],
+    [resultIndex],
   );
+  const expanded =
+    solo || discriminatedLayout.discriminator !== "vertical" || expandedValue;
 
   const createdAt = resultState.$.createdAt.useValue();
   const errored = resultState.useCompute(
@@ -50,17 +52,18 @@ export function ResultComponent(props: ResultComponent.Props) {
       <div className="border rounded">
         <div className="flex items-center justify-between px-3 py-2 border-b">
           <div className="flex items-center gap-2">
-            {discriminatedLayout.discriminator === "vertical" && (
+            {!solo && discriminatedLayout.discriminator === "vertical" && (
               <Button
                 style="label"
                 icon={expanded ? iconRegularAngleDown : iconRegularAngleRight}
                 onClick={() =>
                   discriminatedLayout.state.$.expanded
                     .at(resultIndex)
-                    .set(!expanded)
+                    .set(!expandedValue)
                 }
               />
             )}
+
             <span className="text-sm font-medium">
               {!solo && <span>#{resultIndex + 1}</span>} Result
             </span>

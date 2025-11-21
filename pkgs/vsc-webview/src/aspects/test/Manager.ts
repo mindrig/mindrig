@@ -39,7 +39,8 @@ export class TestManager {
     );
 
     const testId = testField.$.id.useValue();
-    const testAppState = useAppState(`tests.${testId}`, buildTestAppState);
+    const { appState } = useAppState();
+    const testAppState = appState.$.tests.at(testId).pave(buildTestAppState());
 
     const manager = useMemoWithProps(
       {

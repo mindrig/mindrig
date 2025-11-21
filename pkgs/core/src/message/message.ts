@@ -2,6 +2,7 @@ import type { AttachmentMessage } from "../attachment/message.js";
 import type { AuthMessage } from "../auth/message.js";
 import type { ClientMessage } from "../client/message.js";
 import type { DatasetMessage } from "../dataset/message.js";
+import { DevMessage } from "../dev/message.js";
 import type { ModelsMessage } from "../model/message.js";
 import type { PlaygroundMessage } from "../playground/message.js";
 import type { PromptMessage } from "../prompt/message.js";
@@ -22,7 +23,8 @@ export namespace Message {
     | DatasetMessage.Server
     | ModelsMessage.Server
     | ClientMessage.Server
-    | PlaygroundMessage.Server;
+    | PlaygroundMessage.Server
+    | DevMessage.Server;
 
   export type ServerType = Server["type"];
 
@@ -37,7 +39,8 @@ export namespace Message {
     | DatasetMessage.Client
     | ModelsMessage.Client
     | ClientMessage.Client
-    | PlaygroundMessage.Client;
+    | PlaygroundMessage.Client
+    | DevMessage.Client;
 
   export type ClientType = Client["type"];
 }
