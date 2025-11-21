@@ -1,51 +1,32 @@
-import { Result } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
-import { todo } from "alwaysly";
 import { State } from "enso";
-import { useAppState } from "../app/state/Context";
 import { useRuns } from "../run/RunsContext";
 import { useStorePropState } from "../store/Context";
 import { useMemoWithProps } from "../utils/hooks";
-import {
-  buildResultsAppState,
-  buildResultsAppStateLayout,
-  ResultsAppState,
-} from "./resultsAppState";
+import { buildResultsAppStateLayout, ResultsAppState } from "./resultsAppState";
 
 export namespace ResultsManager {
   export interface Props {
-    resultsState: State<Result[]>;
     resultsAppState: State<ResultsAppState>;
   }
 }
 
 export class ResultsManager {
-  static use(runId: Run.Id): ResultsManager | null {
+  static use(runId: Run.Id): ResultsManager {
     const { runs } = useRuns();
-    const resultsState = runs.useResults(runId);
-    todo(
-      "Problem here is that useAppState is used both in RunsManager and ResultsManager, and each has its own state instance rewriting the other.",
-    );
-    const resultsAppState = useAppState(
-      `runs.${runId}.results`,
-      buildResultsAppState,
-    );
+    const resultsAppState = runs.resultsAppState(runId);
 
     const results = useMemoWithProps(
-      { resultsState, resultsAppState },
-      ({ resultsState, ...props }) =>
-        resultsState && new ResultsManager({ resultsState, ...props }),
+      { resultsAppState },
+      (props) => new ResultsManager(props),
       [],
     );
-
     return results;
   }
 
-  #resultsState: State<Result[]>;
   #resultsAppState: State<ResultsAppState>;
 
   constructor(props: ResultsManager.Props) {
-    this.#resultsState = props.resultsState;
     this.#resultsAppState = props.resultsAppState;
   }
 
@@ -71,7 +52,8 @@ export class ResultsManager {
   }
 
   useResultsState() {
-    const decomposedResults = this.#resultsState.useDecomposeNullish();
+    const decomposedResults =
+      this.#resultsAppState.$.results.decomposeNullish();
     return decomposedResults.value && decomposedResults.state;
   }
 }

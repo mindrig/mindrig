@@ -14,6 +14,10 @@ import {
   useListenMessage,
   useMessages,
 } from "../message/Context";
+import {
+  buildResultsAppState,
+  ResultsAppState,
+} from "../result/resultsAppState";
 import { useMemoWithProps } from "../utils/hooks";
 import { RunManager } from "./Manager";
 import { buildRunsAppState, RunsAppState } from "./runsAppState";
@@ -112,7 +116,7 @@ export class RunsManager {
       [`runs.${runId}.results`]: results,
     }));
 
-    this.#runsAppState.$.results.at(runId).set(results);
+    this.resultsAppState(runId).$.results.set(results);
   }
 
   #setResult(runId: Run.Id, resultState: State<Result>, nextResult: Result) {
@@ -130,6 +134,10 @@ export class RunsManager {
     });
 
     resultState.set(nextResult);
+  }
+
+  #pavedResults(runId: Run.Id): State<ResultsAppState> {
+    return this.#runsAppState.$.results.at(runId).pave(buildResultsAppState());
   }
 
   useRunning(runId: Run.Id | null) {
@@ -164,11 +172,8 @@ export class RunsManager {
     this.#setRun(runId, undefined);
   }
 
-  useResults(runId: Run.Id): State<Result[]> | null {
-    const decomposedResults = this.#runsAppState.$.results
-      .at(runId)
-      .useDecomposeNullish();
-    return (decomposedResults.value && decomposedResults.state) || null;
+  resultsAppState(runId: Run.Id): State<ResultsAppState> {
+    return this.#runsAppState.$.results.at(runId).pave(buildResultsAppState());
   }
 
   //#region Events
@@ -192,10 +197,7 @@ export class RunsManager {
 
   #onResultUpdate(message: ResultMessage.ServerUpdate) {
     const { runId, patch } = message.payload;
-    const runState = this.#runsAppState.$.results.try(runId);
-    always(runState);
-    const resultState = runState.find((run) => run.id === patch.id);
-    always(resultState);
+    const resultState = this.#result(runId, patch.id);
 
     const { init, createdAt } = resultState.value;
     this.#setResult(runId, resultState, {
@@ -207,10 +209,8 @@ export class RunsManager {
 
   #onResultStream(message: ResultMessage.ServerStream) {
     const { runId, resultId, textChunk } = message.payload;
-    const runState = this.#runsAppState.$.results.try(message.payload.runId);
-    always(runState);
-    const resultState = runState.find((result) => result.id === resultId);
-    always(resultState);
+    const resultState = this.#result(runId, resultId);
+
     const result = resultState.value;
     always(result.status === "running");
 
@@ -231,6 +231,16 @@ export class RunsManager {
       ...result,
       payload: { type: "language", content },
     });
+  }
+
+  #result(runId: Run.Id, resultId: Result.Id) {
+    const runState = this.#runsAppState.$.results.try(runId);
+    always(runState);
+    const resultState = runState
+      .try("results")
+      ?.find?.((result) => result.id === resultId);
+    always(resultState);
+    return resultState;
   }
 
   //#endregion

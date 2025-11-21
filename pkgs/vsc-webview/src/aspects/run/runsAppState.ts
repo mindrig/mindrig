@@ -1,5 +1,6 @@
-import { Result } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
+import { ResultsAppState } from "../result/resultsAppState";
+import { RunAppState } from "./appState";
 
 export interface RunsAppState {
   runs: RunsAppState.Runs;
@@ -7,9 +8,15 @@ export interface RunsAppState {
 }
 
 export namespace RunsAppState {
-  export type Runs = Record<Run.Id, Run>;
+  export type Store = {
+    [Key in `runs.${Run.Id}`]: RunAppState;
+  } & {
+    [Key in `runs.${Run.Id}.results`]: ResultsAppState;
+  };
 
-  export type Results = Record<Run.Id, Result[]>;
+  export type Runs = Record<Run.Id, RunAppState>;
+
+  export type Results = Record<Run.Id, ResultsAppState>;
 }
 
 export function buildRunsAppState(): RunsAppState {

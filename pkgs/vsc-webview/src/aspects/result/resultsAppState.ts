@@ -1,16 +1,11 @@
 import { Result } from "@wrkspc/core/result";
-import { Run } from "@wrkspc/core/run";
 
 export interface ResultsAppState {
   layout: ResultsAppState.Layout;
-  results: Result[] | null;
+  results: Result[] | undefined;
 }
 
 export namespace ResultsAppState {
-  export type Store = {
-    [Key in `runs.${Run.Id}.results`]: ResultsAppState;
-  };
-
   export type Layout = LayoutHorizontal | LayoutVertical | LayoutCarousel;
 
   export type LayoutType = Layout["type"];
@@ -35,7 +30,7 @@ export function buildResultsAppState(
 ): ResultsAppState {
   return {
     layout: buildResultsAppStateLayoutHorizontal(),
-    results: null,
+    results: undefined,
     ...overrides,
   };
 }
