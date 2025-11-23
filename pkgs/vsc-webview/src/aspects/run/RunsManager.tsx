@@ -1,10 +1,15 @@
 import { ModelLanguage } from "@wrkspc/core/model";
 import { Result, ResultMessage } from "@wrkspc/core/result";
-import { buildRunInitialized, Run, RunMessage } from "@wrkspc/core/run";
+import {
+  buildRunId,
+  buildRunInitialized,
+  Run,
+  RunMessage,
+} from "@wrkspc/core/run";
 import { always } from "alwaysly";
 import { State } from "enso";
-import { nanoid } from "nanoid";
 import { useMemo } from "react";
+import { log } from "smollog";
 import { useAppState } from "../app/state/Context";
 import { AppState } from "../app/state/state";
 import {
@@ -81,7 +86,8 @@ export class RunsManager {
   }
 
   startRun(init: Run.Init): Run.Id {
-    const runId: Run.Id = nanoid();
+    const runId = buildRunId();
+    log.debug("Starting run", runId, init);
 
     const run = buildRunInitialized({ id: runId, init });
     this.#setRun(runId, run);
@@ -131,7 +137,12 @@ export class RunsManager {
   }
 
   clearRun(runId: Run.Id) {
-    this.#setRun(runId, undefined);
+    log.debug("Clearing run", runId);
+    // TODO: There's a fundamental issue with Enso discriminate and decompose.
+    // Until it is resolved, changing it to undefined will break run & co
+    // managers and ultimately app. To save time, we're disabling it here, but
+    // we must solve it so the store doesn't grow with each run.
+    // this.#setRun(runId, undefined);
   }
 
   resultsAppState(runId: Run.Id): State<ResultsAppState> {
@@ -154,11 +165,14 @@ export class RunsManager {
   }
 
   #onResultsInit(message: RunMessage.ServerResultsInit) {
-    this.#setResults(message.payload.runId, message.payload.results);
+    const { runId, results } = message.payload;
+    log.debug("Got results init for run", runId, results);
+    this.#setResults(runId, results);
   }
 
   #onResultUpdate(message: ResultMessage.ServerUpdate) {
     const { runId, patch } = message.payload;
+    log.debug("Got result update", runId, patch);
     const resultState = this.#result(runId, patch.id);
 
     const { init, createdAt } = resultState.value;
@@ -167,6 +181,7 @@ export class RunsManager {
 
   #onResultStream(message: ResultMessage.ServerStream) {
     const { runId, resultId, textChunk } = message.payload;
+    log.debug("Got result stream", runId, resultId, textChunk);
     const resultState = this.#result(runId, resultId);
 
     const result = resultState.value;

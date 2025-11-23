@@ -22,12 +22,15 @@ export namespace RunMessage {
 
   export interface ServerUpdate {
     type: "run-server-update";
-    payload: Run.Status extends infer Status extends Run.Status
-      ? Status extends Status
-        ? Run.Patch<Status>
-        : never
-      : never;
+    payload: ServerUpdatePayloadPatch;
   }
+
+  export type ServerUpdatePayloadPatch = Run.Status extends infer Status extends
+    Run.Status
+    ? Status extends Status
+      ? Run.Patch<Status>
+      : never
+    : never;
 
   //#endregion
 
@@ -44,6 +47,7 @@ export namespace RunMessage {
     type: "run-client-stop";
     payload: {
       runId: Run.Id;
+      reason: string;
     };
   }
 }

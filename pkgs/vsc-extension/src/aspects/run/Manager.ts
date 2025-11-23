@@ -5,6 +5,7 @@ import { Run, RunMessage } from "@wrkspc/core/run";
 import { Setup } from "@wrkspc/core/setup";
 import { always } from "alwaysly";
 import PQueue from "p-queue";
+import { log } from "smollog";
 import { AttachmentsManager } from "../attachment/AttachementsManager";
 import {
   DatasourceError,
@@ -30,6 +31,13 @@ export namespace RunManager {
     runInput: Run.Input;
     apiKey: string;
   }
+
+  export type BaseFieldsMap = { [Key in keyof Run.Base<string>]: true };
+
+  export interface MatrixEntryTask {
+    promise: Promise<any>;
+    abort: AbortController;
+  }
 }
 
 export class RunManager extends Manager {
@@ -40,6 +48,7 @@ export class RunManager extends Manager {
   #run: Run;
   #queue: PQueue;
   #abort;
+  #tasks: RunManager.MatrixEntryTask[] = [];
 
   constructor(parent: Manager, props: RunManager.Props) {
     super(parent);
@@ -59,7 +68,13 @@ export class RunManager extends Manager {
   }
 
   async #onStop(message: RunMessage.ClientStop) {
-    if (message.payload.runId !== this.#run.id) return;
+    const { runId, reason } = message.payload;
+    if (runId !== this.#run.id) return;
+
+    this.#abort.abort(reason);
+    this.#abortTasks(reason);
+
+    await this.#cancel();
   }
 
   async #start() {
@@ -67,79 +82,104 @@ export class RunManager extends Manager {
     if (!apiKey) return this.#error("No Vercel Gateway API key configured.");
 
     try {
-      const runInput = await this.#prepareInput();
       const results: Result.Initialized[] = [];
-      const tasks: Promise<unknown>[] = [];
+      const runInput = await this.#prepareInput();
+
+      // Pause queue to allow `run-server-results-init` to be send first
+      this.#queue.pause();
 
       for (const setup of this.#run.init.setups) {
         for (const datasources of runInput.datasourcesMatrix) {
           {
-            const [result, task] = this.#startMatrixEntry({
+            const [result, task] = this.#initMatrixEntry({
               setup,
               datasources,
               runInput,
               apiKey,
             });
             results.push(result);
-            tasks.push(task);
+            this.#tasks.push(task);
           }
         }
       }
 
-      this.#messages.send({
-        type: "run-server-update",
-        payload: {
-          id: this.#run.id,
-          status: "running",
-          startedAt: Date.now(),
-          updatedAt: Date.now(),
-        },
+      await this.#sync<"running">({
+        id: this.#run.id,
+        status: "running",
+        startedAt: Date.now(),
+        updatedAt: Date.now(),
       });
 
-      this.#messages.send({
+      await this.#messages.send({
         type: "run-server-results-init",
         payload: { runId: this.#run.id, results },
       });
+
+      // Resume queue, now when `run-server-results-init` is sent
+      this.#queue.start();
+
+      await this.#waitTasks();
+
+      return this.#complete();
     } catch (err) {
       const error =
         err instanceof RunError || err instanceof DatasourceError
           ? err.message
           : "Something went wrong";
-      return this.#error(error);
+
+      await this.#error(error);
+
+      this.#abortTasks("Run failed to start");
+
+      // Release queue for other runs
+      this.#queue.start();
     }
   }
 
-  #startMatrixEntry(props: RunManager.StartMatrixEntryProps) {
+  #waitTasks() {
+    return Promise.all(this.#tasks.map(({ promise }) => promise));
+  }
+
+  #abortTasks(reason: string) {
+    this.#tasks.forEach((task) => task.abort.abort(reason));
+  }
+
+  #initMatrixEntry(props: RunManager.StartMatrixEntryProps) {
     const { setup, datasources, runInput, apiKey } = props;
     const result = buildResultInitialized({
       init: { setup, datasources },
     });
 
-    const input: Result.Input = {
-      attachments: runInput.attachments,
-    };
+    const abort = new AbortController();
 
-    const resultMng = new ResultManager(this, {
-      messages: this.#messages,
-      result,
-      runId: this.#run.id,
-      runInit: this.#run.init,
-      input,
-      abort: this.#abort,
-      apiKey,
-    });
+    const promise = this.#queue
+      .add(
+        async ({ signal }) => {
+          const input: Result.Input = {
+            attachments: runInput.attachments,
+          };
 
-    const task = this.#queue
-      .add(({ signal }) => resultMng.generate(signal), {
-        signal: this.#abort.signal,
-      })
+          const resultManager = new ResultManager(this, {
+            messages: this.#messages,
+            result,
+            runId: this.#run.id,
+            runInit: this.#run.init,
+            input,
+            apiKey,
+          });
+
+          await resultManager.generate(signal);
+        },
+        { signal: abort.signal },
+      )
       .catch((err) => {
         // Ignore aborted task
+        log.debug("Result task failed", err);
         if (err instanceof DOMException) return;
         throw err;
       });
 
-    return [result, task] as const;
+    return [result, { promise, abort }] as const;
   }
 
   async #prepareInput(): Promise<Run.Input> {
@@ -150,32 +190,60 @@ export class RunManager extends Manager {
     return { attachments, datasourcesMatrix };
   }
 
-  async #cancel(error: string) {
+  async #complete() {
     always("startedAt" in this.#run);
 
-    await this.#messages.send({
-      type: "run-server-update",
-      payload: {
-        id: this.#run.id,
-        status: "cancelled",
-        cancelledAt: Date.now(),
-        startedAt: this.#run.startedAt,
-      },
+    await this.#sync<"complete">({
+      id: this.#run.id,
+      status: "complete",
+      completedAt: Date.now(),
+      startedAt: this.#run.startedAt,
     });
+
+    return this.dispose();
+  }
+
+  async #cancel() {
+    always("startedAt" in this.#run);
+
+    await this.#sync<"cancelled">({
+      id: this.#run.id,
+      status: "cancelled",
+      cancelledAt: Date.now(),
+      startedAt: this.#run.startedAt,
+    });
+
     return this.dispose();
   }
 
   async #error(error: string) {
+    await this.#sync<"error">({
+      id: this.#run.id,
+      status: "error",
+      error,
+      erroredAt: Date.now(),
+    });
+
+    return this.dispose();
+  }
+
+  async #sync<Status extends Run.Status>(patch: Run.Patch<Status>) {
+    this.#assign(patch);
+
     await this.#messages.send({
       type: "run-server-update",
-      payload: {
-        id: this.#run.id,
-        status: "error",
-        error,
-        erroredAt: Date.now(),
-      },
+      // TODO: Figure out if TS can infer this type automatically
+      payload: patch as RunMessage.ServerUpdatePayloadPatch,
     });
-    return this.dispose();
+  }
+
+  #assign<Status extends Run.Status>(patch: Run.Patch<Status>) {
+    const run = this.#run as Record<string, any>;
+    for (const key in run) {
+      if (BASE_FIELDS.includes(key)) continue;
+      delete run[key];
+    }
+    Object.assign(run, patch);
   }
 }
 
@@ -184,3 +252,12 @@ export class RunError extends Error {
     super(message);
   }
 }
+
+const BASE_FIELDS_MAP: RunManager.BaseFieldsMap = {
+  status: true,
+  createdAt: true,
+  id: true,
+  init: true,
+};
+
+const BASE_FIELDS = Object.keys(BASE_FIELDS_MAP);

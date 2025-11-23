@@ -19,7 +19,6 @@ export namespace ResultManager {
     result: Result.Initialized;
     runId: Run.Id;
     runInit: Run.Init;
-    abort: AbortController;
     apiKey: string;
     input: Result.Input;
   }
@@ -61,7 +60,6 @@ export class ResultManager extends Manager {
   #runId: Run.Id;
   #runInit: Run.Init;
   #input: Result.Input;
-  #abort: AbortController;
   #apiKey: string;
 
   constructor(parent: Manager, props: ResultManager.Props) {
@@ -72,7 +70,6 @@ export class ResultManager extends Manager {
     this.#runId = props.runId;
     this.#runInit = props.runInit;
     this.#input = props.input;
-    this.#abort = props.abort;
     this.#apiKey = props.apiKey;
   }
 

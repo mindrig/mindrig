@@ -29,7 +29,10 @@ export class RunManager {
 
     this.#sendMessage({
       type: "run-client-stop",
-      payload: { runId: this.#runAppState.$.id.value },
+      payload: {
+        runId: this.#runAppState.$.id.value,
+        reason: "Run stopped",
+      },
     });
   }
 

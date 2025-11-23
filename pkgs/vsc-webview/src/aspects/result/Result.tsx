@@ -23,13 +23,6 @@ export namespace ResultComponent {
 export function ResultComponent(props: ResultComponent.Props) {
   const { resultState, resultIndex, discriminatedLayout, solo } = props;
 
-  // const headerTitle =
-  //   result.label ||
-  //   [result.model?.label ?? result.model?.id, result.runLabel]
-  //     .filter(Boolean)
-  //     .join(" • ") ||
-  //   `Result ${index + 1}`;
-
   const expandedValue = discriminatedLayout.state.useCompute(
     (layout) => "expanded" in layout && !!layout.expanded[resultIndex],
     [resultIndex],

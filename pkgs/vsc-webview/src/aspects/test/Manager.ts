@@ -104,7 +104,10 @@ export class TestManager {
   }
 
   startRun() {
-    const runId = this.#runs.startRun(this.#runInit);
+    if (this.#runId) this.clearRun();
+
+    const init = this.#runInit;
+    const runId = this.#runs.startRun(init);
     this.#testAppState.$.runId.set(runId);
   }
 
@@ -114,10 +117,6 @@ export class TestManager {
 
     this.#runs.clearRun(runId);
     this.#testAppState.$.runId.set(null);
-  }
-
-  TODO_assignRunId(runId: Run.Id) {
-    this.#testAppState.$.runId.set(runId);
   }
 
   get #runInit(): Run.Init {
