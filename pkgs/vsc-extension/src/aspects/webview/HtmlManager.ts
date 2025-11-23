@@ -61,24 +61,25 @@ export class WebviewHtmlManager extends Manager {
 
   async #devServerUris(): Promise<WebviewHtml.Uris> {
     const externalUri = await resolveDevServerUri();
-    const base = externalUri.toString().replace(/\/$/, "");
-    // Vite websockets address for HMR
-    const wsUri = `ws://${externalUri.authority}`;
+    const baseUri = externalUri.toString().replace(/\/$/, "");
 
+    const baseCspUri = universalLocalUri(baseUri);
+    // Vite websockets address for HMR
+    const wsCspUri = universalLocalUri(`ws://${externalUri.authority}`);
     const csp = [
       "default-src 'none';",
-      `img-src ${webviewSources} ${base} https: data:;`,
-      `script-src ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
-      `script-src-elem ${webviewSources} ${base} 'unsafe-eval' 'unsafe-inline';`,
-      `style-src ${webviewSources} ${base} 'unsafe-inline';`,
-      `font-src ${webviewSources} ${base} https: data:;`,
+      `img-src ${webviewSourceUris} ${baseCspUri} https: data:;`,
+      `script-src ${webviewSourceUris} ${baseCspUri} 'unsafe-eval' 'unsafe-inline';`,
+      `script-src-elem ${webviewSourceUris} ${baseCspUri} 'unsafe-eval' 'unsafe-inline';`,
+      `style-src ${webviewSourceUris} ${baseCspUri} 'unsafe-inline';`,
+      `font-src ${webviewSourceUris} ${baseCspUri} https: data:;`,
       // TODO: Come up with complete list of authorities rather than slapping global `https:`
-      `connect-src ${base} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https: ${wsUri};`,
+      `connect-src ${baseUri} ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https: ${wsCspUri};`,
     ].join(" ");
 
-    const app = `${base}/src/index.tsx`;
-    const reactRefresh = `${base}/@react-refresh`;
-    const viteClient = `${base}/@vite/client`;
+    const app = `${baseUri}/src/index.tsx`;
+    const reactRefresh = `${baseUri}/@react-refresh`;
+    const viteClient = `${baseUri}/@vite/client`;
 
     return {
       csp,
@@ -91,10 +92,10 @@ export class WebviewHtmlManager extends Manager {
   async #localPaths(webview: vscode.Webview): Promise<WebviewHtml.Uris> {
     const csp = [
       "default-src 'none';",
-      `img-src ${webviewSources} https: data:;`,
-      `script-src ${webviewSources} 'unsafe-inline';`,
-      `style-src ${webviewSources} 'unsafe-inline';`,
-      `font-src ${webviewSources} https: data:;`,
+      `img-src ${webviewSourceUris} https: data:;`,
+      `script-src ${webviewSourceUris} 'unsafe-inline';`,
+      `style-src ${webviewSourceUris} 'unsafe-inline';`,
+      `font-src ${webviewSourceUris} https: data:;`,
       `connect-src ${import.meta.env.VITE_MINDRIG_GATEWAY_ORIGIN} https:;`,
     ].join(" ");
 
@@ -162,5 +163,10 @@ export class WebviewHtmlManager extends Manager {
   }
 }
 
-const webviewSources =
+function universalLocalUri(uri: string): string {
+  // Support both localhost and 127.0.0.1 which is required to work both in a container and macOS.
+  return `${uri} ${uri.replace("localhost", "127.0.0.1")}`;
+}
+
+const webviewSourceUris =
   "vscode-webview: vscode-resource: https://*.vscode-cdn.net";
