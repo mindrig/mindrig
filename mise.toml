@@ -1,6 +1,7 @@
 [tools]
 ## Stack
-node = { version = "lts", postinstall = "corepack enable" }
+node = { version = "lts" }
+pnpm = "latest"
 rust = "stable"
 "cargo:genotype_cli" = "latest"
 uv = "0.8.15"                                               # Python
