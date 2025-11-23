@@ -24,7 +24,7 @@ export function ResultMeta(props: ResultMeta.Props) {
 
       <ResultResponse state={responseState} />
 
-      <ResultUsage state={usageState} />
+      <ResultUsage usageState={usageState} />
     </div>
   );
 }
@@ -34,7 +34,7 @@ namespace ResolveMetaStates {
     initState: ResultInit.Props["state"];
     requestState: ResultRequest.Props["state"];
     responseState: ResultResponse.Props["state"];
-    usageState: ResultUsage.Props["state"];
+    usageState: ResultUsage.Props["usageState"];
   }
 }
 
@@ -44,7 +44,7 @@ function useMetaStates(state: State<Result>): ResolveMetaStates.Result {
 
   let requestState: ResultRequest.Props["state"] = nullState;
   let responseState: ResultResponse.Props["state"] = nullState;
-  let usageState: ResultUsage.Props["state"] = nullState;
+  let usageState: ResultUsage.Props["usageState"] = nullState;
 
   const discriminatedState = state.useDiscriminate("status");
   switch (discriminatedState.discriminator) {

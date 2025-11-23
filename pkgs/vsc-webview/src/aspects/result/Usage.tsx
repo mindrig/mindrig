@@ -5,20 +5,17 @@ import { useResult } from "./Context";
 
 export namespace ResultUsage {
   export interface Props {
-    state: State<ModelUsage> | State<ModelUsage | null> | State<null>;
+    usageState: State<ModelUsage> | State<ModelUsage | null> | State<null>;
   }
 }
 
 export function ResultUsage(props: ResultUsage.Props) {
-  const { state } = props;
+  const { usageState } = props;
   const { useResultModel } = useResult();
   const model = useResultModel();
+  const usage = usageState.useValue();
 
-  const decomposedState = state.useDecomposeNullish();
-
-  if (!decomposedState.value) return <Empty />;
-
-  const usage = decomposedState.state.useValue();
+  if (!usage) return <Empty />;
 
   if (!(typeof usage.input === "number" && typeof usage.output === "number"))
     return <Empty />;

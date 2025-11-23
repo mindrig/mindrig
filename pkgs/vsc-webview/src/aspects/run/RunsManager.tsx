@@ -130,7 +130,7 @@ export class RunsManager {
             sendMessage: this.#sendMessage,
           })) ||
         null,
-      [!!decomposedRun.value],
+      [this, decomposedRun.value?.id],
     );
 
     return run;
