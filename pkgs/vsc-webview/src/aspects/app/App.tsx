@@ -1,4 +1,8 @@
-import { useListenMessage, useMessages } from "@/aspects/message/Context";
+import {
+  useListenMessage,
+  useMessages,
+  useSendMessage,
+} from "@/aspects/message/Context";
 import { pageHrefs } from "@/aspects/page/route";
 import { Page } from "@wrkspc/core/page";
 import React, { useEffect } from "react";
@@ -82,12 +86,9 @@ export namespace PageRoute {
 }
 
 function PageRoute(props: React.PropsWithChildren<PageRoute.Props>) {
-  const { page, children } = props;
+  const { children, page } = props;
 
-  const { sendMessage } = useMessages();
-  useEffect(() => {
-    sendMessage({ type: "client-client-navigated", payload: props.page });
-  }, [sendMessage]);
+  useSendMessage({ type: "client-client-navigated", payload: page });
 
   return children;
 }

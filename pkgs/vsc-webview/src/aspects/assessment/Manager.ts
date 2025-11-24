@@ -1,7 +1,9 @@
 import { Assessment, buildAssessment } from "@wrkspc/core/assessment";
 import { PlaygroundState } from "@wrkspc/core/playground";
 import { Field, State } from "enso";
+import { useCallback } from "react";
 import { useAppState } from "../app/state/Context";
+import { useModelsMap } from "../model/MapContext";
 import { useStorePropField } from "../store/Context";
 import { useMemoWithProps } from "../utils/hooks";
 import { AssessmentAppState, buildAssessmentAppState } from "./appState";
@@ -19,11 +21,17 @@ export class AssessmentManager {
     promptState: State<PlaygroundState.Prompt>,
   ): AssessmentManager | undefined {
     const promptId = promptState.$.prompt.$.id.useValue();
+    const { modelsPayload } = useModelsMap();
+
+    const buildInitialAssessment = useCallback(
+      () => buildAssessment({ modelsMap: modelsPayload?.map }),
+      [!!modelsPayload?.map],
+    );
 
     const assessmentField = useStorePropField(
       "workspace",
       `playground.assessments.${promptId}`,
-      buildAssessment,
+      buildInitialAssessment,
     );
 
     const { appState } = useAppState();

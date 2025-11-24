@@ -1,6 +1,6 @@
 import { modelsDotdevLogoUrl } from "./dotdev.js";
 import { Model } from "./model.js";
-import { modelDeveloperOrderWeights } from "./order.js";
+import { MODEL_DEVELOPER_ORDER_WEIGHTS } from "./order.js";
 
 export interface ModelDeveloper {
   id: ModelDeveloper.Id;
@@ -76,7 +76,7 @@ export function buildModelDeveloper(id: ModelDeveloper.Id): ModelDeveloper {
   return {
     id,
     meta: modelDevelopersMeta[id],
-    order: modelDeveloperOrderWeights[id],
+    order: MODEL_DEVELOPER_ORDER_WEIGHTS[id],
   };
 }
 

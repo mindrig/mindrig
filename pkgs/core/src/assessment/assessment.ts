@@ -1,4 +1,5 @@
 import { Eval } from "../eval/eval.js";
+import { Model } from "../model/model.js";
 import { PlaygroundMap } from "../playground/map.js";
 import { buildSetup, Setup } from "../setup/setup.js";
 import { buildTest, Test } from "../test/test.js";
@@ -21,11 +22,22 @@ export namespace Assessment {
   };
 }
 
-export function buildAssessment(overrides?: Partial<Assessment>): Assessment {
+export namespace buildAssessment {
+  export interface Props {
+    modelsMap: Model.ModelsMap | undefined;
+  }
+}
+
+export function buildAssessment(
+  props: buildAssessment.Props,
+  overrides?: Partial<Assessment>,
+): Assessment {
+  const { modelsMap } = props;
+
   return {
     v: 1,
     type: "language",
-    setups: [buildSetup()],
+    setups: [buildSetup({ modelsMap })],
     tools: [],
     tests: [buildTest()],
     evals: [],

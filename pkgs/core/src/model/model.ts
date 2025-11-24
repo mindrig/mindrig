@@ -1,4 +1,5 @@
 import { never } from "alwaysly";
+import { log } from "smollog";
 import { buildModelDeveloper, ModelDeveloper } from "./developer";
 import {
   buildDotdevModelCapabilities,
@@ -7,6 +8,7 @@ import {
   ModelDotdev,
 } from "./dotdev";
 import { ModelGateway } from "./gateway";
+import { buildModelOrder, sortModelsMap } from "./order";
 import {
   buildVercelGatewayModel,
   buildVercelModelAccess,
@@ -218,13 +220,15 @@ export namespace Model {
   //#region Mapping
 
   export type ModelsMap = {
-    [Key in ModelDeveloper.Id]: {
-      developer: ModelDeveloper;
-      models: Model[];
-    };
+    [Key in ModelDeveloper.Id]: ModelsMapDeveloper;
   };
 
   export type ModelsMapValue = ModelsMap | undefined | null;
+
+  export interface ModelsMapDeveloper {
+    developer: ModelDeveloper;
+    models: Model[];
+  }
 
   export type Items = Item[];
 
@@ -253,21 +257,21 @@ export function buildModelsMap(
   gateway: ModelGateway.ListResponseOk,
   dotdev: ModelDotdev.ListResponseOkValue,
 ): Model.ModelsMap {
-  const map: Partial<Model.ModelsMap> = {};
+  const partialModelsMap: Partial<Model.ModelsMap> = {};
 
   switch (gateway.type) {
     case "vercel": {
       for (const vercelModel of gateway.data.payload.models) {
-        const [id] = parseVercelModelId(vercelModel);
+        const [developerId] = parseVercelModelId(vercelModel);
         let developerItem =
-          map[id] ||
-          (map[id] = {
-            developer: buildModelDeveloper(id),
+          partialModelsMap[developerId] ||
+          (partialModelsMap[developerId] = {
+            developer: buildModelDeveloper(developerId),
             models: [],
           });
 
         developerItem.models.push(
-          buildModel(buildVercelGatewayModel(vercelModel), dotdev),
+          buildModel(developerId, buildVercelGatewayModel(vercelModel), dotdev),
         );
       }
       break;
@@ -277,7 +281,13 @@ export function buildModelsMap(
       gateway.type satisfies never;
   }
 
-  return map as Model.ModelsMap;
+  const modelsMap = partialModelsMap as Model.ModelsMap;
+
+  const sortedModelsMap = sortModelsMap(modelsMap);
+
+  log.debug("Models map is ready", { modelsMap, sortedModelsMap });
+
+  return sortedModelsMap;
 }
 
 export function mapModelItems(
@@ -296,19 +306,19 @@ export function mapModelItem(model: Model): Model.Item {
 }
 
 export function buildModel(
+  developerId: ModelDeveloper.Id,
   gatewayModel: ModelGateway.Model,
   dotdev: ModelDotdev.ListResponseOkValue,
 ): Model {
-  let model: Model;
   switch (gatewayModel.type) {
     case "vercel": {
       const vercelModel = gatewayModel.payload;
-      const [, id] = parseVercelModelId(vercelModel);
+      const [, modelId] = parseVercelModelId(vercelModel);
       const providerId = vercelModel.specification.provider;
-      const dotdevModel = findDotdevModel(providerId, id, dotdev);
+      const dotdevModel = findDotdevModel(providerId, modelId, dotdev);
       const meta = buildDotdevModelMeta(dotdevModel);
       return {
-        id,
+        id: modelId,
         name: vercelModel.name,
         description: vercelModel.description || undefined,
         type:
@@ -317,7 +327,7 @@ export function buildModel(
         access: buildVercelModelAccess(vercelModel),
         pricing: buildVercelModelPricing(vercelModel),
         meta,
-        order: buildModelOrder(meta),
+        order: buildModelOrder({ developerId, modelId }, meta),
       };
     }
 
@@ -374,12 +384,8 @@ export function buildImageModelType(
   };
 }
 
-export function buildModelOrder(meta: Model.MetaValue): number | undefined {
-  if (!meta?.releasedAt) return;
-  const date = new Date(meta.releasedAt);
-  const time = +date;
-  if (isNaN(time)) return;
-  return +`0.${time}`;
+export function asModelId(id: string): Model.Id {
+  return id as Model.Id;
 }
 
 //#endregion
