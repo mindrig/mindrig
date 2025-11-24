@@ -1,6 +1,130 @@
 {
   "version": "2.0.0",
   "tasks": [
+    //#region root
+
+    // root#checks:watch
+    {
+      "type": "shell",
+      "label": "root#checks:watch",
+      "dependsOn": ["root#types:watch", "root#test/unit:watch"],
+      "dependsOrder": "parallel",
+      "command": "echo",
+      "args": ["OK"],
+      // TODO: Remove cwd workaround (we don't need to cd anywhere), once
+      // the issue is fixed: https://github.com/microsoft/vscode/issues/275011#issuecomment-3529461423
+      "options": {
+        "cwd": "${userHome}"
+      },
+      "presentation": {
+        "echo": false,
+        "reveal": "never",
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    // root#types:watch
+    {
+      "type": "shell",
+      "label": "root#types:watch",
+      "command": "pnpm",
+      "args": ["run", "types:watch"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "group": "checks",
+        "focus": true,
+        "panel": "dedicated",
+        "echo": false,
+        "showReuseMessage": false,
+        "close": true
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "tsc",
+        "severity": "error",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": [
+          {
+            // pkgs/.../Manager.ts:30:13 - error TS2552: ...
+            "regexp": "^([^:\\s].*?):(\\d+):(\\d+) - (error|warning|info) TS(\\d+): (.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "code": 5,
+            "message": 6
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          // Initial run or incremental rebuild:
+          // [time] Starting compilation in watch mode...
+          // [time] File change detected. Starting incremental compilation...
+          "beginsPattern": ".*Starting compilation in watch mode\\.\\.\\.|.*File change detected\\. Starting incremental compilation\\.\\.\\.",
+          // [time] Found 0 errors. Watching for file changes.
+          // [time] Found 1 error. Watching for file changes.
+          "endsPattern": ".*Found \\d+ errors?\\. Watching for file changes\\."
+        }
+      }
+    },
+
+    // root#test/unit:watch
+    {
+      "type": "shell",
+      "label": "root#test/unit:watch",
+      "command": "pnpm",
+      "args": ["exec", "vitest"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "group": "checks",
+        "focus": true,
+        "panel": "dedicated",
+        "echo": false,
+        "showReuseMessage": false,
+        "close": true
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "vitest",
+        "source": "vitest",
+        "severity": "error",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": [
+          {
+            // ReferenceError: Customvent is not defined
+            "regexp": "^\\s*([A-Za-z]+Error: .*?)\\s*$",
+            "message": 1
+          },
+          {
+            //  ❯ pkgs/vsc-extension/src/aspects/message/Manager.ts:30:13
+            "regexp": "^\\s*❯\\s+([^:]+):(\\d+):(\\d+)",
+            "file": 1,
+            "line": 2,
+            "column": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          // Start of a run:
+          //   DEV  v4.0.6 /wrkspc/mindrig
+          // or:
+          //   RERUN  pkgs/...
+          "beginsPattern": ".*DEV\\s+v\\d+\\.\\d+\\.\\d+.*|.*RERUN\\s+.*",
+          // End of a run in watch mode:
+          //   PASS  Waiting for file changes...
+          //   FAIL  Tests failed. Watching for file changes...
+          "endsPattern": ".*PASS\\s+\\s*Waiting for file changes\\.\\.\\.|.*FAIL\\s+\\s*Tests failed\\. Watching for file changes\\.\\.\\."
+        }
+      }
+    },
+
+    //#endregion
+
     //#region home
 
     // dev
