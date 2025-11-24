@@ -1,3 +1,4 @@
+import { buildAttachmentRequestId } from "@wrkspc/core/attachment";
 import {
   buildDatasetSelection,
   DatasetDatasource,
@@ -41,7 +42,7 @@ export class DatasetDatasourceManager {
     const initialCsv = useMemo<DatasetDatasourceAppState.Csv | null>(() => {
       const value = datasourceField.$.data.value;
       if (!value) return null;
-      const requestId: DatasetRequest.CsvId = nanoid();
+      const requestId = buildAttachmentRequestId();
       return { status: "loading", requestId, path: value.path };
     }, [datasourceField]);
     const datasetDatasourceAppState = State.use<DatasetDatasourceAppState>(
@@ -73,13 +74,15 @@ export class DatasetDatasourceManager {
 
     useListen(
       "dataset-server-csv-select-cancel",
-      (message) => datasetDatasourceManager.#onCsvSelectCancel(message),
+      datasetDatasourceManager.#onCsvSelectCancel.bind(
+        datasetDatasourceManager,
+      ),
       [datasetDatasourceManager],
     );
 
     useListen(
-      "dataset-server-csv-data",
-      (message) => datasetDatasourceManager.#onCsvContent(message),
+      "dataset-server-csv-read",
+      datasetDatasourceManager.#onCsvRead.bind(datasetDatasourceManager),
       [datasetDatasourceManager],
     );
 
@@ -132,7 +135,7 @@ export class DatasetDatasourceManager {
   useSyncDatasetToDatasource(
     datasourceCsvState: State<DatasetDatasourceAppState.CsvLoaded>,
   ): Field<DatasetDatasource.DataRefCsv> {
-    const syncField =
+    const csvToField =
       useCallback<DatasetDatasourceManager.UseSyncDatasetToDatasourceCallback>(
         (csv) => {
           const data = this.#datasourceField.$.data.value;
@@ -162,21 +165,21 @@ export class DatasetDatasourceManager {
       );
 
     const [csvField, setCsvField] = useState(() =>
-      syncField(datasourceCsvState.value),
+      csvToField(datasourceCsvState.value),
     );
 
     // Sync on dataset state change
     datasourceCsvState.useWatch(
       (csv) => {
-        setCsvField(syncField(csv));
+        setCsvField(csvToField(csv));
       },
-      [this.#datasourceField, setCsvField],
+      [this.#datasourceField, setCsvField, csvToField],
     );
 
     return csvField;
   }
 
-  #onCsvContent(message: DatasetMessage.ServerCsvData) {
+  #onCsvRead(message: DatasetMessage.ServerCsvRead) {
     const csv = this.#datasetState.$.csv.value;
     if (
       csv?.status !== "loading" ||
@@ -193,14 +196,14 @@ export class DatasetDatasourceManager {
     }
   }
 
-  #assignCsvError(payload: DatasetMessage.ServerCsvContentPayloadError) {
+  #assignCsvError(payload: DatasetMessage.ServerCsvReadPayloadError) {
     this.#datasetState.$.csv.set({
       status: "error",
       error: payload.error,
     });
   }
 
-  #assignCsvOk(payload: DatasetMessage.ServerCsvContentPayloadOk) {
+  #assignCsvOk(payload: DatasetMessage.ServerCsvReadPayloadOk) {
     return this.#datasetState.$.csv.set({
       status: "loaded",
       meta: payload.data,

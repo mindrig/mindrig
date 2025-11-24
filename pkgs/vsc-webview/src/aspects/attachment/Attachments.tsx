@@ -1,23 +1,22 @@
-import { Attachment, AttachmentRequest } from "@wrkspc/core/attachment";
+import { Attachment } from "@wrkspc/core/attachment";
 import { Button } from "@wrkspc/ds";
 import iconRegularPaperclip from "@wrkspc/icons/svg/regular/paperclip.js";
 import { Field } from "enso";
-import { nanoid } from "nanoid";
 import { LayoutSection } from "../layout/Section";
 import { useMessages } from "../message/Context";
+import { useTest } from "../test/Context";
 import { AttachmentComponent } from "./Attachment";
 
 export namespace Attachments {
   export interface Props {
-    field: Field<Attachment[]>;
+    attachmentsField: Field<Attachment[]>;
   }
 }
 
 export function Attachments(props: Attachments.Props) {
+  const { test } = useTest();
   const { sendMessage } = useMessages();
-  const field = props.field.useCollection();
-
-  if (!field.size) return null;
+  const attachmentsField = props.attachmentsField.useCollection();
 
   return (
     <>
@@ -27,30 +26,23 @@ export function Attachments(props: Attachments.Props) {
             style="label"
             icon={iconRegularPaperclip}
             size="xsmall"
-            onClick={() => {
-              const requestId: AttachmentRequest.Id = nanoid();
-              sendMessage({
-                type: "attachment-client-request",
-                payload: {
-                  requestId,
-                  modalities: ["text", "image", "audio", "video", "pdf"],
-                },
-              });
-            }}
+            onClick={() => test.attachFile()}
           >
             Attach file
           </Button>
         </div>
       </LayoutSection>
 
-      <div className="space-y-3">
-        {field.map((attachmentField) => (
-          <AttachmentComponent
-            key={attachmentField.key}
-            field={attachmentField}
-          />
-        ))}
-      </div>
+      {!!attachmentsField.size && (
+        <div className="space-y-3">
+          {attachmentsField.map((attachmentField) => (
+            <AttachmentComponent
+              key={attachmentField.id}
+              attachmentField={attachmentField}
+            />
+          ))}
+        </div>
+      )}
     </>
   );
 }

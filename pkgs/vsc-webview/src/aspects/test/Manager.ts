@@ -1,11 +1,22 @@
+import {
+  AttachmentMessage,
+  AttachmentRequest,
+  buildAttachmentRequestId,
+} from "@wrkspc/core/attachment";
 import { Run } from "@wrkspc/core/run";
 import { Store } from "@wrkspc/core/store";
 import { Test } from "@wrkspc/core/test";
 import { always } from "alwaysly";
 import { Field, State } from "enso";
+import { log } from "smollog";
 import { useAppState } from "../app/state/Context";
 import { useAssessment } from "../assessment/Context";
 import { AssessmentManager } from "../assessment/Manager";
+import {
+  MessagesContext,
+  useListenMessage,
+  useMessages,
+} from "../message/Context";
 import { RunManager } from "../run/Manager";
 import { useRuns } from "../run/RunsContext";
 import { RunsManager } from "../run/RunsManager";
@@ -24,6 +35,7 @@ export namespace TestManager {
     assessment: AssessmentManager;
     streamingStoreState: State<Store["playground.streaming"] | null>;
     runs: RunsManager;
+    sendMessage: MessagesContext.SendMessage;
   }
 }
 
@@ -32,6 +44,7 @@ export class TestManager {
     const { testField } = props;
     const { runs } = useRuns();
     const { assessment } = useAssessment();
+    const { sendMessage } = useMessages();
 
     const streamingStoreState = useStorePropState(
       "global",
@@ -49,9 +62,16 @@ export class TestManager {
         assessment,
         streamingStoreState,
         runs,
+        sendMessage,
       },
       (props) => new TestManager(props),
       [],
+    );
+
+    useListenMessage(
+      "attachment-server-read",
+      manager.#onAttachmentRead.bind(manager),
+      [manager],
     );
 
     return manager;
@@ -62,6 +82,8 @@ export class TestManager {
   #assessment;
   #streamingStoreState;
   #runs;
+  #sendMessage: MessagesContext.SendMessage;
+  #pendingAttachmentRequests: Set<AttachmentRequest.Id> = new Set();
 
   constructor(props: TestManager.Props) {
     this.#testField = props.testField;
@@ -69,6 +91,7 @@ export class TestManager {
     this.#assessment = props.assessment;
     this.#streamingStoreState = props.streamingStoreState;
     this.#runs = props.runs;
+    this.#sendMessage = props.sendMessage;
   }
 
   get #streaming(): boolean {
@@ -132,5 +155,40 @@ export class TestManager {
       attachments: test.attachments,
       streaming: this.#streaming,
     };
+  }
+
+  attachFile() {
+    const requestId = buildAttachmentRequestId();
+    log.debug("Requested attachments", requestId);
+
+    this.#sendMessage({
+      type: "attachment-client-request",
+      payload: {
+        requestId,
+        modalities: ["text", "image", "audio", "video", "pdf"],
+      },
+    });
+
+    this.#pendingAttachmentRequests.add(requestId);
+  }
+
+  #onAttachmentRead(message: AttachmentMessage.ServerRead) {
+    const { payload } = message;
+    const { requestId } = payload;
+    if (this.#pendingAttachmentRequests.has(requestId))
+      switch (payload.status) {
+        case "ok":
+          log.debug("Adding attachment", payload);
+          payload.data.forEach((attachment) =>
+            this.#testField.$.attachments.push(attachment),
+          );
+          break;
+
+        case "error":
+          log.debug("Attachments failed to read", payload);
+        // TODO: Handle error
+      }
+
+    this.#pendingAttachmentRequests.delete(requestId);
   }
 }

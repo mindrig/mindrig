@@ -3,24 +3,22 @@ import { Attachment, AttachmentRequest } from "@wrkspc/core/attachment";
 export namespace AttachmentMessage {
   //#region Server
 
-  export type Server = ServerContent;
+  export type Server = ServerRead;
 
-  export interface ServerContent {
-    type: "attachment-server-content";
-    payload: ServerContentPayload;
+  export interface ServerRead {
+    type: "attachment-server-read";
+    payload: ServerReadPayload;
   }
 
-  export type ServerContentPayload =
-    | ServerContentPayloadOk
-    | ServerContentPayloadError;
+  export type ServerReadPayload = ServerReadPayloadOk | ServerReadPayloadError;
 
-  export interface ServerContentPayloadOk {
+  export interface ServerReadPayloadOk {
     status: "ok";
     requestId: AttachmentRequest.Id;
     data: Attachment[];
   }
 
-  export interface ServerContentPayloadError {
+  export interface ServerReadPayloadError {
     status: "error";
     requestId: AttachmentRequest.Id;
     error: string;

@@ -7,18 +7,18 @@ import { ResultUsage } from "./Usage";
 
 export namespace ResultMeta {
   export interface Props {
-    state: State<Result>;
+    resultState: State<Result>;
   }
 }
 
 export function ResultMeta(props: ResultMeta.Props) {
-  const { state } = props;
+  const { resultState } = props;
   const { initState, requestState, responseState, usageState } =
-    useMetaStates(state);
+    useMetaStates(resultState);
 
   return (
     <div>
-      <ResultInit state={initState} />
+      <ResultInit resultInitState={initState} />
 
       <ResultRequest state={requestState} />
 
@@ -31,7 +31,7 @@ export function ResultMeta(props: ResultMeta.Props) {
 
 namespace ResolveMetaStates {
   export interface Result {
-    initState: ResultInit.Props["state"];
+    initState: ResultInit.Props["resultInitState"];
     requestState: ResultRequest.Props["state"];
     responseState: ResultResponse.Props["state"];
     usageState: ResultUsage.Props["usageState"];

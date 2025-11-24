@@ -18,7 +18,7 @@ export function TestComponent(props: TestComponent.Props) {
 
   return (
     <TestProvider testField={testField}>
-      <Attachments field={testField.$.attachments} />
+      <Attachments attachmentsField={testField.$.attachments} />
 
       <Datasources field={testField.$.datasources} />
 

@@ -11,6 +11,7 @@ export namespace Attachment {
     path: Attachment.Path;
     name: string;
     mime: string;
+    size: number;
   }
 
   export interface Input {

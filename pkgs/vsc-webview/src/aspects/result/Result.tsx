@@ -39,6 +39,18 @@ export function ResultComponent(props: ResultComponent.Props) {
     (result) => result.status === "initialized" || result.status === "running",
     [],
   );
+  const rowLabel = resultState.$.init.$.datasources.useCompute(
+    (datasources) => {
+      const dataset = datasources.find((ds) => ds.type === "dataset");
+      if (!dataset) return;
+      return `row #${dataset.index}`;
+    },
+    [],
+  );
+  const modelLabel = resultState.$.init.$.setup.$.ref.useCompute(
+    (ref) => `${ref.developerId}/${ref.modelId}`,
+    [],
+  );
 
   return (
     <ResultProvider state={resultState}>
@@ -61,7 +73,15 @@ export function ResultComponent(props: ResultComponent.Props) {
               {!solo && <span>#{resultIndex + 1}</span>} Result
             </span>
 
-            <div>TODO: Datasource info</div>
+            <div>
+              <span>{modelLabel}</span>
+              {rowLabel && (
+                <>
+                  {" "}
+                  • <span>#{rowLabel}</span>
+                </>
+              )}
+            </div>
 
             {loading && <Icon id={iconRegularLoader} />}
             {errored && <Tag color="error">Error</Tag>}
@@ -74,7 +94,7 @@ export function ResultComponent(props: ResultComponent.Props) {
 
         {expanded && (
           <>
-            <ResultMeta state={resultState} />
+            <ResultMeta resultState={resultState} />
 
             <ResultContent state={resultState} />
           </>

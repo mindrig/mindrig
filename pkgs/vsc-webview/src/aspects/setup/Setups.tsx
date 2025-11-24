@@ -22,7 +22,9 @@ export function Setups(props: Setups.Props) {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h4 className="text-sm font-semibold">Model</h4>
+          <h4 className="text-sm font-semibold">
+            {soloSetup ? "Model" : "Models"}
+          </h4>
         </div>
 
         <Button

@@ -98,7 +98,7 @@ export function ModelTypeLanguageSettings(
           <Label size="small">Stop sequences</Label>
 
           {stopSequencesField.map((sequenceField, index) => (
-            <div>
+            <div key={sequenceField.id}>
               <InputController
                 label={{ a11y: `Stop sequence #${index + 1}` }}
                 field={sequenceField}

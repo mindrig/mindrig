@@ -4,23 +4,23 @@ import { EditorFile } from "../editor";
 export namespace DatasetMessage {
   //#region Server
 
-  export type Server = ServerCsvData | ServerCsvSelectCancel;
+  export type Server = ServerCsvRead | ServerCsvSelectCancel;
 
-  export interface ServerCsvData {
-    type: "dataset-server-csv-data";
-    payload: ServerCsvContentPayload;
+  export interface ServerCsvRead {
+    type: "dataset-server-csv-read";
+    payload: ServerCsvReadPayload;
   }
 
-  export type ServerCsvContentPayload =
-    | ServerCsvContentPayloadOk
-    | ServerCsvContentPayloadError;
+  export type ServerCsvReadPayload =
+    | ServerCsvReadPayloadOk
+    | ServerCsvReadPayloadError;
 
-  export interface ServerCsvContentPayloadOk extends CsvMessagePayload {
+  export interface ServerCsvReadPayloadOk extends CsvMessagePayload {
     status: "ok";
     data: DatasetCsv.Meta;
   }
 
-  export interface ServerCsvContentPayloadError extends CsvMessagePayload {
+  export interface ServerCsvReadPayloadError extends CsvMessagePayload {
     status: "error";
     error: string;
   }

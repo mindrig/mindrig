@@ -5,12 +5,12 @@ import { useState } from "react";
 
 export namespace ResultInit {
   export interface Props {
-    state: State<Result.Init>;
+    resultInitState: State<Result.Init>;
   }
 }
 
 export function ResultInit(props: ResultInit.Props) {
-  const { state } = props;
+  const { resultInitState } = props;
   const [expanded, setExpanded] = useState(false);
 
   return (

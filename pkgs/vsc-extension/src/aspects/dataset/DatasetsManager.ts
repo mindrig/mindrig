@@ -284,7 +284,7 @@ export class DatasetsManager extends Manager {
     };
 
     return this.#messages.send({
-      type: "dataset-server-csv-data",
+      type: "dataset-server-csv-read",
       payload: { status: "ok", requestId, data: meta },
     });
   }

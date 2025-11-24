@@ -40,7 +40,7 @@ export class AttachmentsManager extends Manager {
 
     if (!uris || uris.length === 0)
       return this.#messages.send({
-        type: "attachment-server-content",
+        type: "attachment-server-read",
         payload: {
           status: "error",
           requestId,
@@ -48,18 +48,20 @@ export class AttachmentsManager extends Manager {
         },
       });
 
-    const data = uris.map((uri) => {
-      const name = uri.path.split("/").pop();
-      always(name);
-      const path = uri.fsPath as Attachment.Path;
-      const mime = Mime.getType(name) || "application/octet-stream";
-
-      const attachment: Attachment = { v: 1, name, path, mime };
-      return attachment;
-    });
+    const data = await Promise.all(
+      uris.map(async (uri) => {
+        const name = uri.path.split("/").pop();
+        always(name);
+        const path = uri.fsPath as Attachment.Path;
+        const mime = Mime.getType(name) || "application/octet-stream";
+        const { size } = await vscode.workspace.fs.stat(uri);
+        const attachment: Attachment = { v: 1, name, path, mime, size };
+        return attachment;
+      }),
+    );
 
     this.#messages.send({
-      type: "attachment-server-content",
+      type: "attachment-server-read",
       payload: {
         status: "ok",
         requestId,

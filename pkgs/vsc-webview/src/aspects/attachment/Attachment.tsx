@@ -1,29 +1,37 @@
 import { Attachment } from "@wrkspc/core/attachment";
+import { Button } from "@wrkspc/ds";
+import iconRegularTimes from "@wrkspc/icons/svg/regular/times.js";
 import { Field } from "enso";
 
 export { AttachmentComponent as Attachment };
 
 export namespace AttachmentComponent {
   export interface Props {
-    field: Field<Attachment, "detachable">;
+    attachmentField: Field<Attachment, "detachable">;
   }
 }
 
 export function AttachmentComponent(props: AttachmentComponent.Props) {
-  const { field } = props;
-  return <div>TODO</div>;
-}
+  const { attachmentField } = props;
+  const attachment = attachmentField.useValue();
+  return (
+    <div>
+      <div>
+        <span>{attachment.name}</span>
+        <span>{attachment.path}</span>
+      </div>
 
-// const key = attachment.path || attachment.name;
-// const approximateSize =
-//   typeof attachment.base64 === "string"
-//     ? Math.round((attachment.base64.length * 3) / 4 / 1024)
-//     : null;
-// return (
-//   <div key={key} className="flex items-center gap-2">
-//     <span className="font-medium">{attachment.name}</span>
-//     {approximateSize !== null && (
-//       <span className="text-neutral-500">{approximateSize} KB</span>
-//     )}
-//   </div>
-// );
+      <div>
+        <span>Size: {attachment.size}</span>
+        <span>Mime: {attachment.mime}</span>
+      </div>
+
+      <Button
+        size="xsmall"
+        style="label"
+        icon={iconRegularTimes}
+        onClick={() => attachmentField.self.remove()}
+      />
+    </div>
+  );
+}
