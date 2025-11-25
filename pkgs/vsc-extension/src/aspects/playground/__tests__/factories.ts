@@ -98,7 +98,11 @@ export function playgroundMapVarFactory(
     v: 1,
     id: buildMapPromptVarId(),
     exp: "${name}",
-    span: { v: 1, start: 0, end: 0 },
+    span: {
+      v: 1,
+      outer: { v: 1, start: 0, end: 0 },
+      inner: { v: 1, start: 0, end: 0 },
+    },
     ...overrides,
   };
 }

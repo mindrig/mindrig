@@ -35,8 +35,17 @@ describe(promptInterpolate, () => {
           exp: "{greeting}",
           span: {
             v: 1,
-            start: 0,
-            end: 10,
+            outer: {
+              v: 1,
+              start: 0,
+              end: 10,
+            },
+
+            inner: {
+              v: 1,
+              start: 1,
+              end: 9,
+            },
           },
         },
         {
@@ -45,8 +54,16 @@ describe(promptInterpolate, () => {
           exp: "{name}",
           span: {
             v: 1,
-            start: 12,
-            end: 18,
+            outer: {
+              v: 1,
+              start: 12,
+              end: 18,
+            },
+            inner: {
+              v: 1,
+              start: 13,
+              end: 17,
+            },
           },
         },
       ],
@@ -101,8 +118,16 @@ function promptInjectVarsFactory(props: promptInjectVarsFactory.Props = {}) {
         exp: "{name}",
         span: {
           v: 1,
-          start: 7,
-          end: 13,
+          outer: {
+            v: 1,
+            start: 7,
+            end: 13,
+          },
+          inner: {
+            v: 1,
+            start: 8,
+            end: 12,
+          },
         },
       },
     ],

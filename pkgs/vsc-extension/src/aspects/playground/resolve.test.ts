@@ -1092,13 +1092,17 @@ describe(matchPlaygroundMapPromptsByContent, () => {
           v: 1,
           id: mapPromptsA[1].vars[0]!.id,
           exp: "${two}",
-          span: { v: 1, start: 10, end: 20 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 10, end: 20 }),
+          }),
         },
         {
           v: 1,
           id: mapPromptsA[1].vars[1]!.id,
           exp: "${one}",
-          span: { v: 1, start: 20, end: 30 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 20, end: 30 }),
+          }),
         },
       ],
       span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
@@ -1368,13 +1372,17 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
           v: 1,
           id: mapPromptsA[1].vars[0]!.id,
           exp: "${two2}",
-          span: { v: 1, start: 10, end: 20 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 10, end: 20 }),
+          }),
         },
         {
           v: 1,
           id: mapPromptsA[1].vars[1]!.id,
           exp: "${one}",
-          span: { v: 1, start: 20, end: 30 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 20, end: 30 }),
+          }),
         },
       ],
       span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
@@ -1389,19 +1397,25 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
           v: 1,
           id: expect.any(String),
           exp: "${three}",
-          span: { v: 1, start: 10, end: 20 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 10, end: 20 }),
+          }),
         },
         {
           v: 1,
           id: mapPromptsA[0].vars[0]!.id,
           exp: "${one}",
-          span: { v: 1, start: 20, end: 30 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 20, end: 30 }),
+          }),
         },
         {
           v: 1,
           id: mapPromptsA[0].vars[0]!.id,
           exp: "${one}",
-          span: { v: 1, start: 30, end: 40 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 30, end: 40 }),
+          }),
         },
       ],
       span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
@@ -1528,19 +1542,25 @@ describe(matchPlaygroundMapPromptVars, () => {
           v: 1,
           id: expect.any(String),
           exp: "${three}",
-          span: { v: 1, start: 0, end: 10 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 0, end: 10 }),
+          }),
         },
         {
           v: 1,
           id: mapPromptsA[1].vars[0]!.id,
           exp: "${two}",
-          span: { v: 1, start: 10, end: 20 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 10, end: 20 }),
+          }),
         },
         {
           v: 1,
           id: mapPromptsA[1].vars[1]!.id,
           exp: "${one1}",
-          span: { v: 1, start: 20, end: 30 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 20, end: 30 }),
+          }),
         },
       ],
     });
@@ -1575,19 +1595,25 @@ describe(matchPlaygroundMapPromptVars, () => {
           v: 1,
           id: expect.any(String),
           exp: "${three}",
-          span: { v: 1, start: 0, end: 10 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 0, end: 10 }),
+          }),
         },
         {
           v: 1,
           id: mapPromptsA[1].vars[0]!.id,
           exp: "${two}",
-          span: { v: 1, start: 10, end: 20 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 10, end: 20 }),
+          }),
         },
         {
           v: 1,
           id: result.nextMapPromptVars[0]!.id,
           exp: "${three}",
-          span: { v: 1, start: 20, end: 30 },
+          span: expect.objectContaining({
+            outer: expect.objectContaining({ start: 20, end: 30 }),
+          }),
         },
       ],
     });
@@ -1626,7 +1652,12 @@ describe(matchPlaygroundMapPromptVarsByContent, () => {
       matchedMapPromptVars: new Map([
         [
           parsedPromptVars[0],
-          { ...mapPromptsA[1].vars[0], span: { v: 1, start: 10, end: 30 } },
+          {
+            ...mapPromptsA[1].vars[0],
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 10, end: 30 }),
+            }),
+          },
         ],
       ]),
       matchedMapPromptVarExps: { "${two}": mapPromptsA[1].vars[0]!.id },
@@ -1665,14 +1696,21 @@ describe(matchPlaygroundMapPromptVarsByContent, () => {
       matchedMapPromptVars: new Map([
         [
           parsedPromptVars[0],
-          { ...mapPromptsA[1].vars[0], span: { v: 1, start: 15, end: 20 } },
+          {
+            ...mapPromptsA[1].vars[0],
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 15, end: 20 }),
+            }),
+          },
         ],
         [
           parsedPromptVars[1],
           {
             ...mapPromptsA[1].vars[1],
             id: varOneId,
-            span: { v: 1, start: 20, end: 25 },
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 20, end: 25 }),
+            }),
           },
         ],
         [
@@ -1680,7 +1718,9 @@ describe(matchPlaygroundMapPromptVarsByContent, () => {
           {
             ...playgroundMapVarFromPromptVar(parsedPromptVars[2], promptSpan),
             id: mapPromptsA[1].vars[0]!.id,
-            span: { v: 1, start: 25, end: 30 },
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 25, end: 30 }),
+            }),
           },
         ],
       ]),
@@ -1717,11 +1757,21 @@ describe(matchPlaygroundMapPromptVarsByContent, () => {
       matchedMapPromptVars: new Map([
         [
           parsedPromptVars[0],
-          { ...mapPromptsA[1].vars[0], span: { v: 1, start: 16, end: 21 } },
+          {
+            ...mapPromptsA[1].vars[0],
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 16, end: 21 }),
+            }),
+          },
         ],
         [
           parsedPromptVars[1],
-          { ...mapPromptsA[1].vars[1], span: { v: 1, start: 21, end: 26 } },
+          {
+            ...mapPromptsA[1].vars[1],
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 21, end: 26 }),
+            }),
+          },
         ],
       ]),
       matchedMapPromptVarExps: {
@@ -1775,7 +1825,9 @@ describe(matchPlaygroundMapPromptVarsByDistance, () => {
           {
             ...mapPromptsA[1].vars[0],
             exp: parsedPromptVars[0].exp,
-            span: { v: 1, start: 10, end: 30 },
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 10, end: 30 }),
+            }),
           },
         ],
       ]),
@@ -1828,7 +1880,9 @@ describe(matchPlaygroundMapPromptVarsByDistance, () => {
           {
             ...mapPromptsA[1].vars[0],
             exp: parsedPromptVars[0].exp,
-            span: { v: 1, start: 10, end: 30 },
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 10, end: 30 }),
+            }),
           },
         ],
         [
@@ -1836,7 +1890,9 @@ describe(matchPlaygroundMapPromptVarsByDistance, () => {
           {
             ...mapPromptsA[1].vars[1],
             exp: parsedPromptVars[1].exp,
-            span: { v: 1, start: 10, end: 30 },
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 10, end: 30 }),
+            }),
           },
         ],
       ]),
@@ -1871,7 +1927,9 @@ describe(matchPlaygroundMapPromptVarsByDistance, () => {
           {
             ...mapPromptsA[1].vars[0],
             exp: parsedPromptVars[0].exp,
-            span: { v: 1, start: 10, end: 30 },
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 10, end: 30 }),
+            }),
           },
         ],
         [
@@ -1879,7 +1937,9 @@ describe(matchPlaygroundMapPromptVarsByDistance, () => {
           {
             v: 1,
             exp: parsedPromptVars[2].exp,
-            span: { v: 1, start: 10, end: 30 },
+            span: expect.objectContaining({
+              outer: expect.objectContaining({ start: 10, end: 30 }),
+            }),
           },
         ],
       ]),

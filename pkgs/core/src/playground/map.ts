@@ -48,7 +48,7 @@ export namespace PlaygroundMap {
   export interface PromptVarV1 extends Versioned<1> {
     id: PromptVarId;
     exp: string;
-    span: SpanV1;
+    span: SpanShapeV1;
   }
 
   export type SpanShape = SpanShapeV1;
@@ -120,10 +120,18 @@ export function playgroundMapVarFromPromptVar(
   promptSpan: Span,
   id?: PlaygroundMap.PromptVarId,
 ): PlaygroundMap.PromptVar {
-  const span: PlaygroundMap.Span = {
+  const span: PlaygroundMap.SpanShapeV1 = {
     v: 1,
-    start: promptVar.span.outer.start - promptSpan.start,
-    end: promptVar.span.outer.end - promptSpan.start,
+    outer: {
+      v: 1,
+      start: promptVar.span.outer.start - promptSpan.start,
+      end: promptVar.span.outer.end - promptSpan.start,
+    },
+    inner: {
+      v: 1,
+      start: promptVar.span.inner.start - promptSpan.start,
+      end: promptVar.span.inner.end - promptSpan.start,
+    },
   };
 
   return {

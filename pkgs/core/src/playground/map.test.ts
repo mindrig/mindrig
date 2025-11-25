@@ -41,13 +41,21 @@ describe(playgroundMapVarsFromPrompt, () => {
         v: 1,
         id: expect.any(String),
         exp: "${name}",
-        span: { v: 1, start: 0, end: 0 },
+        span: {
+          v: 1,
+          outer: { v: 1, start: 0, end: 0 },
+          inner: { v: 1, start: 0, end: 0 },
+        },
       },
       {
         v: 1,
         id: expect.any(String),
         exp: "${age}",
-        span: { v: 1, start: 0, end: 0 },
+        span: {
+          v: 1,
+          outer: { v: 1, start: 0, end: 0 },
+          inner: { v: 1, start: 0, end: 0 },
+        },
       },
     ]);
   });
@@ -86,13 +94,21 @@ describe(playgroundMapVarsFromPrompt, () => {
         v: 1,
         id: expect.any(String),
         exp: "${name}",
-        span: { v: 1, start: 7, end: 14 },
+        span: {
+          v: 1,
+          outer: { v: 1, start: 7, end: 14 },
+          inner: { v: 1, start: 9, end: 13 },
+        },
       },
       {
         v: 1,
         id: expect.any(String),
         exp: "${age}",
-        span: { v: 1, start: 24, end: 30 },
+        span: {
+          v: 1,
+          outer: { v: 1, start: 24, end: 30 },
+          inner: { v: 1, start: 26, end: 29 },
+        },
       },
     ]);
   });
@@ -117,7 +133,11 @@ describe(playgroundMapVarFromPromptVar, () => {
       v: 1,
       id: expect.any(String),
       exp: "${name}",
-      span: { v: 1, start: 0, end: 0 },
+      span: {
+        v: 1,
+        outer: { v: 1, start: 0, end: 0 },
+        inner: { v: 1, start: 0, end: 0 },
+      },
     });
   });
 
@@ -126,7 +146,7 @@ describe(playgroundMapVarFromPromptVar, () => {
       exp: "${name}",
       span: {
         outer: { start: 10, end: 20 },
-        inner: { start: 0, end: 0 },
+        inner: { start: 11, end: 19 },
       },
     };
 
@@ -139,7 +159,12 @@ describe(playgroundMapVarFromPromptVar, () => {
       v: 1,
       id: expect.any(String),
       exp: "${name}",
-      span: { v: 1, start: 5, end: 15 },
+
+      span: {
+        v: 1,
+        outer: { v: 1, start: 5, end: 15 },
+        inner: { v: 1, start: 6, end: 14 },
+      },
     });
   });
 });

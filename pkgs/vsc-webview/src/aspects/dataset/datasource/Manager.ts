@@ -1,4 +1,5 @@
 import { useAppState } from "@/aspects/app/state/Context";
+import { useBlueprint } from "@/aspects/blueprint/Context";
 import { useCsvs } from "@/aspects/csv/CsvsContext";
 import { CsvsManager } from "@/aspects/csv/CsvsManager";
 import { useMemoWithProps } from "@/aspects/utils/hooks";
@@ -8,9 +9,9 @@ import {
   DatasetDatasource,
   DatasetSelection,
 } from "@wrkspc/core/dataset";
+import { PlaygroundMap, PlaygroundState } from "@wrkspc/core/playground";
 import { Field, State } from "enso";
 import { useCallback, useEffect, useState } from "react";
-import { MessagesContext, useMessages } from "../../message/Context";
 import {
   buildDatasetDatasourceAppState,
   DatasetDatasourceAppState,
@@ -20,7 +21,7 @@ export namespace DatasetDatasourceManager {
   export interface Props {
     datasetDatasourceAppState: State<DatasetDatasourceAppState>;
     datasourceField: Field<DatasetDatasource>;
-    sendMessage: MessagesContext.SendMessage;
+    promptState: State<PlaygroundState.Prompt>;
     csvs: CsvsManager;
   }
 
@@ -38,7 +39,7 @@ export class DatasetDatasourceManager {
   static use(datasourceField: Field<DatasetDatasource>) {
     const { appState } = useAppState();
     const { csvs } = useCsvs();
-    const { sendMessage } = useMessages();
+    const { promptState } = useBlueprint();
 
     const datasourceId = datasourceField.$.id.useValue();
     const datasetDatasourceAppState = appState.$.datasetDatasources
@@ -53,9 +54,9 @@ export class DatasetDatasourceManager {
     }, [csvs, path]);
 
     const datasetDatasource = useMemoWithProps(
-      { datasetDatasourceAppState, datasourceField, sendMessage, csvs },
+      { datasetDatasourceAppState, datasourceField, promptState, csvs },
       (props) => new DatasetDatasourceManager(props),
-      [datasetDatasourceAppState, datasourceField, sendMessage],
+      [],
     );
 
     return datasetDatasource;
@@ -63,14 +64,14 @@ export class DatasetDatasourceManager {
 
   #datasetDatasourceAppState: State<DatasetDatasourceAppState>;
   #datasourceField: Field<DatasetDatasource>;
+  #promptState: State<PlaygroundState.Prompt>;
   #csvs: CsvsManager;
-  #sendMessage;
 
   constructor(props: DatasetDatasourceManager.Props) {
     this.#datasetDatasourceAppState = props.datasetDatasourceAppState;
     this.#datasourceField = props.datasourceField;
+    this.#promptState = props.promptState;
     this.#csvs = props.csvs;
-    this.#sendMessage = props.sendMessage;
   }
 
   useCsvRequestState(): State<Csv.Request | undefined> {
@@ -115,7 +116,7 @@ export class DatasetDatasourceManager {
             mapping = data.mapping;
           } else {
             selection = buildDatasetSelection("row");
-            mapping = {};
+            mapping = this.#buildMapping(csv);
           }
 
           // TODO: Make sure Enso's #set properly resolves return type here
@@ -141,5 +142,30 @@ export class DatasetDatasourceManager {
     );
 
     return csvField;
+  }
+
+  #buildMapping(csv: Csv) {
+    const mapping: DatasetDatasource.CsvMapping = {};
+    const vars = this.#promptState.$.prompt.$.vars.value;
+
+    const varsMap: Record<string, PlaygroundMap.PromptVarId> = {};
+    vars.forEach((var_) => {
+      const expInner = var_.exp
+        .slice(
+          var_.span.inner.start - var_.span.outer.start,
+          var_.exp.length - (var_.span.outer.end - var_.span.inner.end),
+        )
+        .trim()
+        .toLowerCase();
+      varsMap[expInner] = var_.id;
+    });
+
+    csv.header.forEach((columnName, index) => {
+      const varId = varsMap[columnName.trim().toLowerCase()];
+      if (!varId) return;
+      mapping[varId] = index as Csv.ColumnIndex;
+    });
+
+    return mapping;
   }
 }

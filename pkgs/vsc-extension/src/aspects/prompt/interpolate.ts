@@ -12,9 +12,9 @@ export function promptInterpolate(
   let result = prompt.content.slice(0, contentEnd);
   for (const vr of newVars) {
     result =
-      result.slice(0, vr.span.start) +
+      result.slice(0, vr.span.outer.start) +
       (values[vr.id] ?? vr.exp) +
-      result.slice(vr.span.end);
+      result.slice(vr.span.outer.end);
   }
   const contentStart = inner.start - outer.start;
   result = result.slice(contentStart);
