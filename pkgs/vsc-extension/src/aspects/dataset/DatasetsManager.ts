@@ -1,6 +1,7 @@
 import { Csv } from "@wrkspc/core/csv";
 import { DatasetDatasource, DatasetSelection } from "@wrkspc/core/dataset";
 import { Datasource } from "@wrkspc/core/datasource";
+import { PlaygroundMap } from "@wrkspc/core/playground";
 import { parseStream } from "smolcsv";
 import * as vscode from "vscode";
 import { Manager } from "../manager/Manager.js";
@@ -64,6 +65,14 @@ export class DatasetsManager extends Manager {
 
     return selected.map((selectedItem) => {
       const values: Datasource.Values = {};
+
+      Object.entries(data.mapping).forEach(([varIdArg, columnIndex]) => {
+        const varId = varIdArg as PlaygroundMap.PromptVarId;
+        const value = selectedItem.row[columnIndex];
+        if (value == null) return;
+        values[varId] = value;
+      });
+
       const input: DatasetDatasource.Input = {
         type: "dataset",
         datasourceId: datasource.id,

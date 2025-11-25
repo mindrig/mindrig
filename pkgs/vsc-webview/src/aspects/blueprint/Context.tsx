@@ -5,7 +5,7 @@ import { BlueprintManager } from "./Manager";
 
 export namespace BlueprintContext {
   export interface Value {
-    manager: BlueprintManager;
+    blueprint: BlueprintManager;
     promptState: State<PlaygroundState.Prompt>;
   }
 }

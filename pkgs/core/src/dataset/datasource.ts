@@ -24,10 +24,10 @@ export namespace DatasetDatasource {
     type: "csv";
     path: EditorFile.Path;
     selection: DatasetSelection.V1;
-    mapping: Mapping;
+    mapping: CsvMapping;
   }
 
-  export type Mapping = Record<Csv.ColumnIndex, PlaygroundMap.PromptVarId>;
+  export type CsvMapping = Record<PlaygroundMap.PromptVarId, Csv.ColumnIndex>;
 
   export interface Input {
     type: "dataset";

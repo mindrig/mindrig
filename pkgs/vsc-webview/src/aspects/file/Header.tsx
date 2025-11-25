@@ -42,14 +42,14 @@ export function FileHeader(props: FileHeader.Props) {
           <Select
             label={{ a11y: "Select prompt" }}
             size="xsmall"
-            selectedKey={promptId || null}
+            value={promptId || null}
             options={prompts.map((prompt) => ({
               label: prompt.$.preview.value,
               value: prompt.$.promptId.value,
             }))}
             placeholder={prompts.size ? "Select prompt" : "No prompts"}
             isDisabled={!prompts.size}
-            onSelectionChange={(itemPromptId) => {
+            onChange={(itemPromptId) => {
               const prompt = prompts.find(
                 (prompt) => promptId === itemPromptId,
               );

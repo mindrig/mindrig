@@ -27,7 +27,7 @@ export function Blueprint(props: Blueprint.Props) {
   }, [promptId]);
 
   return (
-    <BlueprintProvider manager={{}} promptState={promptState}>
+    <BlueprintProvider blueprint={{}} promptState={promptState}>
       {showSource && <PromptSource promptState={promptState} />}
 
       <Assessment

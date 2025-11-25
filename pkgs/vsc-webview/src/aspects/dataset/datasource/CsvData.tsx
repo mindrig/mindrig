@@ -2,6 +2,7 @@ import { Csv } from "@wrkspc/core/csv";
 import { State } from "enso";
 import { DatasetSelectionComponent } from "../selection/Selection";
 import { useDatasetDatasource } from "./Context";
+import { DatasetDatasourceMapping } from "./Mapping";
 
 export namespace DatasetDatasourceCsvData {
   export interface Props {
@@ -30,6 +31,8 @@ export function DatasetDatasourceCsvData(
         selectionField={csvField.$.selection}
         rows={rows}
       />
+
+      <DatasetDatasourceMapping csvField={csvField} csvState={csvState} />
     </div>
   );
 }

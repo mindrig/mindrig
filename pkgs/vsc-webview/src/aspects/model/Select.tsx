@@ -20,8 +20,8 @@ export function ModelSelect(props: ModelSelect.Props) {
   return (
     <Select
       size="xsmall"
-      selectedKey={selectedModelId ?? ""}
-      onSelectionChange={(id) => {
+      value={selectedModelId ?? ""}
+      onChange={(id) => {
         onModelChange(id as string | null);
       }}
       isDisabled={modelsLoading || models.length === 0}

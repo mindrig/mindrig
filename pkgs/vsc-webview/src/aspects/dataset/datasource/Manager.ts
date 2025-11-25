@@ -108,7 +108,7 @@ export class DatasetDatasourceManager {
 
           // Copy selection and mapping from existing datasource if present
           let selection: DatasetSelection;
-          let mapping: DatasetDatasource.Mapping;
+          let mapping: DatasetDatasource.CsvMapping;
 
           if (data && data.path === csv.path) {
             selection = data.selection;
