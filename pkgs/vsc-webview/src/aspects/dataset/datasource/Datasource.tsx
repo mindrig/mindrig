@@ -17,25 +17,27 @@ export function DatasetDatasourceComponent(
   props: DatasetDatasourceComponent.Props,
 ) {
   const { datasourceField } = props;
-  const dataset = DatasetDatasourceManager.use(datasourceField);
-
-  const { loading, loaded } = dataset.useMeta();
+  const datasetDatasource = DatasetDatasourceManager.use(datasourceField);
+  const { pending, resolved } = datasetDatasource.useMeta();
 
   return (
-    <DatasetDatasourceProvider datasetDatasource={dataset}>
+    <DatasetDatasourceProvider datasetDatasource={datasetDatasource}>
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Button
               size="xsmall"
-              onClick={() => dataset.loadCsv()}
-              isDisabled={loading}
+              onClick={() => datasetDatasource.selectCsv()}
+              isDisabled={pending}
             >
-              {loaded ? "Reload CSV" : "Load CSV"}
+              {resolved ? "Reload CSV" : "Load CSV"}
             </Button>
 
-            {loaded && (
-              <Button size="xsmall" onClick={() => dataset.clearCsv()}>
+            {resolved && (
+              <Button
+                size="xsmall"
+                onClick={() => datasetDatasource.clearCsv()}
+              >
                 Clear CSV
               </Button>
             )}

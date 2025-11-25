@@ -1,17 +1,16 @@
 import { State } from "enso";
-import { DatasetDatasourceAppState } from "./appState";
 
 export namespace DatasetDatasourceCsvError {
   export interface Props {
-    csvState: State<DatasetDatasourceAppState.CsvError>;
+    errorState: State<string>;
   }
 }
 
 export function DatasetDatasourceCsvError(
   props: DatasetDatasourceCsvError.Props,
 ) {
-  const { csvState } = props;
-  const error = csvState.$.error.useValue();
+  const { errorState } = props;
+  const error = errorState.useValue();
 
   return (
     <div>

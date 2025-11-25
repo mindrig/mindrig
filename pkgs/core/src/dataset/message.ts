@@ -1,70 +1,13 @@
-import { DatasetCsv, DatasetRequest } from "@wrkspc/core/dataset";
-import { EditorFile } from "../editor";
-
 export namespace DatasetMessage {
   //#region Server
 
-  export type Server = ServerCsvRead | ServerCsvSelectCancel;
-
-  export interface ServerCsvRead {
-    type: "dataset-server-csv-read";
-    payload: ServerCsvReadPayload;
-  }
-
-  export type ServerCsvReadPayload =
-    | ServerCsvReadPayloadOk
-    | ServerCsvReadPayloadError;
-
-  export interface ServerCsvReadPayloadOk extends CsvMessagePayload {
-    status: "ok";
-    data: DatasetCsv.Meta;
-  }
-
-  export interface ServerCsvReadPayloadError extends CsvMessagePayload {
-    status: "error";
-    error: string;
-  }
-
-  export interface ServerCsvSelectCancel {
-    type: "dataset-server-csv-select-cancel";
-    payload: CsvMessagePayload;
-  }
+  export type Server = never;
 
   //#endregion
 
   //#region Client
 
-  export type Client = ClientCsvSelectRequest | ClientCsvLoadRequest;
-
-  export interface ClientCsvSelectRequest {
-    type: "dataset-client-csv-select-request";
-    payload: ClientCsvSelectRequestPayload;
-  }
-
-  export interface ClientCsvSelectRequestPayload extends CsvRequestPayload {
-    delimiter?: string;
-  }
-
-  export interface ClientCsvLoadRequest {
-    type: "dataset-client-csv-load-request";
-    payload: ClientCsvLoadRequestPayload;
-  }
-
-  export interface ClientCsvLoadRequestPayload extends CsvRequestPayload {
-    path: EditorFile.Path;
-  }
-
-  export interface CsvRequestPayload extends CsvMessagePayload {
-    delimiter?: string;
-  }
-
-  //#endregion
-
-  //#region Common
-
-  export interface CsvMessagePayload {
-    requestId: DatasetRequest.CsvId;
-  }
+  export type Client = never;
 
   //#endregion
 }

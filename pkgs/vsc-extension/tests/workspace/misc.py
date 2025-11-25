@@ -1,7 +1,7 @@
-name = "Sasha"
+userName = "Sasha"
 
 # @prompt
-hello = f"Say hello to {name}!"
+hello = f"Say hello to {userName}!"
 
 hi_prompt = "Where these people live?"
 

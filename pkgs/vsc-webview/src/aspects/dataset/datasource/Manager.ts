@@ -1,14 +1,15 @@
-import { buildAttachmentRequestId } from "@wrkspc/core/attachment";
+import { useAppState } from "@/aspects/app/state/Context";
+import { useCsvs } from "@/aspects/csv/CsvsContext";
+import { CsvsManager } from "@/aspects/csv/CsvsManager";
+import { useMemoWithProps } from "@/aspects/utils/hooks";
+import { Csv } from "@wrkspc/core/csv";
 import {
   buildDatasetSelection,
   DatasetDatasource,
-  DatasetMessage,
-  DatasetRequest,
   DatasetSelection,
 } from "@wrkspc/core/dataset";
 import { Field, State } from "enso";
-import { nanoid } from "nanoid";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MessagesContext, useMessages } from "../../message/Context";
 import {
   buildDatasetDatasourceAppState,
@@ -20,120 +21,85 @@ export namespace DatasetDatasourceManager {
     datasetDatasourceAppState: State<DatasetDatasourceAppState>;
     datasourceField: Field<DatasetDatasource>;
     sendMessage: MessagesContext.SendMessage;
+    csvs: CsvsManager;
   }
 
   export interface Meta {
-    loading: boolean;
-    loaded: boolean;
+    pending: boolean;
+    resolved: boolean;
   }
 
-  export type DiscriminatedCsv = State.Discriminated<
-    DatasetDatasourceAppState.Csv | null,
-    "status"
-  >;
-
   export type UseSyncDatasetToDatasourceCallback = (
-    csv: DatasetDatasourceAppState.CsvLoaded,
+    csv: Csv,
   ) => Field<DatasetDatasource.DataRefCsvV1>;
 }
 
 export class DatasetDatasourceManager {
   static use(datasourceField: Field<DatasetDatasource>) {
-    const initialCsv = useMemo<DatasetDatasourceAppState.Csv | null>(() => {
-      const value = datasourceField.$.data.value;
-      if (!value) return null;
-      const requestId = buildAttachmentRequestId();
-      return { status: "loading", requestId, path: value.path };
-    }, [datasourceField]);
-    const datasetDatasourceAppState = State.use<DatasetDatasourceAppState>(
-      buildDatasetDatasourceAppState({ csv: initialCsv }),
-      [],
-    );
-    const { useListen, sendMessage } = useMessages();
+    const { appState } = useAppState();
+    const { csvs } = useCsvs();
+    const { sendMessage } = useMessages();
 
-    const datasetDatasourceManager = useMemo(
-      () =>
-        new DatasetDatasourceManager({
-          datasetDatasourceAppState,
-          datasourceField,
-          sendMessage,
-        }),
+    const datasourceId = datasourceField.$.id.useValue();
+    const datasetDatasourceAppState = appState.$.datasetDatasources
+      .at(datasourceId)
+      .pave(buildDatasetDatasourceAppState());
+
+    const path = datasourceField.$.data.useCompute((data) => data?.path, []);
+
+    useEffect(() => {
+      if (!path) return;
+      csvs.requestData(path);
+    }, [csvs, path]);
+
+    const datasetDatasource = useMemoWithProps(
+      { datasetDatasourceAppState, datasourceField, sendMessage, csvs },
+      (props) => new DatasetDatasourceManager(props),
       [datasetDatasourceAppState, datasourceField, sendMessage],
     );
 
-    useEffect(() => {
-      if (initialCsv?.status !== "loading" || !initialCsv?.path) return;
-      sendMessage({
-        type: "dataset-client-csv-load-request",
-        payload: {
-          path: initialCsv.path,
-          requestId: initialCsv.requestId,
-        },
-      });
-    }, [initialCsv, datasetDatasourceManager]);
-
-    useListen(
-      "dataset-server-csv-select-cancel",
-      datasetDatasourceManager.#onCsvSelectCancel.bind(
-        datasetDatasourceManager,
-      ),
-      [datasetDatasourceManager],
-    );
-
-    useListen(
-      "dataset-server-csv-read",
-      datasetDatasourceManager.#onCsvRead.bind(datasetDatasourceManager),
-      [datasetDatasourceManager],
-    );
-
-    return datasetDatasourceManager;
+    return datasetDatasource;
   }
 
-  #datasetState;
-  #datasourceField;
+  #datasetDatasourceAppState: State<DatasetDatasourceAppState>;
+  #datasourceField: Field<DatasetDatasource>;
+  #csvs: CsvsManager;
   #sendMessage;
 
   constructor(props: DatasetDatasourceManager.Props) {
-    this.#datasetState = props.datasetDatasourceAppState;
+    this.#datasetDatasourceAppState = props.datasetDatasourceAppState;
     this.#datasourceField = props.datasourceField;
+    this.#csvs = props.csvs;
     this.#sendMessage = props.sendMessage;
   }
 
-  loadCsv() {
-    const requestId: DatasetRequest.CsvId = nanoid();
+  useCsvRequestState(): State<Csv.Request | undefined> {
+    const requestId = this.#datasetDatasourceAppState.$.requestId.useValue();
+    return this.#csvs.requestState(requestId!);
+  }
 
-    this.#datasetState.$.csv.set({
-      status: "loading",
-      requestId,
-    });
-
-    this.#sendMessage({
-      type: "dataset-client-csv-select-request",
-      payload: { requestId },
-    });
+  selectCsv() {
+    const requestId = this.#csvs.requestSelect();
+    this.#datasetDatasourceAppState.$.requestId.set(requestId);
   }
 
   clearCsv() {
-    this.#datasetState.$.csv.set(null);
+    this.#datasourceField.$.data.set(null);
+    this.#datasetDatasourceAppState.$.requestId.set(undefined);
   }
 
   useMeta(): DatasetDatasourceManager.Meta {
-    const discriminatedCsv = this.#datasetState.$.csv.useDiscriminate("status");
-    const meta: DatasetDatasourceManager.Meta =
-      this.#datasetState.$.csv.useCompute((csv) => {
-        const loading = csv?.status === "loading";
-        const loaded = !!csv && !loading;
-        return { loading, loaded };
-      }, []);
-    return meta;
+    const requestState = this.useCsvRequestState();
+
+    return requestState.useCompute((request) => {
+      const pending = request?.status === "pending";
+      const resolved = !!request && !pending;
+      return { pending, resolved };
+    }, []);
   }
 
-  useDiscriminatedCsv(): DatasetDatasourceManager.DiscriminatedCsv {
-    return this.#datasetState.$.csv.useDiscriminate("status");
-  }
-
-  useSyncDatasetToDatasource(
-    datasourceCsvState: State<DatasetDatasourceAppState.CsvLoaded>,
+  useSyncCsvDataToDatasource(
+    csvState: State<Csv>,
   ): Field<DatasetDatasource.DataRefCsv> {
     const csvToField =
       useCallback<DatasetDatasourceManager.UseSyncDatasetToDatasourceCallback>(
@@ -144,7 +110,7 @@ export class DatasetDatasourceManager {
           let selection: DatasetSelection;
           let mapping: DatasetDatasource.Mapping;
 
-          if (data && data.path === csv.meta.path) {
+          if (data && data.path === csv.path) {
             selection = data.selection;
             mapping = data.mapping;
           } else {
@@ -156,7 +122,7 @@ export class DatasetDatasourceManager {
           return this.#datasourceField.$.data.set({
             v: 1,
             type: "csv",
-            path: csv.meta.path,
+            path: csv.path,
             selection,
             mapping,
           }) as Field<DatasetDatasource.DataRefCsv>;
@@ -164,12 +130,10 @@ export class DatasetDatasourceManager {
         [this.#datasourceField],
       );
 
-    const [csvField, setCsvField] = useState(() =>
-      csvToField(datasourceCsvState.value),
-    );
+    const [csvField, setCsvField] = useState(() => csvToField(csvState.value));
 
     // Sync on dataset state change
-    datasourceCsvState.useWatch(
+    csvState.useWatch(
       (csv) => {
         setCsvField(csvToField(csv));
       },
@@ -178,37 +142,4 @@ export class DatasetDatasourceManager {
 
     return csvField;
   }
-
-  #onCsvRead(message: DatasetMessage.ServerCsvRead) {
-    const csv = this.#datasetState.$.csv.value;
-    if (
-      csv?.status !== "loading" ||
-      csv.requestId !== message.payload.requestId
-    )
-      return;
-
-    switch (message.payload.status) {
-      case "ok":
-        return this.#assignCsvOk(message.payload);
-
-      case "error":
-        return this.#assignCsvError(message.payload);
-    }
-  }
-
-  #assignCsvError(payload: DatasetMessage.ServerCsvReadPayloadError) {
-    this.#datasetState.$.csv.set({
-      status: "error",
-      error: payload.error,
-    });
-  }
-
-  #assignCsvOk(payload: DatasetMessage.ServerCsvReadPayloadOk) {
-    return this.#datasetState.$.csv.set({
-      status: "loaded",
-      meta: payload.data,
-    });
-  }
-
-  async #onCsvSelectCancel(message: DatasetMessage.ServerCsvSelectCancel) {}
 }

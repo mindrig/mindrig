@@ -11,6 +11,7 @@
     "./auth": "./src/auth/index.ts",
     "./blueprint": "./src/blueprint/index.ts",
     "./client": "./src/client/index.ts",
+    "./csv": "./src/csv/index.ts",
     "./dataset": "./src/dataset/index.ts",
     "./datasource": "./src/datasource/index.ts",
     "./dev": "./src/dev/index.ts",

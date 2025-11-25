@@ -8,12 +8,6 @@ export interface RunsAppState {
 }
 
 export namespace RunsAppState {
-  export type Store = {
-    [Key in `runs.${Run.Id}`]: RunAppState;
-  } & {
-    [Key in `runs.${Run.Id}.results`]: ResultsAppState;
-  };
-
   export type Runs = Record<Run.Id, RunAppState>;
 
   export type Results = Record<Run.Id, ResultsAppState>;

@@ -1,35 +1,23 @@
+import { useCsvs } from "@/aspects/csv/CsvsContext";
+import { EditorFile } from "@wrkspc/core/editor";
 import { State } from "enso";
-import { DatasetSelectionComponent } from "../selection/Selection";
-import { useDatasetDatasource } from "./Context";
-import { DatasetDatasourceAppState } from "./appState";
+import { DatasetDatasourceCsvData } from "./CsvData";
 
 export namespace DatasetDatasourceCsvLoaded {
   export interface Props {
-    csvState: State<DatasetDatasourceAppState.CsvLoaded>;
+    pathState: State<EditorFile.Path>;
   }
 }
 
 export function DatasetDatasourceCsvLoaded(
   props: DatasetDatasourceCsvLoaded.Props,
 ) {
-  const { datasetDatasource } = useDatasetDatasource();
-  const { csvState } = props;
+  const { pathState } = props;
+  const { csvs } = useCsvs();
+  const path = pathState.useValue();
+  const csvState = csvs.useState(path);
 
-  const path = csvState.$.meta.$.path.useValue();
-  const rows = csvState.$.meta.$.rows.useValue();
+  if (!csvState) return null;
 
-  const csvField = datasetDatasource.useSyncDatasetToDatasource(csvState);
-
-  return (
-    <div>
-      <div className="min-w-0 flex-1 text-right">
-        <span className="text-xs font-mono truncate block">{path}</span>
-      </div>
-
-      <DatasetSelectionComponent
-        selectionField={csvField.$.selection}
-        rows={rows}
-      />
-    </div>
-  );
+  return <DatasetDatasourceCsvData csvState={csvState} />;
 }

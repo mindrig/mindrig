@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DatasetDatasource } from "../dataset";
+import { Csv } from "../csv";
 import { PlaygroundMap } from "../playground";
 import { buildDatasourceId } from "./datasource";
 import { datasourceInputToValues } from "./input";
@@ -10,7 +10,7 @@ describe(datasourceInputToValues, () => {
       {
         datasourceId: buildDatasourceId(),
         type: "dataset",
-        index: 1 as DatasetDatasource.RowIndex,
+        index: 1 as Csv.RowIndex,
         values: {
           ["greeting" as PlaygroundMap.PromptVarId]: "Hello",
         },
@@ -18,7 +18,7 @@ describe(datasourceInputToValues, () => {
       {
         datasourceId: buildDatasourceId(),
         type: "dataset",
-        index: 1 as DatasetDatasource.RowIndex,
+        index: 1 as Csv.RowIndex,
         values: {
           ["name" as PlaygroundMap.PromptVarId]: "Sasha",
         },
@@ -35,7 +35,7 @@ describe(datasourceInputToValues, () => {
       {
         datasourceId: buildDatasourceId(),
         type: "dataset",
-        index: 1 as DatasetDatasource.RowIndex,
+        index: 1 as Csv.RowIndex,
         values: {
           ["greeting" as PlaygroundMap.PromptVarId]: "Hello",
           ["name" as PlaygroundMap.PromptVarId]: "Josh",
@@ -44,7 +44,7 @@ describe(datasourceInputToValues, () => {
       {
         datasourceId: buildDatasourceId(),
         type: "dataset",
-        index: 1 as DatasetDatasource.RowIndex,
+        index: 1 as Csv.RowIndex,
         values: {
           ["name" as PlaygroundMap.PromptVarId]: "Sasha",
         },

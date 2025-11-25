@@ -6,6 +6,7 @@ import { Page } from "@wrkspc/core/page";
 import React, { useCallback } from "react";
 import { NavigateOptions, useNavigate } from "react-router-dom";
 import { ClientStateProvider } from "../client/StateContext";
+import { CsvsProvider } from "../csv/CsvsContext";
 import { DevContextProvider } from "../dev/Context";
 import { ModelsMapProvider } from "../model/MapContext";
 import { RunsProvider } from "../run/RunsContext";
@@ -20,7 +21,9 @@ export function AppContext(props: React.PropsWithChildren) {
             <AuthProvider>
               <ModelsMapProvider>
                 <RunsProvider>
-                  <DevContextProvider>{props.children}</DevContextProvider>
+                  <CsvsProvider>
+                    <DevContextProvider>{props.children}</DevContextProvider>
+                  </CsvsProvider>
                 </RunsProvider>
               </ModelsMapProvider>
             </AuthProvider>

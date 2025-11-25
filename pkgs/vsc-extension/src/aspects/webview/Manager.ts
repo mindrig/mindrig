@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 import { AttachmentsManager } from "../attachment/AttachementsManager";
 import { AuthManager } from "../auth/Manager";
 import { ClientStateManager } from "../client/StateManager";
+import { CsvsManager } from "../csv/CsvsManager";
 import { DatasetsManager } from "../dataset/DatasetsManager";
 import { DatasourcesManager } from "../datasource/DatasourcesManager";
 import { DevManager } from "../dev/Manager";
@@ -37,6 +38,7 @@ export class WebviewManager extends Manager {
   #settings: SettingsManager;
   #secrets: SecretsManager;
   #auth: AuthManager;
+  #csvs: CsvsManager;
   #clientState: ClientStateManager;
   #gatewayModels: ModelsGatewayManager;
   #dotdevModels: ModelsDotdevManager;
@@ -86,6 +88,10 @@ export class WebviewManager extends Manager {
       messages: this.#messages,
     });
 
+    this.#csvs = new CsvsManager(this, {
+      messages: this.#messages,
+    });
+
     this.#gatewayModels = new ModelsGatewayManager(this, {
       auth: this.#auth,
       secrets: this.#secrets,
@@ -107,9 +113,7 @@ export class WebviewManager extends Manager {
       store: this.#store,
     });
 
-    this.#datasets = new DatasetsManager(this, {
-      messages: this.#messages,
-    });
+    this.#datasets = new DatasetsManager(this);
 
     this.#attachments = new AttachmentsManager(this, {
       messages: this.#messages,

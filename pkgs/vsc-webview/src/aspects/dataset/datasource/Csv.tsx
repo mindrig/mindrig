@@ -4,20 +4,30 @@ import { DatasetDatasourceCsvLoaded } from "./CsvLoaded";
 
 export function DatasetDatasourceCsv() {
   const { datasetDatasource } = useDatasetDatasource();
-  const discriminatedCsv = datasetDatasource.useDiscriminatedCsv();
+  const csvRequestState = datasetDatasource.useCsvRequestState();
+  const discriminatedCsvRequestState =
+    csvRequestState.useDiscriminate("status");
 
-  switch (discriminatedCsv?.discriminator) {
-    case "loaded":
-      return <DatasetDatasourceCsvLoaded csvState={discriminatedCsv.state} />;
+  switch (discriminatedCsvRequestState?.discriminator) {
+    case "ok":
+      return (
+        <DatasetDatasourceCsvLoaded
+          pathState={discriminatedCsvRequestState.state.$.path}
+        />
+      );
 
     case "error":
-      return <DatasetDatasourceCsvError csvState={discriminatedCsv.state} />;
+      return (
+        <DatasetDatasourceCsvError
+          errorState={discriminatedCsvRequestState.state.$.error}
+        />
+      );
 
-    case "loading":
-    case null:
+    case "pending":
+    case undefined:
       return null;
 
     default:
-      discriminatedCsv satisfies never;
+      discriminatedCsvRequestState satisfies never;
   }
 }

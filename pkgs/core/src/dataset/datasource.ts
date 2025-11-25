@@ -1,3 +1,4 @@
+import { Csv } from "../csv";
 import { buildDatasourceId, Datasource } from "../datasource";
 import { EditorFile } from "../editor";
 import { PlaygroundMap } from "../playground";
@@ -7,12 +8,6 @@ import { DatasetSelection } from "./selection";
 export type DatasetDatasource = DatasetDatasource.V1;
 
 export namespace DatasetDatasource {
-  export type ColumnIndex = number & { [columnIndexBrand]: true };
-  declare const columnIndexBrand: unique symbol;
-
-  export type RowIndex = number & { [rowIndexBrand]: true };
-  declare const rowIndexBrand: unique symbol;
-
   export interface V1 extends Versioned<1> {
     type: "dataset";
     id: Datasource.Id;
@@ -32,12 +27,12 @@ export namespace DatasetDatasource {
     mapping: Mapping;
   }
 
-  export type Mapping = Record<ColumnIndex, PlaygroundMap.PromptVarId>;
+  export type Mapping = Record<Csv.ColumnIndex, PlaygroundMap.PromptVarId>;
 
   export interface Input {
     type: "dataset";
     datasourceId: Datasource.Id;
-    index: RowIndex;
+    index: Csv.RowIndex;
     values: Datasource.Values;
   }
 }
