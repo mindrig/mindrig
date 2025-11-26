@@ -14,7 +14,7 @@ export function Datasources(props: Datasources.Props) {
 
   return (
     <>
-      <LayoutSection bordered>Datasources</LayoutSection>
+      <LayoutSection bordered>Datasource</LayoutSection>
 
       <LayoutSection>
         <div className="space-y-3">

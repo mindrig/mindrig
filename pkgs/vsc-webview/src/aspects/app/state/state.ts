@@ -1,4 +1,5 @@
 import { DatasetDatasourceAppState } from "@/aspects/dataset/datasource/appState";
+import { ModelsAppState } from "@/aspects/model/modelsAppState";
 import { ResultsAppState } from "@/aspects/result/resultsAppState";
 import { RunAppState } from "@/aspects/run/appState";
 import { Csv } from "@wrkspc/core/csv";
@@ -11,6 +12,7 @@ import { AssessmentAppState } from "../../assessment/appState";
 import { TestAppState } from "../../test/appState";
 
 export interface AppState {
+  models: AppState.Models;
   assessments: AppState.Assessments;
   tests: AppState.Tests;
   runs: AppState.Runs;
@@ -20,6 +22,11 @@ export interface AppState {
 }
 
 export namespace AppState {
+  export interface Models {
+    gateway: ModelsAppState.Gateway;
+    dotdev: ModelsAppState.Dotdev;
+  }
+
   export type Assessments = Record<PlaygroundMap.PromptId, AssessmentAppState>;
 
   export type Tests = Record<Test.Id, TestAppState>;
@@ -45,6 +52,10 @@ export namespace AppState {
 
 export function buildAppState(): AppState {
   return {
+    models: {
+      gateway: { waiting: true, payload: undefined },
+      dotdev: { waiting: true, payload: undefined },
+    },
     assessments: {},
     tests: {},
     runs: {},

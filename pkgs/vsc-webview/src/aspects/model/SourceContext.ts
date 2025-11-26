@@ -1,6 +1,9 @@
 import { ModelsMessage } from "@wrkspc/core/model";
-import { useCallback, useState } from "react";
+import { State } from "enso";
+import { useCallback } from "react";
+import { useAppState } from "../app/state/Context";
 import { useMessages } from "../message/Context";
+import { ModelsAppState } from "./modelsAppState";
 
 export interface ModelsSource<Type extends ModelsSource.Type> {
   response: ModelsSource.Response<Type> | undefined;
@@ -23,10 +26,6 @@ export namespace ModelsSource {
 
   export type RefreshMessageType = RefreshMessage["type"];
 
-  export type Message<Type extends ModelsSource.Type> = Type extends "gateway"
-    ? ModelsMessage.ServerGatewayResponse
-    : ModelsMessage.ServerDotdevResponse;
-
   export type Response<Type extends ModelsSource.Type> = Type extends "gateway"
     ? ModelsMessage.ServerGatewayResponse["payload"]
     : ModelsMessage.ServerDotdevResponse["payload"];
@@ -42,24 +41,25 @@ export function useModelsSource<Type extends ModelsSource.Type>(
   type: Type,
 ): ModelsSource<Type> {
   const { sendMessage, useListen } = useMessages();
-  const [response, setResponse] = useState<
-    ModelsSource.Response<Type> | undefined
-  >(undefined);
-  const [waiting, setWaiting] = useState(true);
+  const { appState } = useAppState();
+  const modelsState = appState.$.models.$[type] as State<ModelsAppState.Any>;
 
   useListen(
     messageResponseType(type),
     (message) => {
-      setWaiting(false);
-      setResponse(message.payload as any);
+      modelsState.$.waiting.set(false);
+      modelsState.$.payload.set(message.payload as any);
     },
     [],
   );
 
   const refresh = useCallback(() => {
-    setWaiting(true);
+    modelsState.$.waiting.set(true);
     sendMessage({ type: messageRefreshType(type) });
   }, []);
+
+  const response = modelsState.$.payload.useValue();
+  const waiting = modelsState.$.waiting.useValue();
 
   return { response, waiting, refresh };
 }

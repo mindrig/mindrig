@@ -36,7 +36,6 @@ export function DatasourceComponent(props: DatasourceComponent.Props) {
   return (
     <div className="space-y-3">
       <div className="space-y-2">
-        <h5 className="text-sm font-medium">Datasource</h5>
         <div className="flex items-center gap-4 text-sm">
           <Tabs
             initial={type}
