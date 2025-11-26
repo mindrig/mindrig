@@ -191,7 +191,7 @@ export class PlaygroundManager extends Manager {
     const file = await this.#editor.openFile(
       playgroundMapPairToEditorRef(pair),
     );
-    if (file) this.#pin = { ref: message.payload, file };
+    if (file && this.#pin) this.#pin = { ref: message.payload, file };
 
     this.#updateState();
     await this.#sendState();

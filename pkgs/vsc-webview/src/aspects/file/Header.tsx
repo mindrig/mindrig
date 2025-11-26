@@ -51,7 +51,7 @@ export function FileHeader(props: FileHeader.Props) {
             isDisabled={!prompts.size}
             onChange={(itemPromptId) => {
               const prompt = prompts.find(
-                (prompt) => promptId === itemPromptId,
+                (prompt) => prompt.$.promptId.value === itemPromptId,
               );
               sendMessage({
                 type: "playground-client-prompt-change",
