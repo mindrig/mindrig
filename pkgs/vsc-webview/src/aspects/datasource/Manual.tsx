@@ -1,7 +1,7 @@
 import { DatasourceManual } from "@wrkspc/core/datasource";
 import { Field } from "enso";
 import { useAssessment } from "../assessment/Context";
-import { DatasourceManualVar } from "./ManualVar";
+import { DatasourceManualValues } from "./ManualValues";
 
 export { DatasourceManualComponent as DatasourceManual };
 
@@ -17,15 +17,16 @@ export function DatasourceManualComponent(
   const { datasourceField } = props;
   const { assessment } = useAssessment();
 
+  const valuesField = datasourceField.$.values.useCollection();
   const varsState = assessment.promptState.$.prompt.$.vars.useCollection();
 
   return (
     <div>
-      {varsState.map((varState) => (
-        <DatasourceManualVar
-          key={varState.id}
-          varState={varState}
-          valuesField={datasourceField.$.values}
+      {valuesField.map((valuesField) => (
+        <DatasourceManualValues
+          key={valuesField.id}
+          varsState={varsState}
+          valuesField={valuesField}
         />
       ))}
     </div>

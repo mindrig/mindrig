@@ -59,7 +59,12 @@ export class DatasourcesManager extends Manager {
     return {
       type: "manual",
       datasourceId: datasource.id,
-      values: datasource.values,
+      // TODO: Right now we only support a single set of values for manual
+      // datasources. In the future, we might want to support multiple sets
+      // to use it as a reference datasource in matrix runs. In that case,
+      // we would need to change this to iterate over all values sets just like
+      // we do for datasets.
+      values: datasource.values[0] || {},
     };
   }
 }

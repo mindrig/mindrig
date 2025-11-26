@@ -7,7 +7,7 @@ export namespace DatasourceManual {
   export interface V1 extends Versioned<1> {
     type: "manual";
     id: Datasource.Id;
-    values: Datasource.Values;
+    values: Datasource.Values[];
   }
 
   export type ItemRef = ItemRefV1;
@@ -29,6 +29,6 @@ export function buildDatasourceManual(): DatasourceManual {
     v: 1,
     type: "manual",
     id: buildDatasourceId(),
-    values: {},
+    values: [{}],
   };
 }
