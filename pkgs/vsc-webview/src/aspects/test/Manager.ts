@@ -55,7 +55,7 @@ export class TestManager {
     const { appState } = useAppState();
     const testAppState = appState.$.tests.at(testId).pave(buildTestAppState());
 
-    const manager = useMemoWithProps(
+    const test = useMemoWithProps(
       {
         testField,
         testAppState,
@@ -70,11 +70,13 @@ export class TestManager {
 
     useListenMessage(
       "attachment-server-read",
-      manager.#onAttachmentRead.bind(manager),
-      [manager],
+      test.#onAttachmentRead.bind(test),
+      [test],
     );
 
-    return manager;
+    useListenMessage("run-server-trigger", test.startRun.bind(test), [test]);
+
+    return test;
   }
 
   #testField;
