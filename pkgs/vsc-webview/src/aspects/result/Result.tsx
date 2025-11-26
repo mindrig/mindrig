@@ -35,6 +35,10 @@ export function ResultComponent(props: ResultComponent.Props) {
     (result) => result.status === "error",
     [],
   );
+  const cancelled = resultState.useCompute(
+    (result) => result.status === "cancelled",
+    [],
+  );
   const loading = resultState.useCompute(
     (result) => result.status === "initialized" || result.status === "running",
     [],
@@ -85,6 +89,7 @@ export function ResultComponent(props: ResultComponent.Props) {
 
             {loading && <Icon id={iconRegularLoader} />}
             {errored && <Tag color="error">Error</Tag>}
+            {cancelled && <Tag>Cancelled</Tag>}
           </div>
 
           <span className="text-xs">

@@ -71,8 +71,10 @@ export class RunManager extends Manager {
     const { runId, reason } = message.payload;
     if (runId !== this.#run.id) return;
 
-    this.#abort.abort(reason);
-    this.#abortTasks(reason);
+    const abortReason = new AbortReason(reason);
+
+    this.#abort.abort(abortReason);
+    this.#abortTasks(abortReason);
 
     await this.#syncCancelled();
   }
@@ -123,14 +125,23 @@ export class RunManager extends Manager {
 
       return this.#syncComplete();
     } catch (err) {
-      const error =
-        err instanceof RunError || err instanceof DatasourceError
-          ? err.message
-          : "Something went wrong";
+      // If that's the AbortReason, the run was cancelled
+      if (err instanceof AbortReason) {
+        await this.#syncCancelled();
 
-      await this.#syncError(error);
+        this.#abortTasks(err);
+      }
+      // Otherwise, it's an error
+      else {
+        const error =
+          err instanceof RunError || err instanceof DatasourceError
+            ? err.message
+            : "Something went wrong";
 
-      this.#abortTasks("Run failed to start");
+        await this.#syncError(error);
+
+        this.#abortTasks(new AbortReason("Run failed to start"));
+      }
 
       // Release queue for other runs
       this.#queue.start();
@@ -141,7 +152,7 @@ export class RunManager extends Manager {
     return Promise.all(this.#tasks.map(({ promise }) => promise));
   }
 
-  #abortTasks(reason: string) {
+  #abortTasks(reason: AbortReason) {
     this.#tasks.forEach((task) => task.abort.abort(reason));
   }
 
@@ -174,10 +185,15 @@ export class RunManager extends Manager {
         { signal: abort.signal },
       )
       .catch((err) => {
-        // Ignore aborted task
-        log.debug("Result task failed", err);
-        if (err instanceof DOMException) return;
-        throw err;
+        // If that's the AbortReason, the run was cancelled
+        if (err instanceof AbortReason) {
+          // Ignore abort errors here
+        }
+        // Otherwise, it's an error
+        else {
+          log.debug("Result task failed", err);
+          throw err;
+        }
       });
 
     return [result, { promise, abort }] as const;
@@ -252,6 +268,10 @@ export class RunError extends Error {
   constructor(message: string) {
     super(message);
   }
+}
+
+export class AbortReason {
+  constructor(public reason: string) {}
 }
 
 const BASE_FIELDS_MAP: RunManager.BaseFieldsMap = {

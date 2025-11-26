@@ -46,11 +46,9 @@ export namespace Result {
     payload: ModelType.Payload | null;
   }
 
-  export interface Cancelled extends BaseStarted<"cancelled"> {
+  export interface Cancelled extends Base<"cancelled"> {
+    startedAt: number | undefined;
     cancelledAt: number;
-    request: Request | null;
-    response: Response | null;
-    usage: ModelUsage | null;
     payload: ModelType.Payload | null;
   }
 

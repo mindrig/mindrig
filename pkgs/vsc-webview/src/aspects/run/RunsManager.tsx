@@ -149,12 +149,38 @@ export class RunsManager {
     return this.#appState.$.results.at(runId).pave(buildResultsAppState());
   }
 
+  #cancelRunningTasks(runId: Run.Id) {
+    log.debug("Cancelling running tasks for run", runId);
+
+    this.#appState.$.results.try(runId)?.$.results.forEach?.((resultState) => {
+      const result = resultState.value;
+      if (result.status !== "running" && result.status !== "initialized")
+        return;
+
+      const { id, init, createdAt } = result;
+      const { startedAt, payload } = result.status === "running" ? result : {};
+      resultState.set({
+        id,
+        init,
+        status: "cancelled",
+        createdAt,
+        cancelledAt: Date.now(),
+        startedAt,
+        payload: payload || null,
+      });
+    });
+  }
+
   //#region Events
 
   #onRunUpdate(message: RunMessage.ServerUpdate) {
     const runState = this.#appState.$.runs.at(message.payload.id);
     const run = runState.value;
     always(run);
+
+    // If run was cancelled, cancel any running tasks too.
+    if (message.payload.status === "cancelled")
+      this.#cancelRunningTasks(run.id);
 
     const { id, init, createdAt } = run;
     this.#setRun(id, {
