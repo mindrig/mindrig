@@ -74,12 +74,13 @@ export class RunManager extends Manager {
     this.#abort.abort(reason);
     this.#abortTasks(reason);
 
-    await this.#cancel();
+    await this.#syncCancelled();
   }
 
   async #start() {
     const apiKey = await this.#secrets.get("auth-vercel-gateway-key");
-    if (!apiKey) return this.#error("No Vercel Gateway API key configured.");
+    if (!apiKey)
+      return this.#syncError("No Vercel Gateway API key configured.");
 
     try {
       const results: Result.Initialized[] = [];
@@ -120,14 +121,14 @@ export class RunManager extends Manager {
 
       await this.#waitTasks();
 
-      return this.#complete();
+      return this.#syncComplete();
     } catch (err) {
       const error =
         err instanceof RunError || err instanceof DatasourceError
           ? err.message
           : "Something went wrong";
 
-      await this.#error(error);
+      await this.#syncError(error);
 
       this.#abortTasks("Run failed to start");
 
@@ -190,7 +191,7 @@ export class RunManager extends Manager {
     return { attachments, datasourcesMatrix };
   }
 
-  async #complete() {
+  async #syncComplete() {
     always("startedAt" in this.#run);
 
     await this.#sync<"complete">({
@@ -203,7 +204,7 @@ export class RunManager extends Manager {
     return this.dispose();
   }
 
-  async #cancel() {
+  async #syncCancelled() {
     always("startedAt" in this.#run);
 
     await this.#sync<"cancelled">({
@@ -216,7 +217,7 @@ export class RunManager extends Manager {
     return this.dispose();
   }
 
-  async #error(error: string) {
+  async #syncError(error: string) {
     await this.#sync<"error">({
       id: this.#run.id,
       status: "error",

@@ -76,15 +76,17 @@ export class ResultManager extends Manager {
   async generate(abortSignal: AbortSignal | undefined) {
     const startedAt = Date.now();
 
+    await this.#syncRunning(startedAt);
+
     const { setup, datasources } = this.#result.init;
     const { developerId, modelId } = setup.ref;
     if (!developerId)
-      return this.#error({
+      return this.#syncError({
         error: "Model developer is not specified",
         startedAt,
       });
     if (!modelId)
-      return this.#error({ error: "Model is not specified", startedAt });
+      return this.#syncError({ error: "Model is not specified", startedAt });
 
     const values = datasourceInputToValues(datasources);
     const interpolatedPrompt = promptInterpolate(this.#runInit.prompt, values);
@@ -161,7 +163,13 @@ export class ResultManager extends Manager {
 
     const text = textChunks.join("");
 
-    return this.#success({ text, response, request, totalUsage, startedAt });
+    return this.#syncSuccess({
+      text,
+      response,
+      request,
+      totalUsage,
+      startedAt,
+    });
   }
 
   async #requestGenerate(props: ResultManager.GenerateMethodProps) {
@@ -169,10 +177,27 @@ export class ResultManager extends Manager {
     const { text, response, request, totalUsage } =
       await generateText(aiSdkProps);
 
-    return this.#success({ text, response, request, totalUsage, startedAt });
+    return this.#syncSuccess({
+      text,
+      response,
+      request,
+      totalUsage,
+      startedAt,
+    });
   }
 
-  async #success(props: ResultManager.SuccessProps) {
+  #syncRunning(startedAt: number) {
+    return this.#sync<"running">({
+      id: this.#result.id,
+      status: "running",
+      startedAt,
+      updatedAt: startedAt,
+      usage: null,
+      payload: null,
+    });
+  }
+
+  async #syncSuccess(props: ResultManager.SuccessProps) {
     const { text, response, request, totalUsage, startedAt } = props;
 
     return this.#sync<"success">({
@@ -193,7 +218,7 @@ export class ResultManager extends Manager {
     });
   }
 
-  async #error(overrides: ResultManager.ErrorOverrides) {
+  async #syncError(overrides: ResultManager.ErrorOverrides) {
     await this.#sync<"error">({
       id: this.#result.id,
       status: "error",
