@@ -216,7 +216,8 @@ export function playgroundSetupFactory(
   const playgroundStateProps: ResolvePlaygroundState.Props = {
     timestamp,
     map,
-    file: editorFileA,
+    editorFile: editorFileA,
+    currentFile: editorFileA,
     parsedPrompts: parsedPromptsA,
     pin,
   };

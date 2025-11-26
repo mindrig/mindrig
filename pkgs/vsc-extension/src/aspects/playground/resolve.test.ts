@@ -42,7 +42,7 @@ import {
 
 describe(resolvePlaygroundState, () => {
   describe("file", () => {
-    it("resolves active file state", () => {
+    it("resolves current file state", () => {
       const { playgroundStateProps, editorFileA, mapFileA, mapPromptsA } =
         playgroundSetupFactory();
       const state = resolvePlaygroundState(playgroundStateProps);
@@ -67,11 +67,11 @@ describe(resolvePlaygroundState, () => {
       });
     });
 
-    it("resolves empty state when active file is not defined", () => {
+    it("resolves empty state when current file is not defined", () => {
       const { playgroundStateProps, mapFileA } = playgroundSetupFactory();
       const state = resolvePlaygroundState({
         ...playgroundStateProps,
-        file: null,
+        currentFile: null,
       });
       expect(state).toMatchObject({
         file: null,
@@ -111,7 +111,8 @@ describe(resolvePlaygroundState, () => {
         resolvePlaygroundState({
           ...playgroundStateProps,
           pin: null,
-          file: editorFileB,
+          currentFile: editorFileB,
+          editorFile: editorFileB,
           parsedPrompts: parsedPromptsB,
         }),
       ).toMatchObject({
@@ -174,7 +175,7 @@ describe(resolvePlaygroundState, () => {
       });
     });
 
-    it("resolves active file empty state with pin file is missing", () => {
+    it("resolves current file empty state with pin file is missing", () => {
       const {
         mapFileA,
         mapPromptsA,
@@ -215,7 +216,7 @@ describe(resolvePlaygroundState, () => {
       });
     });
 
-    it("resolves active file empty state with pin prompt is missing", () => {
+    it("resolves current file empty state with pin prompt is missing", () => {
       const {
         mapFileA,
         mapPromptsA,
@@ -253,6 +254,54 @@ describe(resolvePlaygroundState, () => {
             promptId: mapPromptsA[1].id,
           }),
         ],
+      });
+    });
+
+    it("prioritizes cursor reason even when pinned", () => {
+      const {
+        mapPromptsA,
+        mapFileA,
+        editorFileB,
+        mapPromptsB,
+        parsedPromptsB,
+        playgroundStateProps,
+      } = playgroundSetupFactory({
+        cursorA: editorCursorFactory({ offset: 8 }),
+        cursorB: editorCursorFactory({ offset: 8 }),
+      });
+
+      const pin: PlaygroundState.Ref = {
+        v: 1,
+        fileId: mapFileA.id,
+        promptId: mapPromptsA[1].id,
+      };
+
+      expect(
+        resolvePlaygroundState({ ...playgroundStateProps, pin }),
+      ).toMatchObject({
+        pin,
+        prompt: expect.objectContaining({
+          prompt: expect.objectContaining({
+            id: mapPromptsA[1].id,
+          }),
+          reason: "cursor",
+        }),
+      });
+
+      expect(
+        resolvePlaygroundState({
+          ...playgroundStateProps,
+          pin,
+          editorFile: editorFileB,
+        }),
+      ).toMatchObject({
+        pin,
+        prompt: expect.objectContaining({
+          prompt: expect.objectContaining({
+            id: mapPromptsA[1].id,
+          }),
+          reason: "pinned",
+        }),
       });
     });
   });

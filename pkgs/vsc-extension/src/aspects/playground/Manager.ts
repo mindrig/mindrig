@@ -8,6 +8,7 @@ import {
   PlaygroundState,
 } from "@wrkspc/core/playground";
 import { always } from "alwaysly";
+import { log } from "smollog";
 import { EditorManager } from "../editor/Manager";
 import { MessagesManager } from "../message/Manager";
 import { PromptsManager } from "../prompt/Manager";
@@ -62,20 +63,16 @@ export class PlaygroundManager extends Manager {
     this.#editor.on(
       this,
       "active-change",
-      this.#ensureHydrated(this.#onFileRefUpdate),
+      this.#ensureHydrated(this.#onActiveChange),
     );
 
     this.#editor.on(
       this,
       "cursor-update",
-      this.#ensureHydrated(this.#onFileRefUpdate),
+      this.#ensureHydrated(this.#onCursorUpdate),
     );
 
-    this.#editor.on(
-      this,
-      "file-save",
-      this.#ensureHydrated(this.#onFileRefUpdate),
-    );
+    this.#editor.on(this, "file-save", this.#ensureHydrated(this.#onFileSave));
 
     this.#editor.on(
       this,
@@ -131,28 +128,34 @@ export class PlaygroundManager extends Manager {
     return this.#hydratePromise.then((manager) => manager.#state);
   }
 
-  #updateState(currentFile?: EditorFile | undefined | null): void {
-    const file = this.#currentFile(currentFile);
-    const parseResult = this.#prompts.parse(file);
+  #updateState(editorFileArg?: EditorFile | undefined | null): void {
+    const currentFile = this.#currentFile(editorFileArg);
+    const editorFile = this.#editorFile(editorFileArg);
+    const parseResult = this.#prompts.parse(currentFile);
     const timestamp = Date.now();
 
-    if (file) {
+    if (currentFile) {
       this.#map = resolvePlaygroundMap({
         timestamp,
         map: this.#map,
-        file,
+        file: currentFile,
         parsedPrompts: parseResult.prompts,
       });
       this.#store.set("workspace", "playground.map", this.#map);
     }
 
-    this.#state = resolvePlaygroundState({
+    const nextState = resolvePlaygroundState({
       timestamp,
       map: this.#map,
-      file,
+      editorFile,
+      currentFile,
       parsedPrompts: parseResult.prompts,
       pin: this.#pin?.ref || null,
     });
+
+    log.debug("Updating playground state", nextState);
+
+    this.#state = nextState;
   }
 
   #sendState(): Promise<boolean> {
@@ -162,17 +165,36 @@ export class PlaygroundManager extends Manager {
     });
   }
 
-  #currentFile(activeFile?: EditorFile | undefined | null): EditorFile | null {
-    return this.#pin?.file || activeFile || this.#editor.activeFile;
+  #editorFile(editorFile: EditorFile | undefined | null): EditorFile | null {
+    return editorFile || this.#editor.activeFile;
   }
 
-  async #onFileRefUpdate(file: EditorFile | null): Promise<void> {
-    if (this.#pin) return;
+  #currentFile(editorFile?: EditorFile | undefined | null): EditorFile | null {
+    return this.#pin?.file || this.#editorFile(editorFile);
+  }
+
+  #onActiveChange(file: EditorFile | null): Promise<void> {
+    log.debug("Active file changed", file?.path);
+    return this.#handleFileRefUpdate(file);
+  }
+
+  #onCursorUpdate(file: EditorFile): Promise<void> {
+    log.debug("Cursor updated", file.path, file.cursor);
+    return this.#handleFileRefUpdate(file);
+  }
+
+  #onFileSave(file: EditorFile): Promise<void> {
+    log.debug("File saved", file.path);
+    return this.#handleFileRefUpdate(file);
+  }
+
+  async #onFileUpdate(file: EditorFile): Promise<void> {
+    log.debug("File updated", file.path, file.content);
     this.#updateState(file);
     await this.#sendState();
   }
 
-  async #onFileUpdate(file: EditorFile): Promise<void> {
+  async #handleFileRefUpdate(file: EditorFile | null): Promise<void> {
     this.#updateState(file);
     await this.#sendState();
   }
@@ -201,7 +223,7 @@ export class PlaygroundManager extends Manager {
     const mapPair = resolvePlaygroundMapPair(this.#map, ref);
     if (!mapPair) return { ref, file: null };
 
-    const [mapFile, mapPrompt] = mapPair;
+    const [mapFile] = mapPair;
 
     if (this.#pin?.file?.path === mapFile.meta.path) {
       return {

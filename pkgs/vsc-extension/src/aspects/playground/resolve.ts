@@ -101,7 +101,8 @@ export namespace ResolvePlaygroundState {
   export interface Props {
     timestamp: number;
     map: PlaygroundMap;
-    file: EditorFile | null;
+    editorFile: EditorFile | null;
+    currentFile: EditorFile | null;
     parsedPrompts: readonly Prompt[];
     pin: PlaygroundState.Ref | null;
   }
@@ -110,60 +111,81 @@ export namespace ResolvePlaygroundState {
 export function resolvePlaygroundState(
   props: ResolvePlaygroundState.Props,
 ): PlaygroundState {
-  const { file, map, pin, parsedPrompts } = props;
+  const { currentFile, editorFile, map, pin, parsedPrompts } = props;
+  const mapFile = currentFile ? map.files[currentFile.path] : undefined;
 
-  const mapFile = file ? map.files[file.path] : undefined;
+  // First we resolve the prompt under cursor. Doing it before resolving
+  // pinned prompt (that will take precedence) allows us to pick the right
+  // reason for the prompt later on.
 
-  const pinFile = pin
-    ? Object.values(map.files).find((file) => file.id === pin.fileId)
-    : undefined;
-
-  if (pin && pinFile) {
-    const pinPrompt = pinFile.prompts.find((item) => item.id === pin.promptId);
-    if (pinPrompt)
-      return {
-        file: pinFile.meta,
-        prompt: {
-          fileId: pinFile.id,
-          prompt: pinPrompt,
-          reason: "pinned",
-        },
-        prompts: buildStatePromptItems(pinFile),
-        pin,
-      };
-  }
-
-  const fileMeta = file ? editorFileToMeta(file) : null;
+  const currentFileMeta = currentFile ? editorFileToMeta(currentFile) : null;
   const prompts = mapFile ? buildStatePromptItems(mapFile) : [];
 
-  const cursor = file?.cursor;
+  const cursor = editorFile?.cursor;
   const parsedPromptIdx =
+    currentFile?.path === editorFile?.path &&
     cursor &&
     parsedPrompts.findIndex(
       (prompt) =>
         prompt.span.outer.start <= cursor.offset &&
         prompt.span.outer.end >= cursor.offset,
     );
-  const cursorPrompt =
-    typeof parsedPromptIdx === "number" &&
-    mapFile &&
-    mapFile.prompts[parsedPromptIdx];
+  // NOTE: We resolve state prompt rather than map prompt, so we can set
+  // fileId while type system knows it's not nullish.
+  const cursorStatePrompt: PlaygroundState.Prompt | null =
+    (typeof parsedPromptIdx === "number" &&
+      mapFile?.prompts[parsedPromptIdx] && {
+        fileId: mapFile.id,
+        prompt: mapFile?.prompts[parsedPromptIdx],
+        reason: "cursor",
+      }) ||
+    null;
 
-  if (!cursorPrompt)
+  // Now we resolve the pinned prompt.
+
+  const pinMapFile = pin
+    ? Object.values(map.files).find((file) => file.id === pin.fileId)
+    : undefined;
+
+  // If pin is set, we try to resolve it.
+  if (pin && pinMapFile) {
+    const pinPrompt = pinMapFile.prompts.find(
+      (item) => item.id === pin.promptId,
+    );
+
+    // Pin prompt is found.
+    if (pinPrompt) {
+      // NOTE: We take precedence of cursor prompt so the client knows that
+      // the prompt is focused even when it's pinned.
+      const reason =
+        pinPrompt.id === cursorStatePrompt?.prompt.id ? "cursor" : "pinned";
+
+      return {
+        file: pinMapFile.meta,
+        prompt: {
+          fileId: pinMapFile.id,
+          prompt: pinPrompt,
+          reason,
+        },
+        prompts: buildStatePromptItems(pinMapFile),
+        pin,
+      };
+    }
+  }
+
+  // There's no pin prompt nor cursor prompt, so we resolve null state.
+  if (!cursorStatePrompt)
     return {
-      file: fileMeta,
+      file: currentFileMeta,
       prompt: null,
       prompts,
       pin: null,
     };
 
+  // Resolve state with cursor prompt.
   return {
-    file: fileMeta,
-    prompt: {
-      fileId: mapFile.id,
-      prompt: cursorPrompt,
-      reason: "cursor",
-    },
+    file: currentFileMeta,
+    prompt: cursorStatePrompt,
     prompts,
     pin: null,
   };
