@@ -59,20 +59,42 @@
 
   /*## Button */
 
-  /*### Colors */
+  /*### Style */
 
-  /* Solid */
+  /**** Solid */
   --color-button-solid-canvas: var(--vscode-button-background);
   --color-button-solid-canvas-hover: var(--color-gray-400);
   --color-button-solid-ink: var(--vscode-button-foreground);
   --color-button-solid-ink-hover: var(--color-white);
-  /* Label */
+
+  /***** Label */
   --color-button-label-ink: var(--vscode-foreground);
   --color-button-label-ink-hover: var(--vscode-textLink-activeForeground);
-  /* Transparent */
+  /*----- Secondary */
+  --color-button-secondary-label-ink: var(--vscode-button-secondaryForeground);
+  --color-button-secondary-label-ink-hover: var(
+    --vscode-button-secondaryForeground
+  );
+
+  /***** Transparent */
   --color-button-transparent-canvas-hover: var(--color-gray-50);
   --color-button-transparent-border: var(--color-gray-300);
   --color-button-transparent-border-hover: var(--color-gray-400);
+  /*----- Secondary */
+  --color-button-transparent-secondary-ink: var(
+    --color-button-secondary-label-ink
+  );
+  --color-button-transparent-secondary-ink-hover: var(
+    --color-button-secondary-label-ink-hover
+  );
+  --color-button-transparent-secondary-canvas: transparent;
+  --color-button-transparent-secondary-canvas-hover: var(
+    --vscode-toolbar-hoverBackground
+  );
+  --color-button-transparent-secondary-border: var(--vscode-chat-requestBorder);
+  --color-button-transparent-secondary-border-hover: var(
+    --vscode-chat-requestBorder
+  );
 
   /* Input */
 
