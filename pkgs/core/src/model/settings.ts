@@ -17,6 +17,15 @@ export namespace ModelSettings {
     reasoning?: Reasoning | undefined | null;
   }
 
+  export type Setting = Exclude<keyof ModelSettings.V1, "v" | "type">;
+
+  export type Pair = keyof ModelSettings.V1 extends infer Key extends
+    keyof ModelSettings.V1
+    ? Key extends Key
+      ? [Key, ModelSettings.V1[Key]]
+      : never
+    : never;
+
   export interface Reasoning {
     enabled: boolean;
     // TODO: Not all models support effort, tokens, etc. We have to build
@@ -27,6 +36,14 @@ export namespace ModelSettings {
   }
 
   export type ReasoningEffort = (typeof modelSettingsReasoningEffort)[number];
+
+  export type TitlesMap = {
+    [Key in Setting]: string;
+  };
+
+  export type ReasoningTitlesMap = {
+    [Key in keyof Reasoning]: string;
+  };
 }
 
 export const modelSettingsReasoningEffort = ["low", "medium", "high"] as const;
@@ -44,3 +61,21 @@ export function buildModelSettingsReasoning(
     ...overrides,
   };
 }
+
+export const MODEL_SETTING_TITLES: ModelSettings.TitlesMap = {
+  maxOutputTokens: "Max output tokens",
+  temperature: "Temperature",
+  topP: "Top P",
+  topK: "Top K",
+  presencePenalty: "Presence penalty",
+  frequencyPenalty: "Frequency penalty",
+  stopSequences: "Stop sequences",
+  seed: "Seed",
+  reasoning: "Reasoning",
+};
+
+export const MODEL_SETTING_REASONING_TITLES = {
+  enabled: "Enable reasoning",
+  effort: "Effort",
+  budgetTokens: "Budget tokens",
+};

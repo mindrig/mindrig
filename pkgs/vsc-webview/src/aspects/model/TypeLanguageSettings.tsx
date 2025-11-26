@@ -1,6 +1,8 @@
 import {
   buildModelSettingsReasoning,
   Model,
+  MODEL_SETTING_REASONING_TITLES,
+  MODEL_SETTING_TITLES,
   ModelSettings,
   modelSettingsReasoningEffort,
 } from "@wrkspc/core/model";
@@ -43,7 +45,7 @@ export function ModelTypeLanguageSettings(
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <InputController
           field={field.$.maxOutputTokens}
-          label="Max output tokens"
+          label={MODEL_SETTING_TITLES.maxOutputTokens}
           type="number"
           size="small"
           min={1}
@@ -52,7 +54,7 @@ export function ModelTypeLanguageSettings(
         {type.capabilities?.temperature && (
           <InputController
             field={field.$.temperature}
-            label="Temperature"
+            label={MODEL_SETTING_TITLES.temperature}
             type="number"
             step={0.1}
             min={0}
@@ -62,7 +64,7 @@ export function ModelTypeLanguageSettings(
 
         <InputController
           field={field.$.topP}
-          label="Top P"
+          label={MODEL_SETTING_TITLES.topP}
           type="number"
           step={0.01}
           min={0}
@@ -71,14 +73,14 @@ export function ModelTypeLanguageSettings(
 
         <InputController
           field={field.$.topK}
-          label="Top K"
+          label={MODEL_SETTING_TITLES.topK}
           type="number"
           min={0}
         />
 
         <InputController
           field={field.$.presencePenalty}
-          label="Presence penalty"
+          label={MODEL_SETTING_TITLES.presencePenalty}
           type="number"
           step={0.1}
           min={-2}
@@ -87,7 +89,7 @@ export function ModelTypeLanguageSettings(
 
         <InputController
           field={field.$.frequencyPenalty}
-          label="Frequency penalty"
+          label={MODEL_SETTING_TITLES.frequencyPenalty}
           type="number"
           step={0.1}
           min={-2}
@@ -95,7 +97,7 @@ export function ModelTypeLanguageSettings(
         />
 
         <div>
-          <Label size="small">Stop sequences</Label>
+          <Label size="small">{MODEL_SETTING_TITLES.stopSequences}</Label>
 
           {stopSequencesField.map((sequenceField, index) => (
             <div key={sequenceField.id}>
@@ -127,7 +129,7 @@ export function ModelTypeLanguageSettings(
 
         <InputController
           field={field.$.seed}
-          label="Seed"
+          label={MODEL_SETTING_TITLES.seed}
           type="number"
           size="small"
         />
@@ -137,7 +139,7 @@ export function ModelTypeLanguageSettings(
         <div className="space-y-2">
           <CheckboxController
             field={enableReasoningField}
-            label="Enable reasoning"
+            label={MODEL_SETTING_TITLES.reasoning}
           />
 
           {decomposedReasoning.value?.enabled && (
@@ -147,13 +149,13 @@ export function ModelTypeLanguageSettings(
                 options={modelSettingsReasoningEffort.map((effort) => ({
                   value: effort,
                 }))}
-                label="Reasoning effort"
+                label={MODEL_SETTING_REASONING_TITLES.effort}
               />
 
               <InputController
                 type="number"
                 field={decomposedReasoning.field.$.budgetTokens}
-                label="Budget tokens"
+                label={MODEL_SETTING_REASONING_TITLES.budgetTokens}
                 min={0}
               />
             </div>

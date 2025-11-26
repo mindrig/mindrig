@@ -16,21 +16,21 @@ export namespace RunManager {
 }
 
 export class RunManager {
-  #runAppState: State<Run>;
+  #runState: State<Run>;
   #sendMessage: MessagesContext.SendMessage;
 
   constructor(props: RunManager.Props) {
-    this.#runAppState = props.runState;
+    this.#runState = props.runState;
     this.#sendMessage = props.sendMessage;
   }
 
   stopRun() {
-    if (!RunsManager.running(this.#runAppState.value)) return;
+    if (!RunsManager.running(this.#runState.value)) return;
 
     this.#sendMessage({
       type: "run-client-stop",
       payload: {
-        runId: this.#runAppState.$.id.value,
+        runId: this.#runState.$.id.value,
         reason: "Run stopped",
       },
     });
@@ -43,20 +43,21 @@ export class RunManager {
   }
 
   usePending(): boolean {
-    return this.#runAppState.useCompute(
-      (run) => run.status === "initialized",
-      [],
-    );
+    return this.#runState.useCompute((run) => run.status === "initialized", []);
   }
 
   useError(): string | null {
-    return this.#runAppState.useCompute(
+    return this.#runState.useCompute(
       (run) => (run.status === "error" ? run.error : null),
       [],
     );
   }
 
   get runId(): Run.Id {
-    return this.#runAppState.$.id.value;
+    return this.#runState.$.id.value;
+  }
+
+  useInit(): Run.Init {
+    return this.#runState.$.init.useValue();
   }
 }

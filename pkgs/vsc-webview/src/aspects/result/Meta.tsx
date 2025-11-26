@@ -1,6 +1,6 @@
 import { Result } from "@wrkspc/core/result";
 import { State } from "enso";
-import { ResultInit } from "./Init";
+import { ResultInitPreview } from "./InitPreview";
 import { ResultRequest } from "./Request";
 import { ResultResponse } from "./Response";
 import { ResultUsage } from "./Usage";
@@ -18,7 +18,7 @@ export function ResultMeta(props: ResultMeta.Props) {
 
   return (
     <div>
-      <ResultInit resultInitState={initState} />
+      <ResultInitPreview resultInitState={initState} />
 
       <ResultRequest state={requestState} />
 
@@ -31,7 +31,7 @@ export function ResultMeta(props: ResultMeta.Props) {
 
 namespace ResolveMetaStates {
   export interface Result {
-    initState: ResultInit.Props["resultInitState"];
+    initState: ResultInitPreview.Props["resultInitState"];
     requestState: ResultRequest.Props["state"];
     responseState: ResultResponse.Props["state"];
     usageState: ResultUsage.Props["usageState"];

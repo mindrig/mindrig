@@ -90,6 +90,14 @@ export function mapModelDeveloperItems(
   }));
 }
 
+export function resolveModelDeveloper(
+  developerId: ModelDeveloper.Id | undefined | null,
+  modelsMap: Model.ModelsMap | undefined | null,
+): ModelDeveloper | null {
+  if (!developerId || !modelsMap) return null;
+  return modelsMap[developerId]?.developer;
+}
+
 //#endregion
 
 //#region Meta utils

@@ -2,7 +2,7 @@ import { PlaygroundState } from "@wrkspc/core/playground";
 import { State } from "enso";
 import { Setups } from "../setup/Setups";
 import { Tests } from "../test/Tests";
-import { Tools } from "../tools/Tools";
+import { Tools } from "../tool/Tools";
 import { AssessmentProvider } from "./Context";
 import { AssessmentLoading } from "./Loading";
 import { AssessmentManager } from "./Manager";
@@ -27,9 +27,9 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
         setupsAppState={assessment.assessmentAppState.$.setups}
       />
 
-      <Tools field={assessment.assessmentForm.$.tools} />
+      <Tools toolsField={assessment.assessmentForm.$.tools} />
 
-      <Tests field={assessment.assessmentForm.$.tests} />
+      <Tests testsField={assessment.assessmentForm.$.tests} />
     </AssessmentProvider>
   );
 }

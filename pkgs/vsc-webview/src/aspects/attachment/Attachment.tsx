@@ -2,6 +2,7 @@ import { Attachment } from "@wrkspc/core/attachment";
 import { Button } from "@wrkspc/ds";
 import iconRegularTimes from "@wrkspc/icons/svg/regular/times.js";
 import { Field } from "enso";
+import { AttachmentPreview } from "./AttachmentPreview";
 
 export { AttachmentComponent as Attachment };
 
@@ -16,15 +17,7 @@ export function AttachmentComponent(props: AttachmentComponent.Props) {
   const attachment = attachmentField.useValue();
   return (
     <div>
-      <div>
-        <span>{attachment.name}</span>
-        <span>{attachment.path}</span>
-      </div>
-
-      <div>
-        <span>Size: {attachment.size}</span>
-        <span>Mime: {attachment.mime}</span>
-      </div>
+      <AttachmentPreview attachment={attachment} />
 
       <Button
         size="xsmall"

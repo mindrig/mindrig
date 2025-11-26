@@ -1,6 +1,7 @@
 import { Results } from "../result/Results";
 import { RunProvider } from "./Context";
 import { RunError } from "./Error";
+import { RunInitPreview } from "./InitPreview";
 import { RunManager } from "./Manager";
 import { RunPending } from "./Pending";
 
@@ -16,6 +17,8 @@ export function RunComponent(props: RunComponent.Props) {
 
   return (
     <RunProvider run={run}>
+      <RunInitPreview />
+
       {pending ? (
         <RunPending />
       ) : error ? (

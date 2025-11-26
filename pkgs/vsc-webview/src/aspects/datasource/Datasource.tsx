@@ -1,4 +1,8 @@
-import { buildDatasource, Datasource } from "@wrkspc/core/datasource";
+import {
+  buildDatasource,
+  Datasource,
+  DATASOURCE_TYPE_TITLES,
+} from "@wrkspc/core/datasource";
 import { Tabs } from "@wrkspc/ds";
 import iconRegularInputText from "@wrkspc/icons/svg/regular/input-text.js";
 import iconRegularTable from "@wrkspc/icons/svg/regular/table.js";
@@ -32,7 +36,7 @@ export function DatasourceComponent(props: DatasourceComponent.Props) {
   return (
     <div className="space-y-3">
       <div className="space-y-2">
-        <h5 className="text-sm font-medium">Input Source</h5>
+        <h5 className="text-sm font-medium">Datasource</h5>
         <div className="flex items-center gap-4 text-sm">
           <Tabs
             initial={type}
@@ -42,12 +46,12 @@ export function DatasourceComponent(props: DatasourceComponent.Props) {
               {
                 id: "manual",
                 icon: iconRegularInputText,
-                label: "Manual",
+                label: DATASOURCE_TYPE_TITLES.manual,
               },
               {
                 id: "dataset",
                 icon: iconRegularTable,
-                label: "Dataset",
+                label: DATASOURCE_TYPE_TITLES.dataset,
               },
             ]}
             size="small"

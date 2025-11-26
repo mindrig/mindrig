@@ -18,6 +18,10 @@ export namespace Datasource {
   export type InputV1 = DatasourceManual.Input | DatasetDatasource.Input;
 
   export type Values = Record<PlaygroundMap.PromptVarId, string>;
+
+  export type TypeTitlesMap = {
+    [Key in Type]: string;
+  };
 }
 
 export function buildDatasource(type: Datasource.Type): Datasource {
@@ -33,3 +37,8 @@ export function buildDatasource(type: Datasource.Type): Datasource {
 export function buildDatasourceId(): Datasource.Id {
   return `datasource-${nanoid()}` as Datasource.Id;
 }
+
+export const DATASOURCE_TYPE_TITLES: Datasource.TypeTitlesMap = {
+  manual: "Manual",
+  dataset: "Dataset",
+};

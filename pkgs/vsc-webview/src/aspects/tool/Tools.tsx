@@ -4,17 +4,17 @@ import { ToolComponent } from "./Tool";
 
 export namespace Tools {
   export interface Props {
-    field: Field<Tool[]>;
+    toolsField: Field<Tool[]>;
   }
 }
 
 export function Tools(props: Tools.Props) {
-  const field = props.field.useCollection();
+  const toolsField = props.toolsField.useCollection();
 
   return (
-    <div className="space-y-3">
-      {field.map((toolField) => (
-        <ToolComponent key={toolField.key} field={toolField} />
+    <div>
+      {toolsField.map((toolField) => (
+        <ToolComponent key={toolField.key} toolsField={toolField} />
       ))}
     </div>
   );

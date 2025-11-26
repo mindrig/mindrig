@@ -22,7 +22,7 @@ export namespace SetupComponent {
 
 export function SetupComponent(props: SetupComponent.Props) {
   const { setupField, solo, expandedIndexState, index } = props;
-  const { modelsPayload: modelsPayload } = useModelsMap();
+  const { modelsPayload } = useModelsMap();
 
   const expanded = expandedIndexState.useCompute(
     (expandedIndex) => expandedIndex === index,

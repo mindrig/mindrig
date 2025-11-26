@@ -6,9 +6,10 @@ import { PlaygroundEmpty } from "./Empty";
 import { PlaygroundErrors } from "./Errors";
 
 export function Playground() {
-  const state = useClientState();
-  const decomposedFile = state.$.playground.$.file.useDecomposeNullish();
-  const decomposedPrompt = state.$.playground.$.prompt.useDecomposeNullish();
+  const clientState = useClientState();
+  const decomposedFile = clientState.$.playground.$.file.useDecomposeNullish();
+  const decomposedPrompt =
+    clientState.$.playground.$.prompt.useDecomposeNullish();
 
   return (
     <>

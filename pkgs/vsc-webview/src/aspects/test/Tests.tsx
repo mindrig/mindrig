@@ -4,16 +4,16 @@ import { TestComponent } from "./Test";
 
 export namespace Tests {
   export interface Props {
-    field: Field<Test[]>;
+    testsField: Field<Test[]>;
   }
 }
 
 export function Tests(props: Tests.Props) {
-  const field = props.field.useCollection();
+  const testsField = props.testsField.useCollection();
 
   return (
     <div className="space-y-3">
-      {field.map((testField) => (
+      {testsField.map((testField) => (
         <TestComponent key={testField.id} testField={testField} />
       ))}
     </div>
