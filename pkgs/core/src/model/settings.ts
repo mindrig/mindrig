@@ -17,7 +17,9 @@ export namespace ModelSettings {
     reasoning?: Reasoning | undefined | null;
   }
 
-  export type Setting = Exclude<keyof ModelSettings.V1, "v" | "type">;
+  export type InternalKey = "type" | "v";
+
+  export type Setting = Exclude<keyof ModelSettings.V1, InternalKey>;
 
   export type Pair = keyof ModelSettings.V1 extends infer Key extends
     keyof ModelSettings.V1
@@ -44,6 +46,9 @@ export namespace ModelSettings {
   export type ReasoningTitlesMap = {
     [Key in keyof Reasoning]: string;
   };
+
+  export type Sanitized = Pick<ModelSettings, InternalKey> &
+    Partial<Omit<ModelSettings, InternalKey>>;
 }
 
 export const modelSettingsReasoningEffort = ["low", "medium", "high"] as const;
@@ -60,6 +65,44 @@ export function buildModelSettingsReasoning(
     effort: "medium",
     ...overrides,
   };
+}
+
+export function sanitizeModelSettings(
+  settings: ModelSettings,
+): ModelSettings.Sanitized {
+  const { v, type, ...restSettings } = settings;
+  const sanitized: ModelSettings.Sanitized = {
+    v: settings.v,
+    type: settings.type,
+    ...sanitizeModelSettingsValue(restSettings),
+  };
+  return sanitized;
+}
+
+export function sanitizeModelSettingsValue(value: unknown): any {
+  if (typeof value === "string") return !value.trim() ? null : value;
+
+  if (typeof value === "number") return isNaN(value) ? null : value;
+
+  if (Array.isArray(value)) {
+    const sanitizedArray = value
+      .map(sanitizeModelSettingsValue)
+      .filter((item) => item != null);
+    return !sanitizedArray.length ? null : sanitizedArray;
+  }
+
+  if (value && typeof value === "object") {
+    const sanitizedObject: Record<string, any> = {};
+
+    Object.entries(value).forEach(([k, v]) => {
+      const sanitizedValue = sanitizeModelSettingsValue(v);
+      if (sanitizedValue != null) sanitizedObject[k] = sanitizedValue;
+    });
+
+    return !Object.keys(sanitizedObject).length ? null : sanitizedObject;
+  }
+
+  return value == null ? null : value;
 }
 
 export const MODEL_SETTING_TITLES: ModelSettings.TitlesMap = {

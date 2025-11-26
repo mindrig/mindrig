@@ -30,15 +30,15 @@ export function SetupPreview(props: SetupPreview.Props) {
   );
 
   const settings = Object.entries(setup.settings).map((pairArg) => {
-    const [setting, value] = pairArg as ModelSettings.Pair;
+    const [key, value] = pairArg as ModelSettings.Pair;
     // Exclude internal fields as well as nullish values
-    if (setting === "v" || setting === "type" || value == null) return null;
+    if (key === "v" || key === "type" || value == null) return null;
 
-    switch (setting) {
+    switch (key) {
       case "reasoning":
         if (!value.enabled) return null;
         return (
-          <div key={setting}>
+          <div key={key}>
             <div>{MODEL_SETTING_TITLES.reasoning}</div>
 
             <div className="flex gap-2">
@@ -58,15 +58,15 @@ export function SetupPreview(props: SetupPreview.Props) {
       case "stopSequences":
         if (!value.length) return null;
         return (
-          <div key={setting}>
-            {MODEL_SETTING_TITLES[setting]}: {value.join(", ")}
+          <div key={key}>
+            {MODEL_SETTING_TITLES[key]}: {value.join(", ")}
           </div>
         );
 
       default:
         return (
-          <div className="flex gap-2" key={setting}>
-            <div>{MODEL_SETTING_TITLES[setting]}:</div>
+          <div className="flex gap-2" key={key}>
+            <div>{MODEL_SETTING_TITLES[key]}:</div>
             <div>{value}</div>
           </div>
         );
