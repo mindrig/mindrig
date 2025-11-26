@@ -13,15 +13,15 @@ export class DatasourcesManager extends Manager {
   async datasourcesToInputMatrix(
     datasources: Datasource[],
   ): Promise<Datasource.Input[][]> {
-    if (datasources.length === 0) return [[]];
-
     const referenceDatasource = datasources.find((ds) => ds.type === "dataset");
     const referenceInput =
       referenceDatasource &&
       (await this.#datasets.datasourceToInput(referenceDatasource));
 
+    let input: Datasource.Input[][];
+
     if (referenceInput) {
-      return referenceInput.map((input) =>
+      input = referenceInput.map((input) =>
         datasources.map((ds) => {
           if (ds === referenceDatasource) return input;
           if (ds.type !== "manual")
@@ -29,9 +29,18 @@ export class DatasourcesManager extends Manager {
           return this.#manualDatasourceToInput(ds);
         }),
       );
+    } else {
+      input = await Promise.all(
+        datasources.map(this.#datasourceToInput.bind(this)),
+      );
     }
 
-    return Promise.all(datasources.map(this.#datasourceToInput.bind(this)));
+    // If no datasources are provided, or the reference datasource is not loaded
+    // or empty (i.e. blank csv file), return a single empty input set to always
+    // show at least one result.
+    if (!input.length) return [[]];
+
+    return input;
   }
 
   async #datasourceToInput(
