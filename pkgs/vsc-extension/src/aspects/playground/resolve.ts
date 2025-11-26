@@ -105,13 +105,15 @@ export namespace ResolvePlaygroundState {
     currentFile: EditorFile | null;
     parsedPrompts: readonly Prompt[];
     pin: PlaygroundState.Ref | null;
+    parseError: string | null;
   }
 }
 
 export function resolvePlaygroundState(
   props: ResolvePlaygroundState.Props,
 ): PlaygroundState {
-  const { currentFile, editorFile, map, pin, parsedPrompts } = props;
+  const { currentFile, editorFile, map, pin, parsedPrompts, parseError } =
+    props;
   const mapFile = currentFile ? map.files[currentFile.path] : undefined;
 
   // First we resolve the prompt under cursor. Doing it before resolving
@@ -169,6 +171,7 @@ export function resolvePlaygroundState(
         },
         prompts: buildStatePromptItems(pinMapFile),
         pin,
+        parseError,
       };
     }
   }
@@ -180,6 +183,7 @@ export function resolvePlaygroundState(
       prompt: null,
       prompts,
       pin: null,
+      parseError: currentFileMeta ? parseError : null,
     };
 
   // Resolve state with cursor prompt.
@@ -188,6 +192,7 @@ export function resolvePlaygroundState(
     prompt: cursorStatePrompt,
     prompts,
     pin: null,
+    parseError,
   };
 }
 

@@ -80,6 +80,56 @@ describe(resolvePlaygroundState, () => {
         prompts: [],
       });
     });
+
+    it("includes parser error in state", () => {
+      const { playgroundStateProps, editorFileA, mapFileA, mapPromptsA } =
+        playgroundSetupFactory();
+
+      const parseError = "Ooops, syntax error!";
+
+      expect(
+        resolvePlaygroundState({
+          ...playgroundStateProps,
+          parseError,
+        }),
+      ).toMatchObject({
+        file: {
+          isDirty: editorFileA.isDirty,
+          languageId: editorFileA.languageId,
+          path: editorFileA.path,
+        },
+        prompt: null,
+        pin: null,
+        prompts: [
+          expect.objectContaining({
+            fileId: mapFileA.id,
+            promptId: mapPromptsA[0].id,
+          }),
+          expect.objectContaining({
+            fileId: mapFileA.id,
+            promptId: mapPromptsA[1].id,
+          }),
+        ],
+        parseError,
+      });
+    });
+
+    it("ignores parse error if current file is not defined", () => {
+      const { playgroundStateProps, mapFileA } = playgroundSetupFactory();
+      const state = resolvePlaygroundState({
+        ...playgroundStateProps,
+        currentFile: null,
+        parseError: "Ooops, syntax error!",
+      });
+
+      expect(state).toMatchObject({
+        file: null,
+        prompt: null,
+        pin: null,
+        prompts: [],
+        parseError: null,
+      });
+    });
   });
 
   describe("cursor", () => {
@@ -133,6 +183,58 @@ describe(resolvePlaygroundState, () => {
       expect(resolvePlaygroundState(playgroundStateProps)).toMatchObject({
         prompt: null,
         pin: null,
+      });
+    });
+
+    it("includes parse error in state", () => {
+      const {
+        mapPromptsA,
+        editorFileB,
+        mapPromptsB,
+        parsedPromptsB,
+        playgroundStateProps,
+      } = playgroundSetupFactory({
+        cursorA: editorCursorFactory({ offset: 8 }),
+        cursorB: editorCursorFactory({ offset: 8 }),
+      });
+
+      const parseError = "Ooops, syntax error!";
+
+      expect(
+        resolvePlaygroundState({
+          ...playgroundStateProps,
+          pin: null,
+          parseError,
+        }),
+      ).toMatchObject({
+        pin: null,
+        prompt: expect.objectContaining({
+          prompt: expect.objectContaining({
+            id: mapPromptsA[1].id,
+          }),
+          reason: "cursor",
+        }),
+        parseError,
+      });
+
+      expect(
+        resolvePlaygroundState({
+          ...playgroundStateProps,
+          pin: null,
+          currentFile: editorFileB,
+          editorFile: editorFileB,
+          parsedPrompts: parsedPromptsB,
+          parseError,
+        }),
+      ).toMatchObject({
+        pin: null,
+        prompt: expect.objectContaining({
+          prompt: expect.objectContaining({
+            id: mapPromptsB[0].id,
+          }),
+          reason: "cursor",
+        }),
+        parseError,
       });
     });
   });
@@ -302,6 +404,47 @@ describe(resolvePlaygroundState, () => {
           }),
           reason: "pinned",
         }),
+      });
+    });
+
+    it("includes parse error in state", () => {
+      const { mapFileB, mapPromptsB, editorFileB, playgroundStateProps } =
+        playgroundSetupFactory();
+
+      const pin: PlaygroundState.Ref = {
+        v: 1,
+        fileId: mapFileB.id,
+        promptId: mapPromptsB[0].id,
+      };
+
+      const parseError = "Ooops, syntax error!";
+
+      const state = resolvePlaygroundState({
+        ...playgroundStateProps,
+        pin,
+        parseError,
+      });
+
+      expect(state).toMatchObject({
+        file: {
+          isDirty: editorFileB.isDirty,
+          languageId: editorFileB.languageId,
+          path: editorFileB.path,
+        },
+        pin,
+        prompt: expect.objectContaining({
+          prompt: expect.objectContaining({
+            id: mapPromptsB[0].id,
+          }),
+          reason: "pinned",
+        }),
+        prompts: [
+          expect.objectContaining({
+            fileId: mapFileB.id,
+            promptId: mapPromptsB[0].id,
+          }),
+        ],
+        parseError,
       });
     });
   });

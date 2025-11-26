@@ -132,6 +132,13 @@ export class PlaygroundManager extends Manager {
     const currentFile = this.#currentFile(editorFileArg);
     const editorFile = this.#editorFile(editorFileArg);
     const parseResult = this.#prompts.parse(currentFile);
+
+    const parseError =
+      (parseResult.source.type === "cache" &&
+        parseResult.source.reason.type === "invalid" &&
+        parseResult.source.reason.error) ||
+      null;
+
     const timestamp = Date.now();
 
     if (currentFile) {
@@ -151,6 +158,7 @@ export class PlaygroundManager extends Manager {
       currentFile,
       parsedPrompts: parseResult.prompts,
       pin: this.#pin?.ref || null,
+      parseError,
     });
 
     log.debug("Updating playground state", nextState);

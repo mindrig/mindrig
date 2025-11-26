@@ -67,6 +67,7 @@ describe(PlaygroundManager, () => {
           fileId: mapFileB.id,
           promptId: mapPromptsB[0].id,
         },
+        parseError: null,
       });
     });
 
@@ -172,6 +173,7 @@ describe(PlaygroundManager, () => {
           },
         ],
         pin: null,
+        parseError: null,
       });
 
       const initialMap =

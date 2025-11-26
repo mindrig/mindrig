@@ -7,6 +7,7 @@ export interface PlaygroundState {
   prompt: PlaygroundState.Prompt | null;
   prompts: PlaygroundState.PromptItem[];
   pin: PlaygroundState.Ref | null;
+  parseError: string | null;
 }
 
 export namespace PlaygroundState {
@@ -45,6 +46,7 @@ export function buildPlaygroundState(): PlaygroundState {
     prompt: null,
     prompts: [],
     pin: null,
+    parseError: null,
   };
 }
 

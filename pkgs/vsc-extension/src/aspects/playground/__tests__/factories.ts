@@ -220,6 +220,7 @@ export function playgroundSetupFactory(
     currentFile: editorFileA,
     parsedPrompts: parsedPromptsA,
     pin,
+    parseError: null,
   };
 
   const parsedPrompts = [...parsedPromptsA, ...parsedPromptsB] as const;
