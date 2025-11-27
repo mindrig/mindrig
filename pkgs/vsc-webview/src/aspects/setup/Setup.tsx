@@ -1,8 +1,11 @@
 import { resolveModel } from "@wrkspc/core/model";
 import { Setup } from "@wrkspc/core/setup";
-import { Button, Icon } from "@wrkspc/ds";
-import iconRegularTimes from "@wrkspc/icons/svg/regular/times.js";
+import { Button } from "@wrkspc/ds";
+import iconRegularAngleUp from "@wrkspc/icons/svg/regular/angle-up.js";
+import iconRegularCog from "@wrkspc/icons/svg/regular/cog.js";
+import iconRegularTrashAlt from "@wrkspc/icons/svg/regular/trash-alt.js";
 import { Field, State } from "enso";
+import { LayoutBlock } from "../layout/Block";
 import { ModelCapabilities } from "../model/Capabilities";
 import { useModelsMap } from "../model/MapContext";
 import { ModelSelector } from "../model/Selector";
@@ -35,30 +38,33 @@ export function SetupComponent(props: SetupComponent.Props) {
   );
 
   return (
-    <div className="border rounded p-3 space-y-3">
-      <ModelSelector field={setupField.$.ref} />
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        <div className="grow">
+          <ModelSelector field={setupField.$.ref} />
+        </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        {model && (
-          <Button
-            size="xsmall"
-            style="transparent"
-            onClick={() => expandedIndexState.set(expanded ? null : index)}
-          >
-            {expanded ? "Hide options" : "Configure"}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {model && (
+            <Button
+              style="label"
+              color="secondary"
+              size="small"
+              icon={expanded ? iconRegularAngleUp : iconRegularCog}
+              onClick={() => expandedIndexState.set(expanded ? null : index)}
+            />
+          )}
 
-        {!solo && (
-          <Button
-            style="label"
-            size="small"
-            onClick={() => setupField.self.remove()}
-            className="ml-auto inline-flex items-center justify-center h-6 w-6 rounded-full border text-xs"
-          >
-            <Icon id={iconRegularTimes} aria-hidden />
-          </Button>
-        )}
+          {!solo && (
+            <Button
+              style="label"
+              color="secondary"
+              size="small"
+              onClick={() => setupField.self.remove()}
+              icon={iconRegularTrashAlt}
+            />
+          )}
+        </div>
       </div>
 
       {model?.type && (
@@ -66,7 +72,9 @@ export function SetupComponent(props: SetupComponent.Props) {
           <ModelCapabilities type={model.type} />
 
           {expanded && (
-            <ModelSettings field={setupField.$.settings} type={model.type} />
+            <LayoutBlock size="small" bordered>
+              <ModelSettings field={setupField.$.settings} type={model.type} />
+            </LayoutBlock>
           )}
         </>
       )}

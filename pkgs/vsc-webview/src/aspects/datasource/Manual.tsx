@@ -21,7 +21,7 @@ export function DatasourceManualComponent(
   const varsState = assessment.promptState.$.prompt.$.vars.useCollection();
 
   return (
-    <div>
+    <>
       {valuesField.map((valuesField) => (
         <DatasourceManualValues
           key={valuesField.id}
@@ -29,6 +29,6 @@ export function DatasourceManualComponent(
           valuesField={valuesField}
         />
       ))}
-    </div>
+    </>
   );
 }

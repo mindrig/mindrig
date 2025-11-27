@@ -12,7 +12,7 @@ export function languageIdFromVsc(
   return mapId(idToVscIds, vscLanguageId);
 }
 
-const idToExts: Record<Language.Id, string[]> = {
+export const LANGUAGE_EXTENSIONS: Record<Language.Id, string[]> = {
   ts: ["ts", "tsx"],
   js: ["js", "jsx", "mjs", "mjsx", "cjs", "cjsx"],
   py: ["py", "pyi"],
@@ -21,7 +21,7 @@ const idToExts: Record<Language.Id, string[]> = {
 export function languageIdFromExt(
   vscLanguageId: string | undefined,
 ): Language.Id | undefined {
-  return mapId(idToExts, vscLanguageId);
+  return mapId(LANGUAGE_EXTENSIONS, vscLanguageId);
 }
 
 type IdMap = Record<Language.Id, string[]>;

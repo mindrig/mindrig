@@ -11,27 +11,11 @@
   /* Base */
 
   --canvas: var(--vscode-sideBar-background);
-  --ink: var(--vscode-sideBar-foreground);
+  --ink: var(--vscode-foreground);
 
   /* Use-case */
 
   --color-item-hover: var(--vscode-list-hoverForeground);
-
-  /* Canvas (background) */
-
-  --color-canvas: var(--canvas);
-
-  /* Ink (text) */
-
-  /* Primary */
-  --color-ink: var(--ink);
-  /* --color-ink-inverse: red; */
-  /* Support */
-  --color-ink-support: color-mix(in srgb, var(--ink) 85%, transparent);
-  /* --color-ink-support-inverse: red; */
-  /* Detail */
-  --color-ink-detail: color-mix(in srgb, var(--ink) 70%, transparent);
-  /* --color-ink-detail-inverse: red; */
 
   /* Icon */
 
@@ -53,28 +37,71 @@
     transparent
   );
 
-  /*# Sizes */
+  /*# Basics */
+
+  /*## Size */
 
   --text-base: var(--vscode-font-size);
 
+  /*## Text */
+
+  /*### Color */
+
+  /***** Primary */
+  --color-ink: var(--ink);
+  /* --color-ink-inverse: red; */
+  /***** Support */
+  --color-ink-support: var(--vscode-descriptionForeground);
+  /* --color-ink-support-inverse: red; */
+  /***** Detail */
+  --color-ink-detail: var(--vscode-panelTitle-inactiveForeground);
+  /* --color-ink-detail-inverse: red; */
+
+  /*## Background */
+
+  --color-canvas: var(--canvas);
+
+  /*## Divider */
+
+  --color-divider: var(--vscode-sideBarSectionHeader-border, transparent);
+
+  /*## Border */
+
+  /*# Components */
+
+  /*## Icon */
+
+  /*### Color */
+
+  /***** Support */
+  --color-icon-detail: var(--vscode-panelTitle-inactiveForeground);
+  /***** Detail */
+  --color-icon-detail: var(--vscode-panelTitle-inactiveForeground);
+
   /*## Button */
+
+  /*### Size */
+
+  --radius-button-xsmall: 2px;
+  --radius-button-small: 2px;
+  --radius-button-medium: 2px;
+  --radius-button-large: 2px;
+  --radius-button-xlarge: 2px;
 
   /*### Style */
 
-  /**** Solid */
-  --color-button-solid-canvas: var(--vscode-button-background);
-  --color-button-solid-canvas-hover: var(--color-gray-400);
+  /***** Solid */
   --color-button-solid-ink: var(--vscode-button-foreground);
   --color-button-solid-ink-hover: var(--color-white);
+  --color-button-solid-canvas: var(--vscode-button-background);
+  --color-button-solid-canvas-hover: var(--vscode-button-hoverBackground);
 
   /***** Label */
   --color-button-label-ink: var(--vscode-foreground);
   --color-button-label-ink-hover: var(--vscode-textLink-activeForeground);
   /*----- Secondary */
-  --color-button-secondary-label-ink: var(--vscode-button-secondaryForeground);
-  --color-button-secondary-label-ink-hover: var(
-    --vscode-button-secondaryForeground
-  );
+  --color-button-secondary-label-ink: var(--vscode-descriptionForeground);
+  --color-button-secondary-label-ink-hover: var(--color-button-label-ink-hover);
 
   /***** Transparent */
   --color-button-transparent-canvas-hover: var(--color-gray-50);
@@ -107,7 +134,7 @@
   --color-input-canvas: var(--vscode-input-background);
   --color-input-ink: var(--vscode-input-foreground);
   --color-input-placeholder: var(--vscode-input-placeholderForeground);
-  --color-input-border: var(--vscode-input-border);
+  --color-input-border: var(--vscode-input-border, transparent);
 
   /* Menu */
 
@@ -132,17 +159,54 @@
   --color-option-ink: var(--vscode-input-foreground);
   --color-option-ink-selected: var(--vscode-inputOption-activeForeground);
 
-  /* Section */
-  --color-section-border: var(--vscode-sideBarSectionHeader-border);
+  /* Active */
+  --color-active-text: var(--vscode-textLink-foreground);
+  --color-active-border: var(--vscode-focusBorder);
+
+  /*## Tag */
+
+  /*### Color */
+
+  /**** Default */
+  --color-tag-ink: var(--vscode-breadcrumb-foreground);
+  --color-tag-canvas: var(--vscode-breadcrumb-background);
+
+  /**** Secondary */
+  --color-tag-ink-secondary: var(--vscode-breadcrumb-foreground);
+  --color-tag-canvas-secondary: var(--vscode-breadcrumb-background);
+
+  /*## Tab */
+
+  --border-tab: 1px;
+  --color-tab-ink: var(--color-ink);
+  --color-tab-ink-hover: var(--color-tab-active-ink);
+  --color-tab-border: transparent;
+  /*---- Active */
+  --color-tab-active-ink: var(--vscode-settings-headerForeground);
+  --color-tab-active-border: var(--vscode-settings-headerForeground);
+
+  /*# App-Specific */
+
+  /*## Section */
+
+  --color-section-border: color-mix(
+    in srgb,
+    var(--vscode-sideBarSectionHeader-border, transparent) 100%,
+    var(--color-section-header-canvas) 100%
+  );
+  /* --color-section-border: var(
+    --vscode-sideBarSectionHeader-border,
+    transparent
+  ); */
   --color-section-border-pinned: color-mix(
     in srgb,
     var(--vscode-textLink-foreground) 15%,
     transparent
   );
+  --color-section-header-canvas: var(--vscode-inlineChat-background);
 
-  /* Active */
-  --color-active-text: var(--vscode-textLink-foreground);
-  --color-active-border: var(--vscode-focusBorder);
+  --color-block-border: var(--vscode-sideBarSectionHeader-border, transparent);
+  --color-block-canvas: var(--vscode-inlineChat-background);
 }
 
 :placeholder-shown {

@@ -22,30 +22,39 @@ export function DatasetDatasourceComponent(
 
   return (
     <DatasetDatasourceProvider datasetDatasource={datasetDatasource}>
-      <div className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+      {resolved ? (
+        <div>
+          <DatasetDatasourceCsv />
+
+          <Button
+            size="xsmall"
+            onClick={() => datasetDatasource.selectCsv()}
+            isDisabled={pending}
+          >
+            Reload CSV
+          </Button>
+
+          {resolved && (
+            <Button size="xsmall" onClick={() => datasetDatasource.clearCsv()}>
+              Clear CSV
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          <p>Load a CSV file to use its data as the prompt variables.</p>
+
+          <div>
             <Button
               size="xsmall"
               onClick={() => datasetDatasource.selectCsv()}
               isDisabled={pending}
             >
-              {resolved ? "Reload CSV" : "Load CSV"}
+              Load CSV
             </Button>
-
-            {resolved && (
-              <Button
-                size="xsmall"
-                onClick={() => datasetDatasource.clearCsv()}
-              >
-                Clear CSV
-              </Button>
-            )}
           </div>
         </div>
-
-        <DatasetDatasourceCsv />
-      </div>
+      )}
     </DatasetDatasourceProvider>
   );
 }

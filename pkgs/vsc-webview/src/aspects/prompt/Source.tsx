@@ -14,7 +14,7 @@ export function PromptSource(props: PromptSource.Props) {
   const content = promptState.$.prompt.$.content.useValue();
 
   return (
-    <LayoutSection bordered>
+    <LayoutSection>
       <TextArea label={{ a11y: "Prompt" }} value={content} isReadOnly />
     </LayoutSection>
   );

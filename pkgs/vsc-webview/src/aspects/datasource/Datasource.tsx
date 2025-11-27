@@ -34,38 +34,36 @@ export function DatasourceComponent(props: DatasourceComponent.Props) {
   const type = typeField.useValue();
 
   return (
-    <div className="space-y-3">
-      <div className="space-y-2">
-        <div className="flex items-center gap-4 text-sm">
-          <Tabs
-            initial={type}
-            value={type}
-            onChange={(newType) => typeField.set(newType)}
-            items={[
-              {
-                id: "manual",
-                icon: iconRegularInputText,
-                label: DATASOURCE_TYPE_TITLES.manual,
-              },
-              {
-                id: "dataset",
-                icon: iconRegularTable,
-                label: DATASOURCE_TYPE_TITLES.dataset,
-              },
-            ]}
-            size="small"
-            style="inline"
-          />
-        </div>
-      </div>
+    <div className="flex flex-col gap-3">
+      <Tabs
+        initial={type}
+        value={type}
+        onChange={(newType) => typeField.set(newType)}
+        items={[
+          {
+            id: "manual",
+            icon: iconRegularInputText,
+            label: DATASOURCE_TYPE_TITLES.manual,
+          },
+          {
+            id: "dataset",
+            icon: iconRegularTable,
+            label: DATASOURCE_TYPE_TITLES.dataset,
+          },
+        ]}
+        size="xsmall"
+        style="inline"
+      />
 
-      {discriminated.discriminator === "dataset" ? (
-        <DatasetDatasource datasourceField={discriminated.field} />
-      ) : discriminated.discriminator === "manual" ? (
-        <DatasourceManual datasourceField={discriminated.field} />
-      ) : (
-        never()
-      )}
+      <div>
+        {discriminated.discriminator === "dataset" ? (
+          <DatasetDatasource datasourceField={discriminated.field} />
+        ) : discriminated.discriminator === "manual" ? (
+          <DatasourceManual datasourceField={discriminated.field} />
+        ) : (
+          never()
+        )}
+      </div>
     </div>
   );
 }

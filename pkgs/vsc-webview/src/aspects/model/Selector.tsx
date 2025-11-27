@@ -36,7 +36,7 @@ export function ModelSelector(props: ModelSelector.Props) {
   const modelIdField = field.$.modelId.useDefined("string");
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-2">
       <SelectController
         field={developerIdField}
         label={{ a11y: "Select model provider" }}
@@ -50,8 +50,8 @@ export function ModelSelector(props: ModelSelector.Props) {
             };
           }) || []
         }
-        placeholder="Select provider..."
-        size="small"
+        placeholder="Select developer..."
+        size="xsmall"
         // isDisabled={!!disabled}
         // errors={...}
       />
@@ -66,7 +66,7 @@ export function ModelSelector(props: ModelSelector.Props) {
           })) || []
         }
         placeholder="Select model..."
-        size="small"
+        size="xsmall"
         // isDisabled={!!disabled}
         // errors={modelError}
       />

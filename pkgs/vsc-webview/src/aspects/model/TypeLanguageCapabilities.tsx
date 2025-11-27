@@ -16,11 +16,30 @@ export function ModelTypeLanguageCapabilities(props: SetupCapabilities.Props) {
   const { attachment, toolCall, reasoning, temperature } = capabilities;
 
   return (
-    <Tags>
-      {attachment && <Tag size="small">Attachments</Tag>}
-      {toolCall && <Tag size="small">Tool call</Tag>}
-      {reasoning && <Tag size="small">Reasoning</Tag>}
-      {temperature && <Tag size="small">Reasoning</Tag>}
+    <Tags size="xsmall">
+      {attachment && (
+        <Tag color="secondary" size="xsmall">
+          Attachments
+        </Tag>
+      )}
+
+      {toolCall && (
+        <Tag color="secondary" size="xsmall">
+          Tool call
+        </Tag>
+      )}
+
+      {reasoning && (
+        <Tag color="secondary" size="xsmall">
+          Reasoning
+        </Tag>
+      )}
+
+      {temperature && (
+        <Tag color="secondary" size="xsmall">
+          Reasoning
+        </Tag>
+      )}
     </Tags>
   );
 }

@@ -12,10 +12,10 @@ export function Tests(props: Tests.Props) {
   const testsField = props.testsField.useCollection();
 
   return (
-    <div className="space-y-3">
+    <>
       {testsField.map((testField) => (
         <TestComponent key={testField.id} testField={testField} />
       ))}
-    </div>
+    </>
   );
 }

@@ -34,11 +34,11 @@ export function FileHeader(props: FileHeader.Props) {
   );
 
   return (
-    <LayoutSection top bordered pinned={isPinned}>
+    <LayoutSection style="header" sticky="top">
       <div className="flex items-center justify-between gap-2">
         <FileLabel fileState={fileState} isPinned={isPinned} />
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 max-w-60 w-full">
           <Select
             label={{ a11y: "Select prompt" }}
             size="xsmall"

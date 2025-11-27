@@ -12,22 +12,13 @@ export namespace FileLabel {
 
 export function FileLabel(props: FileLabel.Props) {
   const { fileState, isPinned } = props;
+  const languageId = fileState.$.languageId.useValue();
 
   return (
-    <div>
-      <div
-        className={
-          "inline-flex items-center gap-1 px-1 -mx-1 rounded hover:bg-item-hover"
-        }
-      >
-        <LanguageIcon
-          id={fileState.$.languageId}
-          color="support"
-          size="xsmall"
-        />
+    <div className="flex items-center gap-1">
+      <LanguageIcon id={languageId} color="support" size="small" />
 
-        <FileNameLabel pathState={fileState.$.path} isPinned={isPinned} />
-      </div>
+      <FileNameLabel pathState={fileState.$.path} isPinned={isPinned} />
     </div>
   );
 }

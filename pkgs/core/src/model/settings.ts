@@ -54,7 +54,7 @@ export namespace ModelSettings {
 export const modelSettingsReasoningEffort = ["low", "medium", "high"] as const;
 
 export function buildModelSettings(): ModelSettings {
-  return { v: 1, type: "language" };
+  return { v: 1, type: "language", stopSequences: [""] };
 }
 
 export function buildModelSettingsReasoning(

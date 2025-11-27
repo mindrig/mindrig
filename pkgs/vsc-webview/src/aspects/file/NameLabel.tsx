@@ -17,8 +17,14 @@ export function FileNameLabel(props: FileNameLabel.Props) {
 
   return (
     <div className={cn(isPinned ? "text-active-text" : "")}>
-      <span>{nameView.main}</span>
-      <span className={textCn({ color: isPinned ? "main" : "detail" })}>
+      <span className={textCn({ role: "label" })}>{nameView.main}</span>
+
+      <span
+        className={textCn({
+          role: "label",
+          color: isPinned ? "main" : "detail",
+        })}
+      >
         {nameView.post}
       </span>
     </div>

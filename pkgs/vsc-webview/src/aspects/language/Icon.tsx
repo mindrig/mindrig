@@ -1,26 +1,25 @@
 import { Language } from "@wrkspc/core/lang";
 import { iconBaseCn, iconInlineCn } from "@wrkspc/ds";
 import { cn } from "crab";
-import { State } from "enso";
 
 export namespace LanguageIcon {
   export interface Props
     extends cn.Props<typeof iconBaseCn>,
       cn.Props<typeof iconInlineCn> {
-    id: State<Language.Id>;
+    id: Language.Id;
   }
 }
 
 export function LanguageIcon(props: LanguageIcon.Props) {
   return (
-    <i className={cn(iconBaseCn(props), iconInlineCn(props))}>
+    <div className={cn(iconBaseCn(props), iconInlineCn(props), "p-0.5")}>
       <Content {...props} />
-    </i>
+    </div>
   );
 }
 
 function Content(props: LanguageIcon.Props) {
-  const id = props.id.useValue();
+  const { id } = props;
 
   switch (id) {
     case "ts":

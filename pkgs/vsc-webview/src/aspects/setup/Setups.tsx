@@ -1,5 +1,6 @@
 import { buildSetup, buildSetupsModelRefs, Setup } from "@wrkspc/core/setup";
 import { Button } from "@wrkspc/ds";
+import iconRegularMicrochip from "@wrkspc/icons/svg/regular/microchip.js";
 import iconRegularPlus from "@wrkspc/icons/svg/regular/plus.js";
 import { Field, State } from "enso";
 import { LayoutSection } from "../layout/Section";
@@ -21,47 +22,41 @@ export function Setups(props: Setups.Props) {
   const soloSetup = setupsField.useCompute((setups) => setups.length === 1, []);
 
   return (
-    <LayoutSection bordered>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h4 className="text-sm font-semibold">
-              {soloSetup ? "Model" : "Models"}
-            </h4>
-          </div>
-
-          <Button
-            type="button"
-            color="secondary"
-            style="transparent"
-            size="xsmall"
-            icon={iconRegularPlus}
-            onClick={() => {
-              const usedModelRefs = buildSetupsModelRefs(setupsField.value);
-              setupsField.push(
-                buildSetup({
-                  modelsMap: modelsPayload?.map,
-                  usedModelRefs,
-                }),
-              );
-            }}
-          >
-            Add model
-          </Button>
+    <LayoutSection
+      header={soloSetup ? "Model" : "Models"}
+      icon={iconRegularMicrochip}
+      actions={
+        <Button
+          type="button"
+          color="secondary"
+          style="label"
+          size="xsmall"
+          icon={iconRegularPlus}
+          onClick={() => {
+            const usedModelRefs = buildSetupsModelRefs(setupsField.value);
+            setupsField.push(
+              buildSetup({
+                modelsMap: modelsPayload?.map,
+                usedModelRefs,
+              }),
+            );
+          }}
+        >
+          Add model
+        </Button>
+      }
+      divided
+    >
+      {setupsField.map((setupField, index) => (
+        <div key={setupField.key} className="pb-2 last:pb-0">
+          <SetupComponent
+            setupField={setupField}
+            solo={soloSetup}
+            expandedIndexState={setupsAppState.$.expandedIndex}
+            index={index}
+          />
         </div>
-
-        <div className="space-y-3">
-          {setupsField.map((setupField, index) => (
-            <SetupComponent
-              key={setupField.key}
-              setupField={setupField}
-              solo={soloSetup}
-              expandedIndexState={setupsAppState.$.expandedIndex}
-              index={index}
-            />
-          ))}
-        </div>
-      </div>
+      ))}
     </LayoutSection>
   );
 }

@@ -10,7 +10,7 @@ export function AuthPage() {
   return (
     <AppLayout>
       <div className="flex flex-col gap-4">
-        <LayoutSection bordered>
+        <LayoutSection>
           <div className="flex items-center justify-between gap-3">
             <h1 className="text-lg font-semibold text-gray-900">Account</h1>
 

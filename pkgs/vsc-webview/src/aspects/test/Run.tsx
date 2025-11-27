@@ -1,5 +1,6 @@
 import { Button } from "@wrkspc/ds";
 import { Checkbox } from "@wrkspc/form";
+import { LayoutSection } from "../layout/Section";
 import { RunComponent } from "../run/Run";
 import { useTest } from "./Context";
 
@@ -10,7 +11,7 @@ export function TestRunComponent() {
   const streaming = test.useStreaming();
 
   return (
-    <>
+    <LayoutSection sticky="bottom">
       <div className="grid gap-3">
         <div className="flex items-center gap-2">
           <Button
@@ -53,6 +54,6 @@ export function TestRunComponent() {
 
         {run && <RunComponent run={run} />}
       </div>
-    </>
+    </LayoutSection>
   );
 }

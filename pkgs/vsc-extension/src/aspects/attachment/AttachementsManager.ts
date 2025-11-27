@@ -5,11 +5,24 @@ import {
   AttachmentMessage,
 } from "@wrkspc/core/attachment";
 import { FileContent } from "@wrkspc/core/file";
+import { LANGUAGE_EXTENSIONS } from "@wrkspc/core/lang";
 import { always } from "alwaysly";
-import Mime from "mime/lite";
+import { Mime } from "mime";
+import standardMimeTypes from "mime/types/standard.js";
 import * as vscode from "vscode";
 import { Manager } from "../manager/Manager.js";
 import { MessagesManager } from "../message/Manager.js";
+
+const mimeDb = new Mime(standardMimeTypes);
+
+mimeDb.define(
+  {
+    "text/python": LANGUAGE_EXTENSIONS.py,
+    "text/javascript": LANGUAGE_EXTENSIONS.js,
+    "text/typescript": LANGUAGE_EXTENSIONS.ts,
+  },
+  true,
+);
 
 export namespace AttachmentsManager {
   export interface Props {
@@ -53,7 +66,7 @@ export class AttachmentsManager extends Manager {
         const name = uri.path.split("/").pop();
         always(name);
         const path = uri.fsPath as Attachment.Path;
-        const mime = Mime.getType(name) || "application/octet-stream";
+        const mime = mimeDb.getType(name) || "application/octet-stream";
         const { size } = await vscode.workspace.fs.stat(uri);
         const attachment: Attachment = { v: 1, name, path, mime, size };
         return attachment;
