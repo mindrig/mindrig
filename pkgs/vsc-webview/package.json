@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "package": "vite build --mode production",
-    "build": "vite build --mode production",
+    "dev": "vite",
     "preview": "vite build --mode development",
     "preview:watch": "vite build --watch --mode development",
-    "dev": "vite",
+    "build": "vite build --mode production",
     "test": "test -z $TURBO_HASH && turbo test || true",
     "test/unit": "vitest run",
     "test/unit:watch": "vitest",

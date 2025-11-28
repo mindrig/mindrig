@@ -1,4 +1,3 @@
-import { createGateway } from "@ai-sdk/gateway";
 import { Auth, AuthGateway } from "@wrkspc/core/auth";
 import {
   ModelGateway,
@@ -8,6 +7,7 @@ import {
 } from "@wrkspc/core/model";
 import { log } from "smollog";
 import { AuthManager } from "../auth/Manager.js";
+import { resolveGateway } from "../gateway/gateway.js";
 import { Manager } from "../manager/Manager.js";
 import { MessagesManager } from "../message/Manager.js";
 import { RequestCacheManager } from "../request/CacheManager.js";
@@ -114,7 +114,7 @@ export class ModelsGatewayManager extends Manager {
     const cache = this.#cache("auth").access(source);
     if (cache) return cache;
 
-    const gateway = createGateway({ apiKey });
+    const gateway = resolveGateway(apiKey);
 
     let data: ModelVercel.ListResponseData;
     try {

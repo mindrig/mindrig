@@ -45,15 +45,15 @@ export class WebviewHtmlManager extends Manager {
   }
 
   async #renderHtml(webview: vscode.Webview): Promise<string> {
-    const useDevServer = process.env.VSCODE_DEV_SERVER === "true";
+    const devServer = process.env.MINDRIG_DEV_VSC_WEBVIEW_SERVER === "true";
 
     const [uris, initialState] = await Promise.all([
-      useDevServer ? this.#devServerUris() : this.#localPaths(webview),
+      devServer ? this.#devServerUris() : this.#localPaths(webview),
       this.#state.state,
     ]);
 
     return webviewHtml({
-      devServer: useDevServer,
+      devServer,
       uris,
       initialState,
     });

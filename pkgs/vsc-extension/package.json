@@ -134,14 +134,14 @@
     }
   },
   "scripts": {
-    "dev": "pnpm run preview:watch",
+    "dev": "vite build --mode development --watch",
+    "preview": "vite build --mode development",
+    "preview:watch": "vite build --mode development --watch",
     "pack": "vsce pack --no-dependencies",
     "publish": "vsce publish --no-dependencies",
     "vscode:prepublish": "pnpm -F @wrkspc/vsc-webview run package && pnpm run package",
     "package": "vite build --mode production",
     "build": "vite build --mode production",
-    "preview": "vite build --mode development",
-    "preview:watch": "VSCODE_DEV_SERVER=true vite build --watch --mode development",
     "test": "test -z $TURBO_HASH && turbo run test || echo OK",
     "test/unit": "vitest run",
     "test/unit:watch": "vitest",
@@ -170,7 +170,6 @@
     "p-queue": "^8.0.1",
     "smolcsv": "^0.1.0",
     "smollog": "^0.2.0",
-    "smolxxh": "^0.1.0",
     "yjs": "^13.6.27"
   },
   "devDependencies": {
@@ -189,6 +188,8 @@
     "oxlint": "^1.23.0",
     "playwright-core": "^1.55.0",
     "prettier": "^3.6.2",
+    "smolcanon": "^0.2.0",
+    "smolxxh": "^0.1.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.3",
     "vite": "^7.1.12",

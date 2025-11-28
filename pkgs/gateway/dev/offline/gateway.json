@@ -1,0 +1,2112 @@
+{
+  "models": [
+    {
+      "id": "alibaba/qwen-3-14b",
+      "name": "Qwen3-14B",
+      "description": "Qwen3 is the latest generation of large language models in Qwen series, offering a comprehensive suite of dense and mixture-of-experts (MoE) models. Built upon extensive training, Qwen3 delivers groundbreaking advancements in reasoning, instruction-following, agent capabilities, and multilingual support",
+      "pricing": { "input": "0.00000006", "output": "0.00000024" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "alibaba/qwen-3-14b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen-3-235b",
+      "name": "Qwen3 235B A22B Instruct 2507",
+      "description": "Qwen3-235B-A22B-Instruct-2507 is the updated version of the Qwen3-235B-A22B non-thinking mode, featuring Significant improvements in general capabilities, including instruction following, logical reasoning, text comprehension, mathematics, science, coding and tool usage.",
+      "pricing": { "input": "0.00000013", "output": "0.0000006" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "alibaba/qwen-3-235b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen-3-30b",
+      "name": "Qwen3-30B-A3B",
+      "description": "Qwen3 is the latest generation of large language models in Qwen series, offering a comprehensive suite of dense and mixture-of-experts (MoE) models. Built upon extensive training, Qwen3 delivers groundbreaking advancements in reasoning, instruction-following, agent capabilities, and multilingual support",
+      "pricing": { "input": "0.00000008", "output": "0.00000029" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "alibaba/qwen-3-30b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen-3-32b",
+      "name": "Qwen 3.32B",
+      "description": "Qwen3 is the latest generation of large language models in Qwen series, offering a comprehensive suite of dense and mixture-of-experts (MoE) models. Built upon extensive training, Qwen3 delivers groundbreaking advancements in reasoning, instruction-following, agent capabilities, and multilingual support",
+      "pricing": { "input": "0.0000001", "output": "0.0000003" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "alibaba/qwen-3-32b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen3-235b-a22b-thinking",
+      "name": "Qwen3 235B A22B Thinking 2507",
+      "description": "Qwen3-235B-A22B-Thinking-2507 is the Qwen3's new model with scaling the thinking capability of Qwen3-235B-A22B, improving both the quality and depth of reasoning.",
+      "pricing": { "input": "0.0000003", "output": "0.0000029" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "alibaba/qwen3-235b-a22b-thinking"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen3-coder",
+      "name": "Qwen3 Coder 480B A35B Instruct",
+      "description": "Mixture-of-experts LLM with advanced coding and reasoning capabilities",
+      "pricing": { "input": "0.00000038", "output": "0.00000153" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "baseten",
+        "modelId": "alibaba/qwen3-coder"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen3-coder-30b-a3b",
+      "name": "Qwen 3 Coder 30B A3B Instruct",
+      "description": "Efficient coding specialist balancing performance with cost-effectiveness for daily development tasks while maintaining strong tool integration capabilities.",
+      "pricing": { "input": "0.00000007", "output": "0.00000027" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "novita",
+        "modelId": "alibaba/qwen3-coder-30b-a3b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen3-coder-plus",
+      "name": "Qwen3 Coder Plus",
+      "description": "Powered by Qwen3 this is a powerful Coding Agent that excels in tool calling and environment interaction to achieve autonomous programming. It combines outstanding coding proficiency with versatile general-purpose abilities.",
+      "pricing": { "input": "0.000001", "output": "0.000005" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "alibaba",
+        "modelId": "alibaba/qwen3-coder-plus"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen3-embedding-0.6b",
+      "name": "Qwen3 Embedding 0.6B",
+      "description": "The Qwen3 Embedding model series is the latest proprietary model of the Qwen family, specifically designed for text embedding and ranking tasks. Building upon the dense foundational models of the Qwen3 series, it provides a comprehensive range of text embeddings and reranking models in various sizes (0.6B, 4B, and 8B).",
+      "pricing": { "input": "0.00000001", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "alibaba/qwen3-embedding-0.6b"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "alibaba/qwen3-embedding-4b",
+      "name": "Qwen3 Embedding 4B",
+      "description": "The Qwen3 Embedding model series is the latest proprietary model of the Qwen family, specifically designed for text embedding and ranking tasks. Building upon the dense foundational models of the Qwen3 series, it provides a comprehensive range of text embeddings and reranking models in various sizes (0.6B, 4B, and 8B).",
+      "pricing": { "input": "0.00000002", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "alibaba/qwen3-embedding-4b"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "alibaba/qwen3-embedding-8b",
+      "name": "Qwen3 Embedding 8B",
+      "description": "The Qwen3 Embedding model series is the latest proprietary model of the Qwen family, specifically designed for text embedding and ranking tasks. Building upon the dense foundational models of the Qwen3 series, it provides a comprehensive range of text embeddings and reranking models in various sizes (0.6B, 4B, and 8B).",
+      "pricing": { "input": "0.00000005", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "alibaba/qwen3-embedding-8b"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "alibaba/qwen3-max",
+      "name": "Qwen3 Max",
+      "description": "The Qwen 3 series Max model has undergone specialized upgrades in agent programming and tool invocation compared to the preview version. The officially released model this time has achieved state-of-the-art (SOTA) performance in its field and is better suited to meet the demands of agents operating in more complex scenarios.",
+      "pricing": {
+        "input": "0.0000012",
+        "output": "0.000006",
+        "cachedInputTokens": "0.00000024"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "alibaba",
+        "modelId": "alibaba/qwen3-max"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen3-max-preview",
+      "name": "Qwen3 Max Preview",
+      "description": "Qwen3-Max-Preview shows substantial gains over the 2.5 series in overall capability, with significant enhancements in Chinese-English text understanding, complex instruction following, handling of subjective open-ended tasks, multilingual ability, and tool invocation; model knowledge hallucinations are reduced.",
+      "pricing": {
+        "input": "0.0000012",
+        "output": "0.000006",
+        "cachedInputTokens": "0.00000024"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "alibaba",
+        "modelId": "alibaba/qwen3-max-preview"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen3-next-80b-a3b-instruct",
+      "name": "Qwen3 Next 80B A3B Instruct",
+      "description": "Qwen3-Next uses a highly sparse MoE design: 80B total parameters, but only ~3B activated per inference step. Experiments show that, with global load balancing, increasing total expert parameters while keeping activated experts fixed steadily reduces training loss.Compared to Qwen3’s MoE (128 total experts, 8 routed), Qwen3-Next expands to 512 total experts, combining 10 routed experts + 1 shared expert — maximizing resource usage without hurting performance. The Qwen3-Next-80B-A3B-Instruct performs comparably to our flagship model Qwen3-235B-A22B-Instruct-2507, and shows clear advantages in tasks requiring ultra-long context (up to 256K tokens).",
+      "pricing": { "input": "0.00000015", "output": "0.0000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "novita",
+        "modelId": "alibaba/qwen3-next-80b-a3b-instruct"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen3-next-80b-a3b-thinking",
+      "name": "Qwen3 Next 80B A3B Thinking",
+      "description": "Qwen3-Next uses a highly sparse MoE design: 80B total parameters, but only ~3B activated per inference step. Experiments show that, with global load balancing, increasing total expert parameters while keeping activated experts fixed steadily reduces training loss.Compared to Qwen3’s MoE (128 total experts, 8 routed), Qwen3-Next expands to 512 total experts, combining 10 routed experts + 1 shared expert — maximizing resource usage without hurting performance. The Qwen3-Next-80B-A3B-Thinking excels at complex reasoning tasks — outperforming higher-cost models like Qwen3-30B-A3B-Thinking-2507 and Qwen3-32B-Thinking, outpeforming the closed-source Gemini-2.5-Flash-Thinking on multiple benchmarks, and approaching the performance of our top-tier model Qwen3-235B-A22B-Thinking-2507.",
+      "pricing": { "input": "0.00000015", "output": "0.0000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "novita",
+        "modelId": "alibaba/qwen3-next-80b-a3b-thinking"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen3-vl-instruct",
+      "name": "Qwen3 VL 235B A22B Instruct",
+      "description": "The Qwen3 series VL models has been comprehensively upgraded in areas such as visual coding and spatial perception. Its visual perception and recognition capabilities have significantly improved, supporting the understanding of ultra-long videos, and its OCR functionality has undergone a major enhancement.",
+      "pricing": { "input": "0.0000007", "output": "0.0000028" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "alibaba",
+        "modelId": "alibaba/qwen3-vl-instruct"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "alibaba/qwen3-vl-thinking",
+      "name": "Qwen3 VL 235B A22B Thinking",
+      "description": "Qwen3 series VL models feature significantly enhanced multimodal reasoning capabilities, with a particular focus on optimizing the model for STEM and mathematical reasoning. Visual perception and recognition abilities have been comprehensively improved, and OCR capabilities have undergone a major upgrade.",
+      "pricing": { "input": "0.0000007", "output": "0.0000084" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "alibaba",
+        "modelId": "alibaba/qwen3-vl-thinking"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "amazon/nova-lite",
+      "name": "Nova Lite",
+      "description": "A very low cost multimodal model that is lightning fast for processing image, video, and text inputs.",
+      "pricing": { "input": "0.00000006", "output": "0.00000024" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "amazon/nova-lite"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "amazon/nova-micro",
+      "name": "Nova Micro",
+      "description": "A text-only model that delivers the lowest latency responses at very low cost.",
+      "pricing": { "input": "0.000000035", "output": "0.00000014" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "amazon/nova-micro"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "amazon/nova-pro",
+      "name": "Nova Pro",
+      "description": "A highly capable multimodal model with the best combination of accuracy, speed, and cost for a wide range of tasks.",
+      "pricing": { "input": "0.0000008", "output": "0.0000032" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "amazon/nova-pro"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "amazon/titan-embed-text-v2",
+      "name": "Titan Text Embeddings V2",
+      "description": "Amazon Titan Text Embeddings V2 is a light weight, efficient multilingual embedding model supporting 1024, 512, and 256 dimensions.",
+      "pricing": { "input": "0.00000002", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "amazon/titan-embed-text-v2"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "anthropic/claude-3-haiku",
+      "name": "Claude 3 Haiku",
+      "description": "Claude 3 Haiku is Anthropic's fastest model yet, designed for enterprise workloads which often involve longer prompts. Haiku to quickly analyze large volumes of documents, such as quarterly filings, contracts, or legal cases, for half the cost of other models in its performance tier.",
+      "pricing": {
+        "input": "0.00000025",
+        "output": "0.00000125",
+        "cachedInputTokens": "0.00000003",
+        "cacheCreationInputTokens": "0.0000003"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "anthropic",
+        "modelId": "anthropic/claude-3-haiku"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-3-opus",
+      "name": "Claude 3 Opus",
+      "description": "Claude 3 Opus is Anthropic's most intelligent model, with best-in-market performance on highly complex tasks. It can navigate open-ended prompts and sight-unseen scenarios with remarkable fluency and human-like understanding. Opus shows us the outer limits of what's possible with generative AI.",
+      "pricing": {
+        "input": "0.000015",
+        "output": "0.000075",
+        "cachedInputTokens": "0.0000015",
+        "cacheCreationInputTokens": "0.00001875"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "anthropic",
+        "modelId": "anthropic/claude-3-opus"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-3.5-haiku",
+      "name": "Claude 3.5 Haiku",
+      "description": "Claude 3.5 Haiku is the next generation of our fastest model. For a similar speed to Claude 3 Haiku, Claude 3.5 Haiku improves across every skill set and surpasses Claude 3 Opus, the largest model in our previous generation, on many intelligence benchmarks.",
+      "pricing": {
+        "input": "0.0000008",
+        "output": "0.000004",
+        "cachedInputTokens": "0.00000008",
+        "cacheCreationInputTokens": "0.000001"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "anthropic",
+        "modelId": "anthropic/claude-3.5-haiku"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-3.5-sonnet",
+      "name": "Claude 3.5 Sonnet",
+      "description": "The upgraded Claude 3.5 Sonnet is now state-of-the-art for a variety of tasks including real-world software engineering, agentic capabilities and computer use. The new Claude 3.5 Sonnet delivers these advancements at the same price and speed as its predecessor.",
+      "pricing": {
+        "input": "0.000003",
+        "output": "0.000015",
+        "cachedInputTokens": "0.0000003",
+        "cacheCreationInputTokens": "0.00000375"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "anthropic/claude-3.5-sonnet"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-3.5-sonnet-20240620",
+      "name": "Claude 3.5 Sonnet (2024-06-20)",
+      "description": "Claude 3.5 Sonnet raises the industry bar for intelligence, outperforming competitor models and Claude 3 Opus on a wide range of evaluations, with the speed and cost of our mid-tier model, Claude 3 Sonnet.",
+      "pricing": { "input": "0.000003", "output": "0.000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "anthropic/claude-3.5-sonnet-20240620"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-3.7-sonnet",
+      "name": "Claude 3.7 Sonnet",
+      "description": "Claude 3.7 Sonnet is the first hybrid reasoning model and Anthropic's most intelligent model to date. It delivers state-of-the-art performance for coding, content generation, data analysis, and planning tasks, building upon its predecessor Claude 3.5 Sonnet's capabilities in software engineering and computer use.",
+      "pricing": {
+        "input": "0.000003",
+        "output": "0.000015",
+        "cachedInputTokens": "0.0000003",
+        "cacheCreationInputTokens": "0.00000375"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "anthropic",
+        "modelId": "anthropic/claude-3.7-sonnet"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-haiku-4.5",
+      "name": "Claude Haiku 4.5",
+      "description": "Claude Haiku 4.5 matches Sonnet 4's performance on coding, computer use, and agent tasks at substantially lower cost and faster speeds. It delivers near-frontier performance and Claude’s unique character at a price point that works for scaled sub-agent deployments, free tier products, and intelligence-sensitive applications with budget constraints.",
+      "pricing": {
+        "input": "0.000001",
+        "output": "0.000005",
+        "cachedInputTokens": "0.0000001",
+        "cacheCreationInputTokens": "0.00000125"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "anthropic",
+        "modelId": "anthropic/claude-haiku-4.5"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-opus-4",
+      "name": "Claude Opus 4",
+      "description": "Claude Opus 4 is Anthropic's most powerful model yet and the best coding model in the world, leading on SWE-bench (72.5%) and Terminal-bench (43.2%). It delivers sustained performance on long-running tasks that require focused effort and thousands of steps, with the ability to work continuously for several hours—dramatically outperforming all Sonnet models and significantly expanding what AI agents can accomplish.",
+      "pricing": {
+        "input": "0.000015",
+        "output": "0.000075",
+        "cachedInputTokens": "0.0000015",
+        "cacheCreationInputTokens": "0.00001875"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "anthropic",
+        "modelId": "anthropic/claude-opus-4"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-opus-4.1",
+      "name": "Claude Opus 4.1",
+      "description": "Claude Opus 4.1 is a drop-in replacement for Opus 4 that delivers superior performance and precision for real-world coding and agentic tasks. Opus 4.1 advances state-of-the-art coding performance to 74.5% on SWE-bench Verified, and handles complex, multi-step problems with more rigor and attention to detail.",
+      "pricing": {
+        "input": "0.000015",
+        "output": "0.000075",
+        "cachedInputTokens": "0.0000015",
+        "cacheCreationInputTokens": "0.00001875"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "anthropic",
+        "modelId": "anthropic/claude-opus-4.1"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-opus-4.5",
+      "name": "Claude Opus 4.5",
+      "description": "Claude Opus 4.5 is Anthropic’s latest model in the Opus series, meant for demanding reasoning tasks and complex problem solving. This model has improvements in general intelligence and vision compared to previous iterations. In addition, it is suited for difficult coding tasks and agentic workflows, especially those with computer use and tool use, and can effectively handle context usage and external memory files.",
+      "pricing": {
+        "input": "0.000005",
+        "output": "0.000025",
+        "cachedInputTokens": "0.0000005",
+        "cacheCreationInputTokens": "0.00000625"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "anthropic",
+        "modelId": "anthropic/claude-opus-4.5"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-sonnet-4",
+      "name": "Claude Sonnet 4",
+      "description": "Claude Sonnet 4 significantly improves on Sonnet 3.7's industry-leading capabilities, excelling in coding with a state-of-the-art 72.7% on SWE-bench. The model balances performance and efficiency for internal and external use cases, with enhanced steerability for greater control over implementations. While not matching Opus 4 in most domains, it delivers an optimal mix of capability and practicality.",
+      "pricing": {
+        "input": "0.000003",
+        "output": "0.000015",
+        "cachedInputTokens": "0.0000003",
+        "cacheCreationInputTokens": "0.00000375"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "anthropic",
+        "modelId": "anthropic/claude-sonnet-4"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "anthropic/claude-sonnet-4.5",
+      "name": "Claude Sonnet 4.5",
+      "description": "Claude Sonnet 4.5 is the newest model in the Sonnet series, offering improvements and updates over Sonnet 4.",
+      "pricing": {
+        "input": "0.000003",
+        "output": "0.000015",
+        "cachedInputTokens": "0.0000003",
+        "cacheCreationInputTokens": "0.00000375"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "anthropic",
+        "modelId": "anthropic/claude-sonnet-4.5"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "bfl/flux-kontext-max",
+      "name": "FLUX.1 Kontext Max",
+      "description": "FLUX.1 Kontext creates images from text prompts with unique capabilities for character consistency and advanced editing. It also edits images using simple text prompts. No complex workflows or fine-tuning needed.\nThis provider gives the option to change the moderation level for inputs and outputs. The control is under safety tolerance and is by default 2 on a range from 0 (more strict) through 6 (more permissive).",
+      "pricing": { "input": "0", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bfl",
+        "modelId": "bfl/flux-kontext-max"
+      },
+      "modelType": "image"
+    },
+    {
+      "id": "bfl/flux-kontext-pro",
+      "name": "FLUX.1 Kontext Pro",
+      "description": "FLUX.1 Kontext creates images from text prompts with unique capabilities for character consistency and advanced editing. It also edits images using simple text prompts. No complex workflows or fine-tuning needed.\nThis provider gives the option to change the moderation level for inputs and outputs. The control is under safety tolerance and is by default 2 on a range from 0 (more strict) through 6 (more permissive).",
+      "pricing": { "input": "0", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bfl",
+        "modelId": "bfl/flux-kontext-pro"
+      },
+      "modelType": "image"
+    },
+    {
+      "id": "bfl/flux-pro-1.0-fill",
+      "name": "FLUX.1 Fill [pro]",
+      "description": "A state-of-the-art inpainting model, enabling editing and expansion of real and generated images given a text description and a binary mask.\nThis provider gives the option to change the moderation level for inputs and outputs. The control is under safety tolerance and is by default 2 on a range from 0 (more strict) through 6 (more permissive).",
+      "pricing": { "input": "0", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bfl",
+        "modelId": "bfl/flux-pro-1.0-fill"
+      },
+      "modelType": "image"
+    },
+    {
+      "id": "bfl/flux-pro-1.1",
+      "name": "FLUX1.1 [pro]",
+      "description": "FLUX1.1 [pro] is the standard for text-to-image generation with fast, reliable and consistently stunning results.\nThis provider gives the option to change the moderation level for inputs and outputs. The control is under safety tolerance and is by default 2 on a range from 0 (more strict) through 6 (more permissive).",
+      "pricing": { "input": "0", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bfl",
+        "modelId": "bfl/flux-pro-1.1"
+      },
+      "modelType": "image"
+    },
+    {
+      "id": "bfl/flux-pro-1.1-ultra",
+      "name": "FLUX1.1 [pro] Ultra",
+      "description": "FLUX1.1 [pro] Ultra delivers ultra-fast, ultra high-resolution image creation - with more pixels in every picture. Generate varying aspect ratios from text, at 4MP resolution fast.\nThis provider gives the option to change the moderation level for inputs and outputs. The control is under safety tolerance and is by default 2 on a range from 0 (more strict) through 6 (more permissive).",
+      "pricing": { "input": "0", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bfl",
+        "modelId": "bfl/flux-pro-1.1-ultra"
+      },
+      "modelType": "image"
+    },
+    {
+      "id": "cohere/command-a",
+      "name": "Command A",
+      "description": "Command A is Cohere's most performant model to date, excelling at tool use, agents, retrieval augmented generation (RAG), and multilingual use cases. Command A has a context length of 256K, only requires two GPUs to run, and has 150% higher throughput compared to Command R+ 08-2024.",
+      "pricing": { "input": "0.0000025", "output": "0.00001" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "cohere",
+        "modelId": "cohere/command-a"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "cohere/embed-v4.0",
+      "name": "Embed v4.0",
+      "description": "A model that allows for text, images, or mixed content to be classified or turned into embeddings.",
+      "pricing": { "input": "0.00000012", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "cohere",
+        "modelId": "cohere/embed-v4.0"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "deepseek/deepseek-r1",
+      "name": "DeepSeek-R1",
+      "description": "The DeepSeek R1 model has undergone a minor version upgrade, with the current version being DeepSeek-R1-0528.",
+      "pricing": {
+        "input": "0.0000005",
+        "output": "0.00000215",
+        "cachedInputTokens": "0.0000004"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "deepseek/deepseek-r1"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "deepseek/deepseek-v3",
+      "name": "DeepSeek V3 0324",
+      "description": "Fast general-purpose LLM with enhanced reasoning capabilities",
+      "pricing": { "input": "0.00000077", "output": "0.00000077" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "baseten",
+        "modelId": "deepseek/deepseek-v3"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "deepseek/deepseek-v3.1",
+      "name": "DeepSeek-V3.1",
+      "description": "DeepSeek-V3.1 is post-trained on the top of DeepSeek-V3.1-Base, which is built upon the original V3 base checkpoint through a two-phase long context extension approach, following the methodology outlined in the original DeepSeek-V3 report. We have expanded our dataset by collecting additional long documents and substantially extending both training phases. The 32K extension phase has been increased 10-fold to 630B tokens, while the 128K extension phase has been extended by 3.3x to 209B tokens. Additionally, DeepSeek-V3.1 is trained using the UE8M0 FP8 scale data format to ensure compatibility with microscaling data formats.",
+      "pricing": { "input": "0.0000003", "output": "0.000001" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "deepseek/deepseek-v3.1"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "deepseek/deepseek-v3.1-terminus",
+      "name": "DeepSeek V3.1 Terminus",
+      "description": "DeepSeek-V3.1-Terminus delivers more stable & reliable outputs across benchmarks compared to the previous version and addresses user feedback (i.e. language consistency and agent upgrades).",
+      "pricing": { "input": "0.00000027", "output": "0.000001" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "novita",
+        "modelId": "deepseek/deepseek-v3.1-terminus"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "deepseek/deepseek-v3.2-exp",
+      "name": "DeepSeek V3.2 Exp",
+      "description": "DeepSeek-V3.2-Exp is an experimental model introducing the groundbreaking DeepSeek Sparse Attention (DSA) mechanism for enhanced long-context processing efficiency. Built on V3.1-Terminus, DSA achieves fine-grained sparse attention while maintaining identical output quality.",
+      "pricing": { "input": "0.00000027", "output": "0.0000004" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "deepseek/deepseek-v3.2-exp"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "deepseek/deepseek-v3.2-exp-thinking",
+      "name": "DeepSeek V3.2 Exp Thinking",
+      "description": "DeepSeek-V3.2-Exp is an experimental model introducing the groundbreaking DeepSeek Sparse Attention (DSA) mechanism for enhanced long-context processing efficiency. Built on V3.1-Terminus, DSA achieves fine-grained sparse attention while maintaining identical output quality.",
+      "pricing": {
+        "input": "0.00000028",
+        "output": "0.00000042",
+        "cachedInputTokens": "0.000000028"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepseek",
+        "modelId": "deepseek/deepseek-v3.2-exp-thinking"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-2.0-flash",
+      "name": "Gemini 2.0 Flash",
+      "description": "Gemini 2.0 Flash delivers next-gen features and improved capabilities, including superior speed, native tool use, multimodal generation, and a 1M token context window.",
+      "pricing": {
+        "input": "0.0000001",
+        "output": "0.0000004",
+        "cachedInputTokens": "0.000000025"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-2.0-flash"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-2.0-flash-lite",
+      "name": "Gemini 2.0 Flash Lite",
+      "description": "Gemini 2.0 Flash delivers next-gen features and improved capabilities, including superior speed, built-in tool use, multimodal generation, and a 1M token context window.",
+      "pricing": { "input": "0.000000075", "output": "0.0000003" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-2.0-flash-lite"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-2.5-flash",
+      "name": "Gemini 2.5 Flash",
+      "description": "Gemini 2.5 Flash is a thinking model that offers great, well-rounded capabilities. It is designed to offer a balance between price and performance with multimodal support and a 1M token context window.",
+      "pricing": {
+        "input": "0.0000003",
+        "output": "0.0000025",
+        "cachedInputTokens": "0.00000003"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-2.5-flash"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-2.5-flash-image",
+      "name": "Nano Banana (Gemini 2.5 Flash Image)",
+      "description": "Nano Banana (Gemini 2.5 Flash Image) is Google's first fully hybrid reasoning model, letting developers turn thinking on or off and set thinking budgets to balance quality, cost, and latency. Upgraded for rapid creative workflows, it can generate interleaved text and images and supports conversational, multi‑turn image editing in natural language. It’s also locale‑aware, enabling culturally and linguistically appropriate image generation for audiences worldwide.",
+      "pricing": { "input": "0.0000003", "output": "0.0000025" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-2.5-flash-image"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-2.5-flash-image-preview",
+      "name": "Nano Banana Preview (Gemini 2.5 Flash Image Preview)",
+      "description": "Nano Banana (Gemini 2.5 Flash Image) is Google's first fully hybrid reasoning model, letting developers turn thinking on or off and set thinking budgets to balance quality, cost, and latency. Upgraded for rapid creative workflows, it can generate interleaved text and images and supports conversational, multi‑turn image editing in natural language. It’s also locale‑aware, enabling culturally and linguistically appropriate image generation for audiences worldwide.",
+      "pricing": { "input": "0.0000003", "output": "0.0000025" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-2.5-flash-image-preview"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-2.5-flash-lite",
+      "name": "Gemini 2.5 Flash Lite",
+      "description": "Gemini 2.5 Flash-Lite is a balanced, low-latency model with configurable thinking budgets and tool connectivity (e.g., Google Search grounding and code execution). It supports multimodal input and offers a 1M-token context window.",
+      "pricing": {
+        "input": "0.0000001",
+        "output": "0.0000004",
+        "cachedInputTokens": "0.00000001"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-2.5-flash-lite"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-2.5-flash-lite-preview-09-2025",
+      "name": "Gemini 2.5 Flash Lite Preview 09-2025",
+      "description": "Gemini 2.5 Flash-Lite is a balanced, low-latency model with configurable thinking budgets and tool connectivity (e.g., Google Search grounding and code execution). It supports multimodal input and offers a 1M-token context window.",
+      "pricing": { "input": "0.0000001", "output": "0.0000004" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-2.5-flash-lite-preview-09-2025"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-2.5-flash-preview-09-2025",
+      "name": "Gemini 2.5 Flash Preview 09-2025",
+      "description": "Gemini 2.5 Flash is a thinking model that offers great, well-rounded capabilities. It is designed to offer a balance between price and performance with multimodal support and a 1M token context window.",
+      "pricing": {
+        "input": "0.0000003",
+        "output": "0.0000025",
+        "cachedInputTokens": "0.00000003"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-2.5-flash-preview-09-2025"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-2.5-pro",
+      "name": "Gemini 2.5 Pro",
+      "description": "Gemini 2.5 Pro is our most advanced reasoning Gemini model, capable of solving complex problems. Gemini 2.5 Pro can comprehend vast datasets and challenging problems from different information sources, including text, audio, images, video, and even entire code repositories.",
+      "pricing": {
+        "input": "0.00000125",
+        "output": "0.00001",
+        "cachedInputTokens": "0.000000125"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-2.5-pro"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-3-pro-image",
+      "name": "Nano Banana Pro (Gemini 3 Pro Image)",
+      "description": "Nano Banana Pro (Gemini 3 Pro Image) builds on Nano Banana's generation capabilities into a new era of studio-quality, functional design to help you create and edit high-fidelity, production-ready visuals with unparalleled precision and control. Improvements include enhanced world knowledge and reasoning, dynamic text and translation, and studio level controls.",
+      "pricing": { "input": "0.000002", "output": "0.00012" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-3-pro-image"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-3-pro-preview",
+      "name": "Gemini 3 Pro Preview",
+      "description": "This model improves upon Gemini 2.5 Pro and is catered towards challenging tasks, especially those involving complex reasoning or agentic workflows. Improvements highlighted include use cases for coding, multi-step function calling, planning, reasoning, deep knowledge tasks, and instruction following.",
+      "pricing": {
+        "input": "0.000002",
+        "output": "0.000012",
+        "cachedInputTokens": "0.0000002"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-3-pro-preview"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "google/gemini-embedding-001",
+      "name": "Gemini Embedding 001",
+      "description": "State-of-the-art embedding model with excellent performance across English, multilingual and code tasks.",
+      "pricing": { "input": "0.00000015", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "google",
+        "modelId": "google/gemini-embedding-001"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "google/imagen-4.0-generate-001",
+      "name": "Imagen 4",
+      "description": "Imagen 4: Google's flagship text-to-image model that serves as the go-to choice for a wide variety of high-quality image generation tasks, featuring significant improvements in text rendering over previous models. It now supports up to 2K resolution generation for creating detailed and crisp visuals, making it suitable for everything from marketing assets to artistic compositions.",
+      "pricing": { "input": "0", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "vertex",
+        "modelId": "google/imagen-4.0-generate-001"
+      },
+      "modelType": "image"
+    },
+    {
+      "id": "google/imagen-4.0-ultra-generate-001",
+      "name": "Imagen 4 Ultra",
+      "description": "Imagen 4 Ultra: Highest quality image generation model for detailed and photorealistic outputs.",
+      "pricing": { "input": "0", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "vertex",
+        "modelId": "google/imagen-4.0-ultra-generate-001"
+      },
+      "modelType": "image"
+    },
+    {
+      "id": "google/text-embedding-005",
+      "name": "Text Embedding 005",
+      "description": "English-focused text embedding model optimized for code and English language tasks.",
+      "pricing": { "input": "0.000000025", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "vertex",
+        "modelId": "google/text-embedding-005"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "google/text-multilingual-embedding-002",
+      "name": "Text Multilingual Embedding 002",
+      "description": "Multilingual text embedding model optimized for cross-lingual tasks across many languages.",
+      "pricing": { "input": "0.000000025", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "vertex",
+        "modelId": "google/text-multilingual-embedding-002"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "inception/mercury-coder-small",
+      "name": "Mercury Coder Small Beta",
+      "description": "Mercury Coder Small is ideal for code generation, debugging, and refactoring tasks with minimal latency.",
+      "pricing": { "input": "0.00000025", "output": "0.000001" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "inception",
+        "modelId": "inception/mercury-coder-small"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meituan/longcat-flash-chat",
+      "name": "LongCat Flash Chat",
+      "description": "LongCat-Flash-Chat is a high-throughput MoE chat model (128k context) designed for agentic tasks.",
+      "pricing": { "input": "0", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "chutes",
+        "modelId": "meituan/longcat-flash-chat"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meituan/longcat-flash-thinking",
+      "name": "LongCat Flash Thinking",
+      "description": "LongCat-Flash-Thinking is a high-throughput MoE reasoning model (128k context) optimized for agentic tasks.",
+      "pricing": { "input": "0.00000015", "output": "0.0000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "chutes",
+        "modelId": "meituan/longcat-flash-thinking"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meta/llama-3.1-70b",
+      "name": "Llama 3.1 70B Instruct",
+      "description": "An update to Meta Llama 3 70B Instruct that includes an expanded 128K context length, multilinguality and improved reasoning capabilities.",
+      "pricing": { "input": "0.00000072", "output": "0.00000072" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "meta/llama-3.1-70b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meta/llama-3.1-8b",
+      "name": "Llama 3.1 8B Instruct",
+      "description": "Llama 3.1 8B with 128K context window support, making it ideal for real-time conversational interfaces and data analysis while offering significant cost savings compared to larger models. Served by Groq with their custom Language Processing Units (LPUs) hardware to provide fast and efficient inference.",
+      "pricing": { "input": "0.00000005", "output": "0.00000008" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "groq",
+        "modelId": "meta/llama-3.1-8b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meta/llama-3.2-11b",
+      "name": "Llama 3.2 11B Vision Instruct",
+      "description": "Instruction-tuned image reasoning generative model (text + images in / text out) optimized for visual recognition, image reasoning, captioning and answering general questions about the image.",
+      "pricing": { "input": "0.00000016", "output": "0.00000016" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "meta/llama-3.2-11b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meta/llama-3.2-1b",
+      "name": "Llama 3.2 1B Instruct",
+      "description": "Text-only model, supporting on-device use cases such as multilingual local knowledge retrieval, summarization, and rewriting.",
+      "pricing": { "input": "0.0000001", "output": "0.0000001" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "meta/llama-3.2-1b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meta/llama-3.2-3b",
+      "name": "Llama 3.2 3B Instruct",
+      "description": "Text-only model, fine-tuned for supporting on-device use cases such as multilingual local knowledge retrieval, summarization, and rewriting.",
+      "pricing": { "input": "0.00000015", "output": "0.00000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "meta/llama-3.2-3b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meta/llama-3.2-90b",
+      "name": "Llama 3.2 90B Vision Instruct",
+      "description": "Instruction-tuned image reasoning generative model (text + images in / text out) optimized for visual recognition, image reasoning, captioning and answering general questions about the image.",
+      "pricing": { "input": "0.00000072", "output": "0.00000072" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "meta/llama-3.2-90b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meta/llama-3.3-70b",
+      "name": "Llama 3.3 70B Instruct",
+      "description": "Where performance meets efficiency. This model supports high-performance conversational AI designed for content creation, enterprise applications, and research, offering advanced language understanding capabilities, including text summarization, classification, sentiment analysis, and code generation.",
+      "pricing": { "input": "0.00000072", "output": "0.00000072" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "meta/llama-3.3-70b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meta/llama-4-maverick",
+      "name": "Llama 4 Maverick 17B Instruct",
+      "description": "The Llama 4 collection of models are natively multimodal AI models that enable text and multimodal experiences. These models leverage a mixture-of-experts architecture to offer industry-leading performance in text and image understanding. Llama 4 Maverick, a 17 billion parameter model with 128 experts. Served by DeepInfra.",
+      "pricing": { "input": "0.00000015", "output": "0.0000006" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "meta/llama-4-maverick"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "meta/llama-4-scout",
+      "name": "Llama 4 Scout 17B Instruct",
+      "description": "The Llama 4 collection of models are natively multimodal AI models that enable text and multimodal experiences. These models leverage a mixture-of-experts architecture to offer industry-leading performance in text and image understanding. Llama 4 Scout, a 17 billion parameter model with 16 experts. Served by DeepInfra.",
+      "pricing": { "input": "0.00000008", "output": "0.0000003" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "meta/llama-4-scout"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "minimax/minimax-m2",
+      "name": "MiniMax M2",
+      "description": "MiniMax-M2 redefines efficiency for agents. It is a compact, fast, and cost-effective MoE model (230 billion total parameters with 10 billion active parameters) built for elite performance in coding and agentic tasks, all while maintaining powerful general intelligence.",
+      "pricing": { "input": "0.00000027", "output": "0.00000115" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "minimax/minimax-m2"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/codestral",
+      "name": "Mistral Codestral",
+      "description": "Mistral's cutting-edge language model for coding released end of July 2025, Codestral specializes in low-latency, high-frequency tasks such as fill-in-the-middle (FIM), code correction and test generation.",
+      "pricing": { "input": "0.0000003", "output": "0.0000009" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/codestral"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/codestral-embed",
+      "name": "Codestral Embed",
+      "description": "Code embedding model that can embed code databases and repositories to power coding assistants.",
+      "pricing": { "input": "0.00000015", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/codestral-embed"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "mistral/devstral-small",
+      "name": "Devstral Small",
+      "description": "Devstral is an agentic LLM for software engineering tasks built under a collaboration between Mistral AI and All Hands AI 🙌. Devstral excels at using tools to explore codebases, editing multiple files and power software engineering agents.",
+      "pricing": { "input": "0.0000001", "output": "0.0000003" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/devstral-small"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/magistral-medium",
+      "name": "Magistral Medium 2509",
+      "description": "Complex thinking, backed by deep understanding, with transparent reasoning you can follow and verify. The model excels in maintaining high-fidelity reasoning across numerous languages, even when switching between languages mid-task.",
+      "pricing": { "input": "0.000002", "output": "0.000005" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/magistral-medium"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/magistral-small",
+      "name": "Magistral Small 2509",
+      "description": "Complex thinking, backed by deep understanding, with transparent reasoning you can follow and verify. The model excels in maintaining high-fidelity reasoning across numerous languages, even when switching between languages mid-task.",
+      "pricing": { "input": "0.0000005", "output": "0.0000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/magistral-small"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/ministral-3b",
+      "name": "Ministral 3B",
+      "description": "A compact, efficient model for on-device tasks like smart assistants and local analytics, offering low-latency performance.",
+      "pricing": { "input": "0.00000004", "output": "0.00000004" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/ministral-3b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/ministral-8b",
+      "name": "Ministral 8B",
+      "description": "A more powerful model with faster, memory-efficient inference, ideal for complex workflows and demanding edge applications.",
+      "pricing": { "input": "0.0000001", "output": "0.0000001" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/ministral-8b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/mistral-embed",
+      "name": "Mistral Embed",
+      "description": "General-purpose text embedding model for semantic search, similarity, clustering, and RAG workflows.",
+      "pricing": { "input": "0.0000001", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/mistral-embed"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "mistral/mistral-large",
+      "name": "Mistral Large",
+      "description": "Mistral Large is ideal for complex tasks that require large reasoning capabilities or are highly specialized - like Synthetic Text Generation, Code Generation, RAG, or Agents.",
+      "pricing": { "input": "0.000002", "output": "0.000006" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/mistral-large"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/mistral-medium",
+      "name": "Mistral Medium 3.1",
+      "description": "Mistral Medium 3 delivers frontier performance while being an order of magnitude less expensive. For instance, the model performs at or above 90% of Claude Sonnet 3.7 on benchmarks across the board at a significantly lower cost.",
+      "pricing": { "input": "0.0000004", "output": "0.000002" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/mistral-medium"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/mistral-small",
+      "name": "Mistral Small",
+      "description": "Mistral Small is the ideal choice for simple tasks that one can do in bulk - like Classification, Customer Support, or Text Generation. It offers excellent performance at an affordable price point.",
+      "pricing": { "input": "0.0000001", "output": "0.0000003" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/mistral-small"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/mixtral-8x22b-instruct",
+      "name": "Mixtral MoE 8x22B Instruct",
+      "description": "8x22b Instruct model. 8x22b is mixture-of-experts open source model by Mistral served by Fireworks.",
+      "pricing": { "input": "0.0000012", "output": "0.0000012" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "fireworks",
+        "modelId": "mistral/mixtral-8x22b-instruct"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/pixtral-12b",
+      "name": "Pixtral 12B 2409",
+      "description": "A 12B model with image understanding capabilities in addition to text.",
+      "pricing": { "input": "0.00000015", "output": "0.00000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/pixtral-12b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "mistral/pixtral-large",
+      "name": "Pixtral Large",
+      "description": "Pixtral Large is the second model in our multimodal family and demonstrates frontier-level image understanding. Particularly, the model is able to understand documents, charts and natural images, while maintaining the leading text-only understanding of Mistral Large 2.",
+      "pricing": { "input": "0.000002", "output": "0.000006" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "mistral",
+        "modelId": "mistral/pixtral-large"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "moonshotai/kimi-k2",
+      "name": "Kimi K2",
+      "description": "Kimi K2 is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI, featuring 1 trillion total parameters with 32 billion active per forward pass. It is optimized for agentic capabilities, including advanced tool use, reasoning, and code synthesis. Kimi K2 excels across a broad range of benchmarks, particularly in coding (LiveCodeBench, SWE-bench), reasoning (ZebraLogic, GPQA), and tool-use (Tau2, AceBench) tasks.",
+      "pricing": { "input": "0.0000005", "output": "0.000002" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "deepinfra",
+        "modelId": "moonshotai/kimi-k2"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "moonshotai/kimi-k2-0905",
+      "name": "Kimi K2 0905",
+      "description": "Kimi K2 0905 has shown strong performance on agentic tasks thanks to its tool calling, reasoning abilities, and long context handling. But as a large parameter model (1T parameters), it’s also resource-intensive. Running it in production requires a highly optimized inference stack to avoid excessive latency.",
+      "pricing": { "input": "0.0000006", "output": "0.0000025" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "baseten",
+        "modelId": "moonshotai/kimi-k2-0905"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "moonshotai/kimi-k2-thinking",
+      "name": "Kimi K2 Thinking",
+      "description": "Kimi K2 Thinking is an advanced open-source thinking model by Moonshot AI. It can execute up to 200 – 300 sequential tool calls without human interference, reasoning coherently across hundreds of steps to solve complex problems. Built as a thinking agent, it reasons step by step while using tools, achieving state-of-the-art performance on Humanity's Last Exam (HLE), BrowseComp, and other benchmarks, with major gains in reasoning, agentic search, coding, writing, and general capabilities.",
+      "pricing": { "input": "0.0000006", "output": "0.0000025" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "baseten",
+        "modelId": "moonshotai/kimi-k2-thinking"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "moonshotai/kimi-k2-thinking-turbo",
+      "name": "Kimi K2 Thinking Turbo",
+      "description": "High-speed version of kimi-k2-thinking, suitable for scenarios requiring both deep reasoning and extremely fast responses",
+      "pricing": {
+        "input": "0.00000115",
+        "output": "0.000008",
+        "cachedInputTokens": "0.00000015"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "moonshotai",
+        "modelId": "moonshotai/kimi-k2-thinking-turbo"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "moonshotai/kimi-k2-turbo",
+      "name": "Kimi K2 Turbo",
+      "description": "Kimi K2 Turbo is the high-speed version of kimi-k2, with the same model parameters as kimi-k2, but the output speed is increased to 60 tokens per second, with a maximum of 100 tokens per second, the context length is 256k",
+      "pricing": { "input": "0.0000024", "output": "0.00001" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "moonshotai",
+        "modelId": "moonshotai/kimi-k2-turbo"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "morph/morph-v3-fast",
+      "name": "Morph V3 Fast",
+      "description": "Morph offers a specialized AI model that applies code changes suggested by frontier models (like Claude or GPT-4o) to your existing code files FAST - 4500+ tokens/second. It acts as the final step in the AI coding workflow. Supports 16k input tokens and 16k output tokens.",
+      "pricing": { "input": "0.0000008", "output": "0.0000012" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "morph",
+        "modelId": "morph/morph-v3-fast"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "morph/morph-v3-large",
+      "name": "Morph V3 Large",
+      "description": "Morph offers a specialized AI model that applies code changes suggested by frontier models (like Claude or GPT-4o) to your existing code files FAST - 2500+ tokens/second. It acts as the final step in the AI coding workflow. Supports 16k input tokens and 16k output tokens.",
+      "pricing": { "input": "0.0000009", "output": "0.0000019" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "morph",
+        "modelId": "morph/morph-v3-large"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-3.5-turbo",
+      "name": "GPT-3.5 Turbo",
+      "description": "OpenAI's most capable and cost effective model in the GPT-3.5 family optimized for chat purposes, but also works well for traditional completions tasks.",
+      "pricing": { "input": "0.0000005", "output": "0.0000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "openai",
+        "modelId": "openai/gpt-3.5-turbo"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-3.5-turbo-instruct",
+      "name": "GPT-3.5 Turbo Instruct",
+      "description": "Similar capabilities as GPT-3 era models. Compatible with legacy Completions endpoint and not Chat Completions.",
+      "pricing": { "input": "0.0000015", "output": "0.000002" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "openai",
+        "modelId": "openai/gpt-3.5-turbo-instruct"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-4-turbo",
+      "name": "GPT-4 Turbo",
+      "description": "gpt-4-turbo from OpenAI has broad general knowledge and domain expertise allowing it to follow complex instructions in natural language and solve difficult problems accurately. It has a knowledge cutoff of April 2023 and a 128,000 token context window.",
+      "pricing": { "input": "0.00001", "output": "0.00003" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "openai",
+        "modelId": "openai/gpt-4-turbo"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-4.1",
+      "name": "GPT-4.1",
+      "description": "GPT 4.1 is OpenAI's flagship model for complex tasks. It is well suited for problem solving across domains.",
+      "pricing": {
+        "input": "0.000002",
+        "output": "0.000008",
+        "cachedInputTokens": "0.0000005",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-4.1"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-4.1-mini",
+      "name": "GPT-4.1 mini",
+      "description": "GPT 4.1 mini provides a balance between intelligence, speed, and cost that makes it an attractive model for many use cases.",
+      "pricing": {
+        "input": "0.0000004",
+        "output": "0.0000016",
+        "cachedInputTokens": "0.0000001",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-4.1-mini"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-4.1-nano",
+      "name": "GPT-4.1 nano",
+      "description": "GPT-4.1 nano is the fastest, most cost-effective GPT 4.1 model.",
+      "pricing": {
+        "input": "0.0000001",
+        "output": "0.0000004",
+        "cachedInputTokens": "0.000000025",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-4.1-nano"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-4o",
+      "name": "GPT-4o",
+      "description": "GPT-4o from OpenAI has broad general knowledge and domain expertise allowing it to follow complex instructions in natural language and solve difficult problems accurately. It matches GPT-4 Turbo performance with a faster and cheaper API.",
+      "pricing": {
+        "input": "0.0000025",
+        "output": "0.00001",
+        "cachedInputTokens": "0.00000125",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-4o"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-4o-mini",
+      "name": "GPT-4o mini",
+      "description": "GPT-4o mini from OpenAI is their most advanced and cost-efficient small model. It is multi-modal (accepting text or image inputs and outputting text) and has higher intelligence than gpt-3.5-turbo but is just as fast.",
+      "pricing": {
+        "input": "0.00000015",
+        "output": "0.0000006",
+        "cachedInputTokens": "0.000000075",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-4o-mini"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-5",
+      "name": "GPT-5",
+      "description": "GPT-5 is OpenAI's flagship language model that excels at complex reasoning, broad real-world knowledge, code-intensive, and multi-step agentic tasks.",
+      "pricing": {
+        "input": "0.00000125",
+        "output": "0.00001",
+        "cachedInputTokens": "0.00000013",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-5"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-5-chat",
+      "name": "GPT-5 Chat",
+      "description": "GPT-5 Chat points to the GPT-5 snapshot currently used in ChatGPT.",
+      "pricing": {
+        "input": "0.00000125",
+        "output": "0.00001",
+        "cachedInputTokens": "0.000000125"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "openai",
+        "modelId": "openai/gpt-5-chat"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-5-codex",
+      "name": "GPT-5-Codex",
+      "description": "GPT-5-Codex is a version of GPT-5 optimized for agentic coding tasks in Codex or similar environments.",
+      "pricing": {
+        "input": "0.00000125",
+        "output": "0.00001",
+        "cachedInputTokens": "0.00000013",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-5-codex"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-5-mini",
+      "name": "GPT-5 mini",
+      "description": "GPT-5 mini is a cost optimized model that excels at reasoning/chat tasks. It offers an optimal balance between speed, cost, and capability.",
+      "pricing": {
+        "input": "0.00000025",
+        "output": "0.000002",
+        "cachedInputTokens": "0.00000003",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-5-mini"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-5-nano",
+      "name": "GPT-5 nano",
+      "description": "GPT-5 nano is a high throughput model that excels at simple instruction or classification tasks.",
+      "pricing": {
+        "input": "0.00000005",
+        "output": "0.0000004",
+        "cachedInputTokens": "0.00000001",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-5-nano"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-5-pro",
+      "name": "GPT-5 pro",
+      "description": "GPT-5 pro uses more compute to think harder and provide consistently better answers. Since GPT-5 pro is designed to tackle tough problems, some requests may take several minutes to finish.",
+      "pricing": { "input": "0.000015", "output": "0.00012" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "openai",
+        "modelId": "openai/gpt-5-pro"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-5.1-codex",
+      "name": "GPT-5.1-Codex",
+      "description": "GPT-5.1-Codex is a version of GPT-5.1 optimized for agentic coding tasks in Codex or similar environments.",
+      "pricing": {
+        "input": "0.00000125",
+        "output": "0.00001",
+        "cachedInputTokens": "0.000000125"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-5.1-codex"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-5.1-codex-mini",
+      "name": "GPT-5.1 Codex mini",
+      "description": "GPT-5.1 Codex mini is a smaller, faster, and cheaper version of GPT-5.1 Codex.",
+      "pricing": {
+        "input": "0.00000025",
+        "output": "0.000002",
+        "cachedInputTokens": "0.000000025"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "openai",
+        "modelId": "openai/gpt-5.1-codex-mini"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-5.1-instant",
+      "name": "GPT-5.1 Instant",
+      "description": "GPT-5.1 Instant (or GPT-5.1 chat) is a warmer and more conversational version of GPT-5-chat, with improved instruction following and adaptive reasoning for deciding when to think before responding.",
+      "pricing": {
+        "input": "0.00000125",
+        "output": "0.00001",
+        "cachedInputTokens": "0.000000125"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-5.1-instant"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-5.1-thinking",
+      "name": "GPT 5.1 Thinking",
+      "description": "An upgraded version of GPT-5 that adapts thinking time more precisely to the question to spend more time on complex questions and respond more quickly to simpler tasks.",
+      "pricing": {
+        "input": "0.00000125",
+        "output": "0.00001",
+        "cachedInputTokens": "0.000000125"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/gpt-5.1-thinking"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-oss-120b",
+      "name": "gpt-oss-120b",
+      "description": "Extremely capable general-purpose LLM with strong, controllable reasoning capabilities",
+      "pricing": { "input": "0.0000001", "output": "0.0000005" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "baseten",
+        "modelId": "openai/gpt-oss-120b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-oss-20b",
+      "name": "gpt-oss-20b",
+      "description": "A compact, open-weight language model optimized for low-latency and resource-constrained environments, including local and edge deployments",
+      "pricing": { "input": "0.00000007", "output": "0.0000003" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "bedrock",
+        "modelId": "openai/gpt-oss-20b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/gpt-oss-safeguard-20b",
+      "name": "gpt-oss-safeguard-20b",
+      "description": "OpenAI's first open weight reasoning model specifically trained for safety classification tasks. Fine-tuned from GPT-OSS, this model helps classify text content based on customizable policies, enabling bring-your-own-policy Trust & Safety AI where your own taxonomy, definitions, and thresholds guide classification decisions.",
+      "pricing": {
+        "input": "0.000000075",
+        "output": "0.0000003",
+        "cachedInputTokens": "0.000000037"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "groq",
+        "modelId": "openai/gpt-oss-safeguard-20b"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/o1",
+      "name": "o1",
+      "description": "o1 is OpenAI's flagship reasoning model, designed for complex problems that require deep thinking. It provides strong reasoning capabilities with improved accuracy for complex multi-step tasks.",
+      "pricing": {
+        "input": "0.000015",
+        "output": "0.00006",
+        "cachedInputTokens": "0.0000075",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/o1"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/o3",
+      "name": "o3",
+      "description": "OpenAI's o3 is their most powerful reasoning model, setting new state-of-the-art benchmarks in coding, math, science, and visual perception. It excels at complex queries requiring multi-faceted analysis, with particular strength in analyzing images, charts, and graphics.",
+      "pricing": {
+        "input": "0.000002",
+        "output": "0.000008",
+        "cachedInputTokens": "0.0000005",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "openai",
+        "modelId": "openai/o3"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/o3-deep-research",
+      "name": "o3-deep-research",
+      "description": "o3-deep-research is OpenAI's most advanced model for deep research, designed to tackle complex, multi-step research tasks. It can search and synthesize information from across the internet as well as from your own data—brought in through MCP connectors.",
+      "pricing": {
+        "input": "0.00001",
+        "output": "0.00004",
+        "cachedInputTokens": "0.0000025"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "openai",
+        "modelId": "openai/o3-deep-research"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/o3-mini",
+      "name": "o3-mini",
+      "description": "o3-mini is OpenAI's most recent small reasoning model, providing high intelligence at the same cost and latency targets of o1-mini.",
+      "pricing": {
+        "input": "0.0000011",
+        "output": "0.0000044",
+        "cachedInputTokens": "0.00000055",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/o3-mini"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/o4-mini",
+      "name": "o4-mini",
+      "description": "OpenAI's o4-mini delivers fast, cost-efficient reasoning with exceptional performance for its size, particularly excelling in math (best-performing on AIME benchmarks), coding, and visual tasks.",
+      "pricing": {
+        "input": "0.0000011",
+        "output": "0.0000044",
+        "cachedInputTokens": "0.000000275",
+        "cacheCreationInputTokens": "0"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/o4-mini"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "openai/text-embedding-3-large",
+      "name": "text-embedding-3-large",
+      "description": "OpenAI's most capable embedding model for both english and non-english tasks.",
+      "pricing": { "input": "0.00000013", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/text-embedding-3-large"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "openai/text-embedding-3-small",
+      "name": "text-embedding-3-small",
+      "description": "OpenAI's improved, more performant version of their ada embedding model.",
+      "pricing": { "input": "0.00000002", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/text-embedding-3-small"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "openai/text-embedding-ada-002",
+      "name": "text-embedding-ada-002",
+      "description": "OpenAI's legacy text embedding model.",
+      "pricing": { "input": "0.0000001", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "azure",
+        "modelId": "openai/text-embedding-ada-002"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "perplexity/sonar",
+      "name": "Sonar",
+      "description": "Perplexity's lightweight offering with search grounding, quicker and cheaper than Sonar Pro.",
+      "pricing": { "input": "0.000001", "output": "0.000001" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "perplexity",
+        "modelId": "perplexity/sonar"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "perplexity/sonar-pro",
+      "name": "Sonar Pro",
+      "description": "Perplexity's premier offering with search grounding, supporting advanced queries and follow-ups.",
+      "pricing": { "input": "0.000003", "output": "0.000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "perplexity",
+        "modelId": "perplexity/sonar-pro"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "perplexity/sonar-reasoning",
+      "name": "Sonar Reasoning",
+      "description": "A reasoning-focused model that outputs Chain of Thought (CoT) in responses, providing detailed explanations with search grounding.",
+      "pricing": { "input": "0.000001", "output": "0.000005" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "perplexity",
+        "modelId": "perplexity/sonar-reasoning"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "perplexity/sonar-reasoning-pro",
+      "name": "Sonar Reasoning Pro",
+      "description": "A premium reasoning-focused model that outputs Chain of Thought (CoT) in responses, providing comprehensive explanations with enhanced search capabilities and multiple search queries per request.",
+      "pricing": { "input": "0.000002", "output": "0.000008" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "perplexity",
+        "modelId": "perplexity/sonar-reasoning-pro"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "prime-intellect/intellect-3",
+      "name": "INTELLECT 3",
+      "description": "Introducing INTELLECT-3: Scaling RL to a 100B+ MoE model on our end-to-end stack.\n\nAchieving state-of-the-art performance for its size across math, code and reasoning.",
+      "pricing": { "input": "0.0000002", "output": "0.0000011" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "parasail",
+        "modelId": "prime-intellect/intellect-3"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "stealth/sonoma-dusk-alpha",
+      "name": "Sonoma Dusk Alpha",
+      "description": "This model is no longer in stealth and gets responses from Grok 4 Fast Non-Reasoning–xAI's latest multimodal model with SOTA cost-efficiency and a 2M token context window.",
+      "pricing": {
+        "input": "0.0000002",
+        "output": "0.0000005",
+        "cachedInputTokens": "0.00000005"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "stealth",
+        "modelId": "stealth/sonoma-dusk-alpha"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "stealth/sonoma-sky-alpha",
+      "name": "Sonoma Sky Alpha",
+      "description": "This model is no longer in stealth and gets responses from Grok 4 Fast Reasoning–xAI's latest multimodal model with SOTA cost-efficiency and a 2M token context window.",
+      "pricing": {
+        "input": "0.0000002",
+        "output": "0.0000005",
+        "cachedInputTokens": "0.00000005"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "stealth",
+        "modelId": "stealth/sonoma-sky-alpha"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "vercel/v0-1.0-md",
+      "name": "v0-1.0-md",
+      "description": "Access the model behind v0 to generate, fix, and optimize modern web apps with framework-specific reasoning and up-to-date knowledge.",
+      "pricing": { "input": "0.000003", "output": "0.000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "vercel",
+        "modelId": "vercel/v0-1.0-md"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "vercel/v0-1.5-md",
+      "name": "v0-1.5-md",
+      "description": "Access the model behind v0 to generate, fix, and optimize modern web apps with framework-specific reasoning and up-to-date knowledge.",
+      "pricing": { "input": "0.000003", "output": "0.000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "vercel",
+        "modelId": "vercel/v0-1.5-md"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "voyage/voyage-3-large",
+      "name": "voyage-3-large",
+      "description": "Voyage AI's embedding model with the best general-purpose and multilingual retrieval quality.",
+      "pricing": { "input": "0.00000018", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "voyage",
+        "modelId": "voyage/voyage-3-large"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "voyage/voyage-3.5",
+      "name": "voyage-3.5",
+      "description": "Voyage AI's embedding model optimized for general-purpose and multilingual retrieval quality.",
+      "pricing": { "input": "0.00000006", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "voyage",
+        "modelId": "voyage/voyage-3.5"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "voyage/voyage-3.5-lite",
+      "name": "voyage-3.5-lite",
+      "description": "Voyage AI's embedding model optimized for latency and cost.",
+      "pricing": { "input": "0.00000002", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "voyage",
+        "modelId": "voyage/voyage-3.5-lite"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "voyage/voyage-code-2",
+      "name": "voyage-code-2",
+      "description": "Voyage AI's embedding model optimized for code retrieval (17% better than alternatives). This is the previous generation of code embeddings models.",
+      "pricing": { "input": "0.00000012", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "voyage",
+        "modelId": "voyage/voyage-code-2"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "voyage/voyage-code-3",
+      "name": "voyage-code-3",
+      "description": "Voyage AI's embedding model optimized for code retrieval.",
+      "pricing": { "input": "0.00000018", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "voyage",
+        "modelId": "voyage/voyage-code-3"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "voyage/voyage-finance-2",
+      "name": "voyage-finance-2",
+      "description": "Voyage AI's embedding model optimized for finance retrieval and RAG.",
+      "pricing": { "input": "0.00000012", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "voyage",
+        "modelId": "voyage/voyage-finance-2"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "voyage/voyage-law-2",
+      "name": "voyage-law-2",
+      "description": "Voyage AI's embedding model optimized for legal retrieval and RAG.",
+      "pricing": { "input": "0.00000012", "output": "0" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "voyage",
+        "modelId": "voyage/voyage-law-2"
+      },
+      "modelType": "embedding"
+    },
+    {
+      "id": "xai/grok-2",
+      "name": "Grok 2",
+      "description": "Grok 2 is a frontier language model with state-of-the-art reasoning capabilities. It features advanced capabilities in chat, coding, and reasoning, outperforming both Claude 3.5 Sonnet and GPT-4-Turbo on the LMSYS leaderboard.",
+      "pricing": { "input": "0.000002", "output": "0.00001" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-2"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-2-vision",
+      "name": "Grok 2 Vision",
+      "description": "Grok 2 vision model excels in vision-based tasks, delivering state-of-the-art performance in visual math reasoning (MathVista) and document-based question answering (DocVQA). It can process a wide variety of visual information including documents, diagrams, charts, screenshots, and photographs.",
+      "pricing": { "input": "0.000002", "output": "0.00001" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-2-vision"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-3",
+      "name": "Grok 3 Beta",
+      "description": "xAI's flagship model that excels at enterprise use cases like data extraction, coding, and text summarization. Possesses deep domain knowledge in finance, healthcare, law, and science.",
+      "pricing": { "input": "0.000003", "output": "0.000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-3"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-3-fast",
+      "name": "Grok 3 Fast Beta",
+      "description": "xAI's flagship model that excels at enterprise use cases like data extraction, coding, and text summarization. Possesses deep domain knowledge in finance, healthcare, law, and science. The fast model variant is served on faster infrastructure, offering response times that are significantly faster than the standard. The increased speed comes at a higher cost per output token.",
+      "pricing": { "input": "0.000005", "output": "0.000025" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-3-fast"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-3-mini",
+      "name": "Grok 3 Mini Beta",
+      "description": "xAI's lightweight model that thinks before responding. Great for simple or logic-based tasks that do not require deep domain knowledge. The raw thinking traces are accessible.",
+      "pricing": { "input": "0.0000003", "output": "0.0000005" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-3-mini"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-3-mini-fast",
+      "name": "Grok 3 Mini Fast Beta",
+      "description": "xAI's lightweight model that thinks before responding. Great for simple or logic-based tasks that do not require deep domain knowledge. The raw thinking traces are accessible. The fast model variant is served on faster infrastructure, offering response times that are significantly faster than the standard. The increased speed comes at a higher cost per output token.",
+      "pricing": { "input": "0.0000006", "output": "0.000004" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-3-mini-fast"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-4",
+      "name": "Grok 4",
+      "description": "xAI's latest and greatest flagship model, offering unparalleled performance in natural language, math and reasoning - the perfect jack of all trades.",
+      "pricing": { "input": "0.000003", "output": "0.000015" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-4"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-4-fast-non-reasoning",
+      "name": "Grok 4 Fast Non-Reasoning",
+      "description": "Grok 4 Fast is xAI's latest multimodal model with SOTA cost-efficiency and a 2M token context window. It comes in two flavors: non-reasoning and reasoning.",
+      "pricing": {
+        "input": "0.0000002",
+        "output": "0.0000005",
+        "cachedInputTokens": "0.00000005"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-4-fast-non-reasoning"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-4-fast-reasoning",
+      "name": "Grok 4 Fast Reasoning",
+      "description": "Grok 4 Fast is xAI's latest multimodal model with SOTA cost-efficiency and a 2M token context window. It comes in two flavors: non-reasoning and reasoning.",
+      "pricing": {
+        "input": "0.0000002",
+        "output": "0.0000005",
+        "cachedInputTokens": "0.00000005"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-4-fast-reasoning"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-4.1-fast-non-reasoning",
+      "name": "Grok 4.1 Fast Non-Reasoning",
+      "description": "Grok 4.1 Fast is xAI's best tool-calling model with a 2M context window. It reasons and completes agentic tasks accurately and rapidly, excelling at complex real-world use cases such as customer support and finance. To optimize for speed use this variant. Otherwise, use the reasoning version.",
+      "pricing": {
+        "input": "0.0000002",
+        "output": "0.0000005",
+        "cachedInputTokens": "0.00000005"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-4.1-fast-non-reasoning"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-4.1-fast-reasoning",
+      "name": "Grok 4.1 Fast Reasoning",
+      "description": "Grok 4.1 Fast is xAI's best tool-calling model with a 2M context window. It reasons and completes agentic tasks accurately and rapidly, excelling at complex real-world use cases such as customer support and finance. To optimize for maximal intelligence use this variant. Otherwise, use the non-reasoning version.",
+      "pricing": {
+        "input": "0.0000002",
+        "output": "0.0000005",
+        "cachedInputTokens": "0.00000005"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-4.1-fast-reasoning"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "xai/grok-code-fast-1",
+      "name": "Grok Code Fast 1",
+      "description": "xAI's latest coding model that offers fast agentic coding with a 256K context window.",
+      "pricing": {
+        "input": "0.0000002",
+        "output": "0.0000015",
+        "cachedInputTokens": "0.00000002"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "xai",
+        "modelId": "xai/grok-code-fast-1"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "zai/glm-4.5",
+      "name": "GLM-4.5",
+      "description": "GLM-4.5 Series Models are foundation models specifically engineered for intelligent agents. The flagship GLM-4.5 integrates 355 billion total parameters (32 billion active), unifying reasoning, coding, and agent capabilities to address complex application demands. As a hybrid reasoning system, it offers dual operational modes.",
+      "pricing": { "input": "0.0000006", "output": "0.0000022" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "novita",
+        "modelId": "zai/glm-4.5"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "zai/glm-4.5-air",
+      "name": "GLM 4.5 Air",
+      "description": "GLM-4.5 and GLM-4.5-Air are our latest flagship models, purpose-built as foundational models for agent-oriented applications. Both leverage a Mixture-of-Experts (MoE) architecture. GLM-4.5 has a total parameter count of 355B with 32B active parameters per forward pass, while GLM-4.5-Air adopts a more streamlined design with 106B total parameters and 12B active parameters.",
+      "pricing": { "input": "0.0000002", "output": "0.0000011" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "zai",
+        "modelId": "zai/glm-4.5-air"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "zai/glm-4.5v",
+      "name": "GLM 4.5V",
+      "description": "Built on the GLM-4.5-Air base model, GLM-4.5V inherits proven techniques from GLM-4.1V-Thinking while achieving effective scaling through a powerful 106B-parameter MoE architecture.",
+      "pricing": { "input": "0.0000006", "output": "0.0000018" },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "novita",
+        "modelId": "zai/glm-4.5v"
+      },
+      "modelType": "language"
+    },
+    {
+      "id": "zai/glm-4.6",
+      "name": "GLM 4.6",
+      "description": "As the latest iteration in the GLM series, GLM-4.6 achieves comprehensive enhancements across multiple domains, including real-world coding, long-context processing, reasoning, searching, writing, and agentic applications.",
+      "pricing": {
+        "input": "0.00000045",
+        "output": "0.0000018",
+        "cachedInputTokens": "0.00000011"
+      },
+      "specification": {
+        "specificationVersion": "v2",
+        "provider": "zai",
+        "modelId": "zai/glm-4.6"
+      },
+      "modelType": "language"
+    }
+  ]
+}

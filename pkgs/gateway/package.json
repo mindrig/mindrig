@@ -3,8 +3,10 @@
   "type": "module",
   "scripts": {
     "dev": "./scripts/dev.sh",
+    "dev:offline": "MINDRIG_DEV_RECORD=true ./scripts/dev.sh",
+    "dev:record": "MINDRIG_DEV_RECORD_RECORD=true ./scripts/dev.sh",
     "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings env.d.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "types": "script_path=\"$(pnpm root -w)/../scripts/pkg-types.sh\"; if [ -f \"$script_path\" ]; then \"$script_path\"; else tsc --build; fi",

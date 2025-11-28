@@ -1,5 +1,4 @@
 import { Manager } from "@/aspects/manager/Manager.js";
-import { createGateway } from "@ai-sdk/gateway";
 import {
   AiSdkGenerate,
   aiSdkSettings,
@@ -10,6 +9,7 @@ import { datasourceInputToValues } from "@wrkspc/core/datasource";
 import { Result, ResultMessage } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
 import { generateText, ModelMessage, streamText, UserContent } from "ai";
+import { resolveGateway } from "../gateway/gateway";
 import { MessagesManager } from "../message/Manager";
 import { promptInterpolate } from "../prompt/interpolate";
 
@@ -114,7 +114,7 @@ export class ResultManager extends Manager {
       },
     ];
 
-    const gateway = createGateway({ apiKey: this.#apiKey });
+    const gateway = resolveGateway(this.#apiKey);
 
     const aiSdkProps: ResultManager.AiSdkGenerateProps = {
       model: gateway(modelId),

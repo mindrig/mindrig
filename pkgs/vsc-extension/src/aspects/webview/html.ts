@@ -22,7 +22,7 @@ export namespace WebviewHtml {
 }
 
 export function webviewHtml(props: WebviewHtml.Props): string {
-  const { uris, devServer: useDevServer } = props;
+  const { uris, devServer } = props;
 
   const headInjects = [];
 
@@ -56,7 +56,7 @@ export function webviewHtml(props: WebviewHtml.Props): string {
     headInjects.push(`<link href="${uris.styles}" rel="stylesheet" />`);
 
   const bodyInjects = [
-    `<script${useDevServer ? ' type="module"' : ""} src="${uris.app}"></script>`,
+    `<script${devServer ? ' type="module"' : ""} src="${uris.app}"></script>`,
   ];
 
   return `<!doctype html>

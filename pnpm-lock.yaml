@@ -345,9 +345,6 @@ importers:
       smollog:
         specifier: ^0.2.0
         version: 0.2.0
-      smolxxh:
-        specifier: ^0.1.0
-        version: 0.1.0
       yjs:
         specifier: ^13.6.27
         version: 13.6.27
@@ -397,6 +394,12 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
+      smolcanon:
+        specifier: ^0.2.0
+        version: 0.2.0
+      smolxxh:
+        specifier: ^0.1.0
+        version: 0.1.0
       tsx:
         specifier: ^4.20.5
         version: 4.20.5
@@ -6342,6 +6345,9 @@ packages:
   smol-toml@1.4.2:
     resolution: {integrity: sha512-rInDH6lCNiEyn3+hH8KVGFdbjc099j47+OSgbMrfDYX1CmXLfdKd7qi6IfcWj2wFxvSVkuI46M+wPGYfEOEj6g==}
     engines: {node: '>= 18'}
+
+  smolcanon@0.2.0:
+    resolution: {integrity: sha512-g5jko7uufp/ihcDyEC101ujc0gjWtPModfFoC7Uo1EruBU2PYwU1EB5N6/4SunYE1sYg8rok08Y7I74u5eP9NA==}
 
   smolcsv@0.1.0:
     resolution: {integrity: sha512-ztpr0iTYGm6ZuMFTf+8RrTC8oocYeNhLQO+Izy09r0R7JhUVLyk+THCS2xQ+XK4kQyQJarT0ohss3SEiii5yhw==}
@@ -14367,6 +14373,8 @@ snapshots:
   smart-buffer@4.2.0: {}
 
   smol-toml@1.4.2: {}
+
+  smolcanon@0.2.0: {}
 
   smolcsv@0.1.0: {}
 

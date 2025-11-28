@@ -1,6 +1,111 @@
 {
   "version": "0.2.0",
   "configurations": [
+    //#region vsc
+
+    // vsc#dev
+    {
+      "name": "vsc#dev",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--profile=mindrig-dev",
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
+        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
+      ],
+      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
+      "preLaunchTask": "vsc#dev",
+      "env": {
+        "MINDRIG_DEV_VSC_WEBVIEW_SERVER": "true"
+      }
+    },
+
+    // vsc#dev:offline
+    {
+      "name": "vsc#dev:offline",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--profile=mindrig-dev",
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
+        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
+      ],
+      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
+      "preLaunchTask": "vsc#dev:offline",
+      "env": {
+        "MINDRIG_DEV_VSC_WEBVIEW_SERVER": "true",
+        "MINDRIG_DEV_OFFLINE": "true"
+      }
+    },
+
+    // vsc#dev:record
+    {
+      "name": "vsc#dev:record",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--profile=mindrig-dev",
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
+        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
+      ],
+      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
+      "preLaunchTask": "vsc#dev:record",
+      "env": {
+        "MINDRIG_DEV_VSC_WEBVIEW_SERVER": "true",
+        "MINDRIG_DEV_RECORD": "true"
+      }
+    },
+
+    // vsc#build
+    {
+      "name": "vsc#build",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--profile=mindrig-dev",
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
+        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
+      ],
+      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
+      "preLaunchTask": "vsc-extension#build"
+    },
+
+    // vsc#preview
+    {
+      "name": "vsc#preview",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--profile=mindrig-dev",
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
+        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
+      ],
+      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
+      "preLaunchTask": "vsc-extension#preview"
+    },
+
+    // vsc#preview:watch
+    {
+      "name": "vsc#preview:watch",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--profile=mindrig-dev",
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
+        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
+      ],
+      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
+      "preLaunchTask": "vsc-extension#preview:watch"
+    },
+
+    //#endregion
+
     //#region home
 
     // home#dev
@@ -11,73 +116,6 @@
       "url": "http://localhost:3110",
       "webRoot": "${workspaceFolder}",
       "preLaunchTask": "home#dev"
-    },
-
-    //#endregion
-
-    //#region vscode
-
-    // vscode#dev
-    {
-      "name": "vscode#dev",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--profile=mindrig-dev",
-        "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
-        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
-      ],
-      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
-      "preLaunchTask": "vscode#dev",
-      "env": {
-        "VSCODE_DEV_SERVER": "true"
-      }
-    },
-
-    // vscode#build
-    {
-      "name": "vscode#build",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--profile=mindrig-dev",
-        "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
-        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
-      ],
-      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
-      "preLaunchTask": "vscode#build"
-    },
-
-    // vscode#preview
-    {
-      "name": "vscode#preview",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--profile=mindrig-dev",
-        "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
-        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
-      ],
-      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
-      "preLaunchTask": "vscode#preview"
-    },
-
-    // vscode#preview:watch
-    {
-      "name": "vscode#preview:watch",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--profile=mindrig-dev",
-        "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceFolder}/pkgs/vsc-extension",
-        "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
-      ],
-      "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
-      "preLaunchTask": "vscode#preview:watch"
     },
 
     //#endregion

@@ -12,5 +12,7 @@ fnox exec -- bash -lc '
     SHELL="$SHELL" \
     CLOUDFLARE_INCLUDE_PROCESS_ENV=true \
     VERCEL_GATEWAY_KEY="$VERCEL_GATEWAY_KEY" \
+    MINDRIG_DEV_OFFLINE="$MINDRIG_DEV_OFFLINE" \
+    MINDRIG_DEV_RECORD="$MINDRIG_DEV_RECORD" \
     wrangler dev --ip=0.0.0.0 --port 3110
 '

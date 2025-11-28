@@ -127,7 +127,7 @@
 
     //#region home
 
-    // dev
+    // home#dev
     {
       "type": "shell",
       "label": "home#dev",
@@ -162,17 +162,13 @@
 
     //#endregion
 
-    //#region vscode
+    //#region vsc
 
-    // dev
+    // vsc#dev
     {
       "type": "shell",
-      "label": "vscode#dev",
-      "dependsOn": [
-        "vscode-extension#dev",
-        "vscode-webview#dev",
-        "gateway#dev"
-      ],
+      "label": "vsc#dev",
+      "dependsOn": ["vsc-extension#dev", "vsc-webview#dev", "gateway#dev"],
       "dependsOrder": "parallel",
       "command": "echo",
       "args": ["OK"],
@@ -188,11 +184,55 @@
       "problemMatcher": []
     },
 
-    // build
+    // vsc#dev:offline
     {
       "type": "shell",
-      "label": "vscode#build",
-      "dependsOn": ["vscode-extension#build", "vscode-webview#build"],
+      "label": "vsc#dev:offline",
+      "dependsOn": [
+        "vsc-extension#dev",
+        "vsc-webview#dev",
+        "gateway#dev:offline"
+      ],
+      "dependsOrder": "parallel",
+      "command": "echo",
+      "args": ["OK"],
+      "options": {
+        "cwd": "${userHome}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    // vsc#dev:record
+    {
+      "type": "shell",
+      "label": "vsc#dev:record",
+      "dependsOn": [
+        "vsc-extension#dev",
+        "vsc-webview#dev",
+        "gateway#dev:record"
+      ],
+      "dependsOrder": "parallel",
+      "command": "echo",
+      "args": ["OK"],
+      "options": {
+        "cwd": "${userHome}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "close": true
+      },
+      "problemMatcher": []
+    },
+
+    // vsc#build
+    {
+      "type": "shell",
+      "label": "vsc#build",
+      "dependsOn": ["vsc-extension#build", "vsc-webview#build"],
       "dependsOrder": "parallel",
       "command": "echo",
       "args": ["OK"],
@@ -203,13 +243,13 @@
       "problemMatcher": []
     },
 
-    // preview
+    // vsc#preview
     {
       "type": "shell",
-      "label": "vscode#preview",
+      "label": "vsc##preview",
       "dependsOn": [
-        "vscode-extension#preview",
-        "vscode-webview#preview",
+        "vsc-extension#preview",
+        "vsc-webview#preview",
         "gateway#dev"
       ],
       "dependsOrder": "parallel",
@@ -222,13 +262,13 @@
       "problemMatcher": []
     },
 
-    // preview:watch
+    // vsc#preview:watch
     {
       "type": "shell",
-      "label": "vscode#preview:watch",
+      "label": "vsc#preview:watch",
       "dependsOn": [
-        "vscode-extension#preview",
-        "vscode-webview#preview",
+        "vsc-extension#preview",
+        "vsc-webview#preview",
         "gateway#dev"
       ],
       "dependsOrder": "parallel",
@@ -243,12 +283,12 @@
 
     //#endregion
 
-    //#region vscode-extension
+    //#region vsc-extension
 
-    // dev
+    // vsc-extension#dev
     {
       "type": "shell",
-      "label": "vscode-extension#dev",
+      "label": "vsc-extension#dev",
       "command": "pnpm",
       "args": ["run", "dev"],
       "options": {
@@ -278,11 +318,11 @@
       }
     },
 
-    // vscode-extension#build
+    // vsc-extension#build
     {
       "type": "shell",
       "group": "build",
-      "label": "vscode-extension#build",
+      "label": "vsc-extension#build",
       "command": "pnpm",
       "args": ["run", "build"],
       "options": {
@@ -306,11 +346,11 @@
       }
     },
 
-    // vscode-extension#preview
+    // vsc-extension#preview
     {
       "type": "shell",
       "group": "build",
-      "label": "vscode-extension#preview",
+      "label": "vsc-extension#preview",
       "command": "pnpm",
       "args": ["run", "build"],
       "options": {
@@ -334,7 +374,7 @@
       }
     },
 
-    // vscode-extension#preview:watch
+    // vsc-extension#preview:watch
     {
       "type": "shell",
       "label": "vscode-extension:preview:watch",
@@ -369,12 +409,12 @@
 
     //#endregion
 
-    //#region vscode-webview
+    //#region vsc-webview
 
-    // vscode-webview#dev
+    // vsc-webview#dev
     {
       "type": "shell",
-      "label": "vscode-webview#dev",
+      "label": "vsc-webview#dev",
       "command": "pnpm",
       "args": ["run", "dev"],
       "options": {
@@ -404,38 +444,10 @@
       }
     },
 
-    // vscode-webview#build
+    // vsc-webview#preview
     {
       "type": "shell",
-      "group": "build",
-      "label": "vscode-webview#build",
-      "command": "pnpm",
-      "args": ["run", "build"],
-      "options": {
-        "cwd": "${workspaceFolder}/pkgs/vsc-webview"
-      },
-      "presentation": {
-        "reveal": "silent",
-        "panel": "shared"
-      },
-      "problemMatcher": {
-        "pattern": [
-          {
-            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
-            "file": 1,
-            "location": 2,
-            "severity": 3,
-            "code": 4,
-            "message": 5
-          }
-        ]
-      }
-    },
-
-    // vscode-webview#preview
-    {
-      "type": "shell",
-      "label": "vscode-webview#preview",
+      "label": "vsc-webview#preview",
       "command": "pnpm",
       "args": ["run", "preview"],
       "options": {
@@ -459,10 +471,10 @@
       }
     },
 
-    // vscode-webview#preview:watch
+    // vsc-webview#preview:watch
     {
       "type": "shell",
-      "label": "vscode-webview#preview:watch",
+      "label": "vsc-webview#preview:watch",
       "command": "pnpm",
       "args": ["run", "preview:watch"],
       "options": {
@@ -492,15 +504,104 @@
       }
     },
 
+    // vsc-webview#build
+    {
+      "type": "shell",
+      "group": "build",
+      "label": "vsc-webview#build",
+      "command": "pnpm",
+      "args": ["run", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}/pkgs/vsc-webview"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ]
+      }
+    },
+
     //#endregion
 
     //#region gateway
 
+    // gateway#dev
     {
       "type": "shell",
       "label": "gateway#dev",
       "command": "pnpm",
       "args": ["-F", "@wrkspc/gateway", "run", "dev"],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "group": "watchers"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Ready on.*",
+          "endsPattern": ".*Ready on.*"
+        }
+      }
+    },
+
+    // gateway#dev:offline
+    {
+      "type": "shell",
+      "label": "gateway#dev:offline",
+      "command": "pnpm",
+      "args": ["-F", "@wrkspc/gateway", "run", "dev:offline"],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "group": "watchers"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(.*)\\((\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s+(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Ready on.*",
+          "endsPattern": ".*Ready on.*"
+        }
+      }
+    },
+
+    // gateway#dev:record
+    {
+      "type": "shell",
+      "label": "gateway#dev:record",
+      "command": "pnpm",
+      "args": ["-F", "@wrkspc/gateway", "run", "dev:record"],
       "isBackground": true,
       "presentation": {
         "reveal": "never",

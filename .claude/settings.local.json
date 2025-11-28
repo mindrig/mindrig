@@ -6,7 +6,8 @@
       "Bash(pnpm add:*)",
       "Bash(pnpm turbo build:*)",
       "Bash(pnpm turbo lint:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(pnpm run types:*)"
     ],
     "deny": [],
     "ask": []
