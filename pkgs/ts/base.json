@@ -36,6 +36,7 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
     // Project references
     "composite": true,
     "incremental": true,

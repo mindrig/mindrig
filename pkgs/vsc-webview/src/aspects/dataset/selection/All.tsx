@@ -1,14 +1,18 @@
-import { DatasetSelection } from "@wrkspc/core/dataset";
-import { Field } from "enso";
+import { textCn } from "@wrkspc/ds";
+import { Icon } from "@wrkspc/icons";
+import iconSolidCheckCircle from "@wrkspc/icons/svg/solid/check-circle.js";
 
 export namespace DatasetSelectionAll {
   export interface Props {
-    selectionField: Field<DatasetSelection.All>;
     rows: number;
   }
 }
 
 export function DatasetSelectionAll(props: DatasetSelectionAll.Props) {
-  const { selectionField, rows } = props;
-  return <div>Select all {rows} rows.</div>;
+  const { rows } = props;
+  return (
+    <p className={textCn()}>
+      <Icon id={iconSolidCheckCircle} size="xsmall" /> Use all CSV {rows} rows.
+    </p>
+  );
 }

@@ -13,11 +13,15 @@
     { "path": "./pkgs/vsc-extension/" },
     { "path": "./pkgs/vsc-webview/" },
     { "path": "./subs/ds/pkgs/ds/" },
-    { "path": "./subs/ds/pkgs/form/" },
     { "path": "./subs/ds/pkgs/icons/" },
     { "path": "./subs/ds/pkgs/modal/" },
     { "path": "./subs/ds/pkgs/props/" },
     { "path": "./subs/ds/pkgs/theme/" },
     { "path": "./subs/ds/pkgs/ui/" }
-  ]
+  ],
+  // NOTE: These options are irrelevant but needed to silent the linter.
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "strict": true
+  }
 }

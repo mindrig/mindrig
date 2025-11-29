@@ -1,5 +1,5 @@
 import { DatasetDatasource } from "@wrkspc/core/dataset";
-import { Button } from "@wrkspc/ds";
+import { Button, textCn } from "@wrkspc/ds";
 import { Field } from "enso";
 import { DatasetDatasourceProvider } from "./Context";
 import { DatasetDatasourceCsv } from "./Csv";
@@ -42,7 +42,9 @@ export function DatasetDatasourceComponent(
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          <p>Load a CSV file to use its data as the prompt variables.</p>
+          <p className={textCn()}>
+            Load a CSV file to use its data as the prompt variables.
+          </p>
 
           <div>
             <Button

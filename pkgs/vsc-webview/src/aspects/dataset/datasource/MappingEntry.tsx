@@ -1,8 +1,10 @@
 import { Csv } from "@wrkspc/core/csv";
 import { DatasetDatasource } from "@wrkspc/core/dataset";
 import { PlaygroundMap } from "@wrkspc/core/playground";
-import { SelectController } from "@wrkspc/form";
+import { textCn } from "@wrkspc/ds";
+import { SelectController } from "@wrkspc/ui";
 import { Field, State } from "enso";
+import { DatasourceMappingEntryRow } from "../../datasource/MappingEntryRow";
 
 export namespace DatasetDatasourceMappingEntry {
   export interface Props {
@@ -23,18 +25,24 @@ export function DatasetDatasourceMappingEntry(
   const mappingIndexField = mappingField.at(varId);
 
   return (
-    <div className="flex">
-      <div>{varExp}:</div>
+    <DatasourceMappingEntryRow>
+      <div className="truncate flex items-center" title={varExp}>
+        <span className={textCn({ role: "label", size: "small", mono: true })}>
+          {varExp}:
+        </span>
+      </div>
 
-      <SelectController
-        field={mappingIndexField}
-        size="xsmall"
-        label={{ a11y: `Select CSV column for variable ${varExp}` }}
-        options={headerState.map((columnName, columnIndex) => ({
-          label: columnName.value,
-          value: columnIndex as Csv.ColumnIndex,
-        }))}
-      />
-    </div>
+      <div className="max-w-50">
+        <SelectController
+          field={mappingIndexField}
+          size="xsmall"
+          label={{ a11y: `Select CSV column for variable ${varExp}` }}
+          options={headerState.map((columnName, columnIndex) => ({
+            label: columnName.value,
+            value: columnIndex as Csv.ColumnIndex,
+          }))}
+        />
+      </div>
+    </DatasourceMappingEntryRow>
   );
 }

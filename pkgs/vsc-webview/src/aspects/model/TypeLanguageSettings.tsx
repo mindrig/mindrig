@@ -7,16 +7,16 @@ import {
   modelSettingsReasoningEffort,
 } from "@wrkspc/core/model";
 import { Button, Icon, textCn } from "@wrkspc/ds";
+import iconRegularPlus from "@wrkspc/icons/svg/regular/plus.js";
+import iconRegularTrashAlt from "@wrkspc/icons/svg/regular/trash-alt.js";
+import iconSolidQuestionCircle from "@wrkspc/icons/svg/solid/question-circle.js";
 import {
   CheckboxController,
   Description,
   InputController,
   Label,
   SelectController,
-} from "@wrkspc/form";
-import iconRegularPlus from "@wrkspc/icons/svg/regular/plus.js";
-import iconRegularTrashAlt from "@wrkspc/icons/svg/regular/trash-alt.js";
-import iconSolidQuestionCircle from "@wrkspc/icons/svg/solid/question-circle.js";
+} from "@wrkspc/ui";
 import { Field } from "enso";
 import React from "react";
 

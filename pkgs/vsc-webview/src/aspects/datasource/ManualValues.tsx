@@ -1,8 +1,11 @@
 import { Datasource } from "@wrkspc/core/datasource";
 import { PlaygroundMap } from "@wrkspc/core/playground";
+import { Label } from "@wrkspc/ui";
 import { Field, State } from "enso";
 import { DatasourceManualNoVars } from "./ManualNoVars";
 import { DatasourceManualVar } from "./ManualVar";
+import { DatasourceMappingEntries } from "./MappingEntries";
+import { DatasourceMappingEntryRow } from "./MappingEntryRow";
 
 export namespace DatasourceManualValues {
   export interface Props {
@@ -17,7 +20,12 @@ export function DatasourceManualValues(props: DatasourceManualValues.Props) {
   if (!varsState.size) return <DatasourceManualNoVars />;
 
   return (
-    <div className="flex flex-col gap-2">
+    <DatasourceMappingEntries>
+      <DatasourceMappingEntryRow>
+        <Label size="xsmall">Variable</Label>
+        <Label size="xsmall">Value</Label>
+      </DatasourceMappingEntryRow>
+
       {varsState.map((varState) => (
         <DatasourceManualVar
           key={varState.id}
@@ -25,6 +33,6 @@ export function DatasourceManualValues(props: DatasourceManualValues.Props) {
           valuesField={valuesField}
         />
       ))}
-    </div>
+    </DatasourceMappingEntries>
   );
 }

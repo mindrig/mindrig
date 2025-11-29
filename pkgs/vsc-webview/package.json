@@ -25,7 +25,7 @@
     "@uiw/react-json-view": "2.0.0-alpha.37",
     "@wrkspc/core": "workspace:*",
     "@wrkspc/ds": "workspace:*",
-    "@wrkspc/form": "workspace:*",
+    "@wrkspc/ui": "workspace:*",
     "@wrkspc/icons": "workspace:*",
     "@wrkspc/logo": "workspace:*",
     "alwaysly": "^0.3.0",

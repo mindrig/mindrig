@@ -1,3 +1,4 @@
+import { LayoutBlock } from "@/aspects/layout/Block";
 import { Csv } from "@wrkspc/core/csv";
 import { State } from "enso";
 import { DatasetSelectionComponent } from "../selection/Selection";
@@ -27,12 +28,14 @@ export function DatasetDatasourceCsvData(
         <span className="text-xs font-mono truncate block">{path}</span>
       </div>
 
-      <DatasetSelectionComponent
-        selectionField={csvField.$.selection}
-        rows={rows}
-      />
+      <LayoutBlock style="tabs" bordered divided>
+        <DatasetSelectionComponent
+          selectionField={csvField.$.selection}
+          rows={rows}
+        />
 
-      <DatasetDatasourceMapping csvField={csvField} csvState={csvState} />
+        <DatasetDatasourceMapping csvField={csvField} csvState={csvState} />
+      </LayoutBlock>
     </div>
   );
 }

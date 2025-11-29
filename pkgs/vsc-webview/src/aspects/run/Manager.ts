@@ -1,6 +1,8 @@
 import { Run } from "@wrkspc/core/run";
 import { State } from "enso";
+import { useEffect, useState } from "react";
 import { MessagesContext } from "../message/Context";
+import { useRuns } from "./RunsContext";
 import { RunsManager } from "./RunsManager";
 
 export namespace RunManager {
@@ -59,5 +61,33 @@ export class RunManager {
 
   useInit(): Run.Init {
     return this.#runState.$.init.useValue();
+  }
+
+  useRunning(): boolean {
+    const { runs } = useRuns();
+    return runs.useRunning(this.runId);
+  }
+
+  useRunningTime() {
+    const running = this.useRunning();
+    const createdAt = this.#runState.$.createdAt.useValue();
+    const [runningTime, setRunningTime] = useState(
+      this.#calculateRunningTime(createdAt),
+    );
+
+    useEffect(() => {
+      if (!running) return;
+      const interval = setInterval(
+        () => setRunningTime(this.#calculateRunningTime(createdAt)),
+        100,
+      );
+      return () => clearInterval(interval);
+    }, [this, running, createdAt]);
+
+    return runningTime;
+  }
+
+  #calculateRunningTime(createdAt: number): number {
+    return Date.now() - createdAt;
   }
 }

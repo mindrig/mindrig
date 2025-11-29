@@ -1,8 +1,9 @@
 import { Button } from "@wrkspc/ds";
-import { Checkbox } from "@wrkspc/form";
+import { Checkbox } from "@wrkspc/ui";
 import { LayoutSection } from "../layout/Section";
 import { RunComponent } from "../run/Run";
 import { useTest } from "./Context";
+import { TestRunStarted } from "./RunStarted";
 
 export function TestRunComponent() {
   const { test } = useTest();
@@ -11,49 +12,50 @@ export function TestRunComponent() {
   const streaming = test.useStreaming();
 
   return (
-    <LayoutSection sticky="bottom">
-      <div className="grid gap-3">
-        <div className="flex items-center gap-2">
-          <Button
-            type="submit"
-            size="small"
-            onClick={() => test.startRun()}
-            isDisabled={running}
-          >
-            {running ? "Running..." : "Run Prompt"}
-          </Button>
-
-          {run && running && (
-            <Button
-              style="transparent"
-              size="small"
-              onClick={() => run.stopRun()}
-            >
-              Stop
-            </Button>
-          )}
-
-          <Checkbox
-            label="Stream output"
-            value={streaming}
-            onChange={(enabled) => test.setStreaming(enabled)}
-            size="small"
-          />
-
-          {run && (
+    <>
+      {run && (
+        <LayoutSection
+          actions={
             <Button
               style="label"
-              size="small"
+              size="xsmall"
+              color="secondary"
               onClick={() => test.clearRun()}
               isDisabled={running}
             >
               Clear
             </Button>
-          )}
-        </div>
+          }
+        >
+          <RunComponent run={run} />
+        </LayoutSection>
+      )}
 
-        {run && <RunComponent run={run} />}
-      </div>
-    </LayoutSection>
+      <LayoutSection sticky="bottom">
+        <div className="grid gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button
+                type="submit"
+                size="small"
+                onClick={() => test.startRun()}
+                isDisabled={running}
+              >
+                {running ? "Running..." : "Run Prompt"}
+              </Button>
+
+              <Checkbox
+                label="Stream output"
+                value={streaming}
+                onChange={(enabled) => test.setStreaming(enabled)}
+                size="small"
+              />
+            </div>
+
+            {run && <TestRunStarted run={run} running={running} />}
+          </div>
+        </div>
+      </LayoutSection>
+    </>
   );
 }

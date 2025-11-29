@@ -34,12 +34,7 @@ export function DatasetSelectionContent(props: DatasetSelectionContent.Props) {
       );
 
     case "all":
-      return (
-        <DatasetSelectionAll
-          selectionField={discriminatedSelection.field}
-          rows={rows}
-        />
-      );
+      return <DatasetSelectionAll rows={rows} />;
 
     default:
       discriminatedSelection satisfies never;

@@ -1,5 +1,5 @@
 import { PlaygroundState } from "@wrkspc/core/playground";
-import { TextArea } from "@wrkspc/form";
+import { TextArea } from "@wrkspc/ui";
 import { State } from "enso";
 import { LayoutSection } from "../layout/Section";
 

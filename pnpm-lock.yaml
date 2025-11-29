@@ -124,9 +124,6 @@ importers:
 
   pkgs/home:
     dependencies:
-      '@wrkspc/form':
-        specifier: workspace:*
-        version: link:../../subs/ds/pkgs/form
       '@wrkspc/icons':
         specifier: workspace:*
         version: link:../../subs/ds/pkgs/icons
@@ -427,15 +424,15 @@ importers:
       '@wrkspc/ds':
         specifier: workspace:*
         version: link:../../subs/ds/pkgs/ds
-      '@wrkspc/form':
-        specifier: workspace:*
-        version: link:../../subs/ds/pkgs/form
       '@wrkspc/icons':
         specifier: workspace:*
         version: link:../../subs/ds/pkgs/icons
       '@wrkspc/logo':
         specifier: workspace:*
         version: link:../logo
+      '@wrkspc/ui':
+        specifier: workspace:*
+        version: link:../../subs/ds/pkgs/ui
       alwaysly:
         specifier: ^0.3.0
         version: 0.3.0
@@ -563,9 +560,6 @@ importers:
 
   subs/ds/pkgs/ds:
     dependencies:
-      '@wrkspc/form':
-        specifier: workspace:*
-        version: link:../form
       '@wrkspc/icons':
         specifier: workspace:*
         version: link:../icons
@@ -591,40 +585,10 @@ importers:
 
   subs/ds/pkgs/form:
     dependencies:
-      '@wrkspc/icons':
-        specifier: workspace:*
-        version: link:../icons
-      '@wrkspc/props':
-        specifier: workspace:*
-        version: link:../props
-      '@wrkspc/theme':
-        specifier: workspace:*
-        version: link:../theme
       '@wrkspc/ui':
         specifier: workspace:*
         version: link:../ui
-      crab:
-        specifier: ^1.12.0
-        version: 1.13.0
-      enso:
-        specifier: ^2.6.0
-        version: 2.6.0
-      react:
-        specifier: 19.2.0
-        version: 19.2.0
-      react-aria-components:
-        specifier: ^1.13.0
-        version: 1.13.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      react-dom:
-        specifier: 19.2.0
-        version: 19.2.0(react@19.2.0)
     devDependencies:
-      '@types/react':
-        specifier: 19.2.2
-        version: 19.2.2
-      '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
       '@wrkspc/ts':
         specifier: workspace:*
         version: link:../../../../pkgs/ts
@@ -745,6 +709,9 @@ importers:
       react-aria-components:
         specifier: ^1.13.0
         version: 1.13.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-dom:
+        specifier: 19.2.0
+        version: 19.2.0(react@19.2.0)
     devDependencies:
       '@storybook/react':
         specifier: ^9.1.7
@@ -752,6 +719,9 @@ importers:
       '@types/react':
         specifier: ^19.2.2
         version: 19.2.2
+      '@types/react-dom':
+        specifier: ^19.2.2
+        version: 19.2.2(@types/react@19.2.2)
       '@wrkspc/ts':
         specifier: workspace:*
         version: link:../../../../pkgs/ts

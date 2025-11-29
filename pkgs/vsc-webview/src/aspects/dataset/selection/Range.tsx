@@ -1,5 +1,5 @@
 import { DatasetSelection } from "@wrkspc/core/dataset";
-import { InputController } from "@wrkspc/ds";
+import { Description, fieldCn, InputController } from "@wrkspc/ds";
 import { Field } from "enso";
 
 export namespace DatasetSelectionRange {
@@ -26,22 +26,32 @@ export function DatasetSelectionRange(props: DatasetSelectionRange.Props) {
     );
 
   return (
-    <div>
-      <InputController
-        label="From row index"
-        field={spanField.$.start}
-        type="number"
-        min={1}
-        max={rows}
-      />
-      <span>...</span>
-      <InputController
-        label="To row index"
-        field={spanField.$.end}
-        type="number"
-        min={1}
-        max={rows}
-      />
+    <div className="flex flex-col gap-2">
+      <div className={fieldCn({ size: "xsmall" })}>
+        <div className="grid grid-cols-2 gap-2 max-w-40">
+          <InputController
+            label="From index"
+            size="xsmall"
+            field={spanField.$.start}
+            type="number"
+            min={1}
+            max={rows}
+          />
+
+          <InputController
+            label="To index"
+            size="xsmall"
+            field={spanField.$.end}
+            type="number"
+            min={1}
+            max={rows}
+          />
+        </div>
+
+        <Description size="xsmall">
+          Use the specified CSV rows range. The range is inclusive.
+        </Description>
+      </div>
     </div>
   );
 }

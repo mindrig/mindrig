@@ -1,5 +1,5 @@
 import { useMessages } from "@/aspects/message/Context";
-import { InputController } from "@wrkspc/form";
+import { InputController } from "@wrkspc/ui";
 import { Form } from "enso";
 import { superstate } from "superstate";
 import { AuthVercel } from "./Vercel";

@@ -7,7 +7,6 @@ export default {
     // UI packages
     "../logo/src/**/html.tsx",
     // DS packages
-    "../../subs/ds/pkgs/form/src/**/*.{js,ts,jsx,tsx}",
     "../../subs/ds/pkgs/icons/src/**/*.{js,ts,jsx,tsx}",
     "../../subs/ds/pkgs/modal/src/**/*.{js,ts,jsx,tsx}",
     "../../subs/ds/pkgs/theme/src/**/*.{js,ts,jsx,tsx}",

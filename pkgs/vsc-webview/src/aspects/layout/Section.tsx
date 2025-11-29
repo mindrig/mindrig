@@ -9,7 +9,7 @@ export namespace LayoutSection {
     icon?: Icon.Prop | undefined;
   }
 
-  export type Style = "header" | "tabs" | "default";
+  export type Style = "default" | "header" | "tabs";
 
   export type Sticky = "top" | "bottom" | false;
 }

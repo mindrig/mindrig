@@ -1,4 +1,4 @@
-import { Select } from "@wrkspc/form";
+import { Select } from "@wrkspc/ui";
 
 export namespace ModelSelect {
   export interface Props {

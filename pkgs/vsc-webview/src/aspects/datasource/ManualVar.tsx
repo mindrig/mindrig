@@ -1,7 +1,8 @@
 import { Datasource } from "@wrkspc/core/datasource";
 import { PlaygroundMap } from "@wrkspc/core/playground";
-import { InputController } from "@wrkspc/form";
+import { InputController } from "@wrkspc/ui";
 import { Field, State } from "enso";
+import { DatasourceMappingEntry } from "./MappingEntry";
 
 export namespace DatasourceManualVar {
   export interface Props {
@@ -16,5 +17,9 @@ export function DatasourceManualVar(props: DatasourceManualVar.Props) {
   const exp = varState.$.exp.useValue();
   const valueField = valuesField.at(varId);
 
-  return <InputController label={exp} field={valueField} size="small" />;
+  return (
+    <DatasourceMappingEntry exp={exp}>
+      <InputController label={{ a11y: exp }} field={valueField} size="xsmall" />
+    </DatasourceMappingEntry>
+  );
 }

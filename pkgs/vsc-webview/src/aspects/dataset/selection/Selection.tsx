@@ -1,5 +1,6 @@
 import { buildDatasetSelection, DatasetSelection } from "@wrkspc/core/dataset";
 import { Tabs } from "@wrkspc/ds";
+import iconRegularTableRows from "@wrkspc/icons/svg/regular/table-rows.js";
 import { Field } from "enso";
 import { DatasetSelectionContent } from "./Content";
 
@@ -16,17 +17,21 @@ export function DatasetSelectionComponent(
   const { selectionField, rows } = props;
 
   return (
-    <div>
+    <div className="flex flex-col gap-2 pb-4">
       <Tabs
+        label={{ icon: iconRegularTableRows, label: "Rows to use:" }}
+        size="xsmall"
         items={[
-          { id: "row", label: "Row" },
+          { id: "row", label: "Single" },
           { id: "range", label: "Range" },
           { id: "all", label: "All" },
         ]}
         onChange={(type) => selectionField.set(buildDatasetSelection(type))}
       />
 
-      <DatasetSelectionContent selectionField={selectionField} rows={rows} />
+      <div className="pt-2">
+        <DatasetSelectionContent selectionField={selectionField} rows={rows} />
+      </div>
     </div>
   );
 }
