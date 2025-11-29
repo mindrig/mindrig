@@ -23,23 +23,7 @@ export function DatasetDatasourceComponent(
   return (
     <DatasetDatasourceProvider datasetDatasource={datasetDatasource}>
       {resolved ? (
-        <div>
-          <DatasetDatasourceCsv />
-
-          <Button
-            size="xsmall"
-            onClick={() => datasetDatasource.selectCsv()}
-            isDisabled={pending}
-          >
-            Reload CSV
-          </Button>
-
-          {resolved && (
-            <Button size="xsmall" onClick={() => datasetDatasource.clearCsv()}>
-              Clear CSV
-            </Button>
-          )}
-        </div>
+        <DatasetDatasourceCsv />
       ) : (
         <div className="flex flex-col gap-2">
           <p className={textCn()}>

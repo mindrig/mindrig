@@ -4,6 +4,7 @@ import { always } from "alwaysly";
 import { parseStream } from "smolcsv";
 import { xxh32 } from "smolxxh";
 import * as vscode from "vscode";
+import { fileNameFromUri } from "../file/path.js";
 import { Manager } from "../manager/Manager.js";
 import { MessagesManager } from "../message/Manager.js";
 
@@ -179,7 +180,10 @@ export class CsvsManager extends Manager {
     // Assign empty array if no header found
     header ||= [];
 
+    const name = fileNameFromUri(uri);
+
     const data: Csv = {
+      name,
       path,
       hash,
       size,

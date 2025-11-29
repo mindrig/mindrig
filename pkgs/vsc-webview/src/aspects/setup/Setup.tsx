@@ -44,7 +44,7 @@ export function SetupComponent(props: SetupComponent.Props) {
           <ModelSelector field={setupField.$.ref} />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {model && (
             <Button
               style="label"

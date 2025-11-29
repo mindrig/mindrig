@@ -1,8 +1,8 @@
 import { nanoid } from "nanoid";
 import { EditorFile } from "../editor";
+import { FileInfo } from "../file";
 
-export interface Csv {
-  path: EditorFile.Path;
+export interface Csv extends FileInfo {
   hash: string;
   size: number;
   rows: number;

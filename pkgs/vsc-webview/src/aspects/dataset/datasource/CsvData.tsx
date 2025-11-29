@@ -1,5 +1,9 @@
+import { CsvPreview } from "@/aspects/csv/Preview";
 import { LayoutBlock } from "@/aspects/layout/Block";
 import { Csv } from "@wrkspc/core/csv";
+import iconRegularRefresh from "@wrkspc/icons/svg/regular/refresh.js";
+import iconRegularTrashAlt from "@wrkspc/icons/svg/regular/trash-alt.js";
+import { Button } from "@wrkspc/ui";
 import { State } from "enso";
 import { DatasetSelectionComponent } from "../selection/Selection";
 import { useDatasetDatasource } from "./Context";
@@ -16,22 +20,45 @@ export function DatasetDatasourceCsvData(
 ) {
   const { csvState } = props;
   const { datasetDatasource } = useDatasetDatasource();
+  const { pending, resolved } = datasetDatasource.useMeta();
 
-  const path = csvState.$.path.useValue();
-  const rows = csvState.$.rows.useValue();
-
+  const csv = csvState.useValue();
   const csvField = datasetDatasource.useSyncCsvDataToDatasource(csvState);
 
   return (
-    <div>
-      <div className="min-w-0 flex-1 text-right">
-        <span className="text-xs font-mono truncate block">{path}</span>
-      </div>
+    <div className="flex flex-col gap-3">
+      <CsvPreview
+        csv={csv}
+        actions={
+          <>
+            <Button
+              size="small"
+              style="label"
+              color="secondary"
+              onClick={() => datasetDatasource.selectCsv()}
+              isDisabled={pending}
+              icon={iconRegularRefresh}
+              title="Reload CSV"
+            />
+
+            {resolved && (
+              <Button
+                size="small"
+                style="label"
+                color="secondary"
+                onClick={() => datasetDatasource.clearCsv()}
+                icon={iconRegularTrashAlt}
+                title="Clear CSV"
+              />
+            )}
+          </>
+        }
+      />
 
       <LayoutBlock style="tabs" bordered divided>
         <DatasetSelectionComponent
           selectionField={csvField.$.selection}
-          rows={rows}
+          rows={csv.rows}
         />
 
         <DatasetDatasourceMapping csvField={csvField} csvState={csvState} />

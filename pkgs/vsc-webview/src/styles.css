@@ -74,7 +74,7 @@
   /*### Color */
 
   /***** Support */
-  --color-icon-detail: var(--vscode-panelTitle-inactiveForeground);
+  --color-icon-support: var(--vscode-panelTitle-inactiveForeground);
   /***** Detail */
   --color-icon-detail: var(--vscode-panelTitle-inactiveForeground);
 

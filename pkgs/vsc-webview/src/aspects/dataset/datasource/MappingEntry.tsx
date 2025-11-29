@@ -37,10 +37,16 @@ export function DatasetDatasourceMappingEntry(
           field={mappingIndexField}
           size="xsmall"
           label={{ a11y: `Select CSV column for variable ${varExp}` }}
-          options={headerState.map((columnName, columnIndex) => ({
-            label: columnName.value,
-            value: columnIndex as Csv.ColumnIndex,
-          }))}
+          options={[
+            // TODO:
+            // 1. Allow specifying undefined values if the field allows
+            // 2. Render empty label instead of falling back to value (use ?? instead of ||)
+            // { label: "", value: undefined },
+            ...headerState.map((columnName, columnIndex) => ({
+              label: columnName.value,
+              value: columnIndex as Csv.ColumnIndex,
+            })),
+          ]}
         />
       </div>
     </DatasourceMappingEntryRow>

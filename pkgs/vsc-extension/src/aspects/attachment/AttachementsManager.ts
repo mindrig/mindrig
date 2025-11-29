@@ -4,12 +4,13 @@ import {
   attachmentFilters,
   AttachmentMessage,
 } from "@wrkspc/core/attachment";
+import { EditorFile } from "@wrkspc/core/editor";
 import { FileContent } from "@wrkspc/core/file";
 import { LANGUAGE_EXTENSIONS } from "@wrkspc/core/lang";
-import { always } from "alwaysly";
 import { Mime } from "mime";
 import standardMimeTypes from "mime/types/standard.js";
 import * as vscode from "vscode";
+import { fileNameFromUri } from "../file/path.js";
 import { Manager } from "../manager/Manager.js";
 import { MessagesManager } from "../message/Manager.js";
 
@@ -63,9 +64,8 @@ export class AttachmentsManager extends Manager {
 
     const data = await Promise.all(
       uris.map(async (uri) => {
-        const name = uri.path.split("/").pop();
-        always(name);
-        const path = uri.fsPath as Attachment.Path;
+        const name = fileNameFromUri(uri);
+        const path = uri.fsPath as EditorFile.Path;
         const mime = mimeDb.getType(name) || "application/octet-stream";
         const { size } = await vscode.workspace.fs.stat(uri);
         const attachment: Attachment = { v: 1, name, path, mime, size };
