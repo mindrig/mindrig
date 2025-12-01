@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import { useAppState } from "../app/state/Context";
 import { useModelsMap } from "../model/MapContext";
 import { useStorePropField } from "../store/Context";
-import { useMemoWithProps } from "../utils/hooks";
+import { useMemoWithProps } from "../util/hooks";
 import { AssessmentAppState, buildAssessmentAppState } from "./appState";
 
 export namespace AssessmentManager {

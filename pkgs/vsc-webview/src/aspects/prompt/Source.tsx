@@ -1,7 +1,7 @@
 import { PlaygroundState } from "@wrkspc/core/playground";
-import { TextArea } from "@wrkspc/ui";
 import { State } from "enso";
 import { LayoutSection } from "../layout/Section";
+import { PromptPreview } from "./Preview";
 
 export namespace PromptSource {
   export interface Props {
@@ -11,11 +11,11 @@ export namespace PromptSource {
 
 export function PromptSource(props: PromptSource.Props) {
   const { promptState } = props;
-  const content = promptState.$.prompt.$.content.useValue();
+  const content = promptState.$.prompt.useValue();
 
   return (
     <LayoutSection>
-      <TextArea label={{ a11y: "Prompt" }} value={content} isReadOnly />
+      <PromptPreview prompt={content} />
     </LayoutSection>
   );
 }

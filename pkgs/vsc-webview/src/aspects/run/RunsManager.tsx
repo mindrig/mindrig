@@ -21,8 +21,9 @@ import {
   buildResultsAppState,
   ResultsAppState,
 } from "../result/resultsAppState";
-import { useMemoWithProps } from "../utils/hooks";
+import { useMemoWithProps } from "../util/hooks";
 import { RunManager } from "./Manager";
+import { buildRunAppState } from "./appState";
 
 export namespace RunsManager {
   export interface Props {
@@ -101,7 +102,9 @@ export class RunsManager {
   }
 
   #setRun(runId: Run.Id, run: Run | undefined) {
-    this.#appState.$.runs.at(runId).set(run);
+    const runAppState = this.#appState.$.runs.at(runId);
+    if (run) runAppState.pave(buildRunAppState(run)).$.run.set(run);
+    else runAppState.set(undefined);
   }
 
   #setResults(runId: Run.Id, results: Result[]) {
@@ -110,7 +113,7 @@ export class RunsManager {
 
   useRunning(runId: Run.Id | null) {
     return this.#appState.$.runs.useCompute(
-      (runs) => !!runId && RunsManager.running(runs[runId]),
+      (runs) => !!runId && RunsManager.running(runs[runId]?.run),
       [runId],
     );
   }
@@ -126,11 +129,11 @@ export class RunsManager {
       () =>
         (decomposedRun.value &&
           new RunManager({
-            runState: decomposedRun.state,
+            runAppState: decomposedRun.state,
             sendMessage: this.#sendMessage,
           })) ||
         null,
-      [this, decomposedRun.value?.id],
+      [this, decomposedRun.value?.run.id],
     );
 
     return run;
@@ -174,8 +177,8 @@ export class RunsManager {
   //#region Events
 
   #onRunUpdate(message: RunMessage.ServerUpdate) {
-    const runState = this.#appState.$.runs.at(message.payload.id);
-    const run = runState.value;
+    const runState = this.#appState.$.runs.at(message.payload.id)?.$?.run;
+    const run = runState?.value;
     always(run);
 
     // If run was cancelled, cancel any running tasks too.

@@ -15,7 +15,7 @@ export function DatasetSelectionRow(props: DatasetSelectionRow.Props) {
   return (
     <div className="flex flex-col gap-2">
       <div className={fieldCn({ size: "xsmall" })}>
-        <div className="max-w-15">
+        <div className="max-w-20">
           <InputController
             label="Row index"
             size="xsmall"

@@ -5,7 +5,7 @@ import { State } from "enso";
 import { useAppState } from "../app/state/Context";
 import { AppState } from "../app/state/state";
 import { MessagesContext, useMessages } from "../message/Context";
-import { useMemoWithProps } from "../utils/hooks";
+import { useMemoWithProps } from "../util/hooks";
 
 export namespace CsvsManager {
   export interface Props {
@@ -134,7 +134,7 @@ export class CsvsManager {
   }
 
   #onSelectCancel(message: CsvMessage.ServerSelectCancel) {
-    this.#csvsAppState.$.requests.remove(message.payload.requestId);
+    this.#csvsAppState.$.requests.at(message.payload.requestId).set(undefined);
   }
 
   #pendingRequestState(requestId: Csv.RequestId): State<Csv.Request> {

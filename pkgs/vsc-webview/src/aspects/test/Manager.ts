@@ -21,7 +21,7 @@ import { RunManager } from "../run/Manager";
 import { useRuns } from "../run/RunsContext";
 import { RunsManager } from "../run/RunsManager";
 import { useStorePropState } from "../store/Context";
-import { useMemoWithProps } from "../utils/hooks";
+import { useMemoWithProps } from "../util/hooks";
 import { buildTestAppState, TestAppState } from "./appState";
 
 export namespace TestManager {

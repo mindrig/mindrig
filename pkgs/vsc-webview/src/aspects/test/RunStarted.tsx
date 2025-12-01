@@ -10,7 +10,7 @@ export namespace TestRunStarted {
 
 export function TestRunStarted(props: TestRunStarted.Props) {
   const { run, running } = props;
-  const runningTime = run.useRunningTime();
+  const runningTime = run.useRunningTimeSec();
 
   return (
     <div className="flex items-center gap-2">
@@ -20,14 +20,7 @@ export function TestRunStarted(props: TestRunStarted.Props) {
         </Button>
       )}
 
-      <div>{(runningTime / 1000).toFixed(1)}s</div>
+      <div>{runningTime}s</div>
     </div>
   );
 }
-
-const secFormatter = Intl.NumberFormat("en", {
-  notation: "compact",
-  style: "unit",
-  unit: "second",
-  unitDisplay: "narrow",
-});

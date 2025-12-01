@@ -1,6 +1,6 @@
 import { FileInfo } from "@wrkspc/core/file";
 import { Icon, textCn } from "@wrkspc/ds";
-import React, { ReactNode } from "react";
+import React, { Fragment, ReactNode } from "react";
 import { FileInfoComponent } from "./Info";
 
 export namespace FilePreviewComponent {
@@ -39,12 +39,12 @@ export function FilePreviewComponent(props: FilePreviewComponent.Props) {
           >
             {meta.map((entry, index) =>
               index ? (
-                <>
+                <Fragment key={index}>
                   {" "}
                   • <MetaEntry entry={entry} />
-                </>
+                </Fragment>
               ) : (
-                <MetaEntry entry={entry} />
+                <MetaEntry entry={entry} key={index} />
               ),
             )}
           </div>

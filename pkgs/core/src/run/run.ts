@@ -33,7 +33,7 @@ export namespace Run {
   }
 
   export interface Error extends Base<"error"> {
-    erroredAt: number;
+    endedAt: number;
     error: string;
   }
 
@@ -42,11 +42,11 @@ export namespace Run {
   }
 
   export interface Cancelled extends BaseStarted<"cancelled"> {
-    cancelledAt: number;
+    endedAt: number;
   }
 
   export interface Complete extends BaseStarted<"complete"> {
-    completedAt: number;
+    endedAt: number;
   }
 
   export interface Init {

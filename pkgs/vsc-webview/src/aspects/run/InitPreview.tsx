@@ -1,40 +1,28 @@
-import { Button } from "@wrkspc/ds";
-import { useState } from "react";
 import { AttachmentsPreview } from "../attachment/AttachmentsPreview";
 import { PromptPreview } from "../prompt/Preview";
 import { useRun } from "./Context";
 import { RunSettingsPreview } from "./SettingsPreview";
 
-export function RunInitPreview() {
+export namespace RunInitPreview {
+  export interface Props {
+    skipSettings?: boolean | undefined;
+  }
+}
+
+export function RunInitPreview(props: RunInitPreview.Props) {
+  const { skipSettings } = props;
   const { run } = useRun();
   const runInit = run.useInit();
-  const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <h5 className="text-sm font-medium">Run Init</h5>
+    <>
+      <PromptPreview size="xsmall" prompt={runInit.prompt} />
 
-        <Button
-          size="xsmall"
-          style="transparent"
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded ? "Hide run init" : "Show run init"}
-        </Button>
-      </div>
+      {/* <ToolsPreview tools={runInit.tools} /> */}
 
-      {expanded && (
-        <div className="p-3 rounded border overflow-auto">
-          <PromptPreview prompt={runInit.prompt} />
+      <AttachmentsPreview attachments={runInit.attachments} />
 
-          {/* <ToolsPreview tools={runInit.tools} /> */}
-
-          <AttachmentsPreview attachments={runInit.attachments} />
-
-          <RunSettingsPreview runInit={runInit} />
-        </div>
-      )}
-    </div>
+      {!skipSettings && <RunSettingsPreview runInit={runInit} />}
+    </>
   );
 }

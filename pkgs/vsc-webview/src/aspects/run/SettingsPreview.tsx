@@ -1,4 +1,5 @@
 import { Run } from "@wrkspc/core/run";
+import { DescriptionList } from "@wrkspc/ui";
 
 export namespace RunSettingsPreview {
   export interface Props {
@@ -10,11 +11,14 @@ export function RunSettingsPreview(props: RunSettingsPreview.Props) {
   const { runInit } = props;
 
   return (
-    <div>
-      <div className="flex gap-2">
-        <div>Streaming:</div>
-        <div>{runInit.streaming ? "Enabled" : "Disabled"}</div>
-      </div>
-    </div>
+    <DescriptionList
+      size="xsmall"
+      items={[
+        {
+          label: "Streaming",
+          content: runInit.streaming ? "Enabled" : "Disabled",
+        },
+      ]}
+    />
   );
 }

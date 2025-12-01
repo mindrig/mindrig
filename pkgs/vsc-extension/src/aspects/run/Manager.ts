@@ -213,7 +213,7 @@ export class RunManager extends Manager {
     await this.#sync<"complete">({
       id: this.#run.id,
       status: "complete",
-      completedAt: Date.now(),
+      endedAt: Date.now(),
       startedAt: this.#run.startedAt,
     });
 
@@ -226,7 +226,7 @@ export class RunManager extends Manager {
     await this.#sync<"cancelled">({
       id: this.#run.id,
       status: "cancelled",
-      cancelledAt: Date.now(),
+      endedAt: Date.now(),
       startedAt: this.#run.startedAt,
     });
 
@@ -238,7 +238,7 @@ export class RunManager extends Manager {
       id: this.#run.id,
       status: "error",
       error,
-      erroredAt: Date.now(),
+      endedAt: Date.now(),
     });
 
     return this.dispose();

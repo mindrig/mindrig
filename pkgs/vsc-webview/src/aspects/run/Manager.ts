@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { MessagesContext } from "../message/Context";
 import { useRuns } from "./RunsContext";
 import { RunsManager } from "./RunsManager";
+import { RunAppState } from "./appState";
 
 export namespace RunManager {
   export interface Props {
-    runState: State<Run>;
+    runAppState: State<RunAppState>;
     sendMessage: MessagesContext.SendMessage;
   }
 
@@ -18,21 +19,21 @@ export namespace RunManager {
 }
 
 export class RunManager {
-  #runState: State<Run>;
+  #runAppState: State<RunAppState>;
   #sendMessage: MessagesContext.SendMessage;
 
   constructor(props: RunManager.Props) {
-    this.#runState = props.runState;
+    this.#runAppState = props.runAppState;
     this.#sendMessage = props.sendMessage;
   }
 
   stopRun() {
-    if (!RunsManager.running(this.#runState.value)) return;
+    if (!RunsManager.running(this.#runAppState.$.run.value)) return;
 
     this.#sendMessage({
       type: "run-client-stop",
       payload: {
-        runId: this.#runState.$.id.value,
+        runId: this.#runAppState.$.run.$.id.value,
         reason: "Run stopped",
       },
     });
@@ -45,22 +46,25 @@ export class RunManager {
   }
 
   usePending(): boolean {
-    return this.#runState.useCompute((run) => run.status === "initialized", []);
+    return this.#runAppState.useCompute(
+      (state) => state.run.status === "initialized",
+      [],
+    );
   }
 
   useError(): string | null {
-    return this.#runState.useCompute(
+    return this.#runAppState.$.run.useCompute(
       (run) => (run.status === "error" ? run.error : null),
       [],
     );
   }
 
   get runId(): Run.Id {
-    return this.#runState.$.id.value;
+    return this.#runAppState.$.run.$.id.value;
   }
 
   useInit(): Run.Init {
-    return this.#runState.$.init.useValue();
+    return this.#runAppState.$.run.$.init.useValue();
   }
 
   useRunning(): boolean {
@@ -68,26 +72,58 @@ export class RunManager {
     return runs.useRunning(this.runId);
   }
 
-  useRunningTime() {
+  useEndedAt() {
+    return this.#runAppState.$.run.useCompute((run) => {
+      if ("endedAt" in run) return run.endedAt;
+    }, []);
+  }
+
+  useStreaming() {
+    return this.#runAppState.$.run.$.init.$.streaming.useValue();
+  }
+
+  useCreatedAt() {
+    return this.#runAppState.$.run.$.createdAt.useValue();
+  }
+
+  useRunningTimeMs() {
     const running = this.useRunning();
-    const createdAt = this.#runState.$.createdAt.useValue();
-    const [runningTime, setRunningTime] = useState(
-      this.#calculateRunningTime(createdAt),
+    const createdAt = this.#runAppState.$.run.$.createdAt.useValue();
+    const endedAt = this.useEndedAt();
+    const [runningTimeMs, setRunningTime] = useState(
+      this.#calculateRunningTime(createdAt, endedAt),
     );
 
     useEffect(() => {
-      if (!running) return;
+      if (!running)
+        return setRunningTime(this.#calculateRunningTime(createdAt, endedAt));
       const interval = setInterval(
-        () => setRunningTime(this.#calculateRunningTime(createdAt)),
+        () => setRunningTime(this.#calculateRunningTime(createdAt, undefined)),
         100,
       );
       return () => clearInterval(interval);
     }, [this, running, createdAt]);
 
-    return runningTime;
+    return runningTimeMs;
   }
 
-  #calculateRunningTime(createdAt: number): number {
-    return Date.now() - createdAt;
+  useRunningTimeSec() {
+    const runningTimeMs = this.useRunningTimeMs();
+    return Math.floor(runningTimeMs / 100) / 10;
+  }
+
+  useShowDetails() {
+    return this.#runAppState.$.ui.$.showDetails.useValue();
+  }
+
+  toggleShowDetails(showInit: boolean) {
+    this.#runAppState.$.ui.$.showDetails.set(showInit);
+  }
+
+  #calculateRunningTime(
+    createdAt: number,
+    endedAt: number | undefined,
+  ): number {
+    return (endedAt ?? Date.now()) - createdAt;
   }
 }

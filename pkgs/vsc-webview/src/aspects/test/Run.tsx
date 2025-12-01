@@ -13,23 +13,7 @@ export function TestRunComponent() {
 
   return (
     <>
-      {run && (
-        <LayoutSection
-          actions={
-            <Button
-              style="label"
-              size="xsmall"
-              color="secondary"
-              onClick={() => test.clearRun()}
-              isDisabled={running}
-            >
-              Clear
-            </Button>
-          }
-        >
-          <RunComponent run={run} />
-        </LayoutSection>
-      )}
+      {run && <RunComponent run={run} />}
 
       <LayoutSection sticky="bottom">
         <div className="grid gap-3">

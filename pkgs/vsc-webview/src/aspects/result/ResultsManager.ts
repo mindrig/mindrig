@@ -2,7 +2,7 @@ import { Run } from "@wrkspc/core/run";
 import { State } from "enso";
 import { useRuns } from "../run/RunsContext";
 import { useStorePropState } from "../store/Context";
-import { useMemoWithProps } from "../utils/hooks";
+import { useMemoWithProps } from "../util/hooks";
 import { buildResultsAppStateLayout, ResultsAppState } from "./resultsAppState";
 
 export namespace ResultsManager {

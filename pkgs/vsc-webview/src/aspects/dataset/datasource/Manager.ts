@@ -2,7 +2,7 @@ import { useAppState } from "@/aspects/app/state/Context";
 import { useBlueprint } from "@/aspects/blueprint/Context";
 import { useCsvs } from "@/aspects/csv/CsvsContext";
 import { CsvsManager } from "@/aspects/csv/CsvsManager";
-import { useMemoWithProps } from "@/aspects/utils/hooks";
+import { useMemoWithProps } from "@/aspects/util/hooks";
 import { Csv } from "@wrkspc/core/csv";
 import {
   buildDatasetSelection,
