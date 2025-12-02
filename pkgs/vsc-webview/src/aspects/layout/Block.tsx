@@ -4,6 +4,7 @@ import { cn } from "crab";
 
 export namespace LayoutBlock {
   export interface Props extends cn.Props<typeof layoutBlockCn> {
+    header?: React.ReactNode | undefined;
     onClose?: (() => void) | undefined;
   }
 
@@ -11,11 +12,13 @@ export namespace LayoutBlock {
 }
 
 export function LayoutBlock(props: React.PropsWithChildren<LayoutBlock.Props>) {
-  const { size, onClose, children } = props;
+  const { header, size, onClose, children } = props;
   const cns = layoutBlockCn(props);
 
   return (
     <section className={cns.wrapper}>
+      {header && <div>{header}</div>}
+
       {onClose && (
         <div className={cns.close}>
           <Button
@@ -27,7 +30,8 @@ export function LayoutBlock(props: React.PropsWithChildren<LayoutBlock.Props>) {
           />
         </div>
       )}
-      {children}
+
+      <div className={cns.content}>{children}</div>
     </section>
   );
 }
@@ -81,4 +85,6 @@ export const layoutBlockCn = cn().group(($) => ({
     large: "top-3 right-3",
     xlarge: "top-4 right-4",
   }),
+
+  content: $.base(""),
 }));

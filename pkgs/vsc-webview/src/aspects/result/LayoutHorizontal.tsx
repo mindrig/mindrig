@@ -20,19 +20,18 @@ export function ResultsLayoutHorizontal(props: ResultsLayoutHorizontal.Props) {
   const solo = resultsState.size === 1;
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-1">
+    <div
+      className="grid gap-3"
+      style={{ gridTemplateColumns: `100% `.repeat(resultsState.size) }}
+    >
       {resultsState.map((resultState, index) => (
-        <div
-          className="min-w-[360px] max-w-[480px] shrink-0"
+        <ResultComponent
+          resultState={resultState}
+          resultIndex={index}
+          discriminatedLayout={discriminatedLayout}
+          solo={solo}
           key={resultState.key}
-        >
-          <ResultComponent
-            resultState={resultState}
-            resultIndex={index}
-            discriminatedLayout={discriminatedLayout}
-            solo={solo}
-          />
-        </div>
+        />
       ))}
     </div>
   );

@@ -9,7 +9,7 @@ export namespace LayoutSection {
     icon?: Icon.Prop | undefined;
   }
 
-  export type Style = "default" | "header" | "tabs";
+  export type Style = "default" | "header" | "tabs" | "fill";
 
   export type Sticky = "top" | "bottom" | false;
 }
@@ -27,7 +27,7 @@ export function LayoutSection(
   return (
     <section className={cns.wrapper}>
       {header && (
-        <div className={cn(cns.block, cns.header)}>
+        <div className={cns.header}>
           <h3
             className={textCn({
               role: "subheader",
@@ -44,9 +44,7 @@ export function LayoutSection(
         </div>
       )}
 
-      {hasChildren && (
-        <div className={cn(cns.block, cns.content)}>{children}</div>
-      )}
+      {hasChildren && <div className={cns.content}>{children}</div>}
     </section>
   );
 }
@@ -64,23 +62,24 @@ export const layoutSectionCn = cn().group(($) => ({
         "sticky bottom-0 z-10 before:content-[''] before:block before:h-[1px] before:top-[-1px] before:w-full before:absolute before:bg-section-border",
     }),
 
-  block: $.base("px-3"),
-
   header: $.base(
-    "py-2 flex gap-2 items-center justify-between bg-section-header-canvas",
+    "px-3 py-2 flex gap-2 items-center justify-between bg-section-header-canvas",
   ),
 
   content: $<{
     divided: boolean;
     style: LayoutSection.Style;
+    horizontalScroll: boolean;
   }>()
     .base("flex flex-col gap-3")
     .divided(false, {
       true: "divide-y divide-divider",
     })
     .style("default", {
-      default: "pt-3 pb-4",
-      tabs: "pb-4",
-      header: "pb-2",
-    }),
+      default: "px-3 pt-3 pb-4",
+      tabs: "px-3 pb-4",
+      header: "px-3 pb-2",
+      fill: "",
+    })
+    .horizontalScroll(false, { true: "overflow-x-auto" }),
 }));

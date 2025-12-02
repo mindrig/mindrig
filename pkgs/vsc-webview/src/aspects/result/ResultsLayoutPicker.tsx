@@ -23,26 +23,24 @@ export function ResultsLayoutPicker(props: ResultsLayoutPicker.Props) {
   return (
     <Tabs
       initial={layoutType}
+      label="Layout:"
       value={layoutType}
       onChange={(newLayout) => results.setLayoutType(newLayout)}
       items={[
         {
           id: "vertical",
           icon: iconRegularTableRows,
-          label: "Vertical",
         },
         {
           id: "horizontal",
           icon: iconRegularTableColumns,
-          label: "Horizontal",
         },
         {
           id: "carousel",
           icon: iconRegularRightLeft,
-          label: "Carousel",
         },
       ]}
-      size="small"
+      size="xsmall"
       style="inline"
     />
   );

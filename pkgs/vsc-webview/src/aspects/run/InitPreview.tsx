@@ -20,7 +20,9 @@ export function RunInitPreview(props: RunInitPreview.Props) {
 
       {/* <ToolsPreview tools={runInit.tools} /> */}
 
-      <AttachmentsPreview attachments={runInit.attachments} />
+      {!!runInit.attachments.length && (
+        <AttachmentsPreview attachments={runInit.attachments} />
+      )}
 
       {!skipSettings && <RunSettingsPreview runInit={runInit} />}
     </>

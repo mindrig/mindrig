@@ -61,15 +61,15 @@ export function RunComponent(props: RunComponent.Props) {
             <RunDetailsPreview />
           </LayoutBlock>
         )}
-
-        {pending ? (
-          <RunPending />
-        ) : error ? (
-          <RunError error={error} />
-        ) : (
-          <Results />
-        )}
       </LayoutSection>
+
+      {pending ? (
+        <RunPending />
+      ) : error ? (
+        <RunError error={error} />
+      ) : (
+        <Results />
+      )}
     </RunProvider>
   );
 }

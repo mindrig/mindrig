@@ -4,6 +4,7 @@ import iconRegularAngleDown from "@wrkspc/icons/svg/regular/angle-down.js";
 import iconRegularAngleRight from "@wrkspc/icons/svg/regular/angle-right.js";
 import iconRegularLoader from "@wrkspc/icons/svg/regular/loader.js";
 import { State } from "enso";
+import { LayoutBlock } from "../layout/Block";
 import { ResultContent } from "./Content";
 import { ResultProvider } from "./Context";
 import { ResultMeta } from "./Meta";
@@ -58,52 +59,54 @@ export function ResultComponent(props: ResultComponent.Props) {
 
   return (
     <ResultProvider state={resultState}>
-      <div className="border rounded">
-        <div className="flex items-center justify-between px-3 py-2 border-b">
-          <div className="flex items-center gap-2">
-            {!solo && discriminatedLayout.discriminator === "vertical" && (
-              <Button
-                style="label"
-                icon={expanded ? iconRegularAngleDown : iconRegularAngleRight}
-                onClick={() =>
-                  discriminatedLayout.state.$.expanded
-                    .at(resultIndex)
-                    .set(!expandedValue)
-                }
-              />
-            )}
-
-            <span className="text-sm font-medium">
-              {!solo && <span>#{resultIndex + 1}</span>} Result
-            </span>
-
-            <div>
-              <span>{modelLabel}</span>
-              {rowLabel && (
-                <>
-                  {" "}
-                  • <span>#{rowLabel}</span>
-                </>
+      <div className="px-3 pt-3 pb-4">
+        <LayoutBlock bordered>
+          <div className="flex items-center justify-between border-b">
+            <div className="flex items-center gap-2">
+              {!solo && discriminatedLayout.discriminator === "vertical" && (
+                <Button
+                  style="label"
+                  icon={expanded ? iconRegularAngleDown : iconRegularAngleRight}
+                  onClick={() =>
+                    discriminatedLayout.state.$.expanded
+                      .at(resultIndex)
+                      .set(!expandedValue)
+                  }
+                />
               )}
+
+              <span className="text-sm font-medium">
+                {!solo && <span>#{resultIndex + 1}</span>}
+              </span>
+
+              <div>
+                <span>{modelLabel}</span>
+                {rowLabel && (
+                  <>
+                    {" "}
+                    • <span>{rowLabel}</span>
+                  </>
+                )}
+              </div>
+
+              {loading && <Icon id={iconRegularLoader} />}
+              {errored && <Tag color="error">Error</Tag>}
+              {cancelled && <Tag>Cancelled</Tag>}
             </div>
 
-            {loading && <Icon id={iconRegularLoader} />}
-            {errored && <Tag color="error">Error</Tag>}
-            {cancelled && <Tag>Cancelled</Tag>}
+            <span className="text-xs">
+              {new Date(createdAt).toLocaleString()}
+            </span>
           </div>
 
-          <span className="text-xs">
-            {new Date(createdAt).toLocaleString()}
-          </span>
-        </div>
+          {expanded && (
+            <>
+              <ResultMeta resultState={resultState} />
 
-        {expanded && (
-          <>
-            <ResultMeta resultState={resultState} />
-
-            <ResultContent state={resultState} />
-          </>
-        )}
+              <ResultContent state={resultState} />
+            </>
+          )}
+        </LayoutBlock>
       </div>
     </ResultProvider>
   );

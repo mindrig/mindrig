@@ -31,7 +31,7 @@ export function ModelLanguageContent(props: ModelLanguageContent.Props) {
   return (
     <div>
       <Tabs
-        size="small"
+        size="xsmall"
         onChange={(id) => setShowRaw(id === "raw")}
         items={[
           { label: parsedJson ? "JSON" : "Markdown", id: "rendered" },
@@ -40,9 +40,7 @@ export function ModelLanguageContent(props: ModelLanguageContent.Props) {
       />
 
       {showRaw ? (
-        <pre className="text-xs whitespace-pre-wrap overflow-x-auto">
-          {text}
-        </pre>
+        <pre className="font-mono text-sm whitespace-pre-wrap py-4">{text}</pre>
       ) : parsedJson ? (
         <JsonView
           value={parsedJson}
