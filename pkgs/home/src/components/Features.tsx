@@ -1,5 +1,5 @@
 import { textCn } from "@wrkspc/theme";
-import { cn } from "crab";
+import { cnss } from "cnss";
 import React from "react";
 
 export function Features() {
@@ -132,7 +132,7 @@ function Feature(props: FeatureProps) {
         </div>
 
         <div
-          className={cn(
+          className={cnss(
             "flex items-start overflow-hidden md:overflow-visible 2xl:overflow-hidden",
             props.image === "left" && "justify-end lg:order-first",
           )}
@@ -140,7 +140,7 @@ function Feature(props: FeatureProps) {
           <img
             src={props.src}
             alt={props.alt}
-            className={cn(
+            className={cnss(
               "w-3xl max-w-none rounded-xl shadow-xl ring-1 ring-gray-400/10 sm:w-228",
               props.image === "left" &&
                 "translate-x-72 md:translate-x-0 2xl:translate-x-36",
@@ -170,7 +170,7 @@ function Header(props: React.PropsWithChildren<HeaderProps>) {
         className={textCn({
           role: "label",
           size: "large",
-          className: cn(headerTitleCn({ color: props.color })),
+          className: cnss(headerTitleCn({ color: props.color })),
         })}
       >
         {props.label}
@@ -195,7 +195,7 @@ function Header(props: React.PropsWithChildren<HeaderProps>) {
   );
 }
 
-const headerTitleCn = cn<{
+const headerTitleCn = cnss<{
   color: Color;
 }>().color("yellow", {
   yellow: "text-yellow-500",
@@ -204,7 +204,7 @@ const headerTitleCn = cn<{
 });
 
 function Points(
-  props: React.PropsWithChildren<cn.Props<typeof coloredPointCn>>,
+  props: React.PropsWithChildren<cnss.Props<typeof coloredPointCn>>,
 ) {
   return (
     <ul className="space-y-4">
@@ -218,7 +218,7 @@ function Points(
   );
 }
 
-const coloredPointCn = cn<{
+const coloredPointCn = cnss<{
   color: Color;
 }>()
   .base("shrink-0 w-5 h-5 rounded-full relative top-[2px]")

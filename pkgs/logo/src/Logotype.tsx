@@ -1,4 +1,4 @@
-import { cn } from "crab";
+import { cnss } from "cnss";
 import { Logo, LogoColor, LogoProps, LogoSize } from "./Logo.js";
 
 export interface LogotypeProps extends LogoProps {}
@@ -12,7 +12,7 @@ export function Logotype(props: LogotypeProps) {
   );
 }
 
-export const logotypeCn = cn<{ size: LogoSize; color: LogoColor }>()
+export const logotypeCn = cnss<{ size: LogoSize; color: LogoColor }>()
   .base("font-semibold")
   .size("medium", {
     medium: "",

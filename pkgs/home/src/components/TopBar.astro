@@ -1,13 +1,13 @@
 ---
 import { Logotype } from "@wrkspc/logo";
-import { cn } from "crab";
+import { cnss } from "cnss";
 
-export interface Props /*extends cn.Props<typeof layoutCn>*/ {
+export interface Props /*extends cnss.Props<typeof layoutCn>*/ {
   // TODO: Open an issue in Astro about extends not working
   borderless?: boolean;
 }
 
-const layoutCn = cn<{ borderless: boolean }>()
+const layoutCn = cnss<{ borderless: boolean }>()
   .base("w-full flex justify-center bg-gray-50")
   .borderless(false, {
     true: "",

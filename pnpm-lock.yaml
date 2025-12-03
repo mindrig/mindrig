@@ -139,9 +139,9 @@ importers:
       astro:
         specifier: ^5.13.5
         version: 5.14.7(@azure/identity@4.11.1)(@types/node@24.9.1)(jiti@2.5.1)(lightningcss@1.30.1)(rollup@4.52.5)(tsx@4.20.5)(typescript@5.9.3)(yaml@2.8.1)
-      crab:
-        specifier: ^1.12.0
-        version: 1.13.0
+      cnss:
+        specifier: ^0.1.0
+        version: 0.1.0
       marked:
         specifier: ^14.1.1
         version: 14.1.4
@@ -227,9 +227,9 @@ importers:
       '@wrkspc/ui':
         specifier: workspace:*
         version: link:../../subs/ds/pkgs/ui
-      crab:
-        specifier: ^1.12.0
-        version: 1.13.0
+      cnss:
+        specifier: ^0.1.0
+        version: 0.1.0
       react:
         specifier: 19.2.0
         version: 19.2.0
@@ -436,9 +436,9 @@ importers:
       alwaysly:
         specifier: ^0.4.0
         version: 0.4.0
-      crab:
-        specifier: ^1.13.0
-        version: 1.13.0
+      cnss:
+        specifier: ^0.1.0
+        version: 0.1.0
       enso:
         specifier: ^2.6.0
         version: 2.6.0
@@ -601,9 +601,9 @@ importers:
       '@wrkspc/theme':
         specifier: workspace:*
         version: link:../theme
-      crab:
-        specifier: ^1.12.0
-        version: 1.13.0
+      cnss:
+        specifier: ^0.1.0
+        version: 0.1.0
       react:
         specifier: 19.2.0
         version: 19.2.0
@@ -626,9 +626,9 @@ importers:
       '@wrkspc/icons':
         specifier: workspace:*
         version: link:../icons
-      crab:
-        specifier: ^1.12.0
-        version: 1.13.0
+      cnss:
+        specifier: ^0.1.0
+        version: 0.1.0
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
@@ -675,9 +675,9 @@ importers:
       alwaysly:
         specifier: ^0.4.0
         version: 0.4.0
-      crab:
-        specifier: ^1.12.0
-        version: 1.13.0
+      cnss:
+        specifier: ^0.1.0
+        version: 0.1.0
     devDependencies:
       '@wrkspc/ts':
         specifier: workspace:*
@@ -700,9 +700,9 @@ importers:
       '@wrkspc/theme':
         specifier: workspace:*
         version: link:../theme
-      crab:
-        specifier: ^1.12.0
-        version: 1.13.0
+      cnss:
+        specifier: ^0.1.0
+        version: 0.1.0
       enso:
         specifier: ^2.6.0
         version: 2.6.0
@@ -3830,6 +3830,9 @@ packages:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
 
+  cnss@0.1.0:
+    resolution: {integrity: sha512-baeNFx82hxuTkghn7k2H1lbOK0hT6mf/INDtykboL7ejvvj5Rr7nPJSsMs/I2G4lWQrSqXg3EtS/OHPWsoh18g==}
+
   cockatiel@3.2.1:
     resolution: {integrity: sha512-gfrHV6ZPkquExvMh9IOkKsBzNDk6sDuZ6DdBGUBkvFnTCqCxzpuq48RySgP0AnaqQkw2zynOFj9yly6T1Q2G5Q==}
     engines: {node: '>=16'}
@@ -3908,9 +3911,6 @@ packages:
 
   cose-base@2.2.0:
     resolution: {integrity: sha512-AzlgcsCbUMymkADOJtQm3wO9S3ltPfYOFD5033keQn9NJzIbtnZj+UdBJe7DYml/8TdbtHJW3j58SOnKhWY/5g==}
-
-  crab@1.13.0:
-    resolution: {integrity: sha512-qeRbXlHDruQoB5VvU9Kw9X6yXr8z5rRrm3AnIAn7nvKcCL7jcCq4jVI4zltfRizXBh1x15oG2U3d99eSwvJUtw==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -11150,6 +11150,8 @@ snapshots:
 
   clsx@2.1.1: {}
 
+  cnss@0.1.0: {}
+
   cockatiel@3.2.1: {}
 
   color-convert@2.0.1:
@@ -11209,8 +11211,6 @@ snapshots:
   cose-base@2.2.0:
     dependencies:
       layout-base: 2.0.1
-
-  crab@1.13.0: {}
 
   cross-spawn@7.0.6:
     dependencies:

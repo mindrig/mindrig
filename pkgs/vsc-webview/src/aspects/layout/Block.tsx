@@ -1,9 +1,9 @@
 import { Button, Size, translateSize } from "@wrkspc/ds";
 import iconRegularTimes from "@wrkspc/icons/svg/regular/times.js";
-import { cn } from "crab";
+import { cnss } from "cnss";
 
 export namespace LayoutBlock {
-  export interface Props extends cn.Props<typeof layoutBlockCn> {
+  export interface Props extends cnss.Props<typeof layoutBlockCn> {
     header?: React.ReactNode | undefined;
     onClose?: (() => void) | undefined;
   }
@@ -36,7 +36,7 @@ export function LayoutBlock(props: React.PropsWithChildren<LayoutBlock.Props>) {
   );
 }
 
-export const layoutBlockCn = cn().group(($) => ({
+export const layoutBlockCn = cnss().group(($) => ({
   wrapper: $<{
     bordered: boolean;
   }>()

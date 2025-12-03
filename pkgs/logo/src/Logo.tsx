@@ -1,8 +1,8 @@
 import type { Size } from "@wrkspc/theme";
-import { cn } from "crab";
+import { cnss } from "cnss";
 import { LogoSVG } from "./LogoSVG.js";
 
-export interface LogoProps extends cn.Props<typeof logoCn> {}
+export interface LogoProps extends cnss.Props<typeof logoCn> {}
 
 export function Logo(props: LogoProps) {
   return (
@@ -16,7 +16,7 @@ export type LogoColor = "main" | "inverse";
 
 export type LogoSize = Size | "fill";
 
-export const logoCn = cn<{ color: LogoColor; size: LogoSize }>()
+export const logoCn = cnss<{ color: LogoColor; size: LogoSize }>()
   .color("main", {
     main: "",
     inverse: "text-off-white",

@@ -1,18 +1,18 @@
 import { Language } from "@wrkspc/core/lang";
 import { iconBaseCn, iconInlineCn } from "@wrkspc/ds";
-import { cn } from "crab";
+import { cnss } from "cnss";
 
 export namespace LanguageIcon {
   export interface Props
-    extends cn.Props<typeof iconBaseCn>,
-      cn.Props<typeof iconInlineCn> {
+    extends cnss.Props<typeof iconBaseCn>,
+      cnss.Props<typeof iconInlineCn> {
     id: Language.Id;
   }
 }
 
 export function LanguageIcon(props: LanguageIcon.Props) {
   return (
-    <div className={cn(iconBaseCn(props), iconInlineCn(props), "p-0.5")}>
+    <div className={cnss(iconBaseCn(props), iconInlineCn(props), "p-0.5")}>
       <Content {...props} />
     </div>
   );

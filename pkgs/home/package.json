@@ -22,7 +22,7 @@
     "@wrkspc/theme": "workspace:*",
     "@wrkspc/ui": "workspace:*",
     "astro": "^5.13.5",
-    "crab": "^1.12.0",
+    "cnss": "^0.1.0",
     "marked": "^14.1.1",
     "react": "19.2.0",
     "react-aria-components": "^1.12.1",

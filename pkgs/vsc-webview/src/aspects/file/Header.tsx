@@ -5,7 +5,7 @@ import { Button } from "@wrkspc/ds";
 import iconRegularThumbtackAngle from "@wrkspc/icons/svg/regular/thumbtack-angle.js";
 import iconSolidThumbtack from "@wrkspc/icons/svg/solid/thumbtack.js";
 import { Select } from "@wrkspc/ui";
-import { cn } from "crab";
+import { cnss } from "cnss";
 import { State } from "enso";
 import { useClientState } from "../client/StateContext";
 import { LayoutSection } from "../layout/Section";
@@ -60,7 +60,7 @@ export function FileHeader(props: FileHeader.Props) {
             }}
           />
 
-          <div className={cn("inline-flex", isPinned && "text-active-text")}>
+          <div className={cnss("inline-flex", isPinned && "text-active-text")}>
             <Button
               style="label"
               color={isPinned ? "current" : "secondary"}

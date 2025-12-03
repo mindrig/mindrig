@@ -1,9 +1,9 @@
 import { Size } from "@wrkspc/ds";
-import { cn } from "crab";
+import { cnss } from "cnss";
 import React from "react";
 
 export namespace LayoutInner {
-  export interface Props extends cn.Props<typeof layoutInnerCn> {}
+  export interface Props extends cnss.Props<typeof layoutInnerCn> {}
 
   export type Pad = boolean | "x" | "y";
 
@@ -15,7 +15,7 @@ export function LayoutInner(props: React.PropsWithChildren<LayoutInner.Props>) {
   return <div className={layoutInnerCn(props)}>{children}</div>;
 }
 
-export const layoutInnerCn = cn<{
+export const layoutInnerCn = cnss<{
   size: Size;
   pad: LayoutInner.Pad;
   divide: LayoutInner.Divide;

@@ -1,5 +1,5 @@
 import { textCn } from "@wrkspc/theme";
-import { cn } from "crab";
+import { cnss } from "cnss";
 import React from "react";
 
 interface LandingBlockProps {
@@ -13,13 +13,13 @@ interface LandingBlockProps {
 export function LandingBlockLayout(props: LandingBlockProps) {
   return (
     <div
-      className={cn(
+      className={cnss(
         "w-full flex items-center py-24",
         props.flipped ? "flex-col-reverse" : "flex-col",
         props.inverse ? "bg-gray-900" : "bg-fade",
       )}
     >
-      <div className={cn("max-w-7xl px-6 lg:px-8", props.flipped && "pt-24")}>
+      <div className={cnss("max-w-7xl px-6 lg:px-8", props.flipped && "pt-24")}>
         {props.children}
       </div>
 
@@ -32,7 +32,7 @@ export function LandingBlockLayout(props: LandingBlockProps) {
           />
           <div className="relative" aria-hidden="true">
             <div
-              className={cn(
+              className={cnss(
                 "absolute -inset-x-20 bottom-0 bg-linear-to-t pt-[7%]",
                 props.inverse ? "from-gray-900" : "from-white",
               )}
@@ -56,7 +56,7 @@ export function LandingBlockHeader(
   props: React.PropsWithChildren<LandingBlockHeaderProps>,
 ) {
   return (
-    <div className={cn("max-w-2xl sm:text-center flex flex-col space-y-4")}>
+    <div className={cnss("max-w-2xl sm:text-center flex flex-col space-y-4")}>
       <p
         className={textCn({
           role: "label",

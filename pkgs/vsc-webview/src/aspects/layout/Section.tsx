@@ -1,11 +1,11 @@
 import { Button, Icon, textCn } from "@wrkspc/ds";
 import iconRegularChevronDown from "@wrkspc/icons/svg/regular/chevron-down.js";
 import iconRegularChevronRight from "@wrkspc/icons/svg/regular/chevron-right.js";
-import { cn } from "crab";
+import { cnss } from "cnss";
 import React, { useState } from "react";
 
 export namespace LayoutSection {
-  export interface Props extends cn.Props<typeof layoutSectionCn> {
+  export interface Props extends cnss.Props<typeof layoutSectionCn> {
     header?: HeaderFn | string | undefined;
     actions?: React.ReactNode | undefined;
     icon?: Icon.Prop | undefined;
@@ -75,7 +75,7 @@ export function LayoutSection(
   );
 }
 
-export const layoutSectionCn = cn().group(($) => ({
+export const layoutSectionCn = cnss().group(($) => ({
   wrapper: $<{
     sticky: LayoutSection.Sticky;
     grow: boolean;

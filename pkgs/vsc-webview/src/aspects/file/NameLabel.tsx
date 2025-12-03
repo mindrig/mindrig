@@ -1,7 +1,7 @@
 import { EditorFile } from "@wrkspc/core/editor";
 import { fileNameView } from "@wrkspc/core/file";
 import { textCn } from "@wrkspc/ds";
-import { cn } from "crab";
+import { cnss } from "cnss";
 import { State } from "enso";
 
 export namespace FileNameLabel {
@@ -16,7 +16,7 @@ export function FileNameLabel(props: FileNameLabel.Props) {
   const nameView = pathState.useCompute((path) => fileNameView(path), []);
 
   return (
-    <div className={cn(isPinned ? "text-active-text" : "")}>
+    <div className={cnss(isPinned ? "text-active-text" : "")}>
       <span className={textCn({ role: "label" })}>{nameView.main}</span>
 
       <span
