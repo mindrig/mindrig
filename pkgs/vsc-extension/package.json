@@ -163,7 +163,7 @@
     "@ai-sdk/gateway": "^2.0.9",
     "@mindrig/parser-wasm": "0.1.0",
     "ai": "^5.0.93",
-    "alwaysly": "^0.3.0",
+    "alwaysly": "^0.4.0",
     "fastest-levenshtein": "^1.0.16",
     "mime": "^4.1.0",
     "nanoid": "^5.0.7",

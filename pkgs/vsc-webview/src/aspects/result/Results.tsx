@@ -1,4 +1,4 @@
-import { LayoutInner } from "../layout/Inner";
+import { Block } from "@wrkspc/ui";
 import { ResultsLayout } from "./Layout";
 import { useResults } from "./ResultsContext";
 import { ResultsLayoutPicker } from "./ResultsLayoutPicker";
@@ -11,9 +11,11 @@ export function Results() {
     <div>
       {resultsState ? (
         <>
-          <LayoutInner pad="x">
+          <Block size="small" pad>
+            {/* <LayoutInner pad="x"> */}
             <ResultsLayoutPicker resultsState={resultsState} />
-          </LayoutInner>
+            {/* </LayoutInner> */}
+          </Block>
 
           <ResultsLayout resultsState={resultsState} />
         </>

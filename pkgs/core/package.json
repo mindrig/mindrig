@@ -46,7 +46,7 @@
   "dependencies": {
     "@ai-sdk/gateway": "^2.0.9",
     "@mindrig/types": "workspace:^",
-    "alwaysly": "^0.3.0",
+    "alwaysly": "^0.4.0",
     "nanoid": "^5.1.6",
     "yjs": "^13.6.27"
   },
