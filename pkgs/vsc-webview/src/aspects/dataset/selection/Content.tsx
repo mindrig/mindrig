@@ -1,6 +1,5 @@
 import { DatasetSelection } from "@wrkspc/core/dataset";
 import { Field } from "enso";
-import { DatasetSelectionAll } from "./All";
 import { DatasetSelectionRange } from "./Range";
 import { DatasetSelectionRow } from "./Row";
 
@@ -34,7 +33,7 @@ export function DatasetSelectionContent(props: DatasetSelectionContent.Props) {
       );
 
     case "all":
-      return <DatasetSelectionAll rows={rows} />;
+      return null;
 
     default:
       discriminatedSelection satisfies never;

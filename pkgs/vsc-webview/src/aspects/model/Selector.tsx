@@ -36,7 +36,7 @@ export function ModelSelector(props: ModelSelector.Props) {
   const modelIdField = field.$.modelId.useDefined("string");
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-[minmax(0,calc(var(--spacing)*40))_minmax(0,calc(var(--spacing)*40))] gap-2">
       <SelectController
         field={developerIdField}
         label={{ a11y: "Select model provider" }}

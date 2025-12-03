@@ -1,9 +1,7 @@
 import { Attachment } from "@wrkspc/core/attachment";
-import { Button } from "@wrkspc/ds";
-import iconRegularPaperclip from "@wrkspc/icons/svg/regular/paperclip.js";
-import iconRegularPlus from "@wrkspc/icons/svg/regular/plus.js";
+import { Button, textCn } from "@wrkspc/ds";
 import { Field } from "enso";
-import { LayoutSection } from "../layout/Section";
+import { LayoutBlock } from "../layout/Block";
 import { useTest } from "../test/Context";
 import { AttachmentComponent } from "./Attachment";
 
@@ -18,28 +16,25 @@ export function Attachments(props: Attachments.Props) {
   const attachmentsField = props.attachmentsField.useCollection();
 
   return (
-    <LayoutSection
-      header="Attachments"
-      icon={iconRegularPaperclip}
-      actions={
-        <Button
-          style="label"
-          color="secondary"
-          icon={iconRegularPlus}
-          size="xsmall"
-          onClick={() => test.attachFile()}
-        >
-          Attach file
-        </Button>
-      }
-    >
-      {!!attachmentsField.size &&
+    <LayoutBlock>
+      {!!attachmentsField.size ? (
         attachmentsField.map((attachmentField) => (
           <AttachmentComponent
             key={attachmentField.id}
             attachmentField={attachmentField}
           />
-        ))}
-    </LayoutSection>
+        ))
+      ) : (
+        <p className={textCn()}>
+          Attach files to include them in the test run.
+        </p>
+      )}
+
+      <div>
+        <Button size="xsmall" onClick={() => test.attachFile()}>
+          Attach file
+        </Button>
+      </div>
+    </LayoutBlock>
   );
 }

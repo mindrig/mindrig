@@ -1,6 +1,5 @@
 import { buildDatasetSelection, DatasetSelection } from "@wrkspc/core/dataset";
-import { Tabs } from "@wrkspc/ds";
-import iconRegularTableRows from "@wrkspc/icons/svg/regular/table-rows.js";
+import { SelectController } from "@wrkspc/ds";
 import { Field } from "enso";
 import { DatasetSelectionContent } from "./Content";
 
@@ -16,9 +15,26 @@ export function DatasetSelectionComponent(
 ) {
   const { selectionField, rows } = props;
 
+  const typeField = selectionField
+    .useInto((selection) => selection.type, [])
+    .from((type) => buildDatasetSelection(type), []);
+
   return (
-    <div className="flex flex-col gap-2 pb-4">
-      <Tabs
+    <>
+      <div className="max-w-40">
+        <SelectController
+          size="xsmall"
+          field={typeField}
+          label="Rows  to use"
+          options={[
+            { value: "row", label: "Single row" },
+            { value: "range", label: "Rows range" },
+            { value: "all", label: `Use all ${rows} rows` },
+          ]}
+        />
+      </div>
+
+      {/* <Tabs
         label={{ icon: iconRegularTableRows, label: "Rows to use:" }}
         size="xsmall"
         items={[
@@ -27,11 +43,9 @@ export function DatasetSelectionComponent(
           { id: "all", label: "All" },
         ]}
         onChange={(type) => selectionField.set(buildDatasetSelection(type))}
-      />
+      /> */}
 
-      <div className="pt-2">
-        <DatasetSelectionContent selectionField={selectionField} rows={rows} />
-      </div>
-    </div>
+      <DatasetSelectionContent selectionField={selectionField} rows={rows} />
+    </>
   );
 }

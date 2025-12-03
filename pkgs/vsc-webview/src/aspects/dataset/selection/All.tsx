@@ -11,7 +11,7 @@ export namespace DatasetSelectionAll {
 export function DatasetSelectionAll(props: DatasetSelectionAll.Props) {
   const { rows } = props;
   return (
-    <p className={textCn()}>
+    <p className={textCn({ size: "small" })}>
       <Icon id={iconSolidCheckCircle} size="xsmall" color="detail" /> Use all
       CSV {rows} rows.
     </p>

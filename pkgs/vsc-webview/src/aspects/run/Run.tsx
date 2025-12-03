@@ -12,6 +12,8 @@ import { RunError } from "./Error";
 import { RunManager } from "./Manager";
 import { RunPending } from "./Pending";
 
+const SHOW_RUN_DETAILS_SECTION = false;
+
 export namespace RunComponent {
   export interface Props {
     run: RunManager;
@@ -27,41 +29,43 @@ export function RunComponent(props: RunComponent.Props) {
 
   return (
     <RunProvider run={run}>
-      <LayoutSection
-        header="Run"
-        actions={
-          <>
-            <Button
-              size="xsmall"
-              style="label"
-              icon={showDetails ? iconRegularEyeSlash : iconRegularEye}
-              color="secondary"
-              onClick={() => run.toggleShowDetails(!showDetails)}
-            >
-              Details
-            </Button>
+      {SHOW_RUN_DETAILS_SECTION && (
+        <LayoutSection
+          header="Run"
+          actions={
+            <>
+              <Button
+                size="xsmall"
+                style="label"
+                icon={showDetails ? iconRegularEyeSlash : iconRegularEye}
+                color="secondary"
+                onClick={() => run.toggleShowDetails(!showDetails)}
+              >
+                Details
+              </Button>
 
-            <Button
-              style="label"
-              size="xsmall"
-              color="secondary"
-              icon={iconRegularBroomWide}
-              onClick={() => test.clearRun()}
-              isDisabled={running}
-            />
-          </>
-        }
-      >
-        {showDetails && (
-          <LayoutBlock
-            size="small"
-            bordered
-            onClose={() => run.toggleShowDetails(false)}
-          >
-            <RunDetailsPreview />
-          </LayoutBlock>
-        )}
-      </LayoutSection>
+              <Button
+                style="label"
+                size="xsmall"
+                color="secondary"
+                icon={iconRegularBroomWide}
+                onClick={() => test.clearRun()}
+                isDisabled={running}
+              />
+            </>
+          }
+        >
+          {showDetails && (
+            <LayoutBlock
+              size="small"
+              bordered
+              onClose={() => run.toggleShowDetails(false)}
+            >
+              <RunDetailsPreview />
+            </LayoutBlock>
+          )}
+        </LayoutSection>
+      )}
 
       {pending ? (
         <RunPending />

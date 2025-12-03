@@ -1,10 +1,9 @@
-import JsonView from "@uiw/react-json-view";
 import { ModelLanguage } from "@wrkspc/core/model";
 import { Tabs } from "@wrkspc/ds";
 import { State } from "enso";
 import { useMemo, useState } from "react";
 import { Streamdown } from "streamdown";
-import { shouldExpandNodeInitially } from "../result/jsonUtils";
+import { JsonPreview } from "../json/Preview";
 
 export namespace ModelLanguageContent {
   export interface Props {
@@ -40,15 +39,11 @@ export function ModelLanguageContent(props: ModelLanguageContent.Props) {
       />
 
       {showRaw ? (
-        <pre className="font-mono text-sm whitespace-pre-wrap py-4">{text}</pre>
+        <pre className="font-mono text-sm whitespace-pre-wrap p-3">{text}</pre>
       ) : parsedJson ? (
-        <JsonView
-          value={parsedJson}
-          displayObjectSize={false}
-          shouldExpandNodeInitially={shouldExpandNodeInitially}
-        />
+        <JsonPreview value={parsedJson} />
       ) : (
-        <div className="streamdown-content prose prose-sm max-w-none">
+        <div className="p-3">
           <Streamdown
           // allowedLinkPrefixes={["https://", "http://", "mailto:"]}
           // allowedImagePrefixes={["https://", "http://"]}

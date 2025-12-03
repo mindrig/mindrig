@@ -1,30 +1,39 @@
 import { Datasource } from "@wrkspc/core/datasource";
-import iconRegularBracketsCurly from "@wrkspc/icons/svg/regular/brackets-curly.js";
+import { always } from "alwaysly";
 import { Field } from "enso";
-import { LayoutSection } from "../layout/Section";
+import { LayoutBlock } from "../layout/Block";
 import { DatasourceComponent } from "./Datasource";
 
 export namespace Datasources {
   export interface Props {
-    field: Field<Datasource[]>;
+    datasourcesField: Field<Datasource[]>;
   }
 }
 
 export function Datasources(props: Datasources.Props) {
-  const field = props.field.useCollection();
+  // NOTE: Right now only single datasource is supported (and ensured).
+  // So we just pick the first one until multiple are supported. It is this way
+  // so we can easily extend it later without need for breaking schema changes.
+  const decomposedDatasource = props.datasourcesField.at(0).decomposeNullish();
+  always(decomposedDatasource.value);
+  const datasourceField = decomposedDatasource.field;
 
   return (
-    <LayoutSection
-      header="Variables"
-      icon={iconRegularBracketsCurly}
-      style="tabs"
-    >
-      {field.map((datasourceField) => (
-        <DatasourceComponent
-          key={datasourceField.key}
-          field={datasourceField}
-        />
-      ))}
-    </LayoutSection>
+    <LayoutBlock style="tabs">
+      <DatasourceComponent key={datasourceField.key} field={datasourceField} />
+    </LayoutBlock>
   );
+
+  // TODO: Iterate over all datasources when multiple are supported.
+  // const datasourcesField = props.datasourcesField.useCollection();
+  // return (
+  //   <>
+  //     {datasourcesField.map((datasourceField) => (
+  //       <DatasourceComponent
+  //         key={datasourceField.key}
+  //         field={datasourceField}
+  //       />
+  //     ))}
+  //   </>
+  // );
 }

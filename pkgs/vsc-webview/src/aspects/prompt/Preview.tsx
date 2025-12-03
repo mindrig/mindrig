@@ -6,16 +6,15 @@ export namespace PromptPreview {
   export interface Props {
     prompt: PlaygroundMap.Prompt;
     size?: Size;
-    hideLabel?: boolean;
   }
 }
 
 export function PromptPreview(props: PromptPreview.Props) {
-  const { prompt, size, hideLabel } = props;
+  const { prompt, size } = props;
 
   return (
     <TextArea
-      label={hideLabel ? { a11y: "Prompt" } : "Prompt"}
+      label={{ a11y: "Prompt" }}
       value={prompt.content}
       size={size}
       mono

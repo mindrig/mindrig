@@ -1,7 +1,7 @@
 import { resolveModel } from "@wrkspc/core/model";
 import { Setup } from "@wrkspc/core/setup";
 import { Button } from "@wrkspc/ds";
-import iconRegularAngleUp from "@wrkspc/icons/svg/regular/angle-up.js";
+import iconRegularChevronDown from "@wrkspc/icons/svg/regular/chevron-down.js";
 import iconRegularCog from "@wrkspc/icons/svg/regular/cog.js";
 import iconRegularTrashAlt from "@wrkspc/icons/svg/regular/trash-alt.js";
 import { Field, State } from "enso";
@@ -39,22 +39,23 @@ export function SetupComponent(props: SetupComponent.Props) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
+        <div className="shrink-0">
+          <Button
+            style="label"
+            color="secondary"
+            size="small"
+            icon={expanded ? iconRegularChevronDown : iconRegularCog}
+            onClick={() => expandedIndexState.set(expanded ? null : index)}
+            isDisabled={!model}
+          />
+        </div>
+
         <div className="grow">
           <ModelSelector field={setupField.$.ref} />
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          {model && (
-            <Button
-              style="label"
-              color="secondary"
-              size="small"
-              icon={expanded ? iconRegularAngleUp : iconRegularCog}
-              onClick={() => expandedIndexState.set(expanded ? null : index)}
-            />
-          )}
-
+        <div className="shrink-0">
           {!solo && (
             <Button
               style="label"

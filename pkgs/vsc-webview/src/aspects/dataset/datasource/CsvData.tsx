@@ -55,12 +55,14 @@ export function DatasetDatasourceCsvData(
         }
       />
 
-      <LayoutBlock style="tabs" bordered divided>
+      <LayoutBlock size="small" style="tabs" bordered>
         <DatasetSelectionComponent
           selectionField={csvField.$.selection}
           rows={csv.rows}
         />
+      </LayoutBlock>
 
+      <LayoutBlock size="small" bordered>
         <DatasetDatasourceMapping csvField={csvField} csvState={csvState} />
       </LayoutBlock>
     </div>

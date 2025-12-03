@@ -1,11 +1,5 @@
-import {
-  buildDatasource,
-  Datasource,
-  DATASOURCE_TYPE_TITLES,
-} from "@wrkspc/core/datasource";
-import { Tabs } from "@wrkspc/ds";
-import iconRegularInputText from "@wrkspc/icons/svg/regular/input-text.js";
-import iconRegularTable from "@wrkspc/icons/svg/regular/table.js";
+import { buildDatasource, Datasource } from "@wrkspc/core/datasource";
+import { SelectController } from "@wrkspc/ds";
 import { never } from "alwaysly";
 import { Field } from "enso";
 import { DatasetDatasource } from "../dataset/datasource/Datasource";
@@ -35,7 +29,19 @@ export function DatasourceComponent(props: DatasourceComponent.Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <Tabs
+      <div className="max-w-40">
+        <SelectController
+          size="xsmall"
+          field={typeField}
+          label="Variables source"
+          options={[
+            { value: "manual", label: "Enter manually" },
+            { value: "dataset", label: "Use dataset" },
+          ]}
+        />
+      </div>
+
+      {/* <Tabs
         initial={type}
         value={type}
         onChange={(newType) => typeField.set(newType)}
@@ -43,17 +49,17 @@ export function DatasourceComponent(props: DatasourceComponent.Props) {
           {
             id: "manual",
             icon: iconRegularInputText,
-            label: DATASOURCE_TYPE_TITLES.manual,
+            label: "Enter manually",
           },
           {
             id: "dataset",
             icon: iconRegularTable,
-            label: DATASOURCE_TYPE_TITLES.dataset,
+            label: "Use dataset",
           },
         ]}
         size="xsmall"
         style="inline"
-      />
+      /> */}
 
       <div>
         {discriminated.discriminator === "dataset" ? (

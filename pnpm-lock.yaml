@@ -712,6 +712,9 @@ importers:
       react-dom:
         specifier: 19.2.0
         version: 19.2.0(react@19.2.0)
+      tdollar:
+        specifier: ^0.6.0
+        version: 0.6.0
     devDependencies:
       '@storybook/react':
         specifier: ^9.1.7

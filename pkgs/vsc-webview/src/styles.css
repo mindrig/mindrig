@@ -6,6 +6,11 @@
 @source "../node_modules/streamdown/dist/index.js";
 
 @theme {
+  /*# Font */
+
+  --font-display: var(--vscode-font-family);
+  --font-mono: var(--vscode-editor-font-family);
+
   /*# Colors */
 
   /* Base */
@@ -42,6 +47,8 @@
   /*## Size */
 
   --text-base: var(--vscode-font-size);
+  --text-sm: calc(var(--vscode-font-size) * 0.9);
+  --text-xs: calc(var(--vscode-font-size) * 0.85);
 
   /*## Text */
 
@@ -63,7 +70,7 @@
 
   /*## Divider */
 
-  --color-divider: var(--vscode-sideBarSectionHeader-border, transparent);
+  --color-divider: color-mix(in srgb, white 15%, var(--canvas) 100%);
 
   /*## Border */
 
@@ -175,9 +182,10 @@
   --color-tag-ink-secondary: var(--vscode-breadcrumb-foreground);
   --color-tag-canvas-secondary: var(--vscode-breadcrumb-background);
 
-  /*## Tab */
+  /*## Tabs */
 
   --border-tab: 1px;
+  --color-tabs-border: var(--color-divider);
   --color-tab-ink: var(--color-ink);
   --color-tab-ink-hover: var(--color-tab-active-ink);
   --color-tab-border: transparent;
@@ -187,26 +195,66 @@
 
   /*# App-Specific */
 
+  --color-editor-canvas: var(--vscode-editor-background);
+  --color-editor-ink: var(--vscode-editor-foreground);
+
   /*## Section */
 
+  --color-section-canvas: var(--vscode-sideBar-background);
   --color-section-border: color-mix(
     in srgb,
     var(--vscode-sideBarSectionHeader-border, transparent) 100%,
     var(--color-section-header-canvas) 100%
   );
-  /* --color-section-border: var(
-    --vscode-sideBarSectionHeader-border,
-    transparent
-  ); */
   --color-section-border-pinned: color-mix(
     in srgb,
     var(--vscode-textLink-foreground) 15%,
     transparent
   );
-  --color-section-header-canvas: var(--vscode-inlineChat-background);
+  --color-section-header-canvas: var(--vscode-sideBarSectionHeader-background);
 
-  --color-block-border: var(--vscode-sideBarSectionHeader-border, transparent);
-  --color-block-canvas: var(--vscode-inlineChat-background);
+  /*## Block */
+
+  --color-block-canvas: var(--vscode-editor-background, transparent);
+  /* --color-block-canvas: var(--vscode-inlineChat-background); */
+  --color-block-border: var(--color-divider, transparent);
+  /* --color-block-canvas: var(--vscode-inlineChat-background); */
+
+  /*# JSON View */
+
+  --w-rjv-color: var(--color-editor-ink);
+  --w-rjv-background-color: var(--color-editor-canvas);
+  --w-rjv-font-family: var(--vscode-editor-font-family);
+
+  --w-rjv-key-number: var(--vscode-debugTokenExpression-name);
+  --w-rjv-key-string: var(--vscode-debugTokenExpression-name);
+  --w-rjv-line-color: #36334280;
+  --w-rjv-arrow-color: var(--color-ink-detail);
+  /* --w-rjv-edit-color: var(--w-rjv-color); */
+  /* --w-rjv-info-color: #9c9c9c7a;
+  --w-rjv-update-color: #9cdcfe;
+  --w-rjv-copied-color: #9cdcfe;
+  --w-rjv-copied-success-color: #28a745;
+*/
+  --w-rjv-colon-color: var(--color-ink);
+  --w-rjv-curlybraces-color: var(--color-ink);
+  --w-rjv-brackets-color: var(--color-ink);
+  --w-rjv-ellipsis-color: var(--color-ink-detail);
+
+  --w-rjv-quotes-color: var(--w-rjv-key-string);
+  --w-rjv-quotes-string-color: var(--w-rjv-type-string-color);
+
+  --w-rjv-type-string-color: var(--vscode-debugTokenExpression-string);
+  --w-rjv-type-int-color: var(--vscode-debugTokenExpression-number);
+  --w-rjv-type-float-color: var(--w-rjv-type-int-color);
+  --w-rjv-type-bigint-color: var(--w-rjv-type-int-color);
+  --w-rjv-type-boolean-color: var(--vscode-debugTokenExpression-boolean);
+  --w-rjv-type-null-color: var(--vscode-debugTokenExpression-boolean);
+
+  --w-rjv-type-date-color: var(--vscode-debugTokenExpression-string);
+  --w-rjv-type-url-color: var(--vscode-debugTokenExpression-string);
+  --w-rjv-type-nan-color: var(--vscode-debugTokenExpression-boolean);
+  --w-rjv-type-undefined-color: var(--vscode-debugTokenExpression-boolean);
 }
 
 :placeholder-shown {
@@ -223,7 +271,7 @@
     min-width: 0;
   }
 }
-
+/*
 @layer components {
   .streamdown-content {
     color: var(--color-ink);
@@ -322,4 +370,4 @@
   .streamdown-content li + li {
     margin-top: 0.25rem;
   }
-}
+} */

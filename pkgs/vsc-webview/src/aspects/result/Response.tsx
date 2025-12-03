@@ -1,9 +1,8 @@
-import JsonView from "@uiw/react-json-view";
-
 import { Result } from "@wrkspc/core/result";
-import { Button } from "@wrkspc/ds";
+import { Button, textCn } from "@wrkspc/ds";
 import { State } from "enso";
 import { useState } from "react";
+import { JsonPreview } from "../json/Preview";
 
 export namespace ResultResponse {
   export interface Props {
@@ -30,15 +29,11 @@ export function ResultResponse(props: ResultResponse.Props) {
       </div>
 
       {expanded && (
-        <div className="p-3 rounded border overflow-auto">
+        <div className="">
           {payload ? (
-            <JsonView
-              value={payload}
-              displayObjectSize={false}
-              // shouldExpandNodeInitially={shouldExpandNodeInitially}
-            />
+            <JsonPreview value={payload} />
           ) : (
-            <div className="text-xs text-gray-500">No response</div>
+            <div className={textCn({ size: "xsmall" })}>No response</div>
           )}
         </div>
       )}

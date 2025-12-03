@@ -1,5 +1,5 @@
 import React from "react";
 
 export function AppLayout(props: React.PropsWithChildren) {
-  return <div>{props.children}</div>;
+  return <div className="font-display">{props.children}</div>;
 }

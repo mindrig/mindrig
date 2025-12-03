@@ -14,8 +14,8 @@ export function PromptSource(props: PromptSource.Props) {
   const content = promptState.$.prompt.useValue();
 
   return (
-    <LayoutSection>
-      <PromptPreview prompt={content} />
+    <LayoutSection header="prompt">
+      <PromptPreview size="small" prompt={content} />
     </LayoutSection>
   );
 }

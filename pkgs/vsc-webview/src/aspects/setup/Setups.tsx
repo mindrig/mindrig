@@ -1,12 +1,13 @@
 import { buildSetup, buildSetupsModelRefs, Setup } from "@wrkspc/core/setup";
-import { Button } from "@wrkspc/ds";
-import iconRegularMicrochip from "@wrkspc/icons/svg/regular/microchip.js";
+import { Button, Tag } from "@wrkspc/ds";
 import iconRegularPlus from "@wrkspc/icons/svg/regular/plus.js";
 import { Field, State } from "enso";
+import { useState } from "react";
 import { LayoutSection } from "../layout/Section";
 import { useModelsMap } from "../model/MapContext";
 import { SetupComponent } from "./Setup";
 import { SetupsAppState } from "./setupsAppState";
+import { SetupsModelsLabels } from "./SetupsModelsLabel";
 
 export namespace Setups {
   export interface Props {
@@ -20,11 +21,22 @@ export function Setups(props: Setups.Props) {
   const { modelsPayload } = useModelsMap();
   const setupsField = props.setupsField.useCollection();
   const soloSetup = setupsField.useCompute((setups) => setups.length === 1, []);
+  const [expanded, setExpanded] = useState(true);
 
   return (
     <LayoutSection
-      header={soloSetup ? "Model" : "Models"}
-      icon={iconRegularMicrochip}
+      collapsible
+      header={(expanded) => (
+        <div className="flex gap-2 items-center">
+          <span className="shrink-0">
+            {`${soloSetup ? "Model" : "Models"} to use`}{" "}
+          </span>
+          <span className="shrink-0">
+            <Tag size="xsmall">{setupsField.size}</Tag>
+          </span>
+          {!expanded && <SetupsModelsLabels setupsField={setupsField} />}
+        </div>
+      )}
       actions={
         <Button
           type="button"
@@ -33,6 +45,7 @@ export function Setups(props: Setups.Props) {
           size="xsmall"
           icon={iconRegularPlus}
           onClick={() => {
+            !expanded && setExpanded(true);
             const usedModelRefs = buildSetupsModelRefs(setupsField.value);
             setupsField.push(
               buildSetup({
@@ -45,6 +58,7 @@ export function Setups(props: Setups.Props) {
           Add model
         </Button>
       }
+      expanded={[expanded, setExpanded]}
       divided
     >
       {setupsField.map((setupField, index) => (

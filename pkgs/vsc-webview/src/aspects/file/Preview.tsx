@@ -26,7 +26,7 @@ export function FilePreviewComponent(props: FilePreviewComponent.Props) {
     <div className="flex gap-1">
       <div className="shrink-0">{icon}</div>
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 grow">
         <FileInfoComponent info={info} actions={actions} />
 
         {meta?.length && (

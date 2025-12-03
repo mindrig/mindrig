@@ -1,13 +1,21 @@
-import { Icon, textCn } from "@wrkspc/ds";
+import { Button, Icon, textCn } from "@wrkspc/ds";
+import iconRegularChevronDown from "@wrkspc/icons/svg/regular/chevron-down.js";
+import iconRegularChevronRight from "@wrkspc/icons/svg/regular/chevron-right.js";
 import { cn } from "crab";
-import React from "react";
+import React, { useState } from "react";
 
 export namespace LayoutSection {
   export interface Props extends cn.Props<typeof layoutSectionCn> {
-    header?: string | undefined;
+    header?: HeaderFn | string | undefined;
     actions?: React.ReactNode | undefined;
     icon?: Icon.Prop | undefined;
+    collapsible?: boolean | undefined;
+    expanded?:
+      | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+      | undefined;
   }
+
+  export type HeaderFn = (expanded: boolean) => React.ReactNode;
 
   export type Style = "default" | "header" | "tabs" | "fill";
 
@@ -17,7 +25,9 @@ export namespace LayoutSection {
 export function LayoutSection(
   props: React.PropsWithChildren<LayoutSection.Props>,
 ) {
-  const { header, actions, icon, children } = props;
+  const { header, actions, icon, collapsible, children } = props;
+  const expandedState = useState(true);
+  const [expanded, setExpanded] = props.expanded || expandedState;
 
   const hasChildren =
     !!children && (!Array.isArray(children) || children.length > 0);
@@ -33,18 +43,34 @@ export function LayoutSection(
               role: "subheader",
               size: "xsmall",
               className: "flex gap-1 items-center",
-              uppercase: true,
+              transform: "uppercase",
             })}
           >
+            <span className="shrink-0">
+              {collapsible && (
+                <Button
+                  icon={
+                    expanded ? iconRegularChevronDown : iconRegularChevronRight
+                  }
+                  size="small"
+                  style="label"
+                  onClick={() => setExpanded(!expanded)}
+                />
+              )}
+            </span>
+
             {icon && <Icon id={icon} size="small" color="detail" />}
-            <span className="leading-none">{header}</span>
+
+            <span className="leading-none">
+              {typeof header === "function" ? header(expanded) : header}
+            </span>
           </h3>
 
-          <div className="flex gap-2 items-center">{actions}</div>
+          <div className="flex gap-2 items-center shrink-0">{actions}</div>
         </div>
       )}
 
-      {hasChildren && <div className={cns.content}>{children}</div>}
+      {hasChildren && expanded && <div className={cns.content}>{children}</div>}
     </section>
   );
 }
@@ -54,16 +80,17 @@ export const layoutSectionCn = cn().group(($) => ({
     sticky: LayoutSection.Sticky;
   }>()
     .base(
-      "flex flex-col bg-section-header-canvas border-b border-section-border last:border-0",
+      "flex flex-col bg-section-canvas border-b border-section-border last:border-0",
     )
     .sticky(false, {
       top: "sticky top-0 z-10",
-      bottom:
-        "sticky bottom-0 z-10 before:content-[''] before:block before:h-[1px] before:top-[-1px] before:w-full before:absolute before:bg-section-border",
+      bottom: [
+        "sticky bottom-0 z-10 before:bg-section-border before:content-[''] before:block before:h-[1px] before:top-[-1px] before:w-full before:absolute",
+      ],
     }),
 
   header: $.base(
-    "px-3 py-2 flex gap-2 items-center justify-between bg-section-header-canvas",
+    "px-3 h-6 flex gap-2 items-center justify-between bg-section-header-canvas",
   ),
 
   content: $<{
@@ -71,14 +98,14 @@ export const layoutSectionCn = cn().group(($) => ({
     style: LayoutSection.Style;
     horizontalScroll: boolean;
   }>()
-    .base("flex flex-col gap-3")
+    .base("flex flex-col ")
     .divided(false, {
       true: "divide-y divide-divider",
     })
     .style("default", {
-      default: "px-3 pt-3 pb-4",
-      tabs: "px-3 pb-4",
-      header: "px-3 pb-2",
+      default: "gap-3 px-3 pt-3 pb-4",
+      tabs: "gap-3 px-3 pt-1 pb-4",
+      header: "gap-3 px-3 pb-2",
       fill: "",
     })
     .horizontalScroll(false, { true: "overflow-x-auto" }),

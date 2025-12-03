@@ -1,5 +1,6 @@
 import { Test } from "@wrkspc/core/test";
 import { Field } from "enso";
+import { TestProvider } from "./Context";
 import { TestComponent } from "./Test";
 
 export namespace Tests {
@@ -14,7 +15,9 @@ export function Tests(props: Tests.Props) {
   return (
     <>
       {testsField.map((testField) => (
-        <TestComponent key={testField.id} testField={testField} />
+        <TestProvider testField={testField} key={testField.id}>
+          <TestComponent testField={testField} />
+        </TestProvider>
       ))}
     </>
   );

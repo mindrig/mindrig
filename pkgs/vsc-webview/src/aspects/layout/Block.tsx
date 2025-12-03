@@ -38,24 +38,33 @@ export function LayoutBlock(props: React.PropsWithChildren<LayoutBlock.Props>) {
 
 export const layoutBlockCn = cn().group(($) => ({
   wrapper: $<{
-    size: Size;
-    style: LayoutBlock.Style;
     bordered: boolean;
-    divided: boolean;
   }>()
     .base("flex flex-col bg-block-canvas relative")
+    .bordered(false, {
+      true: "border border-block-border bg-block-canvas",
+    }),
+
+  close: $<{ size: Size }>().base("absolute top-2 right-2").size("medium", {
+    xsmall: "top-1 right-1",
+    small: "top-1 right-1",
+    medium: "top-2 right-2",
+    large: "top-3 right-3",
+    xlarge: "top-4 right-4",
+  }),
+
+  content: $<{
+    size: Size;
+    style: LayoutBlock.Style;
+    divided: boolean;
+  }>()
+    .base("flex flex-col gap-3")
     .size("medium", {
       xsmall: "gap-2 px-2",
       small: "gap-3 px-3",
       medium: "gap-4 px-4",
       large: "gap-5 px-5",
       xlarge: "gap-6 px-6",
-    })
-    .bordered(false, {
-      true: "border border-block-border bg-block-canvas",
-    })
-    .divided(false, {
-      true: "divide-y divide-divider",
     })
     .style("default", {
       default: {
@@ -76,15 +85,8 @@ export const layoutBlockCn = cn().group(($) => ({
           xlarge: "pb-6",
         },
       },
+    })
+    .divided(false, {
+      true: "divide-y divide-divider",
     }),
-
-  close: $<{ size: Size }>().base("absolute top-2 right-2").size("medium", {
-    xsmall: "top-1 right-1",
-    small: "top-1 right-1",
-    medium: "top-2 right-2",
-    large: "top-3 right-3",
-    xlarge: "top-4 right-4",
-  }),
-
-  content: $.base(""),
 }));

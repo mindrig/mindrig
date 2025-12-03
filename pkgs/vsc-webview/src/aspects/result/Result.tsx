@@ -1,10 +1,11 @@
 import { Result } from "@wrkspc/core/result";
-import { Button, Icon, Tag } from "@wrkspc/ds";
+import { Button, Icon, Tag, textCn } from "@wrkspc/ds";
 import iconRegularAngleDown from "@wrkspc/icons/svg/regular/angle-down.js";
 import iconRegularAngleRight from "@wrkspc/icons/svg/regular/angle-right.js";
 import iconRegularLoader from "@wrkspc/icons/svg/regular/loader.js";
 import { State } from "enso";
 import { LayoutBlock } from "../layout/Block";
+import { timeFormatter } from "../util/date";
 import { ResultContent } from "./Content";
 import { ResultProvider } from "./Context";
 import { ResultMeta } from "./Meta";
@@ -59,7 +60,7 @@ export function ResultComponent(props: ResultComponent.Props) {
 
   return (
     <ResultProvider state={resultState}>
-      <div className="px-3 pt-3 pb-4">
+      <div className="px-3">
         <LayoutBlock bordered>
           <div className="flex items-center justify-between border-b">
             <div className="flex items-center gap-2">
@@ -94,8 +95,8 @@ export function ResultComponent(props: ResultComponent.Props) {
               {cancelled && <Tag>Cancelled</Tag>}
             </div>
 
-            <span className="text-xs">
-              {new Date(createdAt).toLocaleString()}
+            <span className={textCn({ size: "xsmall", color: "detail" })}>
+              {timeFormatter.format(createdAt)}
             </span>
           </div>
 

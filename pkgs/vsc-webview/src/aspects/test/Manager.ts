@@ -144,6 +144,14 @@ export class TestManager {
     this.#testAppState.$.runId.set(null);
   }
 
+  setTab(tab: TestAppState.Tab | null) {
+    this.#testAppState.$.tab.set(tab);
+  }
+
+  useTab(): TestAppState.Tab | null {
+    return this.#testAppState.$.tab.useValue();
+  }
+
   get #runInit(): Run.Init {
     const prompt = this.#assessment.promptState.$.prompt.value;
     const assessment = this.#assessment.assessmentForm.value;
