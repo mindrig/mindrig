@@ -1,11 +1,12 @@
 import { Test } from "@wrkspc/core/test";
-import { Button, Checkbox, Tabs } from "@wrkspc/ui";
+import { Block, Button, Checkbox, Tabs } from "@wrkspc/ui";
 import { Field } from "enso";
 import { Attachments } from "../attachment/Attachments";
 import { Datasources } from "../datasource/Datasources";
-import { LayoutInner } from "../layout/Inner";
+import { DatasourcesPresenceTag } from "../datasource/DatasourcesPresenceTag";
 import { LayoutSection } from "../layout/Section";
 import { RunComponent } from "../run/Run";
+import { CountTag } from "../ui/CountTag";
 import { useTest } from "./Context";
 import { TestRunStarted } from "./RunStarted";
 
@@ -27,8 +28,8 @@ export function TestComponent(props: TestComponent.Props) {
 
   return (
     <>
-      <LayoutSection header="Test manually" style="fill" collapsible>
-        <LayoutInner pad="x">
+      <LayoutSection header="Test manually" style="fill" collapsible grow>
+        <Block dir="y" pad={["small", "medium", false]}>
           <Tabs
             size="small"
             onChange={(id) => test.setTab(id)}
@@ -36,6 +37,12 @@ export function TestComponent(props: TestComponent.Props) {
               {
                 id: "datasources",
                 label: "Variables",
+                extra: (
+                  <DatasourcesPresenceTag
+                    datasourcesField={testField.$.datasources}
+                    size="xsmall"
+                  />
+                ),
                 content: () => (
                   <Datasources datasourcesField={testField.$.datasources} />
                 ),
@@ -43,6 +50,12 @@ export function TestComponent(props: TestComponent.Props) {
               {
                 id: "attachments",
                 label: "Attachments",
+                extra: (
+                  <CountTag
+                    arrayState={testField.$.attachments}
+                    size="xsmall"
+                  />
+                ),
                 content: () => (
                   <Attachments attachmentsField={testField.$.attachments} />
                 ),
@@ -52,37 +65,35 @@ export function TestComponent(props: TestComponent.Props) {
             collapsible={{ id: null }}
           />
 
-          <LayoutInner pad="y">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button
-                  size="small"
-                  onClick={() =>
-                    run && running ? run.stopRun() : test.startRun()
-                  }
-                  style={run && running ? "transparent" : "solid"}
-                  isDisabled={!run && running}
-                >
-                  {running ? "Stop Run" : "Run Prompt"}
-                </Button>
+          <Block align justify="between">
+            <Block size="small" align>
+              <Button
+                size="small"
+                onClick={() =>
+                  run && running ? run.stopRun() : test.startRun()
+                }
+                style={run && running ? "transparent" : "solid"}
+                isDisabled={!run && running}
+              >
+                {running ? "Stop Run" : "Run Prompt"}
+              </Button>
 
-                <Checkbox
-                  label="Stream output"
-                  value={streaming}
-                  onChange={(enabled) => test.setStreaming(enabled)}
-                  size="small"
-                />
-              </div>
+              <Checkbox
+                label="Stream output"
+                value={streaming}
+                onChange={(enabled) => test.setStreaming(enabled)}
+                size="small"
+              />
+            </Block>
 
-              {run && <TestRunStarted run={run} />}
-            </div>
-          </LayoutInner>
-        </LayoutInner>
+            {run && <TestRunStarted run={run} />}
+          </Block>
+        </Block>
 
         {run && (
-          <LayoutInner divide="top">
+          <Block border="top" grow>
             <RunComponent run={run} />
-          </LayoutInner>
+          </Block>
         )}
       </LayoutSection>
     </>

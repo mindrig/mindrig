@@ -1,4 +1,5 @@
 import { Result } from "@wrkspc/core/result";
+import { Block } from "@wrkspc/ui";
 import { State } from "enso";
 import { ResultComponent } from "./Result";
 import { ResultsAppState } from "./resultsAppState";
@@ -20,17 +21,16 @@ export function ResultsLayoutVertical(props: ResultsLayoutVertical.Props) {
   const solo = resultsState.size === 1;
 
   return (
-    <div className="space-y-3">
+    <Block dir="y">
       {resultsState.map((resultState, resultIndex) => (
-        <div key={resultState.key}>
-          <ResultComponent
-            resultState={resultState}
-            resultIndex={resultIndex}
-            discriminatedLayout={discriminatedLayout}
-            solo={solo}
-          />
-        </div>
+        <ResultComponent
+          resultState={resultState}
+          resultIndex={resultIndex}
+          discriminatedLayout={discriminatedLayout}
+          solo={solo}
+          key={resultState.key}
+        />
       ))}
-    </div>
+    </Block>
   );
 }

@@ -4,18 +4,17 @@ import { State } from "enso";
 import { ResultsLayoutCarousel } from "./LayoutCarousel";
 import { ResultsLayoutHorizontal } from "./LayoutHorizontal";
 import { ResultsLayoutVertical } from "./LayoutVertical";
-import { useResults } from "./ResultsContext";
+import { ResultsAppState } from "./resultsAppState";
 
 export namespace ResultsLayout {
   export interface Props {
     resultsState: State<Result[]>;
+    discriminatedLayout: State.Discriminated<ResultsAppState.Layout, "type">;
   }
 }
 
 export function ResultsLayout(props: ResultsLayout.Props) {
-  const { resultsState } = props;
-  const { results } = useResults();
-  const discriminatedLayout = results.useDiscriminatedLayout();
+  const { resultsState, discriminatedLayout } = props;
 
   switch (discriminatedLayout.discriminator) {
     case "horizontal":

@@ -4,20 +4,20 @@ import { webviewHtml } from "./html.js";
 describe(webviewHtml, () => {
   it("renders minimal HTML", () => {
     expect(webviewHtml({ uris: { app: "/app.js" } })).toMatchInlineSnapshot(`
-        "<!doctype html>
-        <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      "<!doctype html>
+      <html lang="en" class="h-full">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            <title>MInd Rig</title>
-          </head>
-          <body class="text-ink font-sans font-normal leading-normal">
-            <div id="root"></div>
-            <script src="/app.js"></script>
-          </body>
-        </html>"
-      `);
+          <title>MInd Rig</title>
+        </head>
+        <body class="text-ink font-sans font-normal leading-normal h-full">
+          <div id="root" class="h-full"></div>
+          <script src="/app.js"></script>
+        </body>
+      </html>"
+    `);
   });
 
   it("renders full HTML", () => {
@@ -33,7 +33,7 @@ describe(webviewHtml, () => {
       }),
     ).toMatchInlineSnapshot(`
       "<!doctype html>
-      <html lang="en">
+      <html lang="en" class="h-full">
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,8 +49,8 @@ describe(webviewHtml, () => {
           <link href="/styles.css" rel="stylesheet" />
           <title>MInd Rig</title>
         </head>
-        <body class="text-ink font-sans font-normal leading-normal">
-          <div id="root"></div>
+        <body class="text-ink font-sans font-normal leading-normal h-full">
+          <div id="root" class="h-full"></div>
           <script src="/app.js"></script>
         </body>
       </html>"
@@ -61,20 +61,20 @@ describe(webviewHtml, () => {
     it("renders minimal HTML with ESM scripts", () => {
       expect(webviewHtml({ devServer: true, uris: { app: "/app.js" } }))
         .toMatchInlineSnapshot(`
-        "<!doctype html>
-        <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          "<!doctype html>
+          <html lang="en" class="h-full">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            <title>MInd Rig</title>
-          </head>
-          <body class="text-ink font-sans font-normal leading-normal">
-            <div id="root"></div>
-            <script type="module" src="/app.js"></script>
-          </body>
-        </html>"
-      `);
+              <title>MInd Rig</title>
+            </head>
+            <body class="text-ink font-sans font-normal leading-normal h-full">
+              <div id="root" class="h-full"></div>
+              <script type="module" src="/app.js"></script>
+            </body>
+          </html>"
+        `);
     });
 
     it("renders full HTML with ESM scripts", () => {
@@ -91,7 +91,7 @@ describe(webviewHtml, () => {
         }),
       ).toMatchInlineSnapshot(`
         "<!doctype html>
-        <html lang="en">
+        <html lang="en" class="h-full">
           <head>
             <meta charset="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -107,8 +107,8 @@ describe(webviewHtml, () => {
             <link href="/styles.css" rel="stylesheet" />
             <title>MInd Rig</title>
           </head>
-          <body class="text-ink font-sans font-normal leading-normal">
-            <div id="root"></div>
+          <body class="text-ink font-sans font-normal leading-normal h-full">
+            <div id="root" class="h-full"></div>
             <script type="module" src="/app.js"></script>
           </body>
         </html>"

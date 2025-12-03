@@ -1,5 +1,4 @@
-import { Button } from "@wrkspc/ds";
-import iconRegularBroomWide from "@wrkspc/icons/svg/regular/broom-wide.js";
+import { textCn } from "@wrkspc/ds";
 import { RunManager } from "../run/Manager";
 import { useTest } from "./Context";
 
@@ -17,18 +16,9 @@ export function TestRunStarted(props: TestRunStarted.Props) {
 
   return (
     <div className="flex items-center gap-3">
-      <Button
-        style="label"
-        size="xsmall"
-        color="secondary"
-        icon={iconRegularBroomWide}
-        onClick={() => test.clearRun()}
-        isDisabled={running}
-      >
-        Clear
-      </Button>
-
-      <div>{runningTime}s</div>
+      <span className={textCn({ size: "small", color: "detail" })}>
+        {runningTime}s
+      </span>
     </div>
   );
 }

@@ -78,6 +78,7 @@ export function LayoutSection(
 export const layoutSectionCn = cn().group(($) => ({
   wrapper: $<{
     sticky: LayoutSection.Sticky;
+    grow: boolean;
   }>()
     .base(
       "flex flex-col bg-section-canvas border-b border-section-border last:border-0",
@@ -87,7 +88,8 @@ export const layoutSectionCn = cn().group(($) => ({
       bottom: [
         "sticky bottom-0 z-10 before:bg-section-border before:content-[''] before:block before:h-[1px] before:top-[-1px] before:w-full before:absolute",
       ],
-    }),
+    })
+    .grow(false, { true: "grow" }),
 
   header: $.base(
     "px-3 h-6 flex gap-2 items-center justify-between bg-section-header-canvas",
@@ -97,6 +99,7 @@ export const layoutSectionCn = cn().group(($) => ({
     divided: boolean;
     style: LayoutSection.Style;
     horizontalScroll: boolean;
+    grow: boolean;
   }>()
     .base("flex flex-col ")
     .divided(false, {
@@ -108,5 +111,6 @@ export const layoutSectionCn = cn().group(($) => ({
       header: "gap-3 px-3 pb-2",
       fill: "",
     })
-    .horizontalScroll(false, { true: "overflow-x-auto" }),
+    .horizontalScroll(false, { true: "overflow-x-auto" })
+    .grow(false, { true: "grow" }),
 }));

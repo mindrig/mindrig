@@ -72,7 +72,7 @@ export function RunComponent(props: RunComponent.Props) {
       ) : error ? (
         <RunError error={error} />
       ) : (
-        <Results />
+        <Results clearRun={() => test.clearRun()} />
       )}
     </RunProvider>
   );

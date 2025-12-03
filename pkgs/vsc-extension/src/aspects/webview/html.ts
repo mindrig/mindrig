@@ -60,15 +60,15 @@ export function webviewHtml(props: WebviewHtml.Props): string {
   ];
 
   return `<!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ${renderInjects(headInjects)}
     <title>MInd Rig</title>
   </head>
-  <body class="${bodyCn()}">
-    <div id="root"></div>
+  <body class="${bodyCn()} h-full">
+    <div id="root" class="h-full"></div>
 ${renderInjects(bodyInjects)}
   </body>
 </html>`;
