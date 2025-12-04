@@ -1,11 +1,10 @@
 import { resolveModel } from "@wrkspc/core/model";
 import { Setup } from "@wrkspc/core/setup";
-import { Button } from "@wrkspc/ds";
+import { Block, Button } from "@wrkspc/ds";
 import iconRegularChevronDown from "@wrkspc/icons/svg/regular/chevron-down.js";
 import iconRegularCog from "@wrkspc/icons/svg/regular/cog.js";
 import iconRegularTrashAlt from "@wrkspc/icons/svg/regular/trash-alt.js";
 import { Field, State } from "enso";
-import { LayoutBlock } from "../layout/Block";
 import { ModelCapabilities } from "../model/Capabilities";
 import { useModelsMap } from "../model/MapContext";
 import { ModelSelector } from "../model/Selector";
@@ -73,9 +72,9 @@ export function SetupComponent(props: SetupComponent.Props) {
           <ModelCapabilities type={model.type} />
 
           {expanded && (
-            <LayoutBlock size="small" bordered>
+            <Block border pad>
               <ModelSettings field={setupField.$.settings} type={model.type} />
-            </LayoutBlock>
+            </Block>
           )}
         </>
       )}

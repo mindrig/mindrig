@@ -1,11 +1,13 @@
 import { DatasetDatasourceAppState } from "@/aspects/dataset/datasource/appState";
 import { ModelsAppState } from "@/aspects/model/modelsAppState";
+import { ResultAppState } from "@/aspects/result/appState";
 import { ResultsAppState } from "@/aspects/result/resultsAppState";
 import { RunAppState } from "@/aspects/run/appState";
 import { Csv } from "@wrkspc/core/csv";
 import { Datasource } from "@wrkspc/core/datasource";
 import { EditorFile } from "@wrkspc/core/editor";
 import { PlaygroundMap } from "@wrkspc/core/playground";
+import { Result } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
 import { Test } from "@wrkspc/core/test";
 import { AssessmentAppState } from "../../assessment/appState";
@@ -33,7 +35,8 @@ export namespace AppState {
 
   export type Runs = Record<Run.Id, RunAppState>;
 
-  export type Results = Record<Run.Id, ResultsAppState>;
+  export type Results = Record<Run.Id, ResultsAppState> &
+    Record<Result.Id, ResultAppState>;
 
   export interface Csvs {
     requests: CsvsRequests;

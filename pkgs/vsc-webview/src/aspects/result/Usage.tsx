@@ -1,4 +1,5 @@
 import { ModelUsage } from "@wrkspc/core/model";
+import { Block } from "@wrkspc/ui";
 import { State } from "enso";
 import { TinyFloat } from "tinyfloat";
 import { useResult } from "./Context";
@@ -31,18 +32,16 @@ export function ResultUsage(props: ResultUsage.Props) {
   const totalPrice = inputPrice && outputPrice && inputPrice.add(outputPrice);
 
   return (
-    <div className="text-xs">
-      <div className="inline-flex items-center gap-2 px-2 py-1 border rounded">
-        <TokensStat label="Input" price={inputPrice} tokens={usage.input} /> •{" "}
-        <TokensStat label="Output" price={outputPrice} tokens={usage.output} />
-        {totalPrice && (
-          <>
-            {" "}
-            • Total: <Price price={totalPrice} />
-          </>
-        )}
-      </div>
-    </div>
+    <Block border={[false, true, true]} pad>
+      <TokensStat label="Input" price={inputPrice} tokens={usage.input} /> •{" "}
+      <TokensStat label="Output" price={outputPrice} tokens={usage.output} />
+      {totalPrice && (
+        <>
+          {" "}
+          • Total: <Price price={totalPrice} />
+        </>
+      )}
+    </Block>
   );
 }
 

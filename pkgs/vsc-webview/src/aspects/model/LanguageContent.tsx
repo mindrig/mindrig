@@ -4,6 +4,7 @@ import { State } from "enso";
 import { useMemo, useState } from "react";
 import { Streamdown } from "streamdown";
 import { JsonPreview } from "../json/Preview";
+import { ResultContentLayout } from "../result/ContentLayout";
 
 export namespace ModelLanguageContent {
   export interface Props {
@@ -28,30 +29,25 @@ export function ModelLanguageContent(props: ModelLanguageContent.Props) {
   }, [text]);
 
   return (
-    <div>
-      <Tabs
-        size="xsmall"
-        onChange={(id) => setShowRaw(id === "raw")}
-        items={[
-          { label: parsedJson ? "JSON" : "Markdown", id: "rendered" },
-          { label: "Raw", id: "raw" },
-        ]}
-      />
-
+    <ResultContentLayout
+      nav={
+        <Tabs
+          size="xsmall"
+          onChange={(id) => setShowRaw(id === "raw")}
+          items={[
+            { label: parsedJson ? "JSON" : "Markdown", id: "rendered" },
+            { label: "Raw", id: "raw" },
+          ]}
+        />
+      }
+    >
       {showRaw ? (
-        <pre className="font-mono text-sm whitespace-pre-wrap p-3">{text}</pre>
+        <pre className="font-mono text-sm whitespace-pre-wrap">{text}</pre>
       ) : parsedJson ? (
         <JsonPreview value={parsedJson} />
       ) : (
-        <div className="p-3">
-          <Streamdown
-          // allowedLinkPrefixes={["https://", "http://", "mailto:"]}
-          // allowedImagePrefixes={["https://", "http://"]}
-          >
-            {text}
-          </Streamdown>
-        </div>
+        <Streamdown>{text}</Streamdown>
       )}
-    </div>
+    </ResultContentLayout>
   );
 }

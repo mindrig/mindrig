@@ -66,7 +66,11 @@
 
   /*## Background */
 
-  --color-canvas: var(--canvas);
+  --color-canvas: var(--vscode-editor-background);
+  --color-canvas-context: var(--vscode-sideBar-background);
+  --color-canvas-header: var(--vscode-sideBarSectionHeader-background);
+  --color-canvas-hover: var(--vscode-settings-rowHoverBackground);
+  --color-canvas-selected: var(--vscode-settings-focusedRowBackground);
 
   /*## Divider */
 
@@ -219,42 +223,6 @@
   /* --color-block-canvas: var(--vscode-inlineChat-background); */
   --color-block-border: var(--color-divider, transparent);
   /* --color-block-canvas: var(--vscode-inlineChat-background); */
-
-  /*# JSON View */
-
-  --w-rjv-color: var(--color-editor-ink);
-  --w-rjv-background-color: var(--color-editor-canvas);
-  --w-rjv-font-family: var(--vscode-editor-font-family);
-
-  --w-rjv-key-number: var(--vscode-debugTokenExpression-name);
-  --w-rjv-key-string: var(--vscode-debugTokenExpression-name);
-  --w-rjv-line-color: #36334280;
-  --w-rjv-arrow-color: var(--color-ink-detail);
-  /* --w-rjv-edit-color: var(--w-rjv-color); */
-  /* --w-rjv-info-color: #9c9c9c7a;
-  --w-rjv-update-color: #9cdcfe;
-  --w-rjv-copied-color: #9cdcfe;
-  --w-rjv-copied-success-color: #28a745;
-*/
-  --w-rjv-colon-color: var(--color-ink);
-  --w-rjv-curlybraces-color: var(--color-ink);
-  --w-rjv-brackets-color: var(--color-ink);
-  --w-rjv-ellipsis-color: var(--color-ink-detail);
-
-  --w-rjv-quotes-color: var(--w-rjv-key-string);
-  --w-rjv-quotes-string-color: var(--w-rjv-type-string-color);
-
-  --w-rjv-type-string-color: var(--vscode-debugTokenExpression-string);
-  --w-rjv-type-int-color: var(--vscode-debugTokenExpression-number);
-  --w-rjv-type-float-color: var(--w-rjv-type-int-color);
-  --w-rjv-type-bigint-color: var(--w-rjv-type-int-color);
-  --w-rjv-type-boolean-color: var(--vscode-debugTokenExpression-boolean);
-  --w-rjv-type-null-color: var(--vscode-debugTokenExpression-boolean);
-
-  --w-rjv-type-date-color: var(--vscode-debugTokenExpression-string);
-  --w-rjv-type-url-color: var(--vscode-debugTokenExpression-string);
-  --w-rjv-type-nan-color: var(--vscode-debugTokenExpression-boolean);
-  --w-rjv-type-undefined-color: var(--vscode-debugTokenExpression-boolean);
 }
 
 :placeholder-shown {
@@ -271,8 +239,48 @@
     min-width: 0;
   }
 }
-/*
+
 @layer components {
+  :root {
+    /*# JSON View */
+
+    --w-rjv-color: var(--color-editor-ink);
+    --w-rjv-background-color: var(--color-editor-canvas);
+    --w-rjv-font-family: var(--vscode-editor-font-family);
+
+    --w-rjv-key-number: var(--vscode-debugTokenExpression-name);
+    --w-rjv-key-string: var(--vscode-debugTokenExpression-name);
+    --w-rjv-line-color: var(--color-divider);
+    --w-rjv-arrow-color: var(--color-ink-detail);
+    /* --w-rjv-edit-color: var(--w-rjv-color); */
+    /* --w-rjv-info-color: #9c9c9c7a;
+  --w-rjv-update-color: #9cdcfe;
+  --w-rjv-copied-color: #9cdcfe;
+  --w-rjv-copied-success-color: #28a745;
+*/
+    --w-rjv-colon-color: var(--color-ink);
+    --w-rjv-curlybraces-color: var(--color-ink);
+    --w-rjv-brackets-color: var(--color-ink);
+    --w-rjv-ellipsis-color: var(--color-ink-detail);
+
+    --w-rjv-quotes-color: var(--w-rjv-key-string);
+    --w-rjv-quotes-string-color: var(--w-rjv-type-string-color);
+
+    --w-rjv-type-string-color: var(--vscode-debugTokenExpression-string);
+    --w-rjv-type-int-color: var(--vscode-debugTokenExpression-number);
+    --w-rjv-type-float-color: var(--w-rjv-type-int-color);
+    --w-rjv-type-bigint-color: var(--w-rjv-type-int-color);
+    --w-rjv-type-boolean-color: var(--vscode-debugTokenExpression-boolean);
+    --w-rjv-type-null-color: var(--vscode-debugTokenExpression-boolean);
+
+    --w-rjv-type-date-color: var(--vscode-debugTokenExpression-string);
+    --w-rjv-type-url-color: var(--vscode-debugTokenExpression-string);
+    --w-rjv-type-nan-color: var(--vscode-debugTokenExpression-boolean);
+    --w-rjv-type-undefined-color: var(--vscode-debugTokenExpression-boolean);
+  }
+}
+
+/*
   .streamdown-content {
     color: var(--color-ink);
     font-size: 0.875rem;

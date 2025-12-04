@@ -1,13 +1,9 @@
 import { Result } from "@wrkspc/core/result";
-import { Button, Icon, Tag, textCn } from "@wrkspc/ds";
-import iconRegularAngleDown from "@wrkspc/icons/svg/regular/angle-down.js";
-import iconRegularAngleRight from "@wrkspc/icons/svg/regular/angle-right.js";
-import iconRegularLoader from "@wrkspc/icons/svg/regular/loader.js";
+import { Block } from "@wrkspc/ds";
 import { State } from "enso";
-import { LayoutBlock } from "../layout/Block";
-import { timeFormatter } from "../util/date";
 import { ResultContent } from "./Content";
 import { ResultProvider } from "./Context";
+import { ResultHeader } from "./Header";
 import { ResultMeta } from "./Meta";
 import { ResultsAppState } from "./resultsAppState";
 
@@ -32,83 +28,39 @@ export function ResultComponent(props: ResultComponent.Props) {
   const expanded =
     solo || discriminatedLayout.discriminator !== "vertical" || expandedValue;
 
-  const createdAt = resultState.$.createdAt.useValue();
-  const errored = resultState.useCompute(
-    (result) => result.status === "error",
-    [],
-  );
-  const cancelled = resultState.useCompute(
-    (result) => result.status === "cancelled",
-    [],
-  );
-  const loading = resultState.useCompute(
-    (result) => result.status === "initialized" || result.status === "running",
-    [],
-  );
-  const rowLabel = resultState.$.init.$.datasources.useCompute(
-    (datasources) => {
-      const dataset = datasources.find((ds) => ds.type === "dataset");
-      if (!dataset) return;
-      return `row #${dataset.index}`;
-    },
-    [],
-  );
-  const modelLabel = resultState.$.init.$.setup.$.ref.useCompute(
-    (ref) => `${ref.developerId}/${ref.modelId}`,
-    [],
-  );
-
   return (
-    <ResultProvider state={resultState}>
-      <div className="px-3">
-        <LayoutBlock bordered>
-          <div className="flex items-center justify-between border-b">
-            <div className="flex items-center gap-2">
-              {!solo && discriminatedLayout.discriminator === "vertical" && (
-                <Button
-                  style="label"
-                  icon={expanded ? iconRegularAngleDown : iconRegularAngleRight}
-                  onClick={() =>
+    <ResultProvider resultState={resultState}>
+      <Block dir="y" pad="x">
+        <Block dir="y" gap={false} border>
+          {!solo && (
+            <ResultHeader
+              resultIndex={resultIndex}
+              expanded={
+                !solo &&
+                discriminatedLayout.discriminator === "vertical" && {
+                  value: expanded,
+                  set(next: boolean) {
                     discriminatedLayout.state.$.expanded
                       .at(resultIndex)
-                      .set(!expandedValue)
-                  }
-                />
-              )}
-
-              <span className="text-sm font-medium">
-                {!solo && <span>#{resultIndex + 1}</span>}
-              </span>
-
-              <div>
-                <span>{modelLabel}</span>
-                {rowLabel && (
-                  <>
-                    {" "}
-                    • <span>{rowLabel}</span>
-                  </>
-                )}
-              </div>
-
-              {loading && <Icon id={iconRegularLoader} />}
-              {errored && <Tag color="error">Error</Tag>}
-              {cancelled && <Tag>Cancelled</Tag>}
-            </div>
-
-            <span className={textCn({ size: "xsmall", color: "detail" })}>
-              {timeFormatter.format(createdAt)}
-            </span>
-          </div>
+                      .set(next);
+                  },
+                }
+              }
+              solo={solo}
+            />
+          )}
 
           {expanded && (
-            <>
+            <Block dir="y" gap={false} divided>
               <ResultMeta resultState={resultState} />
 
-              <ResultContent state={resultState} />
-            </>
+              <Block dir="y" pad={["small", "medium", "medium"]} background>
+                <ResultContent state={resultState} />
+              </Block>
+            </Block>
           )}
-        </LayoutBlock>
-      </div>
+        </Block>
+      </Block>
     </ResultProvider>
   );
 }

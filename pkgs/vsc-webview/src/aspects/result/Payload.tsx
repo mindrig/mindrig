@@ -13,7 +13,7 @@ export function ResultPayload(props: ResultPayload.Props) {
   const { state } = props;
   const decomposedPayload = state.useDecomposeNullish();
 
-  if (!decomposedPayload.value) return null;
+  if (!decomposedPayload.value) return <div>Loading...</div>;
 
   switch (decomposedPayload.value.type) {
     case "language":

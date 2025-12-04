@@ -1,6 +1,5 @@
 import { textCn } from "@wrkspc/ds";
 import { RunManager } from "../run/Manager";
-import { useTest } from "./Context";
 
 export namespace TestRunStarted {
   export interface Props {
@@ -11,8 +10,6 @@ export namespace TestRunStarted {
 export function TestRunStarted(props: TestRunStarted.Props) {
   const { run } = props;
   const runningTime = run.useRunningTimeSec();
-  const { test } = useTest();
-  const running = test.useRunning();
 
   return (
     <div className="flex items-center gap-3">

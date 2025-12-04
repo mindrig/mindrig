@@ -1,7 +1,6 @@
 import { Attachment } from "@wrkspc/core/attachment";
-import { Button, textCn } from "@wrkspc/ds";
+import { Block, Button, textCn } from "@wrkspc/ds";
 import { Field } from "enso";
-import { LayoutBlock } from "../layout/Block";
 import { useTest } from "../test/Context";
 import { AttachmentComponent } from "./Attachment";
 
@@ -16,7 +15,7 @@ export function Attachments(props: Attachments.Props) {
   const attachmentsField = props.attachmentsField.useCollection();
 
   return (
-    <LayoutBlock>
+    <Block pad border dir="y">
       {!!attachmentsField.size ? (
         attachmentsField.map((attachmentField) => (
           <AttachmentComponent
@@ -35,6 +34,6 @@ export function Attachments(props: Attachments.Props) {
           Attach file
         </Button>
       </div>
-    </LayoutBlock>
+    </Block>
   );
 }

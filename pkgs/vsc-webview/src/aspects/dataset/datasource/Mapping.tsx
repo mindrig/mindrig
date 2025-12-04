@@ -25,10 +25,10 @@ export function DatasetDatasourceMapping(
 
   return (
     <div className="flex flex-col gap-3">
-      <div className={fieldCn({ size: "small" })}>
-        <Label size="small">Variables map</Label>
+      <div className={fieldCn({ size: "xsmall" })}>
+        <Label size="xsmall">Variables map</Label>
 
-        <Description size="small">
+        <Description size="xsmall">
           Map CSV columns to prompt variables.
         </Description>
       </div>

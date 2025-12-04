@@ -48,12 +48,12 @@ export namespace Result {
 
   export interface Cancelled extends Base<"cancelled"> {
     startedAt: number | undefined;
-    cancelledAt: number;
+    endedAt: number;
     payload: ModelType.Payload | null;
   }
 
   export interface Success extends BaseStarted<"success"> {
-    completedAt: number;
+    endedAt: number;
     request: Request;
     response: Response;
     usage: ModelUsage;

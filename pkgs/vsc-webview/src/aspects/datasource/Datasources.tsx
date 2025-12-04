@@ -1,7 +1,7 @@
 import { Datasource } from "@wrkspc/core/datasource";
+import { Block } from "@wrkspc/ui";
 import { always } from "alwaysly";
 import { Field } from "enso";
-import { LayoutBlock } from "../layout/Block";
 import { DatasourceComponent } from "./Datasource";
 
 export namespace Datasources {
@@ -19,9 +19,9 @@ export function Datasources(props: Datasources.Props) {
   const datasourceField = decomposedDatasource.field;
 
   return (
-    <LayoutBlock style="tabs">
+    <Block pad border dir="y">
       <DatasourceComponent key={datasourceField.key} field={datasourceField} />
-    </LayoutBlock>
+    </Block>
   );
 
   // TODO: Iterate over all datasources when multiple are supported.

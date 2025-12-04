@@ -11,6 +11,7 @@ import iconRegularPlus from "@wrkspc/icons/svg/regular/plus.js";
 import iconRegularTrashAlt from "@wrkspc/icons/svg/regular/trash-alt.js";
 import iconSolidQuestionCircle from "@wrkspc/icons/svg/solid/question-circle.js";
 import {
+  Block,
   CheckboxController,
   Description,
   InputController,
@@ -45,7 +46,7 @@ export function ModelTypeLanguageSettings(
     .useCollection();
 
   return (
-    <div className="flex flex-col gap-3 divide-y divide-divider">
+    <Block dir="y" divided>
       <Section
         header="Output Limits"
         description="Controls how generation stops."
@@ -232,7 +233,7 @@ export function ModelTypeLanguageSettings(
           )}
         </Section>
       )}
-    </div>
+    </Block>
   );
 }
 

@@ -26,17 +26,21 @@ export function Results(props: Results.Props) {
   return (
     <>
       {resultsState ? (
-        <Block dir="y" grow gap={false}>
+        <Block dir="y" gap={false} grow>
           <Block
             size="small"
-            pad={["small", "medium", false]}
+            pad={["small", "medium", "small"]}
             justify="between"
           >
             <Block size="small" align>
               <Block size="xsmall" align>
-                <h3 className={textCn({ role: "label" })}>Results</h3>
+                <h3 className={textCn({ role: "label" })}>
+                  {resultsState.size === 1 ? "Result" : "Results"}
+                </h3>
 
-                <Tag size="small">{resultsState.size}</Tag>
+                {resultsState.size > 1 && (
+                  <Tag size="small">{resultsState.size}</Tag>
+                )}
               </Block>
 
               {discriminatedLayout.discriminator === "carousel" && (

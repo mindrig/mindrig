@@ -167,7 +167,7 @@ export class RunsManager {
         init,
         status: "cancelled",
         createdAt,
-        cancelledAt: Date.now(),
+        endedAt: Date.now(),
         startedAt,
         payload: payload || null,
       });

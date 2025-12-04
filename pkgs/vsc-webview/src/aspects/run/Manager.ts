@@ -91,18 +91,21 @@ export class RunManager {
     const createdAt = this.#runAppState.$.run.$.createdAt.useValue();
     const endedAt = this.useEndedAt();
     const [runningTimeMs, setRunningTime] = useState(
-      this.#calculateRunningTime(createdAt, endedAt),
+      RunManager.calculateRunningTime(createdAt, endedAt),
     );
 
     useEffect(() => {
       if (!running)
-        return setRunningTime(this.#calculateRunningTime(createdAt, endedAt));
+        return setRunningTime(
+          RunManager.calculateRunningTime(createdAt, endedAt),
+        );
       const interval = setInterval(
-        () => setRunningTime(this.#calculateRunningTime(createdAt, undefined)),
+        () =>
+          setRunningTime(RunManager.calculateRunningTime(createdAt, undefined)),
         100,
       );
       return () => clearInterval(interval);
-    }, [this, running, createdAt]);
+    }, [this, running, createdAt, endedAt]);
 
     return runningTimeMs;
   }
@@ -120,7 +123,7 @@ export class RunManager {
     this.#runAppState.$.ui.$.showDetails.set(showInit);
   }
 
-  #calculateRunningTime(
+  static calculateRunningTime(
     createdAt: number,
     endedAt: number | undefined,
   ): number {

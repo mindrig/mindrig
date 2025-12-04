@@ -28,8 +28,14 @@ export function TestComponent(props: TestComponent.Props) {
 
   return (
     <>
-      <LayoutSection header="Test manually" style="fill" collapsible grow>
-        <Block dir="y" pad={["small", "medium", false]}>
+      <LayoutSection
+        header="Test manually"
+        style="fill"
+        collapsible
+        divided
+        grow
+      >
+        <Block dir="y" pad>
           <Tabs
             size="small"
             onChange={(id) => test.setTab(id)}

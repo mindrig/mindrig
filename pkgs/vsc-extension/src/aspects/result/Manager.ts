@@ -203,7 +203,7 @@ export class ResultManager extends Manager {
     return this.#sync<"success">({
       id: this.#result.id,
       status: "success",
-      completedAt: Date.now(),
+      endedAt: Date.now(),
       request: { payload: request },
       response: { payload: response },
       usage: aiSdkUsageToModelUsage(totalUsage),
