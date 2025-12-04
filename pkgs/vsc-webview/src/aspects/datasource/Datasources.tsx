@@ -19,7 +19,7 @@ export function Datasources(props: Datasources.Props) {
   const datasourceField = decomposedDatasource.field;
 
   return (
-    <Block pad border dir="y">
+    <Block pad border={[false, true, true]} dir="y">
       <DatasourceComponent key={datasourceField.key} field={datasourceField} />
     </Block>
   );

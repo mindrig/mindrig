@@ -15,7 +15,7 @@ export function Attachments(props: Attachments.Props) {
   const attachmentsField = props.attachmentsField.useCollection();
 
   return (
-    <Block pad border dir="y">
+    <Block pad border={[false, true, true]} dir="y">
       {!!attachmentsField.size ? (
         attachmentsField.map((attachmentField) => (
           <AttachmentComponent

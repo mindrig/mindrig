@@ -1,5 +1,8 @@
+import { useApp } from "@/aspects/app/Context";
+import { LayoutSection } from "@/aspects/layout/Section";
 import { useMessages } from "@/aspects/message/Context";
-import { Button, Errors } from "@wrkspc/ds";
+import { Block, Button, Errors, Icon, Label, textCn } from "@wrkspc/ds";
+import iconRegularTimes from "@wrkspc/icons/svg/regular/times.js";
 import { superstate } from "superstate";
 import { AuthVercelStatechart } from "./statechart";
 
@@ -15,58 +18,68 @@ export namespace AuthVercelProfile {
 
 export function AuthVercelProfile(props: AuthVercelProfile.Props) {
   const { statechart, state } = props;
+  const { navigateTo } = useApp();
   const { sendMessage } = useMessages();
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between">
-      <div className="space-y-1">
-        <p className="text-sm text-gray-600">Vercel Gateway API Key</p>
-        <p className="font-mono text-gray-900">
-          {state.context.maskedKey ?? "••••"}
-        </p>
-      </div>
+    <LayoutSection
+      header="Vercel Gateway"
+      actions={
+        <Icon
+          id={iconRegularTimes}
+          size="small"
+          color="support"
+          onClick={() => navigateTo({ type: "playground" })}
+        />
+      }
+    >
+      <Block dir="y" pad background="primary" border>
+        <Block dir="y" size="small">
+          <Label>Vercel Gateway API key</Label>
 
-      {state.name === "profileValidating" && (
-        <p className="text-sm text-blue-600">Validating...</p>
-      )}
+          <p className={textCn({ mono: true })}>
+            {state.context.maskedKey ?? "••••"}
+          </p>
+        </Block>
 
-      {state.name === "profileErrored" && (
-        <div>
-          <Errors errors={state.context.error} />
+        {state.name === "profileValidating" && (
+          <p className="text-sm text-blue-600">Validating...</p>
+        )}
 
-          <Button
-            size="small"
-            style="transparent"
-            onClick={() => {
-              // TODO: Add send function to state with all available events.
-              statechart.send.revalidate("-> profileValidating", {
-                maskedKey: state.context.maskedKey,
-              });
+        {state.name === "profileErrored" && (
+          <div>
+            <Errors errors={state.context.error} />
 
-              sendMessage({ type: "auth-client-vercel-gateway-revalidate" });
-            }}
-            isDisabled={!!statechart.in("profileValidating")}
-          >
-            Retry
+            <Button
+              size="small"
+              style="transparent"
+              onClick={() => {
+                // TODO: Add send function to state with all available events.
+                statechart.send.revalidate("-> profileValidating", {
+                  maskedKey: state.context.maskedKey,
+                });
+
+                sendMessage({
+                  type: "auth-client-vercel-gateway-revalidate",
+                });
+              }}
+              isDisabled={!!statechart.in("profileValidating")}
+            >
+              Retry
+            </Button>
+          </div>
+        )}
+
+        <Block align>
+          <Button onClick={() => statechart.send.edit()} size="small">
+            Update
           </Button>
-        </div>
-      )}
 
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => statechart.send.edit()}
-          className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
-        >
-          Update
-        </button>
-
-        <button
-          onClick={() => statechart.send.clear()}
-          className="px-3 py-2 text-sm border border-red-600 text-red-600 rounded-lg hover:border-red-700 hover:text-red-700 transition-colors"
-        >
-          Clear
-        </button>
-      </div>
-    </div>
+          <Button onClick={() => statechart.send.clear()} style="label">
+            Clear
+          </Button>
+        </Block>
+      </Block>
+    </LayoutSection>
   );
 }
