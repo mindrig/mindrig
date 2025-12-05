@@ -177,7 +177,7 @@
     "@playwright/test": "^1.55.0",
     "@types/mocha": "^10.0.10",
     "@types/vscode": "^1.99.0",
-    "@vitest/coverage-v8": "^4.0.6",
+    "@vitest/coverage-v8": "^4.0.15",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.6.0",
@@ -185,15 +185,15 @@
     "@wrkspc/theme": "workspace:*",
     "@wrkspc/ts": "workspace:*",
     "fantasticon": "^3.0.0",
-    "oxlint": "^1.23.0",
+    "oxlint": "^1.31.0",
     "playwright-core": "^1.55.0",
     "prettier": "^3.6.2",
     "smolcanon": "^0.2.0",
     "smolxxh": "^0.1.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.3",
-    "vite": "^7.1.12",
-    "vitest": "^4.0.6"
+    "vite": "8.0.0-beta.0",
+    "vitest": "^4.0.15"
   },
   "private": false
 }
