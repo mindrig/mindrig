@@ -1,0 +1,28 @@
+{
+  "name": "react-upgrade",
+  "version": "0.1.0",
+  "description": "React extensions",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "types": "script_path=\"$(pnpm root -w)/../scripts/pkg-types.sh\"; if [ -f \"$script_path\" ]; then \"$script_path\"; else tsc --build; fi",
+    "types:watch": "script_path=\"$(pnpm root -w)/../scripts/pkg-types.sh\"; if [ -f \"$script_path\" ]; then \"$script_path\" watch; else tsc --build --watch; fi",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix --fix-suggestions",
+    "format": "prettier --write ."
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "react": ">=19",
+    "@types/react": ">=19"
+  },
+  "devDependencies": {
+    "@wrkspc/ts": "workspace:*",
+    "react": "^19.2.0",
+    "@types/react": "^19.2.2"
+  }
+}

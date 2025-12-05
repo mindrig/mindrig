@@ -1,0 +1,42 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "types": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./src/**/*.ts",
+        "./src/**/*.tsx"
+      ],
+      "outputs": ["./.ts/**/*"]
+    },
+
+    "types:watch": {},
+
+    "lint": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./.oxlintrc.json",
+        "./src/**/*.ts",
+        "./src/**/*.tsx"
+      ]
+    },
+
+    "lint:fix": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./tsconfig.json",
+        "./.oxlintrc.json",
+        "./src/**/*.ts",
+        "./src/**/*.tsx"
+      ],
+      "outputs": ["./src/**/*.ts", "./src/**/*.tsx"]
+    },
+
+    "format": {
+      "inputs": ["$TURBO_DEFAULT$", "./**/*"]
+    }
+  },
+  "extends": ["//"]
+}

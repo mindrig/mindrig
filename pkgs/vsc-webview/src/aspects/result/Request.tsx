@@ -1,7 +1,8 @@
 import { Result } from "@wrkspc/core/result";
-import { Block, textCn } from "@wrkspc/ds";
+import { Block } from "@wrkspc/ds";
 import { State } from "enso";
 import { JsonPreview } from "../json/Preview";
+import { ResultMetaEmpty } from "./MetaEmpty";
 
 export namespace ResultRequest {
   export interface Props {
@@ -20,9 +21,7 @@ export function ResultRequest(props: ResultRequest.Props) {
           <JsonPreview value={payload} />
         </Block>
       ) : (
-        <Block background border={[false, true, true]}>
-          <p className={textCn({ size: "small" })}>No request</p>
-        </Block>
+        <ResultMetaEmpty>No request data available.</ResultMetaEmpty>
       )}
     </>
   );

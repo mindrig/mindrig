@@ -1,7 +1,8 @@
 import { Result } from "@wrkspc/core/result";
-import { Block, textCn } from "@wrkspc/ds";
+import { Block } from "@wrkspc/ds";
 import { State } from "enso";
 import { JsonPreview } from "../json/Preview";
+import { ResultMetaEmpty } from "./MetaEmpty";
 
 export namespace ResultResponse {
   export interface Props {
@@ -20,9 +21,7 @@ export function ResultResponse(props: ResultResponse.Props) {
           <JsonPreview value={payload} />
         </Block>
       ) : (
-        <Block border={[false, true, true]}>
-          <div className={textCn({ size: "xsmall" })}>No response</div>
-        </Block>
+        <ResultMetaEmpty>No response data available.</ResultMetaEmpty>
       )}
     </>
   );

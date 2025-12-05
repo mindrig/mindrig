@@ -19,11 +19,9 @@ export function ResultContentLayout(
   const tab = resultAppState.$.tab.useValue();
 
   return (
-    <Block dir="y" gap={false}>
-      <Block size="small" justify="between" gap={false}>
-        {nav}
-
-        <Block border="bottom" pad={{ left: "medium" }}>
+    <Block dir="y">
+      <Block size="small" align justify="between" border="bottom">
+        <Block size="small" pad={["xsmall", false]}>
           <Button
             size="small"
             color="secondary"
@@ -36,9 +34,11 @@ export function ResultContentLayout(
             {tab ? "Hide" : "Show"} details
           </Button>
         </Block>
+
+        <div>{nav}</div>
       </Block>
 
-      <Block pad="y">{children}</Block>
+      <Block>{children}</Block>
     </Block>
   );
 }

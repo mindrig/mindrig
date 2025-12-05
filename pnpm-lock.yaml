@@ -9,6 +9,7 @@ overrides:
   '@mindrig/types': workspace:*
   '@wrkspc/vsc-sync': workspace:*
   '@wrkspc/core': workspace:*
+  react-upgrade: workspace:*
 
 importers:
 
@@ -258,6 +259,18 @@ importers:
         specifier: workspace:*
         version: link:../../types/pkgs/ts
 
+  pkgs/react-upgrade:
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.2
+        version: 19.2.2
+      '@wrkspc/ts':
+        specifier: workspace:*
+        version: link:../ts
+      react:
+        specifier: ^19.2.0
+        version: 19.2.0
+
   pkgs/storybook:
     dependencies:
       '@storybook/addon-a11y':
@@ -463,6 +476,9 @@ importers:
       react-router-dom:
         specifier: ^7.8.2
         version: 7.8.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-upgrade:
+        specifier: workspace:*
+        version: link:../react-upgrade
       smollog:
         specifier: ^0.2.0
         version: 0.2.0
@@ -715,6 +731,9 @@ importers:
       react-dom:
         specifier: 19.2.0
         version: 19.2.0(react@19.2.0)
+      react-upgrade:
+        specifier: workspace:*
+        version: link:../../../../pkgs/react-upgrade
       tdollar:
         specifier: ^0.6.0
         version: 0.6.0

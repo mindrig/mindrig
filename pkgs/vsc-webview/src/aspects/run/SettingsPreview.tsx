@@ -15,8 +15,8 @@ export function RunSettingsPreview(props: RunSettingsPreview.Props) {
       size="xsmall"
       items={[
         {
-          label: "Streaming",
-          content: runInit.streaming ? "Enabled" : "Disabled",
+          term: "Streaming",
+          description: runInit.streaming ? "Enabled" : "Disabled",
         },
       ]}
     />

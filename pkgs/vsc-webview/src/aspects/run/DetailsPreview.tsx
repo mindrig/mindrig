@@ -18,20 +18,20 @@ export function RunDetailsPreview() {
         size="xsmall"
         items={[
           {
-            label: "Streaming",
-            content: streaming ? "Enabled" : "Disabled",
+            term: "Streaming",
+            description: streaming ? "Enabled" : "Disabled",
           },
           {
-            label: "Created at",
-            content: timeFormatter.format(createdAt),
+            term: "Created at",
+            description: timeFormatter.format(createdAt),
           },
           {
-            label: "Ended at",
-            content: timeFormatter.format(endedAt),
+            term: "Ended at",
+            description: timeFormatter.format(endedAt),
           },
           {
-            label: "Elapsed",
-            content: <>{runningTime}s</>,
+            term: "Elapsed",
+            description: <>{runningTime}s</>,
           },
         ]}
       />

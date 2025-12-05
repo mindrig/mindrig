@@ -24,6 +24,11 @@ export function ResultContent(props: ResultContent.Props) {
     case "running":
     case "success":
     case "cancelled":
-      return <ResultPayload state={discriminatedResult.state.$.payload} />;
+      return (
+        <ResultPayload
+          status={discriminatedResult.discriminator}
+          state={discriminatedResult.state.$.payload}
+        />
+      );
   }
 }

@@ -22,6 +22,8 @@ export function ResultMeta(props: ResultMeta.Props) {
   const { resultAppState } = useResult();
   const tab = resultAppState.$.tab.useValue();
 
+  // Hide tabs when a tab is no selected. It allows us to only show them after
+  // the user press the "Show Details" button.
   if (!tab) return null;
 
   return (

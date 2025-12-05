@@ -1,8 +1,9 @@
 import { ModelUsage } from "@wrkspc/core/model";
-import { Block } from "@wrkspc/ui";
+import { Block, DescriptionList } from "@wrkspc/ui";
 import { State } from "enso";
 import { TinyFloat } from "tinyfloat";
 import { useResult } from "./Context";
+import { ResultMetaEmpty } from "./MetaEmpty";
 
 export namespace ResultUsage {
   export interface Props {
@@ -21,6 +22,8 @@ export function ResultUsage(props: ResultUsage.Props) {
   if (!(typeof usage.input === "number" && typeof usage.output === "number"))
     return <Empty />;
 
+  const totalTokens = usage.input + usage.output;
+
   const inputPrice =
     (model?.pricing?.input &&
       new TinyFloat(model.pricing.input).mul(usage.input)) ||
@@ -31,16 +34,30 @@ export function ResultUsage(props: ResultUsage.Props) {
     null;
   const totalPrice = inputPrice && outputPrice && inputPrice.add(outputPrice);
 
+  // TODO: Add missing usage information for models that report more than just
+  // input/output tokens (e.g., reasoning tokens).
+
   return (
-    <Block border={[false, true, true]} pad>
-      <TokensStat label="Input" price={inputPrice} tokens={usage.input} /> •{" "}
-      <TokensStat label="Output" price={outputPrice} tokens={usage.output} />
-      {totalPrice && (
-        <>
-          {" "}
-          • Total: <Price price={totalPrice} />
-        </>
-      )}
+    <Block border={[false, true, true]} size="xsmall" pad="y">
+      <DescriptionList
+        size="small"
+        items={[
+          {
+            term: "Total",
+            description: <TokensStat price={totalPrice} tokens={totalTokens} />,
+          },
+          {
+            term: "Input",
+            description: <TokensStat price={inputPrice} tokens={usage.input} />,
+          },
+          {
+            term: "Output",
+            description: (
+              <TokensStat price={outputPrice} tokens={usage.output} />
+            ),
+          },
+        ]}
+      />
     </Block>
   );
 }
@@ -48,16 +65,15 @@ export function ResultUsage(props: ResultUsage.Props) {
 namespace TokensStat {
   export interface Props {
     price: TinyFloat | null;
-    label: string;
     tokens: number;
   }
 }
 
 function TokensStat(props: TokensStat.Props) {
-  const { price, label, tokens } = props;
+  const { price, tokens } = props;
   return (
     <span>
-      {label}: {tokens} tok.
+      {tokens} tokens
       {price && (
         <>
           {" "}
@@ -79,5 +95,5 @@ function Price(props: Price.Props) {
 }
 
 function Empty() {
-  return <div>No usage data available.</div>;
+  return <ResultMetaEmpty>No usage data available.</ResultMetaEmpty>;
 }

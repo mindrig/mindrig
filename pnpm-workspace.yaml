@@ -19,3 +19,4 @@ overrides:
   '@mindrig/types': workspace:*
   '@wrkspc/vsc-sync': workspace:*
   '@wrkspc/core': workspace:*
+  'react-upgrade': workspace:*
