@@ -1,18 +1,13 @@
 import { useMessages } from "@/aspects/message/Context";
 import { InputController } from "@wrkspc/ui";
-import { Form } from "enso";
-import { superstate } from "superstate";
-import { AuthVercel } from "./Vercel";
-import { AuthVercelStatechart } from "./statechart";
+import { Form, State } from "enso";
+import { AuthAppState } from "../appState";
+import { AuthVercelManager } from "./Manager";
 
 export namespace AuthVercelForm {
   export interface Props {
-    form: Form<AuthVercel.FormValues>;
-    statechart: AuthVercelStatechart.Instance;
-    state: superstate.State<
-      AuthVercelStatechart,
-      "form" | "formSubmitting" | "formErrored"
-    >;
+    authAppState: State<AuthAppState.Form>;
+    vercelManager: AuthVercelManager;
   }
 
   export interface Values {
@@ -21,24 +16,15 @@ export namespace AuthVercelForm {
 }
 
 export function AuthVercelForm(props: AuthVercelForm.Props) {
-  const { form, statechart, state } = props;
+  const { authAppState, vercelManager } = props;
   const { sendMessage } = useMessages();
-  const submitting = form.submitting;
+  const submitting = vercelManager.form.submitting;
 
   return (
     <Form.Component
-      form={form}
+      form={vercelManager.form}
       onSubmit={async (values) => {
-        statechart.send.submit();
-
-        await new Promise<void>((resolve) => {
-          statechart.once(["profile", "formErrored"], () => resolve());
-
-          sendMessage({
-            type: "auth-client-vercel-gateway-set",
-            payload: values.key,
-          });
-        });
+        await vercelManager.save(values.key);
       }}
     >
       <div className="bg-white border border-gray-200 rounded-lg p-4">
@@ -46,12 +32,11 @@ export function AuthVercelForm(props: AuthVercelForm.Props) {
 
         <div className="space-y-3">
           <InputController
-            field={form.$.key}
+            field={vercelManager.form.$.key}
             type="password"
             label="API Key"
             placeholder="Enter your Vercel Gateway API key..."
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            errors={state.context?.error}
             autoFocus
           />
 
@@ -65,9 +50,7 @@ export function AuthVercelForm(props: AuthVercelForm.Props) {
             </button>
 
             <button
-              onClick={() =>
-                sendMessage({ type: "auth-client-vercel-gateway-clear" })
-              }
+              onClick={() => vercelManager.clearForm()}
               className="px-3 py-2 border border-red-600 text-red-600 text-sm rounded-lg hover:border-red-700 hover:text-red-700 transition-colors duration-200 bg-transparent"
               disabled={submitting}
             >

@@ -1,11 +1,9 @@
-import { useMessages } from "@/aspects/message/Context";
 import { AuthGateway } from "@wrkspc/core/auth";
 import { never } from "alwaysly";
-import { Form, State } from "enso";
-import { useMemo, useRef } from "react";
+import { State } from "enso";
 import { AuthVercelForm } from "./Form";
+import { AuthVercelManager } from "./Manager";
 import { AuthVercelProfile } from "./Profile";
-import { authVercelStatechart } from "./statechart";
 
 export namespace AuthVercel {
   export interface Props {
@@ -19,94 +17,91 @@ export namespace AuthVercel {
 
 export function AuthVercel(props: AuthVercel.Props) {
   const { gatewayState } = props;
-  const form = Form.use<AuthVercel.FormValues>({ key: "" }, []);
-  const { sendMessage } = useMessages();
+  const vercelManager = AuthVercelManager.use({ gatewayState });
+  const discriminatedAppState = vercelManager.useDiscriminate();
 
-  const statechart = useMemo(() => {
-    const clearKey = () => form.set({ key: "" });
+  // const form = Form.use<AuthVercel.FormValues>({ key: "" }, []);
+  // const { sendMessage } = useMessages();
 
-    const statechart = authVercelStatechart.host({
-      form: {
-        "-> clear!": clearKey,
-      },
-      formSubmitting: {
-        "valid() -> clear!": clearKey,
-      },
-      profileErrored: {
-        "revalidate() -> revalidate!": () =>
-          sendMessage({ type: "auth-client-vercel-gateway-revalidate" }),
-      },
-    });
+  // const statechart = useMemo(() => {
+  //   const clearKey = () => form.set({ key: "" });
 
-    const gateway = gatewayState.value;
-    if (gateway?.error)
-      statechart.send.error("-> profileErrored", {
-        maskedKey: gateway.maskedKey,
-        error: gateway.error,
-      });
-    else if (gateway)
-      statechart.send.valid("-> profile", {
-        maskedKey: gateway.maskedKey,
-      });
-    else statechart.send.missing();
+  //   const statechart = authVercelStatechart.host({
+  //     form: {
+  //       "-> clear!": clearKey,
+  //     },
+  //     formSubmitting: {
+  //       "valid() -> clear!": clearKey,
+  //     },
+  //     profileErrored: {
+  //       "revalidate() -> revalidate!": () =>
+  //         sendMessage({ type: "auth-client-vercel-gateway-revalidate" }),
+  //     },
+  //   });
 
-    return statechart;
-  }, [form, sendMessage]);
+  //   const gateway = gatewayState.value;
+  //   if (gateway?.error)
+  //     statechart.send.error("-> profileErrored", {
+  //       maskedKey: gateway.maskedKey,
+  //       error: gateway.error,
+  //     });
+  //   else if (gateway)
+  //     statechart.send.valid("-> profile", {
+  //       maskedKey: gateway.maskedKey,
+  //     });
+  //   else statechart.send.missing();
 
-  const prevGatewayRef = useRef<AuthGateway.Vercel | undefined | null>(
-    gatewayState.value,
-  );
-  gatewayState.useWatch(
-    (gateway) => {
-      if (gateway === prevGatewayRef.current) return;
+  //   return statechart;
+  // }, [form, sendMessage, gatewayState]);
 
-      if (prevGatewayRef.current === undefined) {
-        prevGatewayRef.current = gateway;
-        return;
-      }
+  // const prevGatewayRef = useRef<AuthGateway.Vercel | undefined | null>(
+  //   gatewayState.value,
+  // );
+  // gatewayState.useWatch(
+  //   (gateway) => {
+  //     if (gateway === prevGatewayRef.current) return;
 
-      if (gateway?.error)
-        if (statechart.in("formSubmitting"))
-          statechart.send.error("-> formErrored", {
-            error: gateway.error,
-          });
-        else
-          statechart.send.error("-> profileErrored", {
-            maskedKey: gateway.maskedKey,
-            error: gateway.error,
-          });
-      else if (gateway)
-        statechart.send.valid("-> profile", {
-          maskedKey: gateway.maskedKey,
-        });
-    },
-    [prevGatewayRef, statechart],
-  );
+  //     if (prevGatewayRef.current === undefined) {
+  //       prevGatewayRef.current = gateway;
+  //       return;
+  //     }
 
-  switch (statechart.state.name) {
-    case "pending":
-      never();
+  //     if (gateway?.error)
+  //       if (statechart.in("formSubmitting"))
+  //         statechart.send.error("-> formErrored", {
+  //           error: gateway.error,
+  //         });
+  //       else
+  //         statechart.send.error("-> profileErrored", {
+  //           maskedKey: gateway.maskedKey,
+  //           error: gateway.error,
+  //         });
+  //     else if (gateway)
+  //       statechart.send.valid("-> profile", {
+  //         maskedKey: gateway.maskedKey,
+  //       });
+  //   },
+  //   [prevGatewayRef, statechart],
+  // );
 
+  switch (discriminatedAppState.discriminator) {
     case "profile":
-    case "profileErrored":
-    case "profileValidating":
       return (
-        <AuthVercelProfile statechart={statechart} state={statechart.state} />
+        <AuthVercelProfile
+          authAppState={discriminatedAppState.state}
+          vercelManager={vercelManager}
+        />
       );
 
     case "form":
-    case "formSubmitting":
-    case "formErrored":
       return (
         <AuthVercelForm
-          form={form}
-          statechart={statechart}
-          state={statechart.state}
+          authAppState={discriminatedAppState.state}
+          vercelManager={vercelManager}
         />
       );
 
     default:
-      statechart.state satisfies never;
-      never();
+      never(discriminatedAppState);
   }
 }

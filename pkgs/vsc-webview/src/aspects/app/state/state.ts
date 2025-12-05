@@ -1,3 +1,4 @@
+import { AuthAppState } from "@/aspects/auth/appState";
 import { DatasetDatasourceAppState } from "@/aspects/dataset/datasource/appState";
 import { ModelsAppState } from "@/aspects/model/modelsAppState";
 import { ResultAppState } from "@/aspects/result/appState";
@@ -16,6 +17,7 @@ import { AssessmentAppState } from "../../assessment/appState";
 import { TestAppState } from "../../test/appState";
 
 export interface AppState {
+  auth: AuthAppState | undefined;
   models: AppState.Models;
   assessments: AppState.Assessments;
   tests: AppState.Tests;
@@ -60,6 +62,7 @@ export namespace AppState {
 
 export function buildAppState(): AppState {
   return {
+    auth: undefined,
     models: {
       gateway: { waiting: true, payload: undefined },
       dotdev: { waiting: true, payload: undefined },
