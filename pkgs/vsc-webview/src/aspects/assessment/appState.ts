@@ -1,11 +1,5 @@
-import { buildSetupsAppState, SetupsAppState } from "../setup/setupsAppState";
-
-export interface AssessmentAppState {
-  setups: SetupsAppState;
-}
+export interface AssessmentAppState {}
 
 export function buildAssessmentAppState(): AssessmentAppState {
-  return {
-    setups: buildSetupsAppState(),
-  };
+  return {};
 }

@@ -22,10 +22,7 @@ function AssessmentComponent(props: AssessmentComponent.Props) {
 
   return (
     <AssessmentProvider assessment={assessment}>
-      <Setups
-        setupsField={assessment.assessmentForm.$.setups}
-        setupsAppState={assessment.assessmentAppState.$.setups}
-      />
+      <Setups setupsField={assessment.assessmentForm.$.setups} />
 
       <Tools toolsField={assessment.assessmentForm.$.tools} />
 

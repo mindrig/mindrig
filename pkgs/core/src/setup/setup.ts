@@ -1,4 +1,5 @@
 import { always } from "alwaysly";
+import { nanoid } from "nanoid";
 import {
   buildModelSettings,
   DEFAULT_MODEL_DEVELOPER_ID,
@@ -10,7 +11,15 @@ import { Versioned } from "../versioned";
 export type Setup = Setup.V1;
 
 export namespace Setup {
+  //#region Ids
+
+  export type Id = string & { [idBrand]: true };
+  declare const idBrand: unique symbol;
+
+  //#endregion
+
   export interface V1 extends Versioned<1> {
+    id: Id;
     ref: Setup.Ref;
     settings: ModelSettings;
   }
@@ -56,6 +65,7 @@ export function buildSetup(props: buildSetup.Props): Setup {
   }
 
   return {
+    id: buildSetupId(),
     v: 1,
     ref: {
       v: 1,
@@ -74,4 +84,8 @@ export function buildSetupsModelRefs(setups: Setup[]): Model.Ref[] {
     usedModelRefs.push({ developerId, modelId });
   });
   return usedModelRefs;
+}
+
+export function buildSetupId(): Setup.Id {
+  return `setup-${nanoid()}` as Setup.Id;
 }

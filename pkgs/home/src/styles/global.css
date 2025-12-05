@@ -3,6 +3,7 @@
 @config "../../tailwind.config.ts";
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-react-aria-components";
+@plugin "tailwind-scrollbar";
 @import "@wrkspc/theme/default";
 
 :placeholder-shown {

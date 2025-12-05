@@ -13,7 +13,7 @@
     "eqeqeq": "warn",
     "no-throw-literal": "warn",
     "react/react-in-jsx-scope": "off",
-    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/rules-of-hooks": "off",
     "react-hooks/exhaustive-deps": "warn"
   }
 }

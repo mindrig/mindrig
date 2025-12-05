@@ -3,12 +3,14 @@ import { ModelsAppState } from "@/aspects/model/modelsAppState";
 import { ResultAppState } from "@/aspects/result/appState";
 import { ResultsAppState } from "@/aspects/result/resultsAppState";
 import { RunAppState } from "@/aspects/run/appState";
+import { SetupAppState } from "@/aspects/setup/appState";
 import { Csv } from "@wrkspc/core/csv";
 import { Datasource } from "@wrkspc/core/datasource";
 import { EditorFile } from "@wrkspc/core/editor";
 import { PlaygroundMap } from "@wrkspc/core/playground";
 import { Result } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
+import { Setup } from "@wrkspc/core/setup";
 import { Test } from "@wrkspc/core/test";
 import { AssessmentAppState } from "../../assessment/appState";
 import { TestAppState } from "../../test/appState";
@@ -21,6 +23,7 @@ export interface AppState {
   results: AppState.Results;
   csvs: AppState.Csvs;
   datasetDatasources: AppState.DatasetDatasources;
+  setups: AppState.Setups;
 }
 
 export namespace AppState {
@@ -51,6 +54,8 @@ export namespace AppState {
     Datasource.Id,
     DatasetDatasourceAppState
   >;
+
+  export type Setups = Record<Setup.Id, SetupAppState>;
 }
 
 export function buildAppState(): AppState {
@@ -68,5 +73,6 @@ export function buildAppState(): AppState {
       data: {},
     },
     datasetDatasources: {},
+    setups: {},
   };
 }

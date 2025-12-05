@@ -4,7 +4,7 @@ import { PropsWithChildren } from "react";
 
 export function ResultMetaEmpty(props: PropsWithChildren) {
   return (
-    <Block border={[false, true, true]} pad>
+    <Block border pad>
       <p className={textCn({ size: "small", color: "support" })}>
         {props.children}
       </p>

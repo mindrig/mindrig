@@ -38,7 +38,7 @@ export function ResultUsage(props: ResultUsage.Props) {
   // input/output tokens (e.g., reasoning tokens).
 
   return (
-    <Block border={[false, true, true]} size="xsmall" pad="y">
+    <Block border size="xsmall" pad="y">
       <DescriptionList
         size="small"
         items={[

@@ -41,6 +41,7 @@
     "@wrkspc/ts": "workspace:*",
     "oxlint": "^1.23.0",
     "prettier": "^3.6.2",
+    "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.12",
     "tailwindcss-capsize": "^4.0.1",
     "tailwindcss-react-aria-components": "^2.0.1",

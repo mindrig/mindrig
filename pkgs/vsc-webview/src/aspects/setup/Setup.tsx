@@ -1,35 +1,39 @@
 import { resolveModel } from "@wrkspc/core/model";
 import { Setup } from "@wrkspc/core/setup";
-import { Block, Button } from "@wrkspc/ds";
+import { Button } from "@wrkspc/ds";
 import iconRegularChevronDown from "@wrkspc/icons/svg/regular/chevron-down.js";
 import iconRegularCog from "@wrkspc/icons/svg/regular/cog.js";
 import iconRegularTrashAlt from "@wrkspc/icons/svg/regular/trash-alt.js";
-import { Field, State } from "enso";
+import { Field } from "enso";
 import { ModelCapabilities } from "../model/Capabilities";
 import { useModelsMap } from "../model/MapContext";
 import { ModelSelector } from "../model/Selector";
-import { ModelSettings } from "../model/Settings";
-
-export { SetupComponent as ModelSetup };
+import { SetupProvider, useSetup } from "./Context";
+import { SetupSettings } from "./settings/Settings";
 
 export namespace SetupComponent {
   export interface Props {
     setupField: Field<Setup, "detachable">;
-    expandedIndexState: State<number | null>;
     solo: boolean;
-    // TODO: Add ability to access index/key from the detachable field to Enso
-    index: number;
   }
 }
 
 export function SetupComponent(props: SetupComponent.Props) {
-  const { setupField, solo, expandedIndexState, index } = props;
+  const { setupField } = props;
+
+  return (
+    <SetupProvider setupField={setupField}>
+      <Content {...props} />
+    </SetupProvider>
+  );
+}
+
+function Content(props: SetupComponent.Props) {
+  const { setupField, solo } = props;
+  const { setup } = useSetup();
   const { modelsPayload } = useModelsMap();
 
-  const expanded = expandedIndexState.useCompute(
-    (expandedIndex) => expandedIndex === index,
-    [index],
-  );
+  const showSettings = setup.useShowSettings();
 
   const model = setupField.$.ref.useCompute(
     (ref) => resolveModel(ref, modelsPayload?.map),
@@ -44,8 +48,10 @@ export function SetupComponent(props: SetupComponent.Props) {
             style="label"
             color="secondary"
             size="small"
-            icon={expanded ? iconRegularChevronDown : iconRegularCog}
-            onClick={() => expandedIndexState.set(expanded ? null : index)}
+            icon={showSettings ? iconRegularChevronDown : iconRegularCog}
+            onClick={() =>
+              showSettings ? setup.hideSettings() : setup.showSettings()
+            }
             isDisabled={!model}
           />
         </div>
@@ -71,10 +77,8 @@ export function SetupComponent(props: SetupComponent.Props) {
         <>
           <ModelCapabilities type={model.type} />
 
-          {expanded && (
-            <Block border pad>
-              <ModelSettings field={setupField.$.settings} type={model.type} />
-            </Block>
+          {showSettings && (
+            <SetupSettings field={setupField.$.settings} type={model.type} />
           )}
         </>
       )}

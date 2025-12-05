@@ -3,6 +3,7 @@
 @config "../tailwind.config.ts";
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-react-aria-components";
+@plugin "tailwind-scrollbar";
 @source "../node_modules/streamdown/dist/index.js";
 
 @theme {
@@ -179,8 +180,8 @@
   /*### Color */
 
   /**** Default */
-  --color-tag-ink: var(--vscode-breadcrumb-foreground);
-  --color-tag-canvas: var(--vscode-breadcrumb-background);
+  --color-tag-ink: var(--vscode-input-foreground);
+  --color-tag-canvas: var(--vscode-input-background);
 
   /**** Secondary */
   --color-tag-ink-secondary: var(--vscode-breadcrumb-foreground);

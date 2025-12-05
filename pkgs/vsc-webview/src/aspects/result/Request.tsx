@@ -17,7 +17,7 @@ export function ResultRequest(props: ResultRequest.Props) {
   return (
     <>
       {payload ? (
-        <Block background border={[false, true, true]}>
+        <Block background border>
           <JsonPreview value={payload} />
         </Block>
       ) : (
