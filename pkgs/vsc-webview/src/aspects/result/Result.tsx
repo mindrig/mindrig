@@ -7,8 +7,6 @@ import { ResultHeader } from "./Header";
 import { ResultMeta } from "./Meta";
 import { ResultsAppState } from "./resultsAppState";
 
-export { ResultComponent as Result };
-
 export namespace ResultComponent {
   export interface Props {
     resultState: State<Result>;

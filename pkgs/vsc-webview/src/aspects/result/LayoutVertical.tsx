@@ -21,7 +21,7 @@ export function ResultsLayoutVertical(props: ResultsLayoutVertical.Props) {
   const solo = resultsState.size === 1;
 
   return (
-    <Block dir="y">
+    <Block dir="y" pad={{ bottom: "medium" }}>
       {resultsState.map((resultState, resultIndex) => (
         <ResultComponent
           resultState={resultState}

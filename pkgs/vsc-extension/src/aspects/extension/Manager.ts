@@ -68,6 +68,12 @@ export class ExtensionManager extends Manager {
         await this.#webviewProvider.runPrompt();
       }),
     );
+
+    this.register(
+      vscode.commands.registerCommand("mindrig.dev.clearState", async () => {
+        await this.#webviewProvider.clearState();
+      }),
+    );
   }
 
   #showPlayground() {

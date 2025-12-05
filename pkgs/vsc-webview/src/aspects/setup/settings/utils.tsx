@@ -51,7 +51,7 @@ export function SetupSettingsLabelWithDescription(
       <Label size="small">{label}</Label>
 
       <div className="inline-flex">
-        <Icon id={iconSolidQuestionCircle} size="xsmall" color="detail" />;
+        <Icon id={iconSolidQuestionCircle} size="xsmall" color="detail" />
       </div>
     </div>
   );

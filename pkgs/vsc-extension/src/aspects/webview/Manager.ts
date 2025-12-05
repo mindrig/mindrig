@@ -168,6 +168,10 @@ export class WebviewManager extends Manager {
     this.#runs.trigger();
   }
 
+  clearState() {
+    this.#dev.clearState();
+  }
+
   #setupLogging() {
     let levelSetting = this.#settings.state.dev?.logsVerbosity;
     log.level = logsVerbositySettingToLevel(levelSetting);

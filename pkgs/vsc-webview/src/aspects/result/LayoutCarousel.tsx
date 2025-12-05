@@ -1,4 +1,5 @@
 import { Result } from "@wrkspc/core/result";
+import { Block } from "@wrkspc/ui";
 import { State } from "enso";
 import { ResultComponent } from "./Result";
 import { ResultsAppState } from "./resultsAppState";
@@ -28,7 +29,7 @@ export function ResultsLayoutCarousel(props: ResultsLayoutCarousel.Props) {
   const solo = resultsState.size === 1;
 
   return (
-    <div className="space-y-2">
+    <Block dir="y" pad={{ bottom: "medium" }}>
       {decomposedResult.value ? (
         <ResultComponent
           resultState={decomposedResult.state}
@@ -39,6 +40,6 @@ export function ResultsLayoutCarousel(props: ResultsLayoutCarousel.Props) {
       ) : (
         <div>Result not found</div>
       )}
-    </div>
+    </Block>
   );
 }

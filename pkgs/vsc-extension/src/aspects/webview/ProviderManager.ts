@@ -75,4 +75,8 @@ export class WebviewProviderManager
   async runPrompt() {
     (await this.#webviewPromise).runPrompt();
   }
+
+  async clearState() {
+    (await this.#webviewPromise).clearState();
+  }
 }

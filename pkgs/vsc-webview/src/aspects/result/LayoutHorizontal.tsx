@@ -21,8 +21,10 @@ export function ResultsLayoutHorizontal(props: ResultsLayoutHorizontal.Props) {
 
   return (
     <div
-      className="grow grid gap-3 overflow-x-auto"
-      style={{ gridTemplateColumns: `repeat(${resultsState.size}, 100%)` }}
+      className="grow grid gap-3 overflow-x-auto pb-3"
+      style={{
+        gridTemplateColumns: `repeat(${resultsState.size}, minmax(25rem, 100%))`,
+      }}
     >
       {resultsState.map((resultState, index) => (
         <ResultComponent

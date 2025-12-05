@@ -116,9 +116,9 @@
   --color-button-secondary-label-ink-hover: var(--color-button-label-ink-hover);
 
   /***** Transparent */
-  --color-button-transparent-canvas-hover: var(--color-gray-50);
-  --color-button-transparent-border: var(--color-gray-300);
-  --color-button-transparent-border-hover: var(--color-gray-400);
+  --color-button-transparent-canvas-hover: color-mix(in srgb, var(--ink) 20%, var(--canvas) 100%);
+  --color-button-transparent-border: color-mix(in srgb, var(--ink) 80%, var(--canvas) 100%);
+  --color-button-transparent-border-hover: color-mix(in srgb, var(--ink) 90%, var(--canvas) 100%);
   /*----- Secondary */
   --color-button-transparent-secondary-ink: var(
     --color-button-secondary-label-ink
@@ -191,7 +191,11 @@
 
   --border-tab: 1px;
   --color-tabs-border: var(--color-divider);
-  --color-tab-ink: var(--color-ink);
+  --color-tab-ink: color-mix(
+    in srgb,
+    var(--color-tab-active-ink) 95%,
+    var(--canvas) 100%
+  );
   --color-tab-ink-hover: var(--color-tab-active-ink);
   --color-tab-border: transparent;
   /*---- Active */

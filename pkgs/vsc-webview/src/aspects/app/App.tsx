@@ -46,7 +46,7 @@ function Content() {
   useListenMessage(
     "client-server-navigate",
     (message) => navigate(pageHrefs[message.payload.type]()),
-    [],
+    [navigate],
   );
 
   return (

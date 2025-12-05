@@ -1,5 +1,4 @@
 import { Manager } from "@/aspects/manager/Manager.js";
-import * as vscode from "vscode";
 import { MessagesManager } from "../message/Manager";
 import { StoreManager } from "../store/Manager";
 
@@ -19,16 +18,9 @@ export class DevManager extends Manager {
 
     this.#messages = props.messages;
     this.#store = props.store;
-
-    this.register(
-      vscode.commands.registerCommand(
-        "mindrig.dev.clearState",
-        this.#clearState.bind(this),
-      ),
-    );
   }
 
-  async #clearState() {
+  async clearState() {
     await Promise.all([
       this.#store.clearAll(),
       this.#messages.send({ type: "dev-server-clear-app-state" }),
