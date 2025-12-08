@@ -35,6 +35,8 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
       .get("auth-vercel-gateway-key")
       .then(this.#onVercelKey.bind(this));
 
+    this.#messages.listen(this, "auth-client-logout", this.#onLogout);
+
     this.#messages.listen(
       this,
       "auth-client-vercel-gateway-clear",
@@ -83,6 +85,9 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
       log.debug("Got Vercel gateway key", { maskedKey: gateway?.maskedKey });
     else log.debug("No Vercel gateway key found");
 
+    // Report logged out if no gateway credentials found
+    if (!gateway) this.#reportLoggedIn(false);
+
     // Instead of applying the state directly, we first trigger an event,
     // allowing models manager to verify the key before applying it.
     this.#validate(gateway);
@@ -92,7 +97,7 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
     this.#secrets.set("auth-vercel-gateway-key", message.payload);
   }
 
-  #onVercelGatewayClear(_message: AuthMessage.ClientVercelGatewayClear) {
+  #onVercelGatewayClear(_message?: AuthMessage.ClientVercelGatewayClear) {
     this.#secrets.clear("auth-vercel-gateway-key");
   }
 
@@ -118,6 +123,10 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
       "mindrig.auth.loggedIn",
       loggedIn,
     );
+  }
+
+  #onLogout() {
+    this.#onVercelGatewayClear();
   }
 }
 

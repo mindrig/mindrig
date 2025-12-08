@@ -1,18 +1,23 @@
 import { Icon, textCn } from "@wrkspc/ds";
 import { Block } from "@wrkspc/ui";
+import React from "react";
 
 export namespace PageEmpty {
   export interface Props {
     icon: Icon.Prop;
     label: string;
     description: string;
+    notices?: React.ReactNode | undefined;
   }
 }
 
 export function PageEmpty(props: PageEmpty.Props) {
-  const { icon, label, description } = props;
+  const { icon, label, description, notices } = props;
+
   return (
     <Block dir="y" pad={[false, "medium", "medium"]}>
+      {notices}
+
       <Block dir="y" size="small" align pad={["xlarge", "large"]} border>
         <Icon id={icon} size="xlarge" color="support" />
 

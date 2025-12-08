@@ -3,7 +3,7 @@ import { BlueprintEmpty } from "../blueprint/Empty";
 import { useClientState } from "../client/StateContext";
 import { FileHeader } from "../file/Header";
 import { PlaygroundEmpty } from "./Empty";
-import { PlaygroundErrors } from "./Errors";
+import { PlaygroundNotices } from "./Notices";
 
 export function Playground() {
   const clientState = useClientState();
@@ -13,11 +13,11 @@ export function Playground() {
 
   return (
     <>
-      <PlaygroundErrors />
-
       {decomposedFile.value ? (
         <>
           <FileHeader fileState={decomposedFile.state} />
+
+          <PlaygroundNotices />
 
           {decomposedPrompt.value ? (
             <Blueprint promptState={decomposedPrompt.state} />

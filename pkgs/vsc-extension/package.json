@@ -125,7 +125,7 @@
         },
         {
           "command": "mindrig.logOut",
-          "when": "view == mindrig.playground"
+          "when": "view == mindrig.playground && mindrig.auth.loggedIn"
         }
       ],
       "view/item/context": [

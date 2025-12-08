@@ -1,10 +1,9 @@
 import { useApp } from "@/aspects/app/Context";
-import { LayoutSection } from "@/aspects/layout/Section";
 import { useMessages } from "@/aspects/message/Context";
-import { Block, Button, Errors, Icon, Label, textCn } from "@wrkspc/ds";
-import iconRegularTimes from "@wrkspc/icons/svg/regular/times.js";
+import { Block, Button, Errors, Label, textCn } from "@wrkspc/ds";
 import { State } from "enso";
 import { AuthAppState } from "../appState";
+import { AuthVercelLayout } from "./Layout";
 import { AuthVercelManager } from "./Manager";
 
 export namespace AuthVercelProfile {
@@ -24,55 +23,18 @@ export function AuthVercelProfile(props: AuthVercelProfile.Props) {
   const { navigateTo } = useApp();
   const { sendMessage } = useMessages();
   const error = vercelManager.useError();
+  const maskedKey = authAppState.$.maskedKey.useValue();
 
   return (
-    <LayoutSection
-      header="Vercel Gateway"
-      actions={
-        <Icon
-          id={iconRegularTimes}
-          size="small"
-          color="support"
-          onClick={() => navigateTo({ type: "playground" })}
-        />
-      }
-    >
+    <AuthVercelLayout>
       <Block dir="y" pad background="primary" border>
         <Block dir="y" size="small">
-          <Label>Vercel Gateway API key</Label>
+          <Label>API key</Label>
 
-          <p className={textCn({ mono: true })}>
-            {/* {state.context.maskedKey ?? "••••"} */}
-          </p>
+          <p className={textCn({ mono: true })}>{maskedKey ?? "••••"}</p>
+
+          {error && <Errors errors={error} />}
         </Block>
-
-        {/* {state.name === "profileValidating" && (
-          <p className="text-sm text-blue-600">Validating...</p>
-        )} */}
-
-        {error && (
-          <div>
-            <Errors errors={error} />
-
-            <Button
-              size="small"
-              style="transparent"
-              onClick={() => {
-                // TODO: Add send function to state with all available events.
-                // statechart.send.revalidate("-> profileValidating", {
-                //   maskedKey: state.context.maskedKey,
-                // });
-
-                sendMessage({
-                  type: "auth-client-vercel-gateway-revalidate",
-                });
-              }}
-              // isDisabled={!!statechart.in("profileValidating")}
-            >
-              Retry
-            </Button>
-          </div>
-        )}
 
         <Block align>
           <Button onClick={() => vercelManager.edit()} size="small">
@@ -80,10 +42,10 @@ export function AuthVercelProfile(props: AuthVercelProfile.Props) {
           </Button>
 
           <Button onClick={() => vercelManager.logout()} style="label">
-            Log out
+            Clear
           </Button>
         </Block>
       </Block>
-    </LayoutSection>
+    </AuthVercelLayout>
   );
 }
