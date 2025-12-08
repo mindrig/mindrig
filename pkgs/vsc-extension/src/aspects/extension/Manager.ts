@@ -69,10 +69,36 @@ export class ExtensionManager extends Manager {
       }),
     );
 
+    // Dev commands
+
     this.register(
       vscode.commands.registerCommand("mindrig.dev.clearState", async () => {
         await this.#webviewProvider.clearState();
       }),
+    );
+
+    this.register(
+      vscode.commands.registerCommand(
+        "mindrig.dev.enableAutoReload",
+        async () => {
+          await this.#webviewProvider.enableAutoReload();
+          vscode.window.showInformationMessage(
+            "Auto-reload enabled for Mind Rig extension development",
+          );
+        },
+      ),
+    );
+
+    this.register(
+      vscode.commands.registerCommand(
+        "mindrig.dev.disableAutoReload",
+        async () => {
+          await this.#webviewProvider.disableAutoReload();
+          vscode.window.showInformationMessage(
+            "Auto-reload disabled for Mind Rig extension development",
+          );
+        },
+      ),
     );
   }
 

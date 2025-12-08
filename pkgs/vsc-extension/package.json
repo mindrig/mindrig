@@ -53,6 +53,14 @@
       {
         "command": "mindrig.dev.clearState",
         "title": "Mind Rig Dev: Clear All State"
+      },
+      {
+        "command": "mindrig.dev.enableAutoReload",
+        "title": "Mind Rig Dev: Enable Auto Reload"
+      },
+      {
+        "command": "mindrig.dev.disableAutoReload",
+        "title": "Mind Rig Dev: Disable Auto Reload"
       }
     ],
     "configuration": {
@@ -134,9 +142,9 @@
     }
   },
   "scripts": {
-    "dev": "vite build --mode development --watch",
+    "dev": "env MINDRIG_DEV_AUTO_RELOAD=true vite build --mode development --watch",
     "preview": "vite build --mode development",
-    "preview:watch": "vite build --mode development --watch",
+    "preview:watch": "env MINDRIG_DEV_AUTO_RELOAD=true vite build --mode development --watch",
     "pack": "vsce pack --no-dependencies",
     "publish": "vsce publish --no-dependencies",
     "vscode:prepublish": "pnpm -F @wrkspc/vsc-webview run package && pnpm run package",
@@ -170,13 +178,15 @@
     "p-queue": "^8.0.1",
     "smolcsv": "^0.1.0",
     "smollog": "^0.2.0",
-    "yjs": "^13.6.27"
+    "yjs": "^13.6.27",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@mindrig/types": "0.1.0",
     "@playwright/test": "^1.55.0",
     "@types/mocha": "^10.0.10",
     "@types/vscode": "^1.99.0",
+    "@types/ws": "^8.18.1",
     "@vitest/coverage-v8": "^4.0.15",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",

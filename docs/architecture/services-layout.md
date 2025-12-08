@@ -31,9 +31,10 @@ When adding new services, to avoid port conflicts, please follow the existing pa
 
 ### Service Ports
 
-| Service Name               | Group       | Index | Port   | Description                                |
-| -------------------------- | ----------- | ----- | ------ | ------------------------------------------ |
-| Home Page                  | User-Facing | `0`   | `3100` | Main website.                              |
-| Gateway API                | APIs        | `1`   | `3110` | Global gateway API.                        |
-| Storybook                  | Dev Tools   | `9`   | `3190` | Storybook instance.                        |
-| VS Code Webview Dev Server | Dev Tools   | `9`   | `3191` | VS Code extension webview Vite dev server. |
+| Service Name                         | Group       | Index | Port   | Description                                |
+| ------------------------------------ | ----------- | ----- | ------ | ------------------------------------------ |
+| Home Page                            | User-Facing | `0`   | `3100` | Main website.                              |
+| Gateway API                          | APIs        | `1`   | `3110` | Global gateway API.                        |
+| Storybook                            | Dev Tools   | `9`   | `3190` | Storybook instance.                        |
+| VS Code Webview Dev Server           | Dev Tools   | `9`   | `3191` | VS Code extension webview Vite dev server. |
+| VS Code Extension Auto Reload Server | Dev Tools   | `9`   | `3192` | VS Code extension auto reload server.      |

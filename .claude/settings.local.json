@@ -7,7 +7,9 @@
       "Bash(pnpm turbo build:*)",
       "Bash(pnpm turbo lint:*)",
       "WebSearch",
-      "Bash(pnpm run types:*)"
+      "Bash(pnpm run types:*)",
+      "WebFetch(domain:blog.hediet.de)",
+      "Bash(pnpm run:*)"
     ],
     "deny": [],
     "ask": []

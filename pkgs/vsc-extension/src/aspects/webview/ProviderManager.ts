@@ -79,4 +79,12 @@ export class WebviewProviderManager
   async clearState() {
     (await this.#webviewPromise).clearState();
   }
+
+  async enableAutoReload() {
+    (await this.#webviewPromise).enableAutoReload();
+  }
+
+  async disableAutoReload() {
+    (await this.#webviewPromise).disableAutoReload();
+  }
 }

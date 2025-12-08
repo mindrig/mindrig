@@ -172,6 +172,14 @@ export class WebviewManager extends Manager {
     this.#dev.clearState();
   }
 
+  enableAutoReload() {
+    this.#dev.enableAutoReload();
+  }
+
+  disableAutoReload() {
+    this.#dev.disableAutoReload();
+  }
+
   #setupLogging() {
     let levelSetting = this.#settings.state.dev?.logsVerbosity;
     log.level = logsVerbositySettingToLevel(levelSetting);
