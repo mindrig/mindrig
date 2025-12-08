@@ -1,5 +1,5 @@
-import { textCn } from "@wrkspc/ds";
 import { RunManager } from "../run/Manager";
+import { RunningTime } from "../ui/RunningTime";
 
 export namespace TestRunStarted {
   export interface Props {
@@ -10,12 +10,7 @@ export namespace TestRunStarted {
 export function TestRunStarted(props: TestRunStarted.Props) {
   const { run } = props;
   const runningTime = run.useRunningTimeSec();
+  const running = run.useRunning();
 
-  return (
-    <div className="flex items-center gap-3">
-      <span className={textCn({ size: "small", color: "detail" })}>
-        {runningTime}s
-      </span>
-    </div>
-  );
+  return <RunningTime runningTimeSec={runningTime} ended={!running} />;
 }

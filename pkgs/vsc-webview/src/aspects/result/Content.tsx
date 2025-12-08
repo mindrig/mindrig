@@ -1,33 +1,36 @@
 import { Result } from "@wrkspc/core/result";
 import { State } from "enso";
-import { ResultError } from "./Error";
 import { ResultInitialized } from "./Initialized";
 import { ResultPayload } from "./Payload";
 
 export namespace ResultContent {
   export interface Props {
-    state: State<Result>;
+    resultState: State<Result>;
   }
 }
 
 export function ResultContent(props: ResultContent.Props) {
-  const { state } = props;
-  const discriminatedResult = state.useDiscriminate("status");
+  const { resultState } = props;
+  const discriminatedResult = resultState.useDiscriminate("status");
+  const error = resultState.useCompute(
+    (result) => ("error" in result && result.error) || null,
+    [],
+  );
 
   switch (discriminatedResult.discriminator) {
     case "initialized":
+      // TODO: Style it properly.
       return <ResultInitialized state={discriminatedResult.state} />;
-
-    case "error":
-      return <ResultError state={discriminatedResult.state} />;
 
     case "running":
     case "success":
     case "cancelled":
+    case "error":
       return (
         <ResultPayload
           status={discriminatedResult.discriminator}
-          state={discriminatedResult.state.$.payload}
+          payloadState={discriminatedResult.state.$.payload}
+          error={error}
         />
       );
   }

@@ -2,7 +2,7 @@ import { ClientState } from "@wrkspc/core/client";
 import { logsVerbositySettingToLevel } from "@wrkspc/core/log";
 import { buildPlaygroundState } from "@wrkspc/core/playground";
 import { State } from "enso";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { log } from "smollog";
 import { useMessages } from "../message/Context";
 
@@ -24,6 +24,10 @@ export function ClientStateProvider(props: React.PropsWithChildren) {
     },
     [],
   );
+
+  useEffect(() => {
+    log.debug("Initialized client state", state.value);
+  }, []);
 
   useListen(
     "auth-server-update",

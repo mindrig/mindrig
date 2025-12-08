@@ -8,7 +8,6 @@ import { Results } from "../result/Results";
 import { useTest } from "../test/Context";
 import { RunProvider } from "./Context";
 import { RunDetailsPreview } from "./DetailsPreview";
-import { RunError } from "./Error";
 import { RunManager } from "./Manager";
 import { RunPending } from "./Pending";
 
@@ -67,13 +66,7 @@ export function RunComponent(props: RunComponent.Props) {
         </LayoutSection>
       )}
 
-      {pending ? (
-        <RunPending />
-      ) : error ? (
-        <RunError error={error} />
-      ) : (
-        <Results clearRun={() => test.clearRun()} />
-      )}
+      {pending ? <RunPending /> : <Results clearRun={() => test.clearRun()} />}
     </RunProvider>
   );
 }

@@ -5,6 +5,7 @@ import { Attachments } from "../attachment/Attachments";
 import { Datasources } from "../datasource/Datasources";
 import { DatasourcesPresenceTag } from "../datasource/DatasourcesPresenceTag";
 import { LayoutSection } from "../layout/Section";
+import { RunMeteMessages } from "../run/MeteMessages";
 import { RunComponent } from "../run/Run";
 import { CountTag } from "../ui/CountTag";
 import { useTest } from "./Context";
@@ -94,6 +95,8 @@ export function TestComponent(props: TestComponent.Props) {
 
             {run && <TestRunStarted run={run} />}
           </Block>
+
+          {run && <RunMeteMessages run={run} />}
         </Block>
 
         {run && (

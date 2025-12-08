@@ -86,33 +86,39 @@ export class RunManager {
     return this.#runAppState.$.run.$.createdAt.useValue();
   }
 
-  useRunningTimeMs() {
+  useRunningTimeMs(): number | undefined {
     const running = this.useRunning();
-    const createdAt = this.#runAppState.$.run.$.createdAt.useValue();
+    const startedAt = this.#runAppState.$.run.useCompute(
+      (run) => ("startedAt" in run ? run.startedAt : undefined),
+      [],
+    );
     const endedAt = this.useEndedAt();
     const [runningTimeMs, setRunningTime] = useState(
-      RunManager.calculateRunningTime(createdAt, endedAt),
+      startedAt && RunManager.calculateRunningTime(startedAt, endedAt),
     );
 
     useEffect(() => {
-      if (!running)
-        return setRunningTime(
-          RunManager.calculateRunningTime(createdAt, endedAt),
-        );
+      if (!running) {
+        startedAt &&
+          setRunningTime(RunManager.calculateRunningTime(startedAt, endedAt));
+        return;
+      }
+
       const interval = setInterval(
         () =>
-          setRunningTime(RunManager.calculateRunningTime(createdAt, undefined)),
+          startedAt &&
+          setRunningTime(RunManager.calculateRunningTime(startedAt, undefined)),
         100,
       );
       return () => clearInterval(interval);
-    }, [this, running, createdAt, endedAt]);
+    }, [this, running, startedAt, endedAt]);
 
     return runningTimeMs;
   }
 
-  useRunningTimeSec() {
+  useRunningTimeSec(): number | undefined {
     const runningTimeMs = this.useRunningTimeMs();
-    return Math.floor(runningTimeMs / 100) / 10;
+    return RunManager.runningTimeMsToSec(runningTimeMs);
   }
 
   useShowDetails() {
@@ -124,9 +130,15 @@ export class RunManager {
   }
 
   static calculateRunningTime(
-    createdAt: number,
+    startedAt: number,
     endedAt: number | undefined,
   ): number {
-    return (endedAt ?? Date.now()) - createdAt;
+    return (endedAt ?? Date.now()) - startedAt;
+  }
+
+  static runningTimeMsToSec(
+    runningTimeMs: number | undefined,
+  ): number | undefined {
+    return runningTimeMs && Math.floor(runningTimeMs / 1000) / 100;
   }
 }

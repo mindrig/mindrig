@@ -38,7 +38,7 @@ export namespace Result {
   }
 
   export interface Error extends BaseStarted<"error"> {
-    erroredAt: number;
+    endedAt: number;
     request: Request | null;
     response: Response | null;
     error: string;

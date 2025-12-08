@@ -1,5 +1,5 @@
 import { ModelType } from "@wrkspc/core/model";
-import { textCn } from "@wrkspc/ds";
+import { Errors, textCn } from "@wrkspc/ds";
 import { never } from "alwaysly";
 import { State } from "enso";
 import { ResultContentLayout } from "./ContentLayout";
@@ -8,22 +8,29 @@ import { ResultPayloadLanguage } from "./PayloadLanguage";
 export namespace ResultPayload {
   export interface Props {
     status: PayloadStatus;
-    state: State<ModelType.Payload> | State<ModelType.Payload | null>;
+    payloadState: State<ModelType.Payload> | State<ModelType.Payload | null>;
+    error: string | null;
   }
 
-  export type PayloadStatus = "running" | "success" | "cancelled";
+  export type PayloadStatus = "running" | "success" | "cancelled" | "error";
 }
 
 export function ResultPayload(props: ResultPayload.Props) {
-  const { status, state } = props;
-  const decomposedPayload = state.useDecomposeNullish();
+  const { status, payloadState, error } = props;
+  const decomposedPayload = payloadState.useDecomposeNullish();
 
-  if (!decomposedPayload.value)
+  if (!decomposedPayload.value) {
     return (
       <ResultContentLayout>
-        <p className={textCn({ color: "support" })}>{emptyMessage(status)}</p>
+        {error && <Errors errors={error} />}
+
+        {/* If the payload is empty due to an error, we don't show any message. */}
+        {status !== "error" && (
+          <p className={textCn({ color: "support" })}>{emptyMessage(status)}</p>
+        )}
       </ResultContentLayout>
     );
+  }
 
   switch (decomposedPayload.value.type) {
     case "language":
@@ -34,7 +41,9 @@ export function ResultPayload(props: ResultPayload.Props) {
   }
 }
 
-function emptyMessage(status: ResultPayload.PayloadStatus): string {
+function emptyMessage(
+  status: Exclude<ResultPayload.PayloadStatus, "error">,
+): string {
   switch (status) {
     case "running":
       return "Waiting for response...";

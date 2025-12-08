@@ -75,11 +75,13 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
     const gateway: Auth.GatewayValue = key?.trim()
       ? {
           type: "vercel",
-          maskedKey: "****" + key.slice(-4),
+          maskedKey: SecretsManager.maskKey(key),
         }
       : null;
 
-    log.debug("Got Vercel gateway key", { maskedKey: gateway?.maskedKey });
+    if (gateway)
+      log.debug("Got Vercel gateway key", { maskedKey: gateway?.maskedKey });
+    else log.debug("No Vercel gateway key found");
 
     // Instead of applying the state directly, we first trigger an event,
     // allowing models manager to verify the key before applying it.

@@ -34,4 +34,19 @@ export class SecretsManager extends Manager<SecretsManager.EventMap> {
     await this.#storage.delete(key);
     this.emit(`update.${key}`, undefined);
   }
+
+  static maskKey(key: string): string {
+    if (!key) return "****";
+
+    const length = key.length;
+
+    // <=4: mask entirely
+    if (length <= 4) return "*".repeat(length);
+
+    // <=8: show last 2 chars
+    if (length <= 8) return "*".repeat(length - 2) + key.slice(-2);
+
+    // Rest: show last 4 chars
+    return "*".repeat(length - 4) + key.slice(-4);
+  }
 }

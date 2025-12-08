@@ -116,9 +116,21 @@
   --color-button-secondary-label-ink-hover: var(--color-button-label-ink-hover);
 
   /***** Transparent */
-  --color-button-transparent-canvas-hover: color-mix(in srgb, var(--ink) 20%, var(--canvas) 100%);
-  --color-button-transparent-border: color-mix(in srgb, var(--ink) 80%, var(--canvas) 100%);
-  --color-button-transparent-border-hover: color-mix(in srgb, var(--ink) 90%, var(--canvas) 100%);
+  --color-button-transparent-canvas-hover: color-mix(
+    in srgb,
+    var(--ink) 20%,
+    var(--canvas) 100%
+  );
+  --color-button-transparent-border: color-mix(
+    in srgb,
+    var(--ink) 80%,
+    var(--canvas) 100%
+  );
+  --color-button-transparent-border-hover: color-mix(
+    in srgb,
+    var(--ink) 90%,
+    var(--canvas) 100%
+  );
   /*----- Secondary */
   --color-button-transparent-secondary-ink: var(
     --color-button-secondary-label-ink
@@ -177,17 +189,34 @@
 
   /*## Tag */
 
-  /*### Color */
+  /*### color */
 
-  /**** Default */
-  --color-tag-ink: var(--vscode-input-foreground);
-  --color-tag-canvas: var(--vscode-input-background);
+  /*----- default */
+  --color-tag-ink: var(--vscode-statusBar-foreground, --ink);
+  --color-tag-canvas: var(--vscode-statusBarItem-activeBackground);
+  /*----- secondary */
+  --color-tag-secondary-ink: var(
+    --vscode-statusBar-foreground,
+    --color-tag-ink
+  );
+  --color-tag-secondary-canvas: var(
+    --vscode-statusBar-background,
+    --color-tag-canvas
+  );
+  /*----- error */
+  --color-tag-error-ink: var(
+    --vscode-statusBarItem-errorForeground,
+    --color-tag-ink
+  );
+  --color-tag-error-canvas: var(--vscode-statusBarItem-errorBackground);
+  /*----- warning */
+  --color-tag-warning-ink: var(
+    --vscode-statusBarItem-warningForeground,
+    --color-tag-ink
+  );
+  --color-tag-warning-canvas: var(--vscode-statusBarItem-warningBackground);
 
-  /**** Secondary */
-  --color-tag-ink-secondary: var(--vscode-breadcrumb-foreground);
-  --color-tag-canvas-secondary: var(--vscode-breadcrumb-background);
-
-  /*## Tabs */
+  /*## Tab */
 
   --border-tab: 1px;
   --color-tabs-border: var(--color-divider);
@@ -201,6 +230,19 @@
   /*---- Active */
   --color-tab-active-ink: var(--vscode-settings-headerForeground);
   --color-tab-active-border: var(--vscode-settings-headerForeground);
+
+  /*## Errors */
+
+  /*### style */
+
+  /*----- label */
+  --color-errors-label-ink: var(--vscode-errorForeground);
+  /*----- notice */
+  --color-errors-notice-canvas: var(--vscode-inputValidation-errorBackground);
+  --color-errors-notice-ink: var(--ink);
+  --color-errors-notice-border: var(--vscode-inputValidation-errorBorder);
+  --border-errors-notice: 1px;
+  --radius-errors-notice: 0;
 
   /*# App-Specific */
 

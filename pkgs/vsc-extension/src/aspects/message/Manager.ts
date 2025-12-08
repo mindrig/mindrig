@@ -64,6 +64,12 @@ export class MessagesManager extends Manager {
   }
 
   async ready() {
+    if (!this.#queue) {
+      log.warn(
+        "Got reported ready status more than once, looks like the webview got refreshed,",
+      );
+      return;
+    }
     always(this.#queue);
     const queue = this.#queue;
     log.debug(

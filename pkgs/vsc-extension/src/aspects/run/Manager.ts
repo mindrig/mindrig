@@ -124,23 +124,38 @@ export class RunManager extends Manager {
       await this.#waitTasks();
 
       return this.#syncComplete();
-    } catch (err) {
+    } catch (error) {
       // If that's the AbortReason, the run was cancelled
-      if (err instanceof AbortReason) {
-        await this.#syncCancelled();
+      if (error instanceof AbortReason) {
+        log.debug("Run was cancelled", { reason: error.reason });
 
-        this.#abortTasks(err);
+        await this.#syncCancelled(() => this.#abortTasks(error));
       }
-      // Otherwise, it's an error
+      // Otherwise, it's an actual error
       else {
-        const error =
-          err instanceof RunError || err instanceof DatasourceError
-            ? err.message
+        log.debug("Run start failed with error", { error });
+
+        // TODO: Instead of assigning "Something went wrong", assign actual
+        // error reason.
+        //
+        // See: https://ai-sdk.dev/docs/reference/ai-sdk-errors
+        //
+        // E.g.:
+        //
+        //   import { NoOutputSpecifiedError } from "ai";
+        //
+        //   if (NoOutputSpecifiedError.isInstance(error)) {
+        //     // Handle the error
+        //   }
+        const message =
+          error instanceof RunError || error instanceof DatasourceError
+            ? error.message
             : "Something went wrong";
+        log.debug("Run failed", { error, message });
 
-        await this.#syncError(error);
-
-        this.#abortTasks(new AbortReason("Run failed to start"));
+        await this.#syncError(message, () =>
+          this.#abortTasks(new AbortReason("Run failed to start")),
+        );
       }
 
       // Release queue for other runs
@@ -149,7 +164,13 @@ export class RunManager extends Manager {
   }
 
   #waitTasks() {
-    return Promise.all(this.#tasks.map(({ promise }) => promise));
+    return Promise.all(
+      this.#tasks.map(({ promise }) =>
+        promise.catch(() => {
+          // We ignore individual task errors here, to allow other results to complete.
+        }),
+      ),
+    );
   }
 
   #abortTasks(reason: AbortReason) {
@@ -184,16 +205,14 @@ export class RunManager extends Manager {
         },
         { signal: abort.signal },
       )
-      .catch((err) => {
-        // If that's the AbortReason, the run was cancelled
-        if (err instanceof AbortReason) {
-          // Ignore abort errors here
-        }
-        // Otherwise, it's an error
-        else {
-          log.debug("Result task failed", err);
-          throw err;
-        }
+      .catch((error) => {
+        // If that's the AbortReason, the run was cancelled. We can just
+        // ignore it.
+        if (error instanceof AbortReason) return;
+
+        // Otherwise, it's an actual error.
+        log.debug("Result task failed", error);
+        throw new RunResultTaskError("Result task failed", error);
       });
 
     return [result, { promise, abort }] as const;
@@ -220,7 +239,7 @@ export class RunManager extends Manager {
     return this.dispose();
   }
 
-  async #syncCancelled() {
+  async #syncCancelled(onDone?: Function) {
     always("startedAt" in this.#run);
 
     await this.#sync<"cancelled">({
@@ -230,16 +249,20 @@ export class RunManager extends Manager {
       startedAt: this.#run.startedAt,
     });
 
+    await onDone?.();
+
     return this.dispose();
   }
 
-  async #syncError(error: string) {
+  async #syncError(error: string, onDone?: Function) {
     await this.#sync<"error">({
       id: this.#run.id,
       status: "error",
       error,
       endedAt: Date.now(),
     });
+
+    await onDone?.();
 
     return this.dispose();
   }
@@ -264,8 +287,13 @@ export class RunManager extends Manager {
   }
 }
 
-export class RunError extends Error {
-  constructor(message: string) {
+export class RunError extends Error {}
+
+export class RunResultTaskError extends Error {
+  constructor(
+    message: string,
+    public source?: unknown,
+  ) {
     super(message);
   }
 }

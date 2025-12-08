@@ -53,7 +53,7 @@ export function ResultComponent(props: ResultComponent.Props) {
               <ResultMeta resultState={resultState} />
 
               <Block dir="y" pad={["small", "medium", "medium"]} background>
-                <ResultContent state={resultState} />
+                <ResultContent resultState={resultState} />
               </Block>
             </Block>
           )}

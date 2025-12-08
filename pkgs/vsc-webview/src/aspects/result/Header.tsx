@@ -1,9 +1,9 @@
-import { Block, Button, Icon, Tag, textCn } from "@wrkspc/ds";
+import { Block, Button, Tag, textCn } from "@wrkspc/ds";
 import iconRegularChevronDown from "@wrkspc/icons/svg/regular/chevron-down.js";
 import iconRegularChevronRight from "@wrkspc/icons/svg/regular/chevron-right.js";
-import iconRegularHourglass from "@wrkspc/icons/svg/regular/hourglass.js";
 import { useEffect, useState } from "react";
 import { RunManager } from "../run/Manager";
+import { RunningTime } from "../ui/RunningTime";
 import { useResult } from "./Context";
 
 export namespace ResultHeader {
@@ -56,7 +56,7 @@ export function ResultHeader(props: ResultHeader.Props) {
     );
     return () => clearInterval(interval);
   }, [running, startedAt, endedAt]);
-  const runningTimeSec = runningTimeMs && Math.floor(runningTimeMs / 100) / 10;
+  const runningTimeSec = RunManager.runningTimeMsToSec(runningTimeMs);
 
   const rowLabel = resultState.$.init.$.datasources.useCompute(
     (datasources) => {
@@ -79,6 +79,7 @@ export function ResultHeader(props: ResultHeader.Props) {
     (result) => result.status === "cancelled",
     [],
   );
+  const ended = resultState.useCompute((result) => "endedAt" in result, []);
 
   return (
     <Block pad="small" align justify="between" border="bottom">
@@ -131,23 +132,18 @@ export function ResultHeader(props: ResultHeader.Props) {
         )}
 
         {cancelled && (
-          <Tag size="small" color="error">
+          <Tag size="small" color="warning">
             Cancelled
           </Tag>
         )}
       </Block>
 
       <Block align size="small">
-        <span className={textCn({ size: "xsmall", color: "detail" })}>
-          {/* {timeFormatter.format(createdAt)} */}
-          {runningTimeSec ? (
-            <>{runningTimeSec}s</>
-          ) : (
-            <>
-              <Icon id={iconRegularHourglass} color="detail" size="small" />
-            </>
-          )}
-        </span>
+        <RunningTime
+          runningTimeSec={runningTimeSec}
+          ended={ended}
+          size="xsmall"
+        />
       </Block>
     </Block>
   );

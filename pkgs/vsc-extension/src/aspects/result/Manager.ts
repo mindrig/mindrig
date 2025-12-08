@@ -1,4 +1,5 @@
 import { Manager } from "@/aspects/manager/Manager.js";
+import { GatewayError } from "@ai-sdk/gateway";
 import {
   AiSdkGenerate,
   aiSdkSettings,
@@ -9,6 +10,7 @@ import { datasourceInputToValues } from "@wrkspc/core/datasource";
 import { Result, ResultMessage } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
 import { generateText, ModelMessage, streamText, UserContent } from "ai";
+import { log } from "smollog";
 import { resolveGateway } from "../gateway/gateway";
 import { MessagesManager } from "../message/Manager";
 import { promptInterpolate } from "../prompt/interpolate";
@@ -131,9 +133,21 @@ export class ResultManager extends Manager {
       startedAt,
     };
 
-    return this.#runInit.streaming
-      ? this.#streamGenerate(methodProps)
-      : this.#requestGenerate(methodProps);
+    return (
+      this.#runInit.streaming
+        ? this.#streamGenerate(methodProps)
+        : this.#requestGenerate(methodProps)
+    ).catch((error) => {
+      log.debug("Result generation failed", error);
+
+      this.#syncError({
+        error: error instanceof Error ? error.message : "Unknown error",
+        startedAt,
+      });
+
+      // NOTE: We ignore the error here allowing the run to continue processing
+      // other results.
+    });
   }
 
   async #streamGenerate(props: ResultManager.GenerateMethodProps) {
@@ -155,6 +169,8 @@ export class ResultManager extends Manager {
       });
     }
 
+    // TODO: Consume request, response and usage if chunks look fails to complete.
+
     const [response, request, totalUsage] = await Promise.all([
       stream.response,
       stream.request,
@@ -174,16 +190,27 @@ export class ResultManager extends Manager {
 
   async #requestGenerate(props: ResultManager.GenerateMethodProps) {
     const { aiSdkProps, startedAt } = props;
-    const { text, response, request, totalUsage } =
-      await generateText(aiSdkProps);
+    try {
+      const { text, response, request, totalUsage } =
+        await generateText(aiSdkProps);
 
-    return this.#syncSuccess({
-      text,
-      response,
-      request,
-      totalUsage,
-      startedAt,
-    });
+      return this.#syncSuccess({
+        text,
+        response,
+        request,
+        totalUsage,
+        startedAt,
+      });
+    } catch (error) {
+      log.warn("Text generation request failed", error);
+      if (error instanceof GatewayError) {
+        console.log("OK");
+      } else {
+        console.log("NOT OK");
+      }
+      // TODO: Try to capture response, request and usage even if generateText fails.
+      log.warn("Text generation request failed", error);
+    }
   }
 
   #syncRunning(startedAt: number) {
@@ -223,7 +250,7 @@ export class ResultManager extends Manager {
       id: this.#result.id,
       status: "error",
       error: overrides.error,
-      erroredAt: Date.now(),
+      endedAt: Date.now(),
       usage: overrides.usage ?? null,
       request: overrides.request ?? null,
       response: overrides.response ?? null,

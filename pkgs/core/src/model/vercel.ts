@@ -78,6 +78,7 @@ export namespace ModelVercel {
 
   export interface ApiGetAvailableModelsPayload {
     models: ApiModel[];
+    credits: Credits;
   }
 
   export interface ApiModelSpecification
@@ -122,6 +123,15 @@ export namespace ModelVercel {
   export interface Access {
     type: "vercel";
     id: ModelId;
+  }
+
+  //#endregion
+
+  //#region Credits
+
+  export interface Credits {
+    balance: string;
+    totalUsed: string;
   }
 
   //#endregion

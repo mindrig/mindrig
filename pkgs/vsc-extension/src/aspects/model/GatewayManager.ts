@@ -1,3 +1,4 @@
+import { GatewayProvider } from "@ai-sdk/gateway";
 import { Auth, AuthGateway } from "@wrkspc/core/auth";
 import {
   ModelGateway,
@@ -47,8 +48,6 @@ export class ModelsGatewayManager extends Manager {
     this.#auth = props.auth;
     this.#secrets = props.secrets;
     this.#messages = props.messages;
-
-    // this.#fetch(this.#auth.state.gateway);
 
     this.#auth.on(this, "gateway-resolve", this.#onAuthResolve);
 
@@ -104,7 +103,12 @@ export class ModelsGatewayManager extends Manager {
 
   async #fetchAuthScopedVercel(): Promise<ModelVercel.ListResponse> {
     const apiKey = await this.#secrets.get("auth-vercel-gateway-key");
-    if (!apiKey) return this.#fetchGlobal();
+    if (!apiKey) {
+      log.error(
+        "Requested auth-scoped Vercel gateway models, but no API key found",
+      );
+      return this.#fetchGlobal();
+    }
 
     const source: ModelGateway.ListSource = {
       type: "auth",
@@ -112,19 +116,43 @@ export class ModelsGatewayManager extends Manager {
     };
 
     const cache = this.#cache("auth").access(source);
-    if (cache) return cache;
+    if (cache) {
+      log.debug("Using cached Vercel gateway models for user key", source);
+      return cache;
+    }
+
+    log.debug("Fetching Vercel gateway models with user key", source);
 
     const gateway = resolveGateway(apiKey);
 
     let data: ModelVercel.ListResponseData;
     try {
-      const vercelData = await gateway.getAvailableModels();
-      data = {
-        status: "ok",
-        payload: vercelData as ModelVercel.ApiGetAvailableModelsPayload,
-      };
+      const [credits, modelsResp] = await Promise.all([
+        // TODO: This breaks the offline mode, we need to mock it properly.
+        this.#fetchCredits(gateway),
+        gateway.getAvailableModels(),
+      ]);
+
+      // We use credits presence as an indicator of valid key
+      if (credits) {
+        data = {
+          status: "ok",
+          payload: {
+            models: modelsResp.models as ModelVercel.ApiModel[],
+            credits,
+          },
+        };
+
+        log.debug("Got authenticated Vercel gateway models", data);
+      } else {
+        data = {
+          status: "error",
+          message: "Invalid Vercel Gateway API key",
+        };
+      }
     } catch (err) {
       data = this.#errorToData(err);
+      log.debug("Failed to fetch authenticated Vercel gateway models", data);
     }
 
     return {
@@ -135,12 +163,36 @@ export class ModelsGatewayManager extends Manager {
     };
   }
 
+  async #fetchCredits(
+    gateway: GatewayProvider,
+  ): Promise<ModelVercel.Credits | null> {
+    try {
+      const credits = await gateway.getCredits();
+      const { balance, totalUsed } = credits;
+      return { balance, totalUsed };
+    } catch (err) {
+      return null;
+    }
+  }
+
   async #fetchGlobal(): Promise<ModelVercel.ListResponse> {
     const source: ModelGateway.ListSourceGlobal = { type: "global" };
 
     const cache = this.#cache("global").access(source);
-    if (cache) return cache;
+    if (cache) {
+      log.debug("Using cached global Vercel gateway models");
+      return cache;
+    }
 
+    log.debug("Fetching global Vercel gateway models");
+
+    // TODO: This was modeled with an assumption that Vercel Gateway throws
+    // errors for invalid keys, but currently it does not. I'm not sure
+    // if I gaslighted myself thinking that or it was the originl Gateway
+    // behavior. Either way, we should figure out if that's by design or not.
+    // If Vercel can confirm that getAvailableModels is guaranteed to be
+    // accessible with invalid keys, then we can kill our gateway service
+    // altogether.
     const response = await fetch(
       `${ModelsGatewayManager.globalGatewayOrigin}/vercel/models`,
     );
@@ -154,13 +206,16 @@ export class ModelsGatewayManager extends Manager {
           status: "ok",
           payload,
         };
+        log.debug("Got global Vercel gateway models", data);
       } catch (err) {
         data = modelResponseErrorData(err);
+        log.debug("Failed to parse global Vercel gateway models", data);
       }
     } else {
       data = modelResponseErrorData(
         `Failed to fetch models list: ${response.status} ${response.statusText}`,
       );
+      log.debug("Failed to fetch global Vercel gateway models", data);
     }
 
     return {

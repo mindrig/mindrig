@@ -3,7 +3,8 @@ import { MessagesContext, useMessages } from "@/aspects/message/Context";
 import { useMemoWithProps } from "@/aspects/util/hooks";
 import { AuthGateway } from "@wrkspc/core/auth";
 import { Form, State } from "enso";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { log } from "smollog";
 import { AuthAppState, buildAuthAppState } from "../appState";
 
 export namespace AuthVercelManager {
@@ -29,9 +30,11 @@ export class AuthVercelManager {
     const { sendMessage, useListen } = useMessages();
 
     const { appState } = useAppState();
-    const authAppState = appState.$.auth.pave(
-      buildAuthAppState(gatewayState.value),
-    );
+    const authAppState = State.use(buildAuthAppState(gatewayState.value), []);
+
+    useEffect(() => {
+      log.debug("Initialized auth app state", authAppState.value);
+    }, []);
 
     const form = Form.use<AuthVercelManager.FormValues>({ key: "" }, []);
 
