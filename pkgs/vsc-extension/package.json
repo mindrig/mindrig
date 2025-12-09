@@ -143,13 +143,11 @@
   },
   "scripts": {
     "dev": "env MINDRIG_DEV_AUTO_RELOAD=true vite build --mode development --watch",
+    "build": "vite build --mode production",
     "preview": "vite build --mode development",
     "preview:watch": "env MINDRIG_DEV_AUTO_RELOAD=true vite build --mode development --watch",
-    "pack": "vsce pack --no-dependencies",
+    "package": "vsce pack --no-dependencies",
     "publish": "vsce publish --no-dependencies",
-    "vscode:prepublish": "pnpm -F @wrkspc/vsc-webview run package && pnpm run package",
-    "package": "vite build --mode production",
-    "build": "vite build --mode production",
     "test": "test -z $TURBO_HASH && turbo run test || echo OK",
     "test/unit": "vitest run",
     "test/unit:watch": "vitest",
@@ -178,7 +176,6 @@
     "p-queue": "^8.0.1",
     "smolcsv": "^0.1.0",
     "smollog": "^0.2.0",
-    "yjs": "^13.6.27",
     "ws": "^8.18.3"
   },
   "devDependencies": {
@@ -190,7 +187,7 @@
     "@vitest/coverage-v8": "^4.0.15",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
-    "@vscode/vsce": "^3.6.0",
+    "@vscode/vsce": "^3.7.1",
     "@wrkspc/core": "0.1.0",
     "@wrkspc/theme": "workspace:*",
     "@wrkspc/ts": "workspace:*",
@@ -198,11 +195,13 @@
     "oxlint": "^1.31.0",
     "playwright-core": "^1.55.0",
     "prettier": "^3.6.2",
+    "rollup-plugin-node-externals": "^8.1.2",
     "smolcanon": "^0.2.0",
     "smolxxh": "^0.1.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.3",
     "vite": "8.0.0-beta.0",
+    "vite-plugin-static-copy": "^3.1.4",
     "vitest": "^4.0.15"
   },
   "private": false

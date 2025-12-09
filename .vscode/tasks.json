@@ -196,6 +196,8 @@
       "dependsOrder": "parallel",
       "command": "echo",
       "args": ["OK"],
+      // TODO: Remove cwd workaround (we don't need to cd anywhere), once
+      // the issue is fixed: https://github.com/microsoft/vscode/issues/275011#issuecomment-3529461423
       "options": {
         "cwd": "${userHome}"
       },
@@ -218,6 +220,8 @@
       "dependsOrder": "parallel",
       "command": "echo",
       "args": ["OK"],
+      // TODO: Remove cwd workaround (we don't need to cd anywhere), once
+      // the issue is fixed: https://github.com/microsoft/vscode/issues/275011#issuecomment-3529461423
       "options": {
         "cwd": "${userHome}"
       },
@@ -236,6 +240,11 @@
       "dependsOrder": "parallel",
       "command": "echo",
       "args": ["OK"],
+      // TODO: Remove cwd workaround (we don't need to cd anywhere), once
+      // the issue is fixed: https://github.com/microsoft/vscode/issues/275011#issuecomment-3529461423
+      "options": {
+        "cwd": "${userHome}"
+      },
       "presentation": {
         "reveal": "silent",
         "close": true
@@ -255,6 +264,11 @@
       "dependsOrder": "parallel",
       "command": "echo",
       "args": ["OK"],
+      // TODO: Remove cwd workaround (we don't need to cd anywhere), once
+      // the issue is fixed: https://github.com/microsoft/vscode/issues/275011#issuecomment-3529461423
+      "options": {
+        "cwd": "${userHome}"
+      },
       "presentation": {
         "reveal": "silent",
         "close": true
@@ -274,6 +288,11 @@
       "dependsOrder": "parallel",
       "command": "echo",
       "args": ["OK"],
+      // TODO: Remove cwd workaround (we don't need to cd anywhere), once
+      // the issue is fixed: https://github.com/microsoft/vscode/issues/275011#issuecomment-3529461423
+      "options": {
+        "cwd": "${userHome}"
+      },
       "presentation": {
         "reveal": "silent",
         "close": true

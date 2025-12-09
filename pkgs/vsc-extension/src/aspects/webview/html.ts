@@ -55,9 +55,7 @@ export function webviewHtml(props: WebviewHtml.Props): string {
   if (uris.styles)
     headInjects.push(`<link href="${uris.styles}" rel="stylesheet" />`);
 
-  const bodyInjects = [
-    `<script${devServer ? ' type="module"' : ""} src="${uris.app}"></script>`,
-  ];
+  const bodyInjects = [`<script type="module" src="${uris.app}"></script>`];
 
   return `<!doctype html>
 <html lang="en" class="h-full">

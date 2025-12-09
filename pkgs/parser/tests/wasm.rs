@@ -4,6 +4,9 @@ use mindrig_types::*;
 use pretty_assertions::assert_eq;
 use wasm_bindgen_test::*;
 
+// NOTE: Add to run tests in browser, i.e.,: `wasm-pack test --chrome`
+// wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
+
 #[wasm_bindgen_test]
 #[allow(dead_code)]
 fn parse_js_value() {

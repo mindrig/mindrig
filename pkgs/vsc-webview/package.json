@@ -5,11 +5,10 @@
   "description": "Mind Rig webview React application",
   "type": "module",
   "scripts": {
-    "package": "vite build --mode production",
     "dev": "vite",
-    "preview": "vite build --mode development",
-    "preview:watch": "vite build --watch --mode development",
     "build": "vite build --mode production",
+    "preview": "vite build --mode development",
+    "preview:watch": "vite build --mode development --watch",
     "test": "test -z $TURBO_HASH && turbo test || true",
     "test/unit": "vitest run",
     "test/unit:watch": "vitest",
@@ -41,8 +40,7 @@
     "react-upgrade": "^0.1.0",
     "smollog": "^0.2.0",
     "streamdown": "^1.3.0",
-    "tinyfloat": "^1.0.2",
-    "yjs": "^13.6.27"
+    "tinyfloat": "^1.0.2"
   },
   "devDependencies": {
     "@storybook/react": "^9.1.7",

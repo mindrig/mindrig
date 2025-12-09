@@ -1,6 +1,8 @@
 import { resolve } from "path";
+import { nodeExternals } from "rollup-plugin-node-externals";
 import { log } from "smollog";
 import { defineConfig } from "vite";
+import { viteStaticCopy } from "vite-plugin-static-copy";
 import { WebSocketServer } from "ws";
 
 log.level = "debug";
@@ -14,21 +16,6 @@ export default defineConfig(({ mode }) => ({
       entry: resolve(__dirname, "src/extension.ts"),
       formats: ["cjs"],
       fileName: "extension",
-    },
-    rollupOptions: {
-      external: [
-        "vscode",
-        "@mindrig/parser-wasm",
-        "yjs",
-        "ai",
-        "@ai-sdk/gateway",
-        "mime",
-        "alwaysly",
-        "fastest-levenshtein",
-        "nanoid",
-        "smollog",
-        "ws",
-      ],
     },
     outDir: "dist/extension",
     target: "node16",
@@ -44,7 +31,21 @@ export default defineConfig(({ mode }) => ({
       "@": resolve(__dirname, "./src"),
     },
   },
-  plugins: [autoReloadEnabled && autoReloadPlugin()],
+  plugins: [
+    // In dev we want to mark all dependencies as external to speed up builds.
+    // In production we only want to mark Node.js built-ins and "vscode"
+    // as external.
+    nodeExternals({
+      deps: mode !== "production",
+      include: [
+        // "vscode" is a virtual package provided by the VS Code runtime.
+        "vscode",
+      ],
+    }),
+    mode === "production" &&
+      viteStaticCopy({ targets: [{ src: "../parser/pkg/*.wasm", dest: "." }] }),
+    autoReloadEnabled && autoReloadPlugin(),
+  ],
 }));
 
 const AUTO_RELOAD_HOST = "0.0.0.0";
