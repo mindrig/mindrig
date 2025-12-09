@@ -1,9 +1,12 @@
-import react from "@vitejs/plugin-react";
+import viteReact from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    // @ts-expect-error -- TODO: Remove when the Vite ecosystem upgrades to the latest version.
+    viteReact(),
+  ],
   test: {
     environment: "happy-dom",
     globals: true,
