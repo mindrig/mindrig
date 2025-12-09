@@ -12,7 +12,7 @@ export namespace TestRunStarted {
 
 export function TestRunStarted(props: TestRunStarted.Props) {
   const { run } = props;
-  const runningTime = run.useRunningTimeSec();
+  const runningTimeSec = run.useRunningTimeSec();
   const running = run.useRunning();
   const { test } = useTest();
 
@@ -29,7 +29,7 @@ export function TestRunStarted(props: TestRunStarted.Props) {
         Clear
       </Button>
 
-      <RunningTime runningTimeSec={runningTime} ended={!running} />
+      <RunningTime runningTimeSec={runningTimeSec} ended={!running} />
     </Block>
   );
 }

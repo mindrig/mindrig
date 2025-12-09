@@ -139,6 +139,6 @@ export class RunManager {
   static runningTimeMsToSec(
     runningTimeMs: number | undefined,
   ): number | undefined {
-    return runningTimeMs && Math.floor(runningTimeMs / 1000) / 100;
+    return runningTimeMs && Math.floor(runningTimeMs / 10) / 100;
   }
 }

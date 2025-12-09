@@ -9,7 +9,6 @@ import { useTest } from "../test/Context";
 import { RunProvider } from "./Context";
 import { RunDetailsPreview } from "./DetailsPreview";
 import { RunManager } from "./Manager";
-import { RunPending } from "./Pending";
 
 const SHOW_RUN_DETAILS_SECTION = false;
 
@@ -21,7 +20,6 @@ export namespace RunComponent {
 
 export function RunComponent(props: RunComponent.Props) {
   const { run } = props;
-  const { pending, error } = run.useMeta();
   const showDetails = run.useShowDetails();
   const { test } = useTest();
   const running = test.useRunning();
@@ -66,7 +64,7 @@ export function RunComponent(props: RunComponent.Props) {
         </LayoutSection>
       )}
 
-      {pending ? <RunPending /> : <Results clearRun={() => test.clearRun()} />}
+      <Results clearRun={() => test.clearRun()} />
     </RunProvider>
   );
 }

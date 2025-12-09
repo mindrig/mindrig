@@ -1,8 +1,9 @@
 import { ModelType } from "@wrkspc/core/model";
-import { Errors, textCn } from "@wrkspc/ds";
+import { Errors } from "@wrkspc/ds";
 import { never } from "alwaysly";
 import { State } from "enso";
 import { ResultContentLayout } from "./ContentLayout";
+import { ResultEmpty } from "./Empty";
 import { ResultPayloadLanguage } from "./PayloadLanguage";
 
 export namespace ResultPayload {
@@ -26,7 +27,9 @@ export function ResultPayload(props: ResultPayload.Props) {
 
         {/* If the payload is empty due to an error, we don't show any message. */}
         {status !== "errored" && (
-          <p className={textCn({ color: "support" })}>{emptyMessage(status)}</p>
+          <ResultEmpty loading={status === "running"}>
+            {emptyMessage(status)}
+          </ResultEmpty>
         )}
       </ResultContentLayout>
     );

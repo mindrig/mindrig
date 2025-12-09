@@ -1,11 +1,11 @@
 import { Result } from "@wrkspc/core/result";
-import { Icon, textCn } from "@wrkspc/ds";
-import iconRegularHourglass from "@wrkspc/icons/svg/regular/hourglass.js";
+import { textCn } from "@wrkspc/ds";
 import { Block, Tag } from "@wrkspc/ui";
 import { State } from "enso";
 import { useRun } from "../run/Context";
 import { ResultsLayout } from "./Layout";
 import { useResults } from "./ResultsContext";
+import { ResultsEmpty } from "./ResultsEmpty";
 import { ResultsLayoutPicker } from "./ResultsLayoutPicker";
 import { ResultsLayoutCarouselNav } from "./ResultsNav";
 
@@ -75,16 +75,7 @@ export function Results(props: Results.Props) {
       </Block>
     );
 
-  return (
-    <div>
-      <Block pad="medium" align size="small">
-        <Icon id={iconRegularHourglass} size="small" color="support" />
-        <div className={textCn({ color: "support" })}>
-          Waiting for initial data...
-        </div>
-      </Block>
-    </div>
-  );
+  return <ResultsEmpty loading>Waiting for initial data...</ResultsEmpty>;
 }
 
 namespace Content {
