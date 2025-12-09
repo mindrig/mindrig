@@ -22,6 +22,7 @@
     "./log": "./src/log/index.ts",
     "./message": "./src/message/index.ts",
     "./model": "./src/model/index.ts",
+    "./onboarding": "./src/onboarding/index.ts",
     "./page": "./src/page/index.ts",
     "./playground": "./src/playground/index.ts",
     "./prompt": "./src/prompt/index.ts",

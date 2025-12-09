@@ -68,7 +68,7 @@ export class WebviewHtmlManager extends Manager {
     const wsCspUri = universalLocalUri(`ws://${externalUri.authority}`);
     const csp = [
       "default-src 'none';",
-      `img-src ${webviewSourceUris} ${baseCspUri} https: data:;`,
+      `img-src ${webviewSourceUris} ${baseCspUri} https://models.dev https: data:;`,
       `script-src ${webviewSourceUris} ${baseCspUri} 'unsafe-eval' 'unsafe-inline';`,
       `script-src-elem ${webviewSourceUris} ${baseCspUri} 'unsafe-eval' 'unsafe-inline';`,
       `style-src ${webviewSourceUris} ${baseCspUri} 'unsafe-inline';`,
@@ -92,7 +92,7 @@ export class WebviewHtmlManager extends Manager {
   async #localPaths(webview: vscode.Webview): Promise<WebviewHtml.Uris> {
     const csp = [
       "default-src 'none';",
-      `img-src ${webviewSourceUris} https: data:;`,
+      `img-src ${webviewSourceUris} https://models.dev https: data:;`,
       `script-src ${webviewSourceUris} 'unsafe-inline';`,
       `style-src ${webviewSourceUris} 'unsafe-inline';`,
       `font-src ${webviewSourceUris} https: data:;`,
@@ -169,4 +169,4 @@ function universalLocalUri(uri: string): string {
 }
 
 const webviewSourceUris =
-  "vscode-webview: vscode-resource: https://*.vscode-cdn.net";
+  "vscode-webview: vscode-resource: https://*.vscode-cdn.net ";

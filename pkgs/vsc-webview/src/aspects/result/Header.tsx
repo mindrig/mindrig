@@ -72,7 +72,7 @@ export function ResultHeader(props: ResultHeader.Props) {
   );
 
   const errored = resultState.useCompute(
-    (result) => result.status === "error",
+    (result) => result.status === "errored",
     [],
   );
   const cancelled = resultState.useCompute(

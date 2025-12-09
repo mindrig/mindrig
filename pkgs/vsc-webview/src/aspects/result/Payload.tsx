@@ -12,7 +12,7 @@ export namespace ResultPayload {
     error: string | null;
   }
 
-  export type PayloadStatus = "running" | "success" | "cancelled" | "error";
+  export type PayloadStatus = "running" | "success" | "cancelled" | "errored";
 }
 
 export function ResultPayload(props: ResultPayload.Props) {
@@ -25,7 +25,7 @@ export function ResultPayload(props: ResultPayload.Props) {
         {error && <Errors errors={error} />}
 
         {/* If the payload is empty due to an error, we don't show any message. */}
-        {status !== "error" && (
+        {status !== "errored" && (
           <p className={textCn({ color: "support" })}>{emptyMessage(status)}</p>
         )}
       </ResultContentLayout>
@@ -42,7 +42,7 @@ export function ResultPayload(props: ResultPayload.Props) {
 }
 
 function emptyMessage(
-  status: Exclude<ResultPayload.PayloadStatus, "error">,
+  status: Exclude<ResultPayload.PayloadStatus, "errored">,
 ): string {
   switch (status) {
     case "running":

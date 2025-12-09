@@ -1,6 +1,6 @@
 import { Manager } from "@/aspects/manager/Manager.js";
 import * as vscode from "vscode";
-import { Secret } from "./types";
+import { Secret, secrets } from "./types";
 
 export namespace SecretsManager {
   export interface Props {
@@ -35,18 +35,22 @@ export class SecretsManager extends Manager<SecretsManager.EventMap> {
     this.emit(`update.${key}`, undefined);
   }
 
+  async clearAll(): Promise<void> {
+    await Promise.all(secrets.map((key) => this.clear(key)));
+  }
+
   static maskKey(key: string): string {
     if (!key) return "****";
 
     const length = key.length;
 
     // <=4: mask entirely
-    if (length <= 4) return "*".repeat(length);
+    if (length <= 4) return "****";
 
     // <=8: show last 2 chars
-    if (length <= 8) return "*".repeat(length - 2) + key.slice(-2);
+    if (length <= 8) return "****" + key.slice(-2);
 
     // Rest: show last 4 chars
-    return "*".repeat(length - 4) + key.slice(-4);
+    return "****" + key.slice(-4);
   }
 }

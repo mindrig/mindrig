@@ -65,7 +65,7 @@ export function webviewHtml(props: WebviewHtml.Props): string {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ${renderInjects(headInjects)}
-    <title>MInd Rig</title>
+    <title>Mind Rig</title>
   </head>
   <body class="${bodyCn()} h-full">
     <div id="root" class="h-full"></div>

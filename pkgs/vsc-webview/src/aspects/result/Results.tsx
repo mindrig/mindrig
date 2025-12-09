@@ -1,7 +1,7 @@
 import { Result } from "@wrkspc/core/result";
-import { textCn } from "@wrkspc/ds";
-import iconRegularTrashAlt from "@wrkspc/icons/svg/regular/trash-alt.js";
-import { Block, Button, Tag } from "@wrkspc/ui";
+import { Icon, textCn } from "@wrkspc/ds";
+import iconRegularHourglass from "@wrkspc/icons/svg/regular/hourglass.js";
+import { Block, Tag } from "@wrkspc/ui";
 import { State } from "enso";
 import { useRun } from "../run/Context";
 import { ResultsLayout } from "./Layout";
@@ -23,69 +23,67 @@ export function Results(props: Results.Props) {
   const resultsState = results.useResultsState();
   const discriminatedLayout = results.useDiscriminatedLayout();
 
-  return (
-    <>
-      {resultsState ? (
-        <Block dir="y" gap={false} grow>
-          <Block
-            size="small"
-            pad={["small", "medium", "small"]}
-            justify="between"
-          >
-            <Block size="small" align>
-              <Block size="xsmall" align>
-                <h3 className={textCn({ role: "label" })}>
-                  {resultsState.size === 1 ? "Result" : "Results"}
-                </h3>
+  if (!resultsState && !running) return null;
 
-                {resultsState.size > 1 && (
-                  <Tag size="small">{resultsState.size}</Tag>
-                )}
-              </Block>
+  if (resultsState)
+    return (
+      <Block dir="y" gap={false} grow>
+        <Block
+          size="small"
+          pad={["small", "medium", "small"]}
+          justify="between"
+        >
+          <Block size="small" align>
+            <Block size="xsmall" align>
+              <h3 className={textCn({ role: "label" })}>
+                {resultsState.size === 1 ? "Result" : "Results"}
+              </h3>
 
-              {discriminatedLayout.discriminator === "carousel" && (
-                <ResultsLayoutCarouselNav
-                  layoutState={discriminatedLayout.state}
-                  resultsState={resultsState}
-                />
+              {resultsState.size > 1 && (
+                <Tag size="small">{resultsState.size}</Tag>
               )}
             </Block>
 
-            <Block align>
-              <ResultsLayoutPicker resultsState={resultsState} />
-
-              <Button
-                style="label"
-                size="xsmall"
-                color="secondary"
-                icon={iconRegularTrashAlt}
-                onClick={clearRun}
-                isDisabled={running}
-              >
-                Clear
-              </Button>
-            </Block>
+            {discriminatedLayout.discriminator === "carousel" && (
+              <ResultsLayoutCarouselNav
+                layoutState={discriminatedLayout.state}
+                resultsState={resultsState}
+              />
+            )}
           </Block>
 
-          <ResultsLayout
-            resultsState={resultsState}
-            discriminatedLayout={discriminatedLayout}
-          />
-        </Block>
-      ) : (
-        <div>Loading...</div>
-      )}
+          <Block align>
+            <ResultsLayoutPicker resultsState={resultsState} />
 
-      {/* <LayoutSection
-      header="Results"
-      actions={
-        resultsState && <ResultsLayoutPicker resultsState={resultsState} />
-      }
-      horizontalScroll
-      style="fill"
-    > */}
-      {/* </LayoutSection> */}
-    </>
+            {/* <Button
+              style="label"
+              size="xsmall"
+              color="secondary"
+              icon={iconRegularTrashAlt}
+              onClick={clearRun}
+              isDisabled={running}
+            >
+              Clear
+            </Button> */}
+          </Block>
+        </Block>
+
+        <ResultsLayout
+          resultsState={resultsState}
+          discriminatedLayout={discriminatedLayout}
+        />
+      </Block>
+    );
+
+  return (
+    <div>
+      <Block pad="medium" align size="small">
+        <Icon id={iconRegularHourglass} size="small" color="support" />
+        <div className={textCn({ color: "support" })}>
+          Waiting for initial data...
+        </div>
+      </Block>
+    </div>
   );
 }
 

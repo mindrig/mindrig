@@ -25,7 +25,7 @@ export function ResultContent(props: ResultContent.Props) {
     case "running":
     case "success":
     case "cancelled":
-    case "error":
+    case "errored":
       return (
         <ResultPayload
           status={discriminatedResult.discriminator}

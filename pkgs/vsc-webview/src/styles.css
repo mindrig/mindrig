@@ -72,6 +72,8 @@
   --color-canvas-header: var(--vscode-sideBarSectionHeader-background);
   --color-canvas-hover: var(--vscode-settings-rowHoverBackground);
   --color-canvas-selected: var(--vscode-settings-focusedRowBackground);
+  --color-canvas-highlight: var(--vscode-editor-findMatchHighlightBackground);
+  --color-canvas-error: var(--vscode-inputValidation-errorBackground);
 
   /*## Divider */
 
@@ -236,13 +238,7 @@
   /*### style */
 
   /*----- label */
-  --color-errors-label-ink: var(--vscode-errorForeground);
-  /*----- notice */
-  --color-errors-notice-canvas: var(--vscode-inputValidation-errorBackground);
-  --color-errors-notice-ink: var(--ink);
-  --color-errors-notice-border: var(--vscode-inputValidation-errorBorder);
-  --border-errors-notice: 1px;
-  --radius-errors-notice: 0;
+  --color-errors-ink: var(--vscode-errorForeground);
 
   /*# App-Specific */
 

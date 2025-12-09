@@ -3,6 +3,7 @@ import { log } from "smollog";
 import * as vscode from "vscode";
 import { WebSocket } from "ws";
 import { MessagesManager } from "../message/Manager";
+import { SecretsManager } from "../secret/Manager";
 import { StoreManager } from "../store/Manager";
 
 const AUTO_RELOAD_HOST = "localhost";
@@ -12,12 +13,14 @@ export namespace DevManager {
   export interface Props {
     messages: MessagesManager;
     store: StoreManager;
+    secrets: SecretsManager;
   }
 }
 
 export class DevManager extends Manager {
   #messages: MessagesManager;
   #store: StoreManager;
+  #secrets: SecretsManager;
   #autoReloadWs: WebSocket | null = null;
 
   constructor(parent: Manager | null, props: DevManager.Props) {
@@ -25,6 +28,7 @@ export class DevManager extends Manager {
 
     this.#messages = props.messages;
     this.#store = props.store;
+    this.#secrets = props.secrets;
 
     if (process.env.MINDRIG_DEV_AUTO_RELOAD === "true") this.enableAutoReload();
   }
@@ -32,6 +36,7 @@ export class DevManager extends Manager {
   async clearState() {
     await Promise.all([
       this.#store.clearAll(),
+      this.#secrets.clearAll(),
       this.#messages.send({ type: "dev-server-clear-app-state" }),
     ]);
   }

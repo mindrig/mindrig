@@ -9,6 +9,7 @@ import { ClientStateProvider } from "../client/StateContext";
 import { CsvsProvider } from "../csv/CsvsContext";
 import { DevContextProvider } from "../dev/Context";
 import { ModelsMapProvider } from "../model/MapContext";
+import { OnboardingProvider } from "../onboarding/Context";
 import { RunsProvider } from "../run/RunsContext";
 import { AppStateProvider } from "./state/Context";
 
@@ -20,11 +21,13 @@ export function AppContext(props: React.PropsWithChildren) {
           <AppStateProvider>
             <AuthProvider>
               <ModelsMapProvider>
-                <RunsProvider>
-                  <CsvsProvider>
-                    <DevContextProvider>{props.children}</DevContextProvider>
-                  </CsvsProvider>
-                </RunsProvider>
+                <OnboardingProvider>
+                  <RunsProvider>
+                    <CsvsProvider>
+                      <DevContextProvider>{props.children}</DevContextProvider>
+                    </CsvsProvider>
+                  </RunsProvider>
+                </OnboardingProvider>
               </ModelsMapProvider>
             </AuthProvider>
           </AppStateProvider>

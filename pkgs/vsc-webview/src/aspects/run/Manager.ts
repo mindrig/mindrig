@@ -14,7 +14,7 @@ export namespace RunManager {
 
   export interface Meta {
     pending: boolean;
-    error: string | null;
+    error: Run.RunError | null;
   }
 }
 
@@ -52,9 +52,9 @@ export class RunManager {
     );
   }
 
-  useError(): string | null {
+  useError(): Run.RunError | null {
     return this.#runAppState.$.run.useCompute(
-      (run) => (run.status === "error" ? run.error : null),
+      (run) => (run.status === "errored" ? run.error : null),
       [],
     );
   }

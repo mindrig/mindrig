@@ -1,10 +1,12 @@
 import { Assessment } from "../assessment/assessment.js";
+import { Onboarding } from "../onboarding/onboarding.js";
 import type { PlaygroundMap, PlaygroundState } from "../playground/index.js";
 import { Result } from "../result/result.js";
 import { Versioned } from "../versioned/versioned.js";
 
 export type Store = Store.Map<
   {
+    "playground.onboarding": Onboarding;
     "playground.map": PlaygroundMap;
     "playground.streaming": boolean;
     "playground.pin": PlaygroundState.Ref;

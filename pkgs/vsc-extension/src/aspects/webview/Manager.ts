@@ -68,11 +68,6 @@ export class WebviewManager extends Manager {
       messages: this.#messages,
     });
 
-    this.#dev = new DevManager(this, {
-      messages: this.#messages,
-      store: this.#store,
-    });
-
     this.#settings = new SettingsManager(this, {
       messages: this.#messages,
     });
@@ -81,6 +76,12 @@ export class WebviewManager extends Manager {
 
     this.#secrets = new SecretsManager(this, {
       storage: this.#context.secrets,
+    });
+
+    this.#dev = new DevManager(this, {
+      messages: this.#messages,
+      store: this.#store,
+      secrets: this.#secrets,
     });
 
     this.#auth = new AuthManager(this, {

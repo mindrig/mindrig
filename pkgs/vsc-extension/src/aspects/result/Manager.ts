@@ -1,5 +1,4 @@
 import { Manager } from "@/aspects/manager/Manager.js";
-import { GatewayError } from "@ai-sdk/gateway";
 import {
   AiSdkGenerate,
   aiSdkSettings,
@@ -37,10 +36,10 @@ export namespace ResultManager {
     ? Props
     : never;
 
-  export type ErrorOverrides = Partial<
-    Omit<Result.Patch<"error">, "erroredAt" | "startedAt">
+  export type ErroredOverrides = Partial<
+    Omit<Result.Patch<"errored">, "erroredAt" | "startedAt">
   > &
-    Pick<Result.Patch<"error">, "startedAt" | "error">;
+    Pick<Result.Patch<"errored">, "startedAt" | "error">;
 
   export interface GenerateMethodProps {
     aiSdkProps: AiSdkGenerateProps;
@@ -83,12 +82,12 @@ export class ResultManager extends Manager {
     const { setup, datasources } = this.#result.init;
     const { developerId, modelId } = setup.ref;
     if (!developerId)
-      return this.#syncError({
+      return this.#syncErrored({
         error: "Model developer is not specified",
         startedAt,
       });
     if (!modelId)
-      return this.#syncError({ error: "Model is not specified", startedAt });
+      return this.#syncErrored({ error: "Model is not specified", startedAt });
 
     const values = datasourceInputToValues(datasources);
     const interpolatedPrompt = promptInterpolate(this.#runInit.prompt, values);
@@ -140,7 +139,7 @@ export class ResultManager extends Manager {
     ).catch((error) => {
       log.debug("Result generation failed", error);
 
-      this.#syncError({
+      this.#syncErrored({
         error: error instanceof Error ? error.message : "Unknown error",
         startedAt,
       });
@@ -202,13 +201,8 @@ export class ResultManager extends Manager {
         startedAt,
       });
     } catch (error) {
-      log.warn("Text generation request failed", error);
-      if (error instanceof GatewayError) {
-        console.log("OK");
-      } else {
-        console.log("NOT OK");
-      }
-      // TODO: Try to capture response, request and usage even if generateText fails.
+      // TODO: Try to capture response, request and usage even if generateText
+      // fails. See `GatewayError`.
       log.warn("Text generation request failed", error);
     }
   }
@@ -245,10 +239,10 @@ export class ResultManager extends Manager {
     });
   }
 
-  async #syncError(overrides: ResultManager.ErrorOverrides) {
-    await this.#sync<"error">({
+  async #syncErrored(overrides: ResultManager.ErroredOverrides) {
+    await this.#sync<"errored">({
       id: this.#result.id,
-      status: "error",
+      status: "errored",
       error: overrides.error,
       endedAt: Date.now(),
       usage: overrides.usage ?? null,

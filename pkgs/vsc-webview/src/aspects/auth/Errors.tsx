@@ -1,4 +1,4 @@
-import { Button, Errors } from "@wrkspc/ds";
+import { Button, Notice } from "@wrkspc/ds";
 import { useModelsMap } from "../model/MapContext";
 import { pageHrefs } from "../page/route";
 import { useAuth } from "./Context";
@@ -15,14 +15,16 @@ export function AuthErrors(props: AuthErrors.Props) {
   if (!payload || payload?.status !== "error") return null;
 
   return (
-    <Errors
-      errors={payload.message}
-      style="notice"
+    <Notice
+      color="error"
       actions={
         <Button size="xsmall" href={pageHrefs.auth()}>
           Fix key
         </Button>
       }
-    />
+      compact
+    >
+      {payload.message}
+    </Notice>
   );
 }

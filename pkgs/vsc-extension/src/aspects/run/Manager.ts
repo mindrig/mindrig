@@ -82,7 +82,10 @@ export class RunManager extends Manager {
   async #start() {
     const apiKey = await this.#secrets.get("auth-vercel-gateway-key");
     if (!apiKey)
-      return this.#syncError("No Vercel Gateway API key configured.");
+      return this.#syncError({
+        type: "unauthenticated",
+        message: "No Vercel Gateway API key configured.",
+      });
 
     try {
       const results: Result.Initialized[] = [];
@@ -147,13 +150,13 @@ export class RunManager extends Manager {
         //   if (NoOutputSpecifiedError.isInstance(error)) {
         //     // Handle the error
         //   }
-        const message =
+        const runError: Run.RunError =
           error instanceof RunError || error instanceof DatasourceError
-            ? error.message
-            : "Something went wrong";
-        log.debug("Run failed", { error, message });
+            ? { type: "generic", message: error.message }
+            : { type: "generic", message: "Something went wrong" };
+        log.debug("Run failed", { error, runError });
 
-        await this.#syncError(message, () =>
+        await this.#syncError(runError, () =>
           this.#abortTasks(new AbortReason("Run failed to start")),
         );
       }
@@ -254,10 +257,10 @@ export class RunManager extends Manager {
     return this.dispose();
   }
 
-  async #syncError(error: string, onDone?: Function) {
-    await this.#sync<"error">({
+  async #syncError(error: Run.RunError, onDone?: Function) {
+    await this.#sync<"errored">({
       id: this.#run.id,
-      status: "error",
+      status: "errored",
       error,
       endedAt: Date.now(),
     });

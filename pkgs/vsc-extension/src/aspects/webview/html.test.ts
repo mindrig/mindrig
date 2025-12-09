@@ -10,7 +10,7 @@ describe(webviewHtml, () => {
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-          <title>MInd Rig</title>
+          <title>Mind Rig</title>
         </head>
         <body class="text-ink font-sans font-normal leading-normal h-full">
           <div id="root" class="h-full"></div>
@@ -47,7 +47,7 @@ describe(webviewHtml, () => {
           </script>
           <script type="module" src="/vite-client.js"></script>
           <link href="/styles.css" rel="stylesheet" />
-          <title>MInd Rig</title>
+          <title>Mind Rig</title>
         </head>
         <body class="text-ink font-sans font-normal leading-normal h-full">
           <div id="root" class="h-full"></div>
@@ -67,7 +67,7 @@ describe(webviewHtml, () => {
               <meta charset="UTF-8" />
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-              <title>MInd Rig</title>
+              <title>Mind Rig</title>
             </head>
             <body class="text-ink font-sans font-normal leading-normal h-full">
               <div id="root" class="h-full"></div>
@@ -105,7 +105,7 @@ describe(webviewHtml, () => {
             </script>
             <script type="module" src="/vite-client.js"></script>
             <link href="/styles.css" rel="stylesheet" />
-            <title>MInd Rig</title>
+            <title>Mind Rig</title>
           </head>
           <body class="text-ink font-sans font-normal leading-normal h-full">
             <div id="root" class="h-full"></div>

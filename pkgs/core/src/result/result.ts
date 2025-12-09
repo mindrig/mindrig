@@ -8,7 +8,7 @@ import { Setup } from "../setup";
 export type Result =
   | Result.Initialized
   | Result.Running
-  | Result.Error
+  | Result.Errored
   | Result.Cancelled
   | Result.Success;
 
@@ -37,7 +37,7 @@ export namespace Result {
     payload: ModelType.Payload | null;
   }
 
-  export interface Error extends BaseStarted<"error"> {
+  export interface Errored extends BaseStarted<"errored"> {
     endedAt: number;
     request: Request | null;
     response: Response | null;

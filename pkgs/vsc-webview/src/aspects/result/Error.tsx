@@ -3,7 +3,7 @@ import { State } from "enso";
 
 export namespace ResultError {
   export interface Props {
-    state: State<Result.Error>;
+    state: State<Result.Errored>;
   }
 }
 

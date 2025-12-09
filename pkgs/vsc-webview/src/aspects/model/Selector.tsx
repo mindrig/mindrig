@@ -12,7 +12,7 @@ export namespace ModelSelector {
 
 export function ModelSelector(props: ModelSelector.Props) {
   const { field } = props;
-  const { modelsPayload: modelsPayload, useModels } = useModelsMap();
+  const { modelsPayload, useModels } = useModelsMap();
 
   field.$.developerId.useWatch(
     (developerId) => {
@@ -46,14 +46,15 @@ export function ModelSelector(props: ModelSelector.Props) {
             return {
               label: option.name,
               value: option.id,
-              icon: { type: "svg", href: logoHref },
+              // TODO: Figure out how to deal with models.dev hrefs properly.
+              // Right now we get CORS errors when trying to load them. It might
+              // be the VS Code webview security policy or something else.
+              // icon: { type: "svg", href: logoHref },
             };
           }) || []
         }
         placeholder="Select developer..."
         size="xsmall"
-        // isDisabled={!!disabled}
-        // errors={...}
       />
 
       <SelectController
@@ -67,8 +68,6 @@ export function ModelSelector(props: ModelSelector.Props) {
         }
         placeholder="Select model..."
         size="xsmall"
-        // isDisabled={!!disabled}
-        // errors={modelError}
       />
     </div>
   );

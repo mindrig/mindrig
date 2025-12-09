@@ -29,13 +29,7 @@ export function TestComponent(props: TestComponent.Props) {
 
   return (
     <>
-      <LayoutSection
-        header="Test manually"
-        style="fill"
-        collapsible
-        divided
-        grow
-      >
+      <LayoutSection header="Test manually" style="fill" collapsible grow>
         <Block dir="y" pad>
           <Tabs
             size="small"

@@ -8,7 +8,7 @@ import { Tool } from "../tool/tool.js";
 
 export type Run =
   | Run.Initialized
-  | Run.Error
+  | Run.Errored
   | Run.Running
   | Run.Cancelled
   | Run.Complete;
@@ -32,10 +32,17 @@ export namespace Run {
     startedAt: number;
   }
 
-  export interface Error extends Base<"error"> {
+  export interface Errored extends Base<"errored"> {
     endedAt: number;
-    error: string;
+    error: RunError;
   }
+
+  export interface RunError {
+    type: RunErrorType;
+    message: string;
+  }
+
+  export type RunErrorType = "generic" | "unauthenticated";
 
   export interface Running extends BaseStarted<"running"> {
     updatedAt: number;

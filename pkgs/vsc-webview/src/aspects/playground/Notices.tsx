@@ -1,6 +1,7 @@
-import { Block, Errors } from "@wrkspc/ui";
+import { Block, Notice } from "@wrkspc/ui";
 import { AuthErrors } from "../auth/Errors";
 import { useClientState } from "../client/StateContext";
+import { PlaygroundWelcomeNotice } from "./WelcomeNotice";
 
 export namespace PlaygroundNotices {
   export interface Props {}
@@ -15,8 +16,12 @@ export function PlaygroundNotices(props: PlaygroundNotices.Props) {
       <AuthErrors />
 
       {parseError && (
-        <Errors errors={`File parse error: ${parseError}`} style="notice" />
+        <Notice color="error" compact>
+          File parse error: {parseError}
+        </Notice>
       )}
+
+      <PlaygroundWelcomeNotice />
     </Block>
   );
 }
