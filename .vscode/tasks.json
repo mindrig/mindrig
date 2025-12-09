@@ -246,7 +246,7 @@
     // vsc#preview
     {
       "type": "shell",
-      "label": "vsc##preview",
+      "label": "vsc#preview",
       "dependsOn": [
         "vsc-extension#preview",
         "vsc-webview#preview",

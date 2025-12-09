@@ -71,7 +71,7 @@
         "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
       ],
       "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
-      "preLaunchTask": "vsc-extension#build"
+      "preLaunchTask": "vsc#build"
     },
 
     // vsc#preview
@@ -86,7 +86,7 @@
         "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
       ],
       "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
-      "preLaunchTask": "vsc-extension#preview"
+      "preLaunchTask": "vsc#preview"
     },
 
     // vsc#preview:watch
@@ -101,7 +101,7 @@
         "${workspaceFolder}/pkgs/vsc-extension/tests/workspace"
       ],
       "outFiles": ["${workspaceFolder}/pkgs/vsc-extension/dist/**/*.js"],
-      "preLaunchTask": "vsc-extension#preview:watch"
+      "preLaunchTask": "vsc#preview:watch"
     },
 
     //#endregion
