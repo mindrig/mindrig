@@ -1,4 +1,3 @@
-import { useMessages } from "@/aspects/message/Context";
 import { Block, Button, InputController } from "@wrkspc/ui";
 import { Form, State } from "enso";
 import { AuthAppState } from "../appState";
@@ -18,7 +17,6 @@ export namespace AuthVercelForm {
 
 export function AuthVercelForm(props: AuthVercelForm.Props) {
   const { authAppState, vercelManager } = props;
-  const { sendMessage } = useMessages();
   const submitting = vercelManager.form.submitting;
 
   return (
