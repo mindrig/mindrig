@@ -31,6 +31,9 @@ go = "latest"
 age = "latest" # Encryption tool
 fnox = "latest" # Secrets
 
+# VS Code Marketplace
+"npm:tfx-cli" = "latest" # Azure DevOps CLI
+
 [env]
 _.source = "./scripts/env-vars.sh"
 # TODO: Python venv setting makes mise stuck, investigate later.
