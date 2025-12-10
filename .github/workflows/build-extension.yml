@@ -1,0 +1,80 @@
+name: Build Extension
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # mise action currently breaks Rust cache:
+      # https://github.com/jdx/mise-action/issues/215
+      - name: Cache Rust directories
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/binstall
+            ~/.cargo/env
+            ~/.rustup
+          key: rust-cache-${{ runner.os }}-${{ hashFiles('mise.toml') }}
+          restore-keys: |
+            rust-cache-${{ runner.os }}-
+
+      - name: mise install
+        uses: jdx/mise-action@v2
+
+      # We also need to install rustfmt and clippy manually until mise action
+      # is fixed.
+      - name: Manually install rustfmt and clippy
+        run: mise exec rust -- rustup component add rustfmt clippy
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build extension
+        working-directory: pkgs/vsc-extension
+        run: turbo package
+
+      - name: Prepare artifact
+        id: prepare
+        run: |
+          GIT_HASH=$(git rev-parse --short=7 HEAD)
+          VERSION=$(node -p "require('./pkgs/vsc-extension/package.json').version")
+          ORIGINAL_NAME="vscode-${VERSION}.vsix"
+          ARTIFACT_NAME="vscode-${VERSION}-${GIT_HASH}.vsix"
+          mv "pkgs/vsc-extension/${ORIGINAL_NAME}" "pkgs/vsc-extension/${ARTIFACT_NAME}"
+          echo "artifact_name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+          echo "artifact_path=pkgs/vsc-extension/${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Upload extension artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.prepare.outputs.artifact_name }}
+          path: ${{ steps.prepare.outputs.artifact_path }}
+          if-no-files-found: error
