@@ -1,11 +1,11 @@
-name: Build Extension
+name: Package Extension
 
 on:
   push:
   pull_request:
 
 jobs:
-  build-extension:
+  package-extension:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -15,6 +15,7 @@ jobs:
         uses: jdx/mise-action@v3
         with:
           reshim: true
+          log_level: debug
 
       - name: Get pnpm store directory
         shell: bash
