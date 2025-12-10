@@ -1,0 +1,79 @@
+name: mise project setup
+description: Setup mise, stack and tools for the project
+inputs:
+  mode:
+    description: 'Mode of operation regarding cache: "prepare" or "use"'
+    required: false
+    default: "use"
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare cache mode variables
+      id: mode
+      env:
+        MODE: ${{ inputs.mode }}
+      run: |
+        if [ "$MODE" = "prepare" ]; then
+          echo "cache-save=true" >> "$GITHUB_OUTPUT"
+          echo "fail-on-cache-miss=false" >> "$GITHUB_OUTPUT"
+        elif [ "$MODE" = "use" ]; then
+          echo "cache-save=false" >> "$GITHUB_OUTPUT"
+          echo "fail-on-cache-miss=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "Unknown cache mode: $MODE"
+          exit 1
+        fi
+      shell: bash
+
+    - name: Setup environment variables and parameters
+      id: setup
+      env:
+        RUNNER_OS: ${{ runner.os }}
+      run: |
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          SEP="\\"
+        else
+          SEP="/"
+        fi
+        MISE_DATA_DIR="${RUNNER_TEMP}${SEP}.mise"
+        echo "MISE_DATA_DIR=$(echo "${MISE_DATA_DIR}" | tr -d '\n')" >> "$GITHUB_ENV"
+        # Set rustup under MISE_DATA_DIR for jdx/mise-action to cache rustup
+        # installed tools properly
+        echo "RUSTUP_HOME=$(echo "${MISE_DATA_DIR}${SEP}.rustup-home" | tr -d '\n')" >> "$GITHUB_ENV"
+        # Isolate cargo used with mise. But don't include it in mise cache as
+        # it is better to cache separately if needed.
+        CARGO_HOME_FINAL="${RUNNER_TEMP}${SEP}.mise-cargo"
+        echo "CARGO_HOME_FINAL=$(echo "${CARGO_HOME_FINAL}" | tr -d '\n')" >> "$GITHUB_OUTPUT"
+        # Use a directory inside MISE_DATA_DIR as CARGO_HOME during mise install
+        # to allow caching of cargo binaries that mise requires to exist after
+        # in order to utilize cached rustup and cargo binaries without reinstalling
+        # them.
+        echo "CARGO_HOME_MISE_INSTALL=$(echo "${MISE_DATA_DIR}${SEP}.cargo-home" | tr -d '\n')" >> "$GITHUB_OUTPUT"
+      shell: bash
+
+    - name: Setup mise
+      id: mise
+      uses: jdx/mise-action@v3
+      env:
+        CARGO_HOME: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
+        TEMP: ${{ runner.temp }}
+      with:
+        cache-save: ${{ steps.mode.outputs.cache-save }}
+        version: ${{ env.MISE_VERSION }}
+
+    - name: Fail on cache miss
+      if: steps.mode.outputs.fail-on-cache-miss == "true" && steps.mise.outputs.cache-hit != "true"
+      run: exit 1
+      shell: bash
+
+    - name: Setup cargo home
+      env:
+        CARGO_HOME_MISE_INSTALL: ${{ steps.setup.outputs.CARGO_HOME_MISE_INSTALL }}
+        CARGO_HOME_FINAL: ${{ steps.setup.outputs.CARGO_HOME_FINAL }}
+      run: |
+        set -x
+        mkdir -p "$CARGO_HOME_MISE_INSTALL"
+        mv "$CARGO_HOME_MISE_INSTALL" "$CARGO_HOME_FINAL"
+        echo "CARGO_HOME=$(echo "$CARGO_HOME_FINAL" | tr -d '\n')" >> "$GITHUB_ENV"
+      shell: bash
