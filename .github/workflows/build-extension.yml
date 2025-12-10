@@ -11,37 +11,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # mise action currently breaks Rust cache:
-      # https://github.com/jdx/mise-action/issues/215
-      - name: Cache Rust directories
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin
-            ~/.cargo/binstall
-            ~/.cargo/env
-            ~/.rustup
-          key: rust-cache-${{ runner.os }}-${{ hashFiles('mise.toml') }}
-          restore-keys: |
-            rust-cache-${{ runner.os }}-
-
       - name: mise install
-        uses: jdx/mise-action@v2
-
-      # We also need to install rustfmt and clippy manually until mise action
-      # is fixed.
-      - name: Manually install rustfmt and clippy
-        run: mise exec rust -- rustup component add rustfmt clippy
+        uses: jdx/mise-action@v3
+        with:
+          reshim: true
 
       - name: Get pnpm store directory
         shell: bash
         run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
       - name: Cache pnpm store
         uses: actions/cache@v4
         with:
-          path: ${{ env.STORE_PATH }}
+          path: ${{ env.PNPM_STORE_PATH }}
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             pnpm-store-${{ runner.os }}-
