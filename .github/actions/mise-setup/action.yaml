@@ -2,7 +2,7 @@ name: mise project setup
 description: Setup mise, stack and tools for the project
 inputs:
   mode:
-    description: 'Mode of operation regarding cache: "prepare" or "use"'
+    description: "Mode of operation regarding cache: 'prepare' or 'use'"
     required: false
     default: "use"
 
@@ -63,7 +63,7 @@ runs:
         version: ${{ env.MISE_VERSION }}
 
     - name: Fail on cache miss
-      if: steps.mode.outputs.fail-on-cache-miss == "true" && steps.mise.outputs.cache-hit != "true"
+      if: steps.mode.outputs.fail-on-cache-miss == 'true' && steps.mise.outputs.cache-hit != 'true'
       run: exit 1
       shell: bash
 
