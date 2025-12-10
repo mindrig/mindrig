@@ -1,3 +1,7 @@
+# Based on @nikobockerman's workaround: https://github.com/jdx/mise-action/issues/215#issuecomment-3051607928
+#
+# TODO: Simplify it, once the issue is resolved: https://github.com/jdx/mise-action/issues/215
+
 name: mise project setup
 description: Setup mise, stack and tools for the project
 inputs:
@@ -26,7 +30,7 @@ runs:
         fi
       shell: bash
 
-    - name: Setup environment variables and parameters
+    - name: Setup environment
       id: setup
       env:
         RUNNER_OS: ${{ runner.os }}
@@ -60,7 +64,6 @@ runs:
         TEMP: ${{ runner.temp }}
       with:
         cache-save: ${{ steps.mode.outputs.cache-save }}
-        version: ${{ env.MISE_VERSION }}
 
     - name: Fail on cache miss
       if: steps.mode.outputs.fail-on-cache-miss == 'true' && steps.mise.outputs.cache-hit != 'true'
