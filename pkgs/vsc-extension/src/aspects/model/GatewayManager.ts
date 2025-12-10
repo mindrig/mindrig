@@ -35,12 +35,12 @@ export class ModelsGatewayManager extends Manager {
   #secrets: SecretsManager;
   #messages: MessagesManager;
 
+  #pendingFetch: Promise<void> | undefined;
+
   #refetch = new RequestRefreshManager(this, {
     ttl: ModelsGatewayManager.cacheTtl,
     provider: { fetch: () => this.#fetch(this.#auth.state.gateway) },
   });
-
-  #pendingFetch: Promise<void> | undefined;
 
   constructor(parent: Manager, props: ModelsGatewayManager.Props) {
     super(parent);

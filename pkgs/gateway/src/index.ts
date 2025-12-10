@@ -1,6 +1,7 @@
 import { createGateway } from "@ai-sdk/gateway";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { proxy } from "hono/proxy";
 
 const app = new Hono<{ Bindings: Cloudflare.Env }>();
 export default app;
@@ -26,7 +27,14 @@ app.get("/vercel/models", async (c) => {
 
   if (record) await saveRecording(response);
 
-  return c.json(response, 200);
+  return c.json(response);
+});
+
+const DEMO_PROXY_PATH = "/demo/proxy";
+
+app.post(`${DEMO_PROXY_PATH}/*`, async (c) => {
+  const proxiedPath = c.req.path.slice(DEMO_PROXY_PATH.length);
+  return proxy(`${c.env.DEMO_GATEWAY_ORIGIN}${proxiedPath}`, c.req);
 });
 
 async function loadRecording(): Promise<any> {

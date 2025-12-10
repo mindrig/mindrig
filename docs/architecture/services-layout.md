@@ -38,3 +38,4 @@ When adding new services, to avoid port conflicts, please follow the existing pa
 | Storybook                            | Dev Tools   | `9`   | `3190` | Storybook instance.                        |
 | VS Code Webview Dev Server           | Dev Tools   | `9`   | `3191` | VS Code extension webview Vite dev server. |
 | VS Code Extension Auto Reload Server | Dev Tools   | `9`   | `3192` | VS Code extension auto reload server.      |
+| Local LM Studio                      | Dev Tools   | `9`   | `3193` | VS Code extension auto reload server.      |

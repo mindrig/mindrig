@@ -113,9 +113,7 @@ export function createOfflineGateway(): GatewayProvider {
   return provider;
 }
 
-export function createRecordGateway(apiKey: string): GatewayProvider {
-  const gateway = createGateway({ apiKey });
-
+export function createRecordGateway(gateway: GatewayProvider): GatewayProvider {
   const provider: GatewayProvider = Object.assign(
     (modelId: string): LanguageModel => {
       const originalModel = gateway(modelId);

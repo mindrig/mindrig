@@ -91,6 +91,8 @@ export function ModelsMapProvider(props: React.PropsWithChildren) {
 
     const gatewayOk = gateway.response as ModelGateway.ListResponseOk;
 
+    // Resolve models.dev value
+
     let dotdevOk: ModelDotdev.ListResponseOkValue;
     let meta: ModelsMapContext.MetaValue;
     if (dotdev.response) {
@@ -106,7 +108,10 @@ export function ModelsMapProvider(props: React.PropsWithChildren) {
       }
     }
 
-    const map = buildModelsMap(gatewayOk, dotdevOk);
+    const map = buildModelsMap({
+      gateway: gatewayOk,
+      dotdev: dotdevOk,
+    });
     const developers = mapModelDeveloperItems(map);
 
     const payload: ModelsMapContext.PayloadOk = {

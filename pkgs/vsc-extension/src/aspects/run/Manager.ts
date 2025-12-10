@@ -1,4 +1,6 @@
 import { Manager } from "@/aspects/manager/Manager.js";
+import { GatewayProvider } from "@ai-sdk/gateway";
+import { OpenAICompatibleProvider } from "@ai-sdk/openai-compatible";
 import { Datasource } from "@wrkspc/core/datasource";
 import { buildResultInitialized, Result } from "@wrkspc/core/result";
 import { Run, RunMessage } from "@wrkspc/core/run";
@@ -11,6 +13,7 @@ import {
   DatasourceError,
   DatasourcesManager,
 } from "../datasource/DatasourcesManager";
+import { resolveGateway } from "../gateway/gateway";
 import { MessagesManager } from "../message/Manager";
 import { ResultManager } from "../result/Manager";
 import { SecretsManager } from "../secret/Manager";
@@ -29,7 +32,7 @@ export namespace RunManager {
     setup: Setup;
     datasources: Datasource.Input[];
     runInput: Run.Input;
-    apiKey: string;
+    gateway: GatewayProvider | OpenAICompatibleProvider;
   }
 
   export type BaseFieldsMap = { [Key in keyof Run.Base<string>]: true };
@@ -81,11 +84,9 @@ export class RunManager extends Manager {
 
   async #start() {
     const apiKey = await this.#secrets.get("auth-vercel-gateway-key");
-    if (!apiKey)
-      return this.#syncError({
-        type: "unauthenticated",
-        message: "No Vercel Gateway API key configured.",
-      });
+    if (!apiKey) log.debug("No key is configured, starting demo run");
+
+    const gateway = resolveGateway(apiKey);
 
     try {
       const results: Result.Initialized[] = [];
@@ -101,7 +102,7 @@ export class RunManager extends Manager {
               setup,
               datasources,
               runInput,
-              apiKey,
+              gateway,
             });
             results.push(result);
             this.#tasks.push(task);
@@ -181,7 +182,7 @@ export class RunManager extends Manager {
   }
 
   #initMatrixEntry(props: RunManager.StartMatrixEntryProps) {
-    const { setup, datasources, runInput, apiKey } = props;
+    const { setup, datasources, runInput, gateway } = props;
     const result = buildResultInitialized({
       init: { setup, datasources },
     });
@@ -201,7 +202,7 @@ export class RunManager extends Manager {
             runId: this.#run.id,
             runInit: this.#run.init,
             input,
-            apiKey,
+            gateway,
           });
 
           await resultManager.generate(signal);

@@ -1,4 +1,6 @@
 import { Manager } from "@/aspects/manager/Manager.js";
+import { GatewayProvider } from "@ai-sdk/gateway";
+import { OpenAICompatibleProvider } from "@ai-sdk/openai-compatible";
 import {
   AiSdkGenerate,
   aiSdkSettings,
@@ -10,7 +12,6 @@ import { Result, ResultMessage } from "@wrkspc/core/result";
 import { Run } from "@wrkspc/core/run";
 import { generateText, ModelMessage, streamText, UserContent } from "ai";
 import { log } from "smollog";
-import { resolveGateway } from "../gateway/gateway";
 import { MessagesManager } from "../message/Manager";
 import { promptInterpolate } from "../prompt/interpolate";
 
@@ -20,7 +21,7 @@ export namespace ResultManager {
     result: Result.Initialized;
     runId: Run.Id;
     runInit: Run.Init;
-    apiKey: string;
+    gateway: GatewayProvider | OpenAICompatibleProvider;
     input: Result.Input;
   }
 
@@ -61,7 +62,7 @@ export class ResultManager extends Manager {
   #runId: Run.Id;
   #runInit: Run.Init;
   #input: Result.Input;
-  #apiKey: string;
+  #gateway: GatewayProvider | OpenAICompatibleProvider;
 
   constructor(parent: Manager, props: ResultManager.Props) {
     super(parent);
@@ -71,7 +72,7 @@ export class ResultManager extends Manager {
     this.#runId = props.runId;
     this.#runInit = props.runInit;
     this.#input = props.input;
-    this.#apiKey = props.apiKey;
+    this.#gateway = props.gateway;
   }
 
   async generate(abortSignal: AbortSignal | undefined) {
@@ -115,10 +116,8 @@ export class ResultManager extends Manager {
       },
     ];
 
-    const gateway = resolveGateway(this.#apiKey);
-
     const aiSdkProps: ResultManager.AiSdkGenerateProps = {
-      model: gateway(modelId),
+      model: this.#gateway(modelId),
       messages,
       // TODO: Implement tools
       // tools: this.#runInit.tools,

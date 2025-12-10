@@ -10,7 +10,10 @@
       "Bash(pnpm run types:*)",
       "Bash(pnpm run:*)",
       "Bash(cat:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

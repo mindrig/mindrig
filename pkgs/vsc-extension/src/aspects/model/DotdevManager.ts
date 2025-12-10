@@ -15,15 +15,19 @@ export namespace ModelsDotdevManager {
 }
 
 export class ModelsDotdevManager extends Manager {
+  private static readonly cacheTtl = 1000 * 60 * 60; // 1 hour
+
   #messages: MessagesManager;
+
   #pendingFetch: Promise<void> | undefined;
+
   #cache = new RequestCacheManager(this, {
-    ttl: cacheTtl,
+    ttl: ModelsDotdevManager.cacheTtl,
     provider: cacheProvider,
   });
 
   #refresh = new RequestRefreshManager(this, {
-    ttl: cacheTtl,
+    ttl: ModelsDotdevManager.cacheTtl,
     provider: { fetch: () => this.#fetch() },
   });
 
@@ -86,8 +90,6 @@ export class ModelsDotdevManager extends Manager {
     };
   }
 }
-
-const cacheTtl = 1000 * 60 * 60; // 1 hour
 
 const cacheProvider: RequestCacheManager.Provider<ModelDotdev.ListResponse> = {
   fetchedAt: (response) => response.fetchedAt,

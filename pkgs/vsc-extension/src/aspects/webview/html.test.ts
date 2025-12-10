@@ -14,7 +14,7 @@ describe(webviewHtml, () => {
         </head>
         <body class="text-ink font-sans font-normal leading-normal h-full">
           <div id="root" class="h-full"></div>
-          <script src="/app.js"></script>
+          <script type="module" src="/app.js"></script>
         </body>
       </html>"
     `);
@@ -51,7 +51,7 @@ describe(webviewHtml, () => {
         </head>
         <body class="text-ink font-sans font-normal leading-normal h-full">
           <div id="root" class="h-full"></div>
-          <script src="/app.js"></script>
+          <script type="module" src="/app.js"></script>
         </body>
       </html>"
     `);

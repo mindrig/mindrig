@@ -18,6 +18,7 @@
     "./editor": "./src/editor/index.ts",
     "./eval": "./src/eval/index.ts",
     "./file": "./src/file/index.ts",
+    "./gateway": "./src/gateway/index.ts",
     "./lang": "./src/lang/index.ts",
     "./log": "./src/log/index.ts",
     "./message": "./src/message/index.ts",

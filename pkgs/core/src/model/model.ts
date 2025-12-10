@@ -253,26 +253,32 @@ export function resolveModel(
   );
 }
 
-export function buildModelsMap(
-  gateway: ModelGateway.ListResponseOk,
-  dotdev: ModelDotdev.ListResponseOkValue,
-): Model.ModelsMap {
+export namespace buildModelsMap {
+  export interface Props {
+    gateway: ModelGateway.ListResponseOk;
+    dotdev: ModelDotdev.ListResponseOkValue;
+  }
+}
+
+export function buildModelsMap(props: buildModelsMap.Props): Model.ModelsMap {
+  const { gateway, dotdev } = props;
   const partialModelsMap: Partial<Model.ModelsMap> = {};
 
   switch (gateway.type) {
     case "vercel": {
       for (const vercelModel of gateway.data.payload.models) {
         const [developerId] = parseVercelModelId(vercelModel);
-        let developerItem =
+        const developerItem =
           partialModelsMap[developerId] ||
           (partialModelsMap[developerId] = {
             developer: buildModelDeveloper(developerId),
             models: [],
           });
 
-        developerItem.models.push(
-          buildModel(developerId, buildVercelGatewayModel(vercelModel), dotdev),
-        );
+        const gatewayModel = buildVercelGatewayModel(vercelModel);
+        const model = buildModel({ developerId, gatewayModel, dotdev });
+
+        developerItem.models.push(model);
       }
       break;
     }
@@ -305,11 +311,17 @@ export function mapModelItem(model: Model): Model.Item {
   };
 }
 
-export function buildModel(
-  developerId: ModelDeveloper.Id,
-  gatewayModel: ModelGateway.Model,
-  dotdev: ModelDotdev.ListResponseOkValue,
-): Model {
+export namespace buildModel {
+  export interface Props {
+    developerId: ModelDeveloper.Id;
+    gatewayModel: ModelGateway.Model;
+    dotdev: ModelDotdev.ListResponseOkValue;
+  }
+}
+
+export function buildModel(props: buildModel.Props): Model {
+  const { developerId, gatewayModel, dotdev } = props;
+
   switch (gatewayModel.type) {
     case "vercel": {
       const vercelModel = gatewayModel.payload;
