@@ -32,7 +32,7 @@ app.get("/vercel/models", async (c) => {
 
 const DEMO_PROXY_PATH = "/demo/proxy";
 
-app.post(`${DEMO_PROXY_PATH}/*`, async (c) => {
+app.all(`${DEMO_PROXY_PATH}/*`, (c) => {
   const proxiedPath = c.req.path.slice(DEMO_PROXY_PATH.length);
   return proxy(`${c.env.DEMO_GATEWAY_ORIGIN}${proxiedPath}`, c.req);
 });
