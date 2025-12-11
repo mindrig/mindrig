@@ -7,12 +7,13 @@ export namespace PageEmpty {
     icon: Icon.Prop;
     label: string;
     description: string;
+    actions?: React.ReactNode | undefined;
     notices?: React.ReactNode | undefined;
   }
 }
 
 export function PageEmpty(props: PageEmpty.Props) {
-  const { icon, label, description, notices } = props;
+  const { icon, label, description, actions, notices } = props;
 
   return (
     <Block dir="y" gap={false}>
@@ -42,6 +43,10 @@ export function PageEmpty(props: PageEmpty.Props) {
             >
               {description}
             </p>
+          </Block>
+
+          <Block size="small" align>
+            {actions}
           </Block>
         </Block>
       </Block>

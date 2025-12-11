@@ -7,7 +7,13 @@ export function promptInterpolate(
 ): string {
   const newVars = [...prompt.vars];
   newVars.reverse();
-  const { outer, inner } = prompt.span;
+  const { outer, inner } =
+    "span" in prompt
+      ? prompt.span
+      : {
+          outer: { v: 1, start: 0, end: prompt.content.length },
+          inner: { v: 1, start: 0, end: prompt.content.length },
+        };
   const contentEnd = prompt.content.length - (outer.end - inner.end);
   let result = prompt.content.slice(0, contentEnd);
   for (const vr of newVars) {

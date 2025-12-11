@@ -29,18 +29,33 @@ export namespace PlaygroundMap {
   export interface FileV1 extends Versioned<1> {
     id: FileId;
     updatedAt: number;
-    prompts: readonly PromptV1[];
+    prompts: readonly PromptV1Code[];
     meta: EditorFile.MetaV1;
   }
 
   export type Prompt = PromptV1;
 
-  export interface PromptV1 extends Versioned<1> {
+  export type PromptV1 = PromptV1Code | PromptV1Draft;
+
+  export interface PromptBase {
     id: PromptId;
     content: string;
-    vars: readonly PromptVar[];
+    vars: readonly PromptVarV1[];
     updatedAt: number;
+  }
+
+  export type PromptCode = PromptV1Code;
+
+  export interface PromptV1Code extends Versioned<1>, PromptBase {
+    // TODO: Make it mandatory in v2
+    type?: "code" | undefined;
     span: SpanShapeV1;
+  }
+
+  export type PromptDraft = PromptV1Draft;
+
+  export interface PromptV1Draft extends Versioned<1>, PromptBase {
+    type: "draft";
   }
 
   export type PromptVar = PromptVarV1;
@@ -69,7 +84,7 @@ export namespace PlaygroundMap {
 
   export type MatchingReason = "content" | "distance" | "new";
 
-  export type Pair = [File, Prompt];
+  export type Pair = [File, PromptCode];
 }
 
 export function buildPlaygroundMap(): PlaygroundMap {

@@ -44,9 +44,11 @@ describe(PlaygroundManager, () => {
       expect(state).toEqual({
         file: editorFileToMeta(editorFileB),
         prompt: {
+          type: "code",
           fileId: mapFileB.id,
           prompt: {
             v: 1,
+            type: "code",
             id: mapPromptsB[0].id,
             content: mapPromptsB[0].content,
             vars: mapPromptsB[0].vars,
@@ -58,6 +60,7 @@ describe(PlaygroundManager, () => {
         prompts: [
           {
             v: 1,
+            type: "code",
             fileId: mapFileB.id,
             promptId: mapPromptsB[0].id,
             preview: parsedPromptsB[0].exp,
@@ -161,12 +164,14 @@ describe(PlaygroundManager, () => {
         prompts: [
           {
             v: 1,
+            type: "code",
             fileId: expect.any(String),
             promptId: expect.any(String),
             preview: parsedPromptsA[0].exp,
           },
           {
             v: 1,
+            type: "code",
             fileId: expect.any(String),
             promptId: expect.any(String),
             preview: parsedPromptsA[1].exp,
@@ -270,6 +275,7 @@ describe(PlaygroundManager, () => {
 
       const pinB: PlaygroundState.Ref = {
         v: 1,
+        type: "code",
         fileId: mapFileB.id,
         promptId: mapPromptsB[0].id,
       };
@@ -298,6 +304,7 @@ describe(PlaygroundManager, () => {
 
       const pinA: PlaygroundState.Ref = {
         v: 1,
+        type: "code",
         fileId: mapFileA.id,
         promptId: mapPromptsA[1].id,
       };
@@ -319,7 +326,7 @@ describe(PlaygroundManager, () => {
 
       expect(await manager.state).toEqual(pinnedStateA);
 
-      vsc.emit(vsc.webview, "onDidReceiveMessage", {
+      await vsc.emit(vsc.webview, "onDidReceiveMessage", {
         type: "playground-client-unpin",
       });
 

@@ -7,7 +7,10 @@ import {
   playgroundMapVarsFromPrompt,
 } from "@wrkspc/core/playground";
 import { assert, describe, expect, it } from "vitest";
-import { playgroundMapPromptFactory } from "../playground/__tests__/factories";
+import {
+  playgroundMapPromptDraftFactory,
+  playgroundMapPromptFactory,
+} from "../playground/__tests__/factories";
 import { promptInterpolate } from "./interpolate";
 
 describe(promptInterpolate, () => {
@@ -86,6 +89,7 @@ describe(promptInterpolate, () => {
 
     const mapPrompt: PlaygroundMap.Prompt = {
       v: 1,
+      type: "code",
       id: buildMapPromptId(),
       content: parsedPrompt.exp,
       vars: playgroundMapVarsFromPrompt(parsedPrompt),
@@ -98,6 +102,57 @@ describe(promptInterpolate, () => {
       [mapPrompt.vars[1]!.id]: "Sasha",
     });
     expect(result).toBe("Hola, Sasha!");
+  });
+
+  it("works with draft prompts", () => {
+    const var1Id = buildMapPromptVarId();
+    const var2Id = buildMapPromptVarId();
+    const prompt = playgroundMapPromptDraftFactory({
+      content: "Dear {{title}} {{name}}, welcome!",
+      vars: [
+        {
+          v: 1,
+          id: var1Id,
+          exp: "{{title}}",
+          span: {
+            v: 1,
+            outer: {
+              v: 1,
+              start: 5,
+              end: 14,
+            },
+            inner: {
+              v: 1,
+              start: 7,
+              end: 12,
+            },
+          },
+        },
+        {
+          v: 1,
+          id: var2Id,
+          exp: "{{name}}",
+          span: {
+            v: 1,
+            outer: {
+              v: 1,
+              start: 15,
+              end: 23,
+            },
+            inner: {
+              v: 1,
+              start: 17,
+              end: 21,
+            },
+          },
+        },
+      ],
+    });
+    const result = promptInterpolate(prompt, {
+      [var1Id]: "Dr.",
+      [var2Id]: "Smith",
+    });
+    expect(result).toBe("Dear Dr. Smith, welcome!");
   });
 });
 

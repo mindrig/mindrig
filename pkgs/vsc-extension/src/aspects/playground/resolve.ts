@@ -14,6 +14,7 @@ import {
   playgroundMapVarsFromPrompt,
   PlaygroundState,
 } from "@wrkspc/core/playground";
+import { Store } from "@wrkspc/core/store";
 import { distance } from "fastest-levenshtein";
 
 //#region Constants
@@ -44,7 +45,7 @@ export namespace PlaygroundResolve {
   declare const matchedPromptsScore: unique symbol;
 
   export type MatchingPromptsDistances = Map<
-    PlaygroundMap.Prompt,
+    PlaygroundMap.PromptCode,
     MatchingContentDistance
   >;
 
@@ -60,13 +61,13 @@ export namespace PlaygroundResolve {
   }
 
   export interface MatchPromptsProps {
-    unmatchedMapPrompts: Set<PlaygroundMap.Prompt>;
+    unmatchedMapPrompts: Set<PlaygroundMap.PromptCode>;
     unmatchedParsedPrompts: Set<Prompt>;
   }
 
   export interface MatchPromptsResult {
-    matchedMapPrompts: Map<Prompt, PlaygroundMap.Prompt>;
-    unmatchedMapPrompts: Set<PlaygroundMap.Prompt>;
+    matchedMapPrompts: Map<Prompt, PlaygroundMap.PromptCode>;
+    unmatchedMapPrompts: Set<PlaygroundMap.PromptCode>;
     unmatchedParsedPrompts: Set<Prompt>;
     matchingDistances: PlaygroundResolve.MatchingPromptsDistances;
   }
@@ -101,6 +102,7 @@ export namespace ResolvePlaygroundState {
   export interface Props {
     timestamp: number;
     map: PlaygroundMap;
+    drafts: Store.Drafts;
     editorFile: EditorFile | null;
     currentFile: EditorFile | null;
     parsedPrompts: readonly Prompt[];
@@ -112,8 +114,15 @@ export namespace ResolvePlaygroundState {
 export function resolvePlaygroundState(
   props: ResolvePlaygroundState.Props,
 ): PlaygroundState {
-  const { currentFile, editorFile, map, pin, parsedPrompts, parseError } =
-    props;
+  const {
+    currentFile,
+    editorFile,
+    map,
+    drafts,
+    pin,
+    parsedPrompts,
+    parseError,
+  } = props;
   const mapFile = currentFile ? map.files[currentFile.path] : undefined;
 
   // First we resolve the prompt under cursor. Doing it before resolving
@@ -134,9 +143,10 @@ export function resolvePlaygroundState(
     );
   // NOTE: We resolve state prompt rather than map prompt, so we can set
   // fileId while type system knows it's not nullish.
-  const cursorStatePrompt: PlaygroundState.Prompt | null =
+  const cursorStatePrompt: PlaygroundState.PromptCode | null =
     (typeof parsedPromptIdx === "number" &&
       mapFile?.prompts[parsedPromptIdx] && {
+        type: "code",
         fileId: mapFile.id,
         prompt: mapFile?.prompts[parsedPromptIdx],
         reason: "cursor",
@@ -145,9 +155,22 @@ export function resolvePlaygroundState(
 
   // Now we resolve the pinned prompt.
 
-  const pinMapFile = pin
-    ? Object.values(map.files).find((file) => file.id === pin.fileId)
-    : undefined;
+  const pinnedDraft = pin?.type === "draft" && drafts[pin.promptId];
+
+  if (pinnedDraft) {
+    return {
+      file: currentFileMeta,
+      prompt: { type: "draft", prompt: pinnedDraft },
+      prompts,
+      pin,
+      parseError,
+    };
+  }
+
+  const pinMapFile =
+    pin && (!pin.type || pin.type === "code")
+      ? Object.values(map.files).find((file) => file.id === pin.fileId)
+      : undefined;
 
   // If pin is set, we try to resolve it.
   if (pin && pinMapFile) {
@@ -165,6 +188,7 @@ export function resolvePlaygroundState(
       return {
         file: pinMapFile.meta,
         prompt: {
+          type: "code",
           fileId: pinMapFile.id,
           prompt: pinPrompt,
           reason,
@@ -211,7 +235,7 @@ export function resolvePlaygroundMapFile(
 
 export function resolvePlaygroundMapPair(
   map: PlaygroundMap,
-  ref: PlaygroundState.Ref,
+  ref: PlaygroundState.RefCode,
 ): PlaygroundMap.Pair | null {
   const file = resolvePlaygroundMapFile(map, ref.fileId);
   if (!file) return null;
@@ -321,8 +345,9 @@ export function matchPlaygroundMapFile(
     id: buildMapFileId(),
     updatedAt: timestamp,
     meta: editorFileToMeta(file),
-    prompts: parsedPrompts.map<PlaygroundMap.PromptV1>((prompt) => ({
+    prompts: parsedPrompts.map<PlaygroundMap.PromptCode>((prompt) => ({
       v: 1,
+      type: "code",
       id: buildMapPromptId(),
       content: prompt.exp,
       vars: playgroundMapVarsFromPrompt(prompt),
@@ -449,12 +474,12 @@ export function matchPlaygroundMapFileByDistance(
 export namespace MatchPlaygroundMapPrompts {
   export interface Props {
     timestamp: number;
-    mapPrompts: readonly PlaygroundMap.Prompt[];
+    mapPrompts: readonly PlaygroundMap.PromptCode[];
     parsedPrompts: readonly Prompt[];
   }
 
   export interface Result extends PlaygroundResolve.MatchFileScores {
-    nextMapPrompts: PlaygroundMap.Prompt[];
+    nextMapPrompts: PlaygroundMap.PromptCode[];
     changed: boolean;
   }
 }
@@ -482,7 +507,7 @@ export function matchPlaygroundMapPrompts(
     [...byContent.matchingDistances, ...byDistance.matchingDistances],
   );
 
-  const nextMapPrompts: PlaygroundMap.Prompt[] = [];
+  const nextMapPrompts: PlaygroundMap.PromptCode[] = [];
   let matchedCount = 0;
 
   for (const parsedPrompt of props.parsedPrompts) {
@@ -494,6 +519,7 @@ export function matchPlaygroundMapPrompts(
     } else {
       nextMapPrompts.push({
         v: 1,
+        type: "code",
         id: buildMapPromptId(),
         content: parsedPrompt.exp,
         vars: playgroundMapVarsFromPrompt(parsedPrompt),
@@ -537,7 +563,7 @@ export function matchPlaygroundMapPrompts(
 export function matchPlaygroundMapPromptsByContent(
   props: PlaygroundResolve.MatchPromptsProps,
 ): PlaygroundResolve.MatchPromptsResult {
-  const matchedMapPrompts = new Map<Prompt, PlaygroundMap.Prompt>();
+  const matchedMapPrompts = new Map<Prompt, PlaygroundMap.PromptCode>();
   const unmatchedMapPrompts = new Set(props.unmatchedMapPrompts);
   const unmatchedParsedPrompts = new Set(props.unmatchedParsedPrompts);
 
@@ -587,7 +613,7 @@ export namespace MatchPlaygroundMapPromptsByDistance {
 
   export interface Candidate {
     parsedIndex: number;
-    mapPrompt: PlaygroundMap.Prompt;
+    mapPrompt: PlaygroundMap.PromptCode;
     parsedPrompt: Prompt;
     matchingDistance: PlaygroundResolve.MatchingContentDistance;
   }
@@ -629,7 +655,7 @@ export function matchPlaygroundMapPromptsByDistance(
     return a.parsedIndex - b.parsedIndex;
   });
 
-  const matchedMapPrompts = new Map<Prompt, PlaygroundMap.Prompt>();
+  const matchedMapPrompts = new Map<Prompt, PlaygroundMap.PromptCode>();
   const matchingDistances: PlaygroundResolve.MatchingPromptsDistances =
     new Map();
 
@@ -647,8 +673,9 @@ export function matchPlaygroundMapPromptsByDistance(
       promptSpan: parsedPrompt.span.inner,
     });
 
-    const nextMapPrompt: PlaygroundMap.Prompt = {
+    const nextMapPrompt: PlaygroundMap.PromptCode = {
       v: 1,
+      type: "code",
       id: mapPrompt.id,
       content: parsedPrompt.exp,
       vars,
@@ -676,8 +703,8 @@ export function matchPlaygroundMapPromptsByDistance(
 
 export namespace CalcMatchingPromptsScore {
   export interface Props {
-    matchedMapPrompts: Map<Prompt, PlaygroundMap.Prompt>;
-    unmatchedMapPrompts: Set<PlaygroundMap.Prompt>;
+    matchedMapPrompts: Map<Prompt, PlaygroundMap.PromptCode>;
+    unmatchedMapPrompts: Set<PlaygroundMap.PromptCode>;
   }
 }
 
@@ -921,7 +948,7 @@ function calcMatchingContentDistance(
 namespace CalcMatchedPromptsMatchingScore {
   export interface Props {
     matchingDistances: PlaygroundResolve.MatchingPromptsDistances;
-    unmatchedMapPrompts: Set<PlaygroundMap.Prompt>;
+    unmatchedMapPrompts: Set<PlaygroundMap.PromptCode>;
   }
 }
 
@@ -985,6 +1012,7 @@ function buildStatePromptItem(
   const { fileId, prompt } = props;
   return {
     v: 1,
+    type: "code",
     fileId,
     promptId: prompt.id,
     preview: truncatePromptContent(prompt.content),

@@ -1,11 +1,9 @@
 import { PlaygroundState } from "@wrkspc/core/playground";
 import { State } from "enso";
 import { createContext, useContext } from "react";
-import { BlueprintManager } from "./Manager";
 
 export namespace BlueprintContext {
   export interface Value {
-    blueprint: BlueprintManager;
     promptState: State<PlaygroundState.Prompt>;
   }
 }

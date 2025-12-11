@@ -41,9 +41,9 @@
     text-wrap: balance;
   }
 
-  .flex > * {
+  /* .flex > * {
     min-width: 0;
-  }
+  } */
 
   .font-sans {
     font-variation-settings:

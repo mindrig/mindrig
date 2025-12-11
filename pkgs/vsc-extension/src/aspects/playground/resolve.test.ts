@@ -19,6 +19,7 @@ import {
   parsedPromptVarFactory,
   playgroundMapFactory,
   playgroundMapFileFactory,
+  playgroundMapPromptDraftFactory,
   playgroundMapPromptFactory,
   playgroundSetupFactory,
 } from "./__tests__/factories";
@@ -246,6 +247,7 @@ describe(resolvePlaygroundState, () => {
 
       const pin: PlaygroundState.Ref = {
         v: 1,
+        type: "code",
         fileId: mapFileB.id,
         promptId: mapPromptsB[0].id,
       };
@@ -288,6 +290,7 @@ describe(resolvePlaygroundState, () => {
 
       const pin: PlaygroundState.Ref = {
         v: 1,
+        type: "code",
         fileId: "missing" as PlaygroundMap.FileId,
         promptId: mapPromptsB[0].id,
       };
@@ -329,6 +332,7 @@ describe(resolvePlaygroundState, () => {
 
       const pin: PlaygroundState.Ref = {
         v: 1,
+        type: "code",
         fileId: mapFileB.id,
         promptId: "missing" as PlaygroundMap.PromptId,
       };
@@ -374,6 +378,7 @@ describe(resolvePlaygroundState, () => {
 
       const pin: PlaygroundState.Ref = {
         v: 1,
+        type: "code",
         fileId: mapFileA.id,
         promptId: mapPromptsA[1].id,
       };
@@ -413,6 +418,7 @@ describe(resolvePlaygroundState, () => {
 
       const pin: PlaygroundState.Ref = {
         v: 1,
+        type: "code",
         fileId: mapFileB.id,
         promptId: mapPromptsB[0].id,
       };
@@ -448,6 +454,59 @@ describe(resolvePlaygroundState, () => {
       });
     });
   });
+
+  describe("draft", () => {
+    it("resolves pinned draft prompt state ", () => {
+      const {
+        editorFileA,
+        editorFileB,
+        mapFileA,
+        mapPromptsA,
+        playgroundStateProps,
+      } = playgroundSetupFactory();
+
+      const draftPrompt = playgroundMapPromptDraftFactory();
+
+      const pin: PlaygroundState.Ref = {
+        v: 1,
+        type: "draft",
+        promptId: draftPrompt.id,
+      };
+
+      const state = resolvePlaygroundState({
+        ...playgroundStateProps,
+        pin,
+        drafts: {
+          [draftPrompt.id]: draftPrompt,
+        },
+      });
+
+      expect(state).toMatchObject({
+        file: {
+          isDirty: editorFileA.isDirty,
+          languageId: editorFileA.languageId,
+          path: editorFileA.path,
+        },
+        pin,
+        prompt: expect.objectContaining({
+          prompt: expect.objectContaining({
+            type: "draft",
+            id: draftPrompt.id,
+          }),
+        }),
+        prompts: [
+          expect.objectContaining({
+            fileId: mapFileA.id,
+            promptId: mapPromptsA[0].id,
+          }),
+          expect.objectContaining({
+            fileId: mapFileA.id,
+            promptId: mapPromptsA[1].id,
+          }),
+        ],
+      });
+    });
+  });
 });
 
 //#endregion
@@ -476,6 +535,7 @@ describe(resolvePlaygroundMapPair, () => {
     const { map, mapFileA, mapPromptsA } = playgroundSetupFactory();
     const ref: PlaygroundState.Ref = {
       v: 1,
+      type: "code",
       fileId: mapFileA.id,
       promptId: mapPromptsA[0].id,
     };
@@ -487,6 +547,7 @@ describe(resolvePlaygroundMapPair, () => {
     const { map, mapFileA } = playgroundSetupFactory();
     const ref: PlaygroundState.Ref = {
       v: 1,
+      type: "code",
       fileId: mapFileA.id,
       promptId: "non-existent-id" as PlaygroundMap.PromptId,
     };
@@ -636,6 +697,7 @@ describe(matchPlaygroundMapFile, () => {
         prompts: [
           {
             v: 1,
+            type: "code",
             id: mapPromptsA[0].id,
             content: parsedPrompts[0].exp,
             vars: [expect.objectContaining({ id: mapPromptsA[0].vars[0]!.id })],
@@ -644,6 +706,7 @@ describe(matchPlaygroundMapFile, () => {
           },
           {
             v: 1,
+            type: "code",
             id: mapPromptsA[1].id,
             content: parsedPrompts[1].exp,
             vars: [
@@ -825,6 +888,7 @@ describe(matchPlaygroundMapFileByDistance, () => {
         prompts: [
           {
             v: 1,
+            type: "code",
             id: mapPrompts3[2].id,
             content: parsedPrompts[0].exp,
             vars: [],
@@ -833,6 +897,7 @@ describe(matchPlaygroundMapFileByDistance, () => {
           },
           {
             v: 1,
+            type: "code",
             id: mapPrompts3[0].id,
             content: parsedPrompts[1].exp,
             vars: [],
@@ -1091,6 +1156,7 @@ describe(matchPlaygroundMapPrompts, () => {
         },
         {
           v: 1,
+          type: "code",
           id: mapPrompts[1].id,
           content: parsedPrompts[1].exp,
           vars: [],
@@ -1099,6 +1165,7 @@ describe(matchPlaygroundMapPrompts, () => {
         },
         {
           v: 1,
+          type: "code",
           id: expect.any(String),
           content: parsedPrompts[2].exp,
           vars: [],
@@ -1107,6 +1174,7 @@ describe(matchPlaygroundMapPrompts, () => {
         },
         {
           v: 1,
+          type: "code",
           id: expect.any(String),
           content: parsedPrompts[3].exp,
           vars: [],
@@ -1115,6 +1183,7 @@ describe(matchPlaygroundMapPrompts, () => {
         },
         {
           v: 1,
+          type: "code",
           id: mapPrompts[0].id,
           content: parsedPrompts[4].exp,
           vars: [],
@@ -1277,6 +1346,7 @@ describe(matchPlaygroundMapPromptsByContent, () => {
     const matchedMapPrompts = new Map();
     matchedMapPrompts.set(parsedPrompts[0], {
       v: 1,
+      type: "code",
       id: mapPromptsA[1].id,
       content: parsedPrompts[0].exp,
       vars: [
@@ -1337,6 +1407,7 @@ describe(matchPlaygroundMapPromptsByDistance, () => {
     const matchedMapPrompts = new Map();
     matchedMapPrompts.set(parsedPrompts[0], {
       v: 1,
+      type: "code",
       id: mapPromptsA[1].id,
       content: parsedPrompts[0].exp,
       vars: playgroundMapVarsFromPrompt(parsedPrompts[0]),
@@ -1345,6 +1416,7 @@ describe(matchPlaygroundMapPromptsByDistance, () => {
     });
     matchedMapPrompts.set(parsedPrompts[2], {
       v: 1,
+      type: "code",
       id: mapPromptsA[0].id,
       content: parsedPrompts[2].exp,
       vars: playgroundMapVarsFromPrompt(parsedPrompts[2]),
@@ -1462,6 +1534,7 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
     const matchedMapPrompts = new Map();
     matchedMapPrompts.set(parsedPrompts[0], {
       v: 1,
+      type: "code",
       id: mapPrompts[0].id,
       content: parsedPrompts[0].exp,
       vars: playgroundMapVarsFromPrompt(parsedPrompts[0]),
@@ -1470,6 +1543,7 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
     });
     matchedMapPrompts.set(parsedPrompts[1], {
       v: 1,
+      type: "code",
       id: mapPrompts[1].id,
       content: parsedPrompts[1].exp,
       vars: playgroundMapVarsFromPrompt(parsedPrompts[1]),
@@ -1478,6 +1552,7 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
     });
     matchedMapPrompts.set(parsedPrompts[2], {
       v: 1,
+      type: "code",
       id: mapPrompts[2].id,
       content: parsedPrompts[2].exp,
       vars: playgroundMapVarsFromPrompt(parsedPrompts[2]),
@@ -1557,6 +1632,7 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
     const matchedMapPrompts = new Map();
     matchedMapPrompts.set(parsedPrompts[0], {
       v: 1,
+      type: "code",
       id: mapPromptsA[1].id,
       content: parsedPrompts[0].exp,
       vars: [
@@ -1582,6 +1658,7 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
     });
     matchedMapPrompts.set(parsedPrompts[2], {
       v: 1,
+      type: "code",
       id: mapPromptsA[0].id,
       content: parsedPrompts[2].exp,
       vars: [

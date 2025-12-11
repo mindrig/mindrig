@@ -1,15 +1,15 @@
 import { FileLabel } from "@/aspects/file/Label";
 import { EditorFile } from "@wrkspc/core/editor";
-import { playgroundStatePromptToRef } from "@wrkspc/core/playground";
+import { playgroundStatePromptToCodeRef } from "@wrkspc/core/playground";
 import { Button } from "@wrkspc/ds";
 import iconRegularThumbtackAngle from "@wrkspc/icons/svg/regular/thumbtack-angle.js";
 import iconSolidThumbtack from "@wrkspc/icons/svg/solid/thumbtack.js";
-import { Select } from "@wrkspc/ui";
 import { cnss } from "cnss";
 import { State } from "enso";
 import { useClientState } from "../client/StateContext";
 import { LayoutSection } from "../layout/Section";
 import { useMessages } from "../message/Context";
+import { PlaygroundPromptSelector } from "../playground/PromptSelector";
 
 export namespace FileHeader {
   export interface Props {
@@ -22,14 +22,16 @@ export function FileHeader(props: FileHeader.Props) {
   const clientState = useClientState();
   const { sendMessage } = useMessages();
 
-  const prompts = clientState.$.playground.$.prompts.useCollection();
   const isPinned = clientState.$.playground.$.pin.useCompute(
     (pin) => !!pin,
     [],
   );
 
-  const [promptId, promptRef] = clientState.$.playground.$.prompt.useCompute(
-    (prompt) => [prompt?.prompt.id, playgroundStatePromptToRef(prompt)],
+  const promptRef = clientState.$.playground.$.prompt.useCompute(
+    (prompt) =>
+      !prompt?.type || prompt.type === "code"
+        ? playgroundStatePromptToCodeRef(prompt)
+        : null,
     [],
   );
 
@@ -39,26 +41,7 @@ export function FileHeader(props: FileHeader.Props) {
         <FileLabel fileState={fileState} isPinned={isPinned} />
 
         <div className="flex items-center gap-2 max-w-60 w-full">
-          <Select
-            label={{ a11y: "Select prompt" }}
-            size="xsmall"
-            value={promptId || null}
-            options={prompts.map((prompt) => ({
-              label: prompt.$.preview.value,
-              value: prompt.$.promptId.value,
-            }))}
-            placeholder={prompts.size ? "Select prompt" : "No prompts"}
-            isDisabled={!prompts.size}
-            onChange={(itemPromptId) => {
-              const prompt = prompts.find(
-                (prompt) => prompt.$.promptId.value === itemPromptId,
-              );
-              sendMessage({
-                type: "playground-client-prompt-change",
-                payload: prompt?.value || null,
-              });
-            }}
-          />
+          <PlaygroundPromptSelector />
 
           <div className={cnss("inline-flex", isPinned && "text-active-text")}>
             <Button

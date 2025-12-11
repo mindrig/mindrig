@@ -11,6 +11,7 @@ export type Store = Store.Map<
     "playground.streaming": boolean;
     "playground.pin": PlaygroundState.Ref;
     "playground.results.layout": Result.Layout;
+    "playground.drafts": Store.Drafts;
   } & Assessment.Store
 >;
 
@@ -34,4 +35,9 @@ export namespace Store {
 
   export type RequestId = string & { [requestIdBrand]: true };
   declare const requestIdBrand: unique symbol;
+
+  export type Drafts = Record<
+    PlaygroundMap.PromptId,
+    PlaygroundMap.PromptDraft
+  >;
 }

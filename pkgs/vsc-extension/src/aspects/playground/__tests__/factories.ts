@@ -74,10 +74,11 @@ export function playgroundMapFileFactory(
 }
 
 export function playgroundMapPromptFactory(
-  overrides?: Partial<PlaygroundMap.Prompt>,
-): PlaygroundMap.Prompt {
+  overrides?: Partial<PlaygroundMap.PromptCode>,
+): PlaygroundMap.PromptCode {
   return {
     v: 1,
+    type: "code",
     id: buildMapPromptId(),
     content: DEFAULT_PROMPT,
     span: {
@@ -85,6 +86,20 @@ export function playgroundMapPromptFactory(
       outer: { v: 1, start: 0, end: 0 },
       inner: { v: 1, start: 0, end: 0 },
     },
+    updatedAt: Date.now(),
+    vars: [playgroundMapVarFactory()],
+    ...overrides,
+  };
+}
+
+export function playgroundMapPromptDraftFactory(
+  overrides?: Partial<PlaygroundMap.PromptDraft>,
+): PlaygroundMap.PromptDraft {
+  return {
+    v: 1,
+    type: "draft",
+    id: buildMapPromptId(),
+    content: DEFAULT_PROMPT,
     updatedAt: Date.now(),
     vars: [playgroundMapVarFactory()],
     ...overrides,
@@ -109,9 +124,10 @@ export function playgroundMapVarFactory(
 
 export function playgroundMapPromptFromParsedFactory(
   parsedPrompt: Prompt,
-): PlaygroundMap.Prompt {
+): PlaygroundMap.PromptCode {
   return {
     v: 1,
+    type: "code",
     id: buildMapPromptId(),
     content: parsedPrompt.exp,
     vars: playgroundMapVarsFromPrompt(parsedPrompt),
@@ -216,6 +232,7 @@ export function playgroundSetupFactory(
   const playgroundStateProps: ResolvePlaygroundState.Props = {
     timestamp,
     map,
+    drafts: {},
     editorFile: editorFileA,
     currentFile: editorFileA,
     parsedPrompts: parsedPromptsA,

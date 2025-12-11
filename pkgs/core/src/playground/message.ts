@@ -1,4 +1,4 @@
-import { PlaygroundState } from "./index.js";
+import { PlaygroundMap, PlaygroundState } from "./index.js";
 
 export namespace PlaygroundMessage {
   //#region Server
@@ -14,7 +14,12 @@ export namespace PlaygroundMessage {
 
   //#region Client
 
-  export type Client = ClientPin | ClientUnpin | ClientPromptChange;
+  export type Client =
+    | ClientPin
+    | ClientUnpin
+    | ClientPromptChange
+    | ClientNewDraft
+    | ClientDraftUpdate;
 
   export interface ClientPin {
     type: "playground-client-pin";
@@ -28,6 +33,20 @@ export namespace PlaygroundMessage {
   export interface ClientPromptChange {
     type: "playground-client-prompt-change";
     payload: PlaygroundState.Ref | null;
+  }
+
+  export interface ClientNewDraft {
+    type: "playground-client-new-draft";
+  }
+
+  export interface ClientDraftUpdate {
+    type: "playground-client-draft-update";
+    payload: ClientDraftUpdatePayload;
+  }
+
+  export interface ClientDraftUpdatePayload {
+    promptId: PlaygroundMap.PromptId;
+    content: string;
   }
 
   //#endregion

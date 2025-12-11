@@ -27,18 +27,29 @@ export function Blueprint(props: Blueprint.Props) {
     (playground) =>
       playground.prompt?.prompt &&
       playground.pin &&
+      "reason" in playground.prompt &&
       playground.prompt.reason !== "cursor",
     [],
   );
-  const showSource = showSourceSetting || pinnedButNotCursorPrompt;
+  const pinnedDraftPrompt = clientState.$.playground.useCompute(
+    (playground) =>
+      playground.prompt?.prompt &&
+      playground.pin &&
+      playground.prompt.type === "draft",
+    [],
+  );
+  const showSource =
+    showSourceSetting || pinnedButNotCursorPrompt || pinnedDraftPrompt;
 
   useEffect(() => {
     log.debug("Displaying prompt:", promptId);
   }, [promptId]);
 
   return (
-    <BlueprintProvider blueprint={{}} promptState={promptState}>
-      {showSource && <PromptSource promptState={promptState} />}
+    <BlueprintProvider promptState={promptState}>
+      {showSource && (
+        <PromptSource promptState={promptState} draft={!!pinnedDraftPrompt} />
+      )}
 
       <Assessment
         promptState={promptState}
