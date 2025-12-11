@@ -2,7 +2,7 @@
   "name": "@mindrig/parser-wasm",
   "description": "Mind Rig parser",
   "version": "0.1.0",
-  "license": "UNLICENSED",
+  "license": "FSL-1.1-ALv2",
   "files": [
     "parser_bg.wasm",
     "parser.js",

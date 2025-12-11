@@ -1,5 +1,6 @@
 [package]
 edition = "2024"
+license = "FSL-1.1-ALv2"
 name = "mindrig_types"
 version = "0.1.0"
 

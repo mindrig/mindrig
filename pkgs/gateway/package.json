@@ -1,5 +1,6 @@
 {
   "name": "@wrkspc/gateway",
+  "license": "FSL-1.1-ALv2",
   "type": "module",
   "scripts": {
     "dev": "./scripts/dev.sh",

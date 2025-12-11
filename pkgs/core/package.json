@@ -2,6 +2,7 @@
   "name": "@wrkspc/core",
   "private": true,
   "version": "0.1.0",
+  "license": "FSL-1.1-ALv2",
   "description": "Shared functionality between Mind Rig client and server",
   "type": "module",
   "exports": {

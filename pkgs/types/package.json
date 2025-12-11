@@ -1,6 +1,7 @@
 {
   "name": "@wrkspc/types-src",
   "private": true,
+  "license": "FSL-1.1-ALv2",
   "scripts": {
     "build": "gt build"
   },

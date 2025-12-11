@@ -1,4 +1,5 @@
 {
+  "name": "@wrkspc/ts",
   "private": true,
-  "name": "@wrkspc/ts"
+  "license": "FSL-1.1-ALv2"
 }

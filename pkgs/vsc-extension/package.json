@@ -2,8 +2,10 @@
   "name": "vscode",
   "publisher": "mindrig",
   "displayName": "Mind Rig",
-  "description": "Mind Rig extension for VS Code",
+  "private": false,
   "version": "0.1.0",
+  "license": "FSL-1.1-ALv2",
+  "description": "Mind Rig extension for VS Code",
   "repository": {
     "type": "git",
     "url": "https://github.com/mindrig/mindrig.git"
@@ -13,7 +15,9 @@
   },
   "icon": "./assets/logo-256.png",
   "categories": [
-    "AI"
+    "AI",
+    "Testing",
+    "Other"
   ],
   "main": "./dist/extension/extension.js",
   "contributes": {
@@ -204,6 +208,5 @@
     "vite": "8.0.0-beta.0",
     "vite-plugin-static-copy": "^3.1.4",
     "vitest": "^4.0.15"
-  },
-  "private": false
+  }
 }

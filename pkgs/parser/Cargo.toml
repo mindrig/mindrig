@@ -1,9 +1,9 @@
 [package]
 name = "mindrig_parser"
-description = "Mind Rig parser"
 version = "0.1.0"
+license = "FSL-1.1-ALv2"
 edition = "2024"
-license = "UNLICENSED"
+description = "Mind Rig parser"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
