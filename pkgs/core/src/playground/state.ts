@@ -11,9 +11,19 @@ export interface PlaygroundState {
 }
 
 export namespace PlaygroundState {
-  export interface PromptItem extends RefCode {
+  export type PromptItem = PromptItemCode | PromptItemDraft;
+
+  export interface PromptItemCode extends RefCode {
+    type: "code";
     /** Trimmed prompt content for display within the picker UI. */
     preview: string;
+  }
+
+  export interface PromptItemDraft extends RefDraft {
+    type: "draft";
+    /** Trimmed prompt content for display within the picker UI. */
+    preview: string;
+    updatedAt: number;
   }
 
   export type Prompt = PromptCode | PromptDraft;
@@ -68,21 +78,31 @@ export function buildPlaygroundState(): PlaygroundState {
 }
 
 export namespace PlaygroundStatePromptToRef {
-  export type Constraint = PlaygroundState.PromptCode | null;
+  export type Constraint = PlaygroundState.Prompt | null;
 
   export type Result<Prompt extends Constraint> = Prompt extends {}
-    ? PlaygroundState.RefCode
-    : PlaygroundState.RefCode | null;
+    ? PlaygroundState.Ref
+    : PlaygroundState.Ref | null;
 }
 
 export function playgroundStatePromptToCodeRef<
   Prompt extends PlaygroundStatePromptToRef.Constraint,
 >(statePrompt: Prompt): PlaygroundStatePromptToRef.Result<Prompt> {
   if (!statePrompt) return null as PlaygroundStatePromptToRef.Result<Prompt>;
-  return {
-    v: 1,
-    type: "code",
-    promptId: statePrompt.prompt.id,
-    fileId: statePrompt.fileId,
-  };
+  switch (statePrompt.type) {
+    case "draft":
+      return {
+        v: 1,
+        type: "draft",
+        promptId: statePrompt.prompt.id,
+      };
+
+    case "code":
+      return {
+        v: 1,
+        type: "code",
+        promptId: statePrompt.prompt.id,
+        fileId: statePrompt.fileId,
+      };
+  }
 }

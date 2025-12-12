@@ -113,6 +113,12 @@ export class PlaygroundManager extends Manager {
       this.#ensureHydrated(this.#onDraftUpdate),
     );
 
+    this.#messages.listen(
+      this,
+      "playground-client-draft-delete",
+      this.#ensureHydrated(this.#onDraftDelete),
+    );
+
     this.#hydratePromise = new Promise(
       (resolve) => (this.#hydrateResolve = resolve),
     );
@@ -329,6 +335,28 @@ export class PlaygroundManager extends Manager {
 
     draft.content = content;
     draft.updatedAt = Date.now();
+    await this.#saveDrafts();
+
+    this.#updateState();
+    await this.#sendState();
+  }
+
+  async #onDraftDelete(message: PlaygroundMessage.ClientDraftDelete) {
+    const { promptId } = message.payload;
+    const draft = this.#drafts[promptId];
+    if (!draft) return;
+
+    delete this.#drafts[promptId];
+
+    if (
+      this.#pin &&
+      this.#pin.ref.type === "draft" &&
+      this.#pin.ref.promptId === promptId
+    ) {
+      this.#pin = null;
+      await this.#savePin();
+    }
+
     await this.#saveDrafts();
 
     this.#updateState();

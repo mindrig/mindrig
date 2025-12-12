@@ -130,7 +130,7 @@ export function resolvePlaygroundState(
   // reason for the prompt later on.
 
   const currentFileMeta = currentFile ? editorFileToMeta(currentFile) : null;
-  const prompts = mapFile ? buildStatePromptItems(mapFile) : [];
+  const prompts = buildStatePromptItems(mapFile, drafts);
 
   const cursor = editorFile?.cursor;
   const parsedPromptIdx =
@@ -193,7 +193,7 @@ export function resolvePlaygroundState(
           prompt: pinPrompt,
           reason,
         },
-        prompts: buildStatePromptItems(pinMapFile),
+        prompts: buildStatePromptItems(pinMapFile, drafts),
         pin,
         parseError,
       };
@@ -992,30 +992,45 @@ function truncatePromptContent(content: string): string {
 }
 
 function buildStatePromptItems(
-  mapFile: PlaygroundMap.File,
+  mapFile: PlaygroundMap.File | undefined,
+  drafts: Store.Drafts,
 ): PlaygroundState.PromptItem[] {
-  return mapFile.prompts.map((prompt) =>
-    buildStatePromptItem({ fileId: mapFile.id, prompt }),
-  );
+  return (
+    mapFile
+      ? mapFile.prompts.map(buildStatePromptItemCode.bind(null, mapFile.id))
+      : []
+  ).concat(Object.values(drafts).map(buildStatePromptItemDraft));
 }
 
-export namespace buildPromptItem {
+export namespace buildStatePromptItemCode {
   export interface Props {
     fileId: PlaygroundMap.FileId;
     prompt: PlaygroundMap.Prompt;
   }
 }
 
-function buildStatePromptItem(
-  props: buildPromptItem.Props,
+function buildStatePromptItemCode(
+  fileId: PlaygroundMap.FileId,
+  prompt: PlaygroundMap.PromptCode,
 ): PlaygroundState.PromptItem {
-  const { fileId, prompt } = props;
   return {
     v: 1,
     type: "code",
     fileId,
     promptId: prompt.id,
     preview: truncatePromptContent(prompt.content),
+  };
+}
+
+function buildStatePromptItemDraft(
+  prompt: PlaygroundMap.PromptDraft,
+): PlaygroundState.PromptItem {
+  return {
+    v: 1,
+    type: "draft",
+    promptId: prompt.id,
+    preview: truncatePromptContent(prompt.content),
+    updatedAt: prompt.updatedAt,
   };
 }
 

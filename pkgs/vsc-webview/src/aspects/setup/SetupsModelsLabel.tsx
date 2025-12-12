@@ -29,6 +29,7 @@ export function SetupsModelsLabels(props: SetupsModelsLabels.Props) {
         transform: "reset",
         truncate: true,
         className: "shrink",
+        mono: true,
       })}
     >
       {label}

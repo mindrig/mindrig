@@ -19,7 +19,8 @@ export namespace PlaygroundMessage {
     | ClientUnpin
     | ClientPromptChange
     | ClientNewDraft
-    | ClientDraftUpdate;
+    | ClientDraftUpdate
+    | ClientDraftDelete;
 
   export interface ClientPin {
     type: "playground-client-pin";
@@ -44,9 +45,17 @@ export namespace PlaygroundMessage {
     payload: ClientDraftUpdatePayload;
   }
 
-  export interface ClientDraftUpdatePayload {
-    promptId: PlaygroundMap.PromptId;
+  export interface ClientDraftUpdatePayload extends ClientDraftPayloadBase {
     content: string;
+  }
+
+  export interface ClientDraftDelete {
+    type: "playground-client-draft-delete";
+    payload: ClientDraftPayloadBase;
+  }
+
+  export interface ClientDraftPayloadBase {
+    promptId: PlaygroundMap.PromptId;
   }
 
   //#endregion

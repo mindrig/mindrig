@@ -1,6 +1,7 @@
 import { PlaygroundState } from "@wrkspc/core/playground";
-import { TextArea } from "@wrkspc/ui";
-import { State } from "enso";
+import iconRegularTrashAlt from "@wrkspc/icons/svg/regular/trash-alt.js";
+import { Button, TextAreaController } from "@wrkspc/ui";
+import { Field, State } from "enso";
 import { LayoutSection } from "../layout/Section";
 import { useMessages } from "../message/Context";
 
@@ -13,27 +14,54 @@ export namespace PromptSource {
 
 export function PromptSource(props: PromptSource.Props) {
   const { promptState, draft } = props;
-  const content = promptState.$.prompt.$.content.useValue();
+  const promptId = promptState.$.prompt.$.id.useValue();
+  const contentField = Field.use(promptState.$.prompt.$.content.value, [
+    promptId,
+  ]);
   const { sendMessage } = useMessages();
 
+  contentField.useWatch(
+    (content) => {
+      promptState.$.prompt.$.content.set(content);
+
+      sendMessage({
+        type: "playground-client-draft-update",
+        payload: {
+          promptId,
+          content,
+        },
+      });
+    },
+    [promptState, promptId],
+  );
+
   return (
-    <LayoutSection header="prompt">
-      <TextArea
+    <LayoutSection
+      header={draft ? "Prompt draft" : "Prompt"}
+      actions={
+        draft && (
+          <Button
+            icon={iconRegularTrashAlt}
+            size="xsmall"
+            style="label"
+            onClick={() =>
+              sendMessage({
+                type: "playground-client-draft-delete",
+                payload: { promptId },
+              })
+            }
+          />
+        )
+      }
+    >
+      <TextAreaController
         label={{ a11y: "Prompt" }}
-        value={content}
-        onChange={(content) => {
-          promptState.$.prompt.$.content.set(content);
-          sendMessage({
-            type: "playground-client-draft-update",
-            payload: {
-              promptId: promptState.$.prompt.$.id.value,
-              content: content,
-            },
-          });
-        }}
-        size="small"
+        field={contentField}
+        size={draft ? "medium" : "small"}
         mono
         isReadOnly={!draft}
+        placeholder={draft ? "Enter you prompt here..." : "No content"}
+        autoFocus={draft}
       />
     </LayoutSection>
   );

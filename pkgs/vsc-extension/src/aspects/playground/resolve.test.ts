@@ -46,6 +46,7 @@ describe(resolvePlaygroundState, () => {
     it("resolves current file state", () => {
       const { playgroundStateProps, editorFileA, mapFileA, mapPromptsA } =
         playgroundSetupFactory();
+
       const state = resolvePlaygroundState(playgroundStateProps);
       expect(state).toMatchObject({
         file: {
@@ -129,6 +130,39 @@ describe(resolvePlaygroundState, () => {
         pin: null,
         prompts: [],
         parseError: null,
+      });
+    });
+
+    it("includes draft prompts in state", () => {
+      const { playgroundStateProps, editorFileA, mapFileA, mapPromptsA } =
+        playgroundSetupFactory();
+
+      const draftPrompt = playgroundMapPromptDraftFactory();
+
+      const state = resolvePlaygroundState({
+        ...playgroundStateProps,
+        drafts: {
+          [draftPrompt.id]: draftPrompt,
+        },
+      });
+
+      expect(state).toMatchObject({
+        prompts: [
+          expect.objectContaining({
+            type: "code",
+            fileId: mapFileA.id,
+            promptId: mapPromptsA[0].id,
+          }),
+          expect.objectContaining({
+            type: "code",
+            fileId: mapFileA.id,
+            promptId: mapPromptsA[1].id,
+          }),
+          expect.objectContaining({
+            type: "draft",
+            promptId: draftPrompt.id,
+          }),
+        ],
       });
     });
   });
@@ -236,6 +270,67 @@ describe(resolvePlaygroundState, () => {
           reason: "cursor",
         }),
         parseError,
+      });
+    });
+
+    it("includes draft prompts in state", () => {
+      const {
+        mapFileA,
+        mapPromptsA,
+        mapPromptsB,
+        mapFileB,
+        editorFileB,
+        parsedPromptsB,
+        playgroundStateProps,
+      } = playgroundSetupFactory();
+
+      const draftPrompt = playgroundMapPromptDraftFactory();
+      const drafts = {
+        [draftPrompt.id]: draftPrompt,
+      };
+
+      expect(
+        resolvePlaygroundState({ ...playgroundStateProps, pin: null, drafts }),
+      ).toMatchObject({
+        prompts: [
+          expect.objectContaining({
+            type: "code",
+            fileId: mapFileA.id,
+            promptId: mapPromptsA[0].id,
+          }),
+          expect.objectContaining({
+            type: "code",
+            fileId: mapFileA.id,
+            promptId: mapPromptsA[1].id,
+          }),
+          expect.objectContaining({
+            type: "draft",
+            promptId: draftPrompt.id,
+          }),
+        ],
+      });
+
+      expect(
+        resolvePlaygroundState({
+          ...playgroundStateProps,
+          pin: null,
+          currentFile: editorFileB,
+          editorFile: editorFileB,
+          parsedPrompts: parsedPromptsB,
+          drafts,
+        }),
+      ).toMatchObject({
+        prompts: [
+          expect.objectContaining({
+            type: "code",
+            fileId: mapFileB.id,
+            promptId: mapPromptsB[0].id,
+          }),
+          expect.objectContaining({
+            type: "draft",
+            promptId: draftPrompt.id,
+          }),
+        ],
       });
     });
   });
@@ -453,17 +548,48 @@ describe(resolvePlaygroundState, () => {
         parseError,
       });
     });
+
+    it("includes draft prompts in state", () => {
+      const { mapFileB, mapPromptsB, playgroundStateProps } =
+        playgroundSetupFactory();
+
+      const pin: PlaygroundState.Ref = {
+        v: 1,
+        type: "code",
+        fileId: mapFileB.id,
+        promptId: mapPromptsB[0].id,
+      };
+
+      const draftPrompt = playgroundMapPromptDraftFactory();
+
+      const state = resolvePlaygroundState({
+        ...playgroundStateProps,
+        pin,
+        drafts: {
+          [draftPrompt.id]: draftPrompt,
+        },
+      });
+
+      expect(state).toMatchObject({
+        prompts: [
+          expect.objectContaining({
+            type: "code",
+            fileId: mapFileB.id,
+            promptId: mapPromptsB[0].id,
+          }),
+          expect.objectContaining({
+            type: "draft",
+            promptId: draftPrompt.id,
+          }),
+        ],
+      });
+    });
   });
 
   describe("draft", () => {
     it("resolves pinned draft prompt state ", () => {
-      const {
-        editorFileA,
-        editorFileB,
-        mapFileA,
-        mapPromptsA,
-        playgroundStateProps,
-      } = playgroundSetupFactory();
+      const { editorFileA, mapFileA, mapPromptsA, playgroundStateProps } =
+        playgroundSetupFactory();
 
       const draftPrompt = playgroundMapPromptDraftFactory();
 
@@ -496,12 +622,18 @@ describe(resolvePlaygroundState, () => {
         }),
         prompts: [
           expect.objectContaining({
+            type: "code",
             fileId: mapFileA.id,
             promptId: mapPromptsA[0].id,
           }),
           expect.objectContaining({
+            type: "code",
             fileId: mapFileA.id,
             promptId: mapPromptsA[1].id,
+          }),
+          expect.objectContaining({
+            type: "draft",
+            promptId: draftPrompt.id,
           }),
         ],
       });

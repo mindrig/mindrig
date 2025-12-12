@@ -36,9 +36,11 @@ export function Setups(props: Setups.Props) {
             {`${soloSetup ? "Model" : "Models"} to use`}{" "}
           </span>
 
-          <span className="shrink-0">
-            <Tag size="xsmall">{setupsField.size}</Tag>
-          </span>
+          {!soloSetup && (
+            <span className="shrink-0">
+              <Tag size="xsmall">{setupsField.size}</Tag>
+            </span>
+          )}
 
           {!expanded && <SetupsModelsLabels setupsField={setupsField} />}
         </div>

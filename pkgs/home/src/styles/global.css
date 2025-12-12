@@ -45,6 +45,12 @@
     min-width: 0;
   } */
 
+  .w-stretch {
+    width: 100%;
+    width: -webkit-fill-available;
+    width: stretch;
+  }
+
   .font-sans {
     font-variation-settings:
       "wdth" 90,

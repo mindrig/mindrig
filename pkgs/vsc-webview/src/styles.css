@@ -278,9 +278,15 @@
     text-wrap: balance;
   }
 
-  /* .flex > * {
+  .flex > * {
     min-width: 0;
-  } */
+  }
+
+  .w-stretch {
+    width: 100%;
+    width: -webkit-fill-available;
+    width: stretch;
+  }
 }
 
 @layer components {

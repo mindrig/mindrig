@@ -28,17 +28,15 @@ export function FileHeader(props: FileHeader.Props) {
   );
 
   const promptRef = clientState.$.playground.$.prompt.useCompute(
-    (prompt) =>
-      !prompt?.type || prompt.type === "code"
-        ? playgroundStatePromptToCodeRef(prompt)
-        : null,
+    (prompt) => playgroundStatePromptToCodeRef(prompt),
     [],
   );
+  const isDraft = promptRef?.type === "draft";
 
   return (
     <LayoutSection style="header" sticky="top">
       <div className="flex items-center justify-between gap-2">
-        <FileLabel fileState={fileState} isPinned={isPinned} />
+        <FileLabel fileState={fileState} isPinned={isPinned && !isDraft} />
 
         <div className="flex items-center gap-2 max-w-60 w-full">
           <PlaygroundPromptSelector />
