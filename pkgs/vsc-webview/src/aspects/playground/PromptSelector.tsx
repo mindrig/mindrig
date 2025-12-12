@@ -63,6 +63,7 @@ export function PlaygroundPromptSelector(
               };
             },
           ),
+          flatten: !hasDrafts,
         },
       ]}
       placeholder={prompts.size ? "Select prompt" : "No prompts"}
