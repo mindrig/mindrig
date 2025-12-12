@@ -22,6 +22,10 @@ export function PlaygroundPromptSelector(
   );
 
   const prompts = clientState.$.playground.$.prompts.useCollection();
+  const hasFilePrompts = clientState.$.playground.$.prompts.useCompute(
+    (prompts) => prompts.some((prompt) => prompt.type === "code"),
+    [],
+  );
   const hasDrafts = clientState.$.playground.$.prompts.useCompute(
     (prompts) => prompts.some((prompt) => prompt.type === "draft"),
     [],
@@ -44,7 +48,7 @@ export function PlaygroundPromptSelector(
               value: prompt.promptId,
             };
           }),
-          flatten: !hasDrafts,
+          flatten: !hasDrafts || !hasFilePrompts,
         },
         {
           type: "section",

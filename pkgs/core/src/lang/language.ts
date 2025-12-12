@@ -1,5 +1,7 @@
 export namespace Language {
-  export type Id = (typeof languages)[number];
+  export type Id = IdKnown | "unknown";
+
+  export type IdKnown = (typeof languages)[number];
 }
 
 export const languages = ["ts", "js", "py"] as const;

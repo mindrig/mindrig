@@ -1,5 +1,6 @@
 import { Language } from "@wrkspc/core/lang";
-import { iconBaseCn, iconInlineCn } from "@wrkspc/ds";
+import { Icon, iconBaseCn, iconInlineCn } from "@wrkspc/ds";
+import iconRegularFileBan from "@wrkspc/icons/svg/regular/file-ban.js";
 import { cnss } from "cnss";
 
 export namespace LanguageIcon {
@@ -28,6 +29,8 @@ function Content(props: LanguageIcon.Props) {
       return <Js />;
     case "py":
       return <Py />;
+    case "unknown":
+      return <Icon size="fill" id={iconRegularFileBan} color="support" />;
     default:
       return null;
   }

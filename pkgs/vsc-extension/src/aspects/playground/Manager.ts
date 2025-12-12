@@ -1,4 +1,5 @@
 import { Manager } from "@/aspects/manager/Manager.js";
+import { PromptVar } from "@mindrig/types";
 import { EditorFile } from "@wrkspc/core/editor";
 import {
   buildMapPromptId,
@@ -11,11 +12,13 @@ import {
 import { Store } from "@wrkspc/core/store";
 import { always } from "alwaysly";
 import { log } from "smollog";
+import { compile as tuttutCompile } from "tuttut";
 import { EditorManager } from "../editor/Manager";
 import { MessagesManager } from "../message/Manager";
 import { PromptsManager } from "../prompt/Manager";
 import { StoreManager } from "../store/Manager";
 import {
+  matchPlaygroundMapPromptVars,
   resolvePlaygroundMap,
   resolvePlaygroundMapPair,
   resolvePlaygroundState,
@@ -333,8 +336,34 @@ export class PlaygroundManager extends Manager {
     const draft = this.#drafts[promptId];
     always(draft);
 
-    draft.content = content;
-    draft.updatedAt = Date.now();
+    const parsedVars: PromptVar[] = [];
+    const promptTokens = tuttutCompile(content);
+    promptTokens.forEach((varToken) => {
+      if (varToken.type !== "var") return;
+      parsedVars.push({
+        exp: varToken.value,
+        span: {
+          outer: { start: varToken.span[0], end: varToken.span[1] },
+          inner: {
+            start: varToken.span[0] + 2,
+            end: varToken.span[1] - 2,
+          },
+        },
+      });
+    });
+
+    const varsMatch = matchPlaygroundMapPromptVars({
+      mapPromptVars: draft.vars,
+      parsedPromptVars: parsedVars,
+      promptSpan: { start: 0, end: content.length },
+    });
+
+    Object.assign(draft, {
+      content,
+      vars: varsMatch.nextMapPromptVars,
+      updatedAt: Date.now(),
+    });
+
     await this.#saveDrafts();
 
     this.#updateState();

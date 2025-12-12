@@ -56,6 +56,7 @@ export function PromptSource(props: PromptSource.Props) {
     >
       <TextAreaController
         label={{ a11y: "Prompt" }}
+        description={draft && "Use {{variableName}} to insert a variable."}
         field={contentField}
         size={draft ? "medium" : "small"}
         mono

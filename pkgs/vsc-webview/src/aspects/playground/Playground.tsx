@@ -22,7 +22,7 @@ export function Playground() {
           {decomposedPrompt.value ? (
             <Blueprint promptState={decomposedPrompt.state} />
           ) : (
-            <BlueprintEmpty />
+            <BlueprintEmpty fileState={decomposedFile.state} />
           )}
         </>
       ) : (

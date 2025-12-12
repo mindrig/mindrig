@@ -8,7 +8,7 @@ export function PlaygroundEmpty() {
       notices={<PlaygroundNotices />}
       icon={iconRegularDoNotEnter}
       label="No supported file open"
-      description="At the moment only JavaScript, TypeScripty and Python files are supported."
+      description="Only text files are supported by the playground."
     />
   );
 }

@@ -80,8 +80,6 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
     if (!doc) return null;
 
     const languageId = this.#detectFileLang(doc);
-    if (!languageId) return null;
-
     return this.#createFileState(doc, languageId);
   }
 
@@ -89,7 +87,7 @@ export class EditorManager extends Manager<EditorManager.EventMap> {
 
   //#region State
 
-  #detectFileLang(document: vscode.TextDocument): Language.Id | undefined {
+  #detectFileLang(document: vscode.TextDocument): Language.Id {
     const ext = fileExtFromPath(document.fileName);
     return languageIdFromExt(ext);
   }
