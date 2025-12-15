@@ -36,7 +36,7 @@ export function DownloadForm(props: DownloadFormProps) {
         <Button
           color="cta"
           size="large"
-          href="https://open-vsx.org/extension/mindrig/vscode"
+          href="https://open-vsx.org/extension/mindrig/mindrig"
         >
           Cursor, Antigravity, etc.
         </Button>

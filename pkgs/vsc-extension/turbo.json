@@ -1,9 +1,7 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
-    "package": {
-      "dependsOn": ["build"]
-    },
+    "package": {},
 
     "build": {
       "dependsOn": ["mindrig_parser#build", "@wrkspc/vsc-webview#build"],

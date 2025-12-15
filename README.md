@@ -20,7 +20,7 @@
 Mind Rig is available as a VS Code (and forks) extension:
 
 - For Visual Studio Code, [install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=mindrig.vscode).
-- For Cursor, Antigravity, Windsurf, etc., [install from Open VSX](https://open-vsx.org/extension/mindrig/vscode).
+- For Cursor, Antigravity, Windsurf, etc., [install from Open VSX](https://open-vsx.org/extension/mindrig/mindrig).
 
 ## Contributing
 

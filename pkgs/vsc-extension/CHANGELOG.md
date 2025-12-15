@@ -8,6 +8,18 @@ This change log follows the format documented in [Keep a CHANGELOG].
 [semantic versioning]: http://semver.org/
 [keep a changelog]: http://keepachangelog.com/
 
+## v0.1.3 - 2025-12-16
+
+### Fixed
+
+- Fixed Open VSX extension URL in the README.
+
+## v0.1.2 - 2025-12-16
+
+### Fixed
+
+- Fixed screenshot URL in the README.
+
 ## v0.1.1 - 2025-12-15
 
 ### Fixed

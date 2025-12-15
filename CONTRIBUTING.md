@@ -37,3 +37,15 @@
 8. Run the command (`cmd+shift+p`/`ctrl+shift+p`) `Dev Containers: Rebuild and Reopen in Container` to start and set up the dev container.
 
 9. You're done!
+
+## Secrets
+
+### Adding a New Secret
+
+To add a new repo-wide secret, run `fnox set` (e.g. `VSCE_PAT`):
+
+```sh
+fnox set VSCE_PAT
+```
+
+It will prompt you to enter the secret value, encrypt it using `age`, and add it to `knox.toml`. You should then commit and push the changes to `knox.toml`.
