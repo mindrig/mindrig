@@ -8,6 +8,12 @@ This change log follows the format documented in [Keep a CHANGELOG].
 [semantic versioning]: http://semver.org/
 [keep a changelog]: http://keepachangelog.com/
 
-## v0.1.0 - 2025-08-??
+## v0.1.1 - 2025-12-15
+
+### Fixed
+
+- Replaced dummy README with actual README in VS Code extension package.
+
+## v0.1.0 - 2025-12-15
 
 Initial version

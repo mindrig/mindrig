@@ -3,9 +3,9 @@
   "publisher": "mindrig",
   "displayName": "Mind Rig",
   "private": false,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "FSL-1.1-ALv2",
-  "description": "Mind Rig extension for VS Code",
+  "description": "The VS Code's AI playground",
   "repository": {
     "type": "git",
     "url": "https://github.com/mindrig/mindrig.git"
