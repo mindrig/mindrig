@@ -3,13 +3,13 @@ import { DownloadForm } from "./DownloadForm";
 import { textCn } from "@wrkspc/theme";
 ---
 
-<div class="bg-gray-50 w-full">
+<div class="bg-gray-50 w-full grow">
   <div
     class="mx-auto px-7 py-32 max-w-6xl w-full flex flex-col gap-8 items-center"
   >
     <div class="space-y-4 max-w-2xl text-center">
       <h1 class={textCn({ role: "header", size: "xlarge" })}>
-        Powerful AI Playground<br />Right in Your Code Editor
+        Your Dev Console<br />for AI Engineering
       </h1>
 
       <h2
@@ -20,11 +20,16 @@ import { textCn } from "@wrkspc/theme";
           className: "hidden md:block ",
         })}
       >
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor.
+        Develop high-quality prompts without leaving your code editor.
       </h2>
     </div>
 
     <DownloadForm />
+
+    <img
+      src="/screenshot.png"
+      alt="Screenshot of Mind Rig in action"
+      class=""
+    />
   </div>
 </div>

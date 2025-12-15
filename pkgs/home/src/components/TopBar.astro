@@ -24,7 +24,7 @@ const layoutCn = cnss<{ borderless: boolean }>()
       <a href="/"><Logotype /></a>
     </div>
 
-    <div class="flex lg:hidden">
+    <!-- <div class="flex lg:hidden">
       <button
         type="button"
         id="mobile-menu-toggle"
@@ -45,10 +45,10 @@ const layoutCn = cnss<{ borderless: boolean }>()
             d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
         </svg>
       </button>
-    </div>
+    </div> -->
 
     <div class="hidden lg:flex lg:gap-12">
-      <a href="/#about" class="text-sm font-semibold leading-6 text-gray-900"
+      <!-- <a href="/#about" class="text-sm font-semibold leading-6 text-gray-900"
         >About</a
       >
       <a href="/#cost" class="text-sm font-semibold leading-6 text-gray-900"
@@ -61,7 +61,7 @@ const layoutCn = cnss<{ borderless: boolean }>()
 
       <a href="/#contact" class="text-sm font-semibold leading-6 text-gray-900"
         >Contact</a
-      >
+      > -->
     </div>
 
     <div class="hidden lg:flex lg:flex-1 lg:justify-end">
@@ -72,6 +72,7 @@ const layoutCn = cnss<{ borderless: boolean }>()
       > -->
     </div>
   </nav>
+
   <!-- Mobile menu, show/hide based on menu open state. -->
   <div
     class="lg:hidden hidden"
@@ -104,6 +105,7 @@ const layoutCn = cnss<{ borderless: boolean }>()
           </svg>
         </button>
       </div>
+
       <div class="">
         <div class="">
           <div class="space-y-2 py-6 border-b border-gray-300">
@@ -142,7 +144,7 @@ const layoutCn = cnss<{ borderless: boolean }>()
     </div>
   </div>
 </header>
-
+<!--
 <script>
   const { pathname } = window.location;
   const activeLink = document.querySelector(`a[href="${pathname}"]`);
@@ -151,10 +153,7 @@ const layoutCn = cnss<{ borderless: boolean }>()
     activeLink.classList.add(
       "text-slate-900",
       "border-b-2",
-      "border-slate-900",
-      "",
-      "",
-      ""
+      "border-slate-900"
     );
   }
 </script>
@@ -174,4 +173,4 @@ const layoutCn = cnss<{ borderless: boolean }>()
     mobileLinks[i]?.addEventListener("click", toggleMobileMenu);
   }
   closeMenuButton?.addEventListener("click", toggleMobileMenu);
-</script>
+</script> -->

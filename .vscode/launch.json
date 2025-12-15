@@ -113,7 +113,7 @@
       "name": "home#dev",
       "type": "msedge",
       "request": "launch",
-      "url": "http://localhost:3110",
+      "url": "http://localhost:3111",
       "webRoot": "${workspaceFolder}",
       "preLaunchTask": "home#dev"
     },
