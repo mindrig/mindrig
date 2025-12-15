@@ -11,7 +11,7 @@
   <a href="https://github.com/mindrig/mindrig/actions/workflows/package-extension.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/mindrig/mindrig/package-extension.yml?style=flat-square" /></a>
 </p>
 
-[![Mind Rig Terminal UI](./docs/assets/screenshot.png)](https://mindrig.ai)
+[![Mind Rig screenshot](./docs/assets/screenshot.png)](https://mindrig.ai)
 
 ## Getting Started
 

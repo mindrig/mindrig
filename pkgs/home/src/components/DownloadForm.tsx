@@ -22,7 +22,7 @@ export function DownloadForm(props: DownloadFormProps) {
         <Button
           color="cta"
           size="large"
-          href="https://marketplace.visualstudio.com/items?itemName=mindrig.vscode"
+          href="https://marketplace.visualstudio.com/items?itemName=mindrig.mindrig"
         >
           Visual Studio Code
         </Button>
