@@ -150,7 +150,7 @@ importers:
         specifier: 19.2.0
         version: 19.2.0
       react-aria-components:
-        specifier: ^1.12.1
+        specifier: ^1.13.0
         version: 1.13.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react-dom:
         specifier: 19.2.0
@@ -238,7 +238,7 @@ importers:
         specifier: 19.2.0
         version: 19.2.0
       react-aria-components:
-        specifier: ^1.12.1
+        specifier: ^1.13.0
         version: 1.13.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react-dom:
         specifier: 19.2.0
