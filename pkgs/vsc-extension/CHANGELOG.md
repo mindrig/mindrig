@@ -8,6 +8,12 @@ This change log follows the format documented in [Keep a CHANGELOG].
 [semantic versioning]: http://semver.org/
 [keep a changelog]: http://keepachangelog.com/
 
+## v0.1.4 - 2025-12-16
+
+### Fixed
+
+- Fixed "Cannot change the id of an item" exception in the extension webview. The bug was fixed earlier, but due to Turborepo inputs misconfiguration, the old build was still being used.
+
 ## v0.1.3 - 2025-12-16
 
 ### Fixed
