@@ -6,7 +6,7 @@ FSL-1.1-ALv2
 
 ## Notice
 
-Copyright 2025 Mid Rig Team
+Copyright 2025 Mind Rig Team
 
 ## Terms and Conditions
 
