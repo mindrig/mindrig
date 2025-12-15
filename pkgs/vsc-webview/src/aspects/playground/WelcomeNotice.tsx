@@ -57,7 +57,7 @@ function Content(props: Content.Props) {
             Join Discord
           </Button>
 
-          <Button style="transparent" size="small" href="https://mindrig.dev">
+          <Button style="transparent" size="small" href="https://mindrig.ai">
             Learn More
           </Button>
         </Block>

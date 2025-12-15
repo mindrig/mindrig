@@ -13,10 +13,10 @@ export function FAQ() {
             <p id="contact" className="text-base leading-7 text-gray-600">
               If you have any other questions - please get in touch at{" "}
               <a
-                href="mailto:hey@mindrig.dev"
+                href="mailto:hey@mindrig.ai"
                 className="text-2xl font-bold text-blue-600 hover:text-blue-600"
               >
-                hey@mindrig.dev
+                hey@mindrig.ai
               </a>
             </p>
           </div>

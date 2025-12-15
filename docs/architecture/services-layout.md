@@ -4,10 +4,10 @@
 
 ### Production Services
 
-| Service     | Id        | Production URL                                             | Dev URL                                        | Description         |
-| ----------- | --------- | ---------------------------------------------------------- | ---------------------------------------------- | ------------------- |
-| Home Page   | `home`    | [https://mindrig.dev](https://mindrig.dev)                 | [http://localhost:3100](http://localhost:3100) | Main website.       |
-| Gateway API | `gateway` | [https://gateway.mindrig.dev](https://gateway.mindrig.dev) | [http://localhost:3110](http://localhost:3110) | Global gateway API. |
+| Service     | Id        | Production URL                                           | Dev URL                                        | Description         |
+| ----------- | --------- | -------------------------------------------------------- | ---------------------------------------------- | ------------------- |
+| Home Page   | `home`    | [https://mindrig.ai](https://mindrig.ai)                 | [http://localhost:3100](http://localhost:3100) | Main website.       |
+| Gateway API | `gateway` | [https://gateway.mindrig.ai](https://gateway.mindrig.ai) | [http://localhost:3110](http://localhost:3110) | Global gateway API. |
 
 ### Dev Tools Services
 
