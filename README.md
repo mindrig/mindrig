@@ -1,6 +1,26 @@
-# Mind Rig
+<p align="center">
+  <a href="https://mindrig.ai">
+    <h1 align="center">Mind Rig</h1>
+  </a>
+</p>
+<p align="center">The VS Code's AI playground.</p>
+<p align="center">
+  <a href="https://discord.gg/RHgskfbb"><img alt="Discord" src="https://img.shields.io/discord/1447802605811269743?style=flat-square&label=discord" /></a>
+  <a href="https://open-vsx.org/extension/mindrig/vscode"><img alt="Open VSX Downloads" src="https://img.shields.io/open-vsx/dt/mindrig/vscode?style=flat-square&label=open%20vsx"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=mindrig.vscode"><img alt="Visual Studio Marketplace Downloads" src="https://img.shields.io/visual-studio-marketplace/d/mindrig.vscode?style=flat-square"></a>
+  <a href="https://github.com/mindrig/mindrig/actions/workflows/package-extension.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/mindrig/mindrig/package-extension.yml?style=flat-square" /></a>
+</p>
 
-🚧 Work in progress
+[![Mind Rig Terminal UI](./docs/assets/screenshot.png)](https://mindrig.ai)
+
+## Getting Started
+
+### Installation
+
+Mind Rig is available as a VS Code (and forks) extension:
+
+- For Visual Studio Code, [install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=mindrig.vscode).
+- For Cursor, Antigravity, Windsurf, etc., [install from Open VSX](https://open-vsx.org/extension/mindrig/vscode).
 
 ## Contributing
 
@@ -8,4 +28,4 @@ See [Contributing Guide](./CONTRIBUTING.md) if you want to contribute to Mind Ri
 
 ## License
 
-Mind Rig is licensed under [FSL-1.1-ALv2 (Functional Source License, Version 1.1, ALv2 Future License)](./LICENSE.md).
+Mind Rig is licensed under [FSL-1.1-ALv2](./LICENSE.md).
