@@ -19,7 +19,7 @@ const fantasticonConfigPath = join(rootDir, ".fantasticonrc.json");
 const packageJsonPath = join(rootDir, "package.json");
 
 const descriptions = {
-  "toolbar-icon": "Mind Rig toolbar icon",
+  "icon-toolbar": "Mind Rig toolbar icon",
 };
 
 //#endregion

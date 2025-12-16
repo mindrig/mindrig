@@ -1,9 +1,15 @@
-<p align="center">
+<p style="max-width: 190px; margin: 0 auto;">
   <a href="https://mindrig.ai">
-    <h1 align="center">Mind Rig</h1>
+    <picture >
+      <source srcset="./docs/assets/logotype-dark-380.png" media="(prefers-color-scheme: dark)">
+      <source srcset="./docs/assets/logotype-light-380.png" media="(prefers-color-scheme: light)">
+      <img src="./docs/assets/logotype-light-380.png" alt="Mind Rig logotype">
+    </picture>
   </a>
 </p>
+
 <p align="center">The VS Code's AI playground.</p>
+
 <p align="center">
   <a href="https://discord.gg/RHgskfbb"><img alt="Discord" src="https://img.shields.io/discord/1447802605811269743?style=flat-square&label=discord" /></a>
   <a href="https://open-vsx.org/extension/mindrig/mindrig"><img alt="Open VSX Downloads" src="https://img.shields.io/open-vsx/dt/mindrig/mindrig?style=flat-square&label=open%20vsx"></a>

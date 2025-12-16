@@ -10,19 +10,13 @@
     "type": "git",
     "url": "https://github.com/mindrig/mindrig.git"
   },
-  "engines": {
-    "vscode": "^1.99.0"
-  },
+  "engines": { "vscode": "^1.99.0" },
   "icon": "./assets/logo-256.png",
-  "categories": [
-    "AI",
-    "Testing",
-    "Other"
-  ],
+  "categories": ["AI", "Testing", "Other"],
   "main": "./dist/extension/extension.js",
   "contributes": {
     "icons": {
-      "mindrig-toolbar-icon": {
+      "mindrig-icon-toolbar": {
         "description": "Mind Rig toolbar icon",
         "default": {
           "fontPath": "./assets/icons.woff2",
@@ -35,20 +29,9 @@
         "command": "mindrig.showPlayground",
         "title": "Mind Rig: Show Playground"
       },
-      {
-        "command": "mindrig.runPrompt",
-        "title": "Mind Rig: Run Prompt"
-      },
-      {
-        "command": "mindrig.logIn",
-        "title": "Log In",
-        "icon": "$(unlock)"
-      },
-      {
-        "command": "mindrig.logOut",
-        "title": "Log Out",
-        "icon": "$(lock)"
-      },
+      { "command": "mindrig.runPrompt", "title": "Mind Rig: Run Prompt" },
+      { "command": "mindrig.logIn", "title": "Log In", "icon": "$(unlock)" },
+      { "command": "mindrig.logOut", "title": "Log Out", "icon": "$(lock)" },
       {
         "command": "mindrig.showProfile",
         "title": "Show Profile",
@@ -84,13 +67,7 @@
         "mindrig.dev.logsVerbosity": {
           "type": "string",
           "default": "warn",
-          "enum": [
-            "debug",
-            "info",
-            "warn",
-            "error",
-            "silent"
-          ],
+          "enum": ["debug", "info", "warn", "error", "silent"],
           "description": "Logging verbosity level"
         }
       }
@@ -102,7 +79,7 @@
           "name": "Playground",
           "when": "true",
           "type": "webview",
-          "icon": "$(mindrig-toolbar-icon)"
+          "icon": "$(mindrig-icon-toolbar)"
         }
       ]
     },
@@ -111,7 +88,7 @@
         {
           "id": "mindrig-playground",
           "title": "Mind Rig",
-          "icon": "$(mindrig-toolbar-icon)"
+          "icon": "$(mindrig-icon-toolbar)"
         }
       ]
     },

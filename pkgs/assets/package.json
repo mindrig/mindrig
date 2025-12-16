@@ -1,0 +1,11 @@
+{
+  "name": "@wrkspc/assets",
+  "private": true,
+  "version": "0.1.0",
+  "license": "FSL-1.1-ALv2",
+  "description": "Mind Rig assets",
+  "type": "module",
+  "scripts": {
+    "gen": "./scripts/link.sh"
+  }
+}

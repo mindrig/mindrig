@@ -1,6 +1,10 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
+    "gen/icons": {
+      "dependsOn": ["@wkrspc/assets#gen"]
+    },
+
     "package": {},
 
     "build": {
