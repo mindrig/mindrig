@@ -3,6 +3,8 @@ import ContentLayout from "../../../layouts/Content.astro";
 import { DocHeader } from "../../../components/DocHeader";
 import { textCn } from "@wrkspc/theme";
 import { Code } from "astro:components";
+
+export const prerender = true;
 ---
 
 <ContentLayout title="Prompts Detection | Mind Rig Guides">
@@ -10,11 +12,7 @@ import { Code } from "astro:components";
     <DocHeader category="Guides" title="Prompts Detection" />
 
     <article class="w-full max-w-2xl py-6 px-4 md:py-10">
-      <div
-        class={textCn({
-          role: "content",
-        })}
-      >
+      <div class={textCn({ role: "content" })}>
         <p>
           Mind Rig parses active <strong>JavaScript</strong>, <strong
             >TypeScript</strong
