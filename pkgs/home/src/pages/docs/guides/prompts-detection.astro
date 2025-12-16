@@ -1,0 +1,85 @@
+---
+import ContentLayout from "../../../layouts/Content.astro";
+import { DocHeader } from "../../../components/DocHeader";
+import { textCn } from "@wrkspc/theme";
+import { Code } from "astro:components";
+---
+
+<ContentLayout title="Prompts Detection | Mind Rig Guides">
+  <main class="flex flex-col items-center w-full">
+    <DocHeader category="Guides" title="Prompts Detection" />
+
+    <article class="w-full max-w-2xl py-6 px-4 md:py-10">
+      <div
+        class={textCn({
+          role: "content",
+        })}
+      >
+        <p>
+          Mind Rig parses active <strong>JavaScript</strong>, <strong
+            >TypeScript</strong
+          >, and <strong></strong>Python files to detect prompt strings or
+          expressions. Once detected, you can test these prompts in the
+          Playground.
+        </p>
+
+        <p>
+          The parser uses simple heuristics to identify likely prompt strings:
+        </p>
+
+        <ol>
+          <li>
+            <p>
+              Variable names containing <code class="font-mono">prompt</code>:
+            </p>
+
+            <Code
+              lang="ts"
+              code={"const weatherPrompt = `What is the weather forecast today for ${location}?`;"}
+              class:list={[
+                "not-prose",
+                "text-sm font-mono scrollbar scrollbar-none py-2 px-3",
+              ]}
+            />
+          </li>
+
+          <li>
+            <p>
+              Variable assignments with an annotation comment containing <code
+                class="font-mono">@prompt</code
+              >:
+            </p>
+
+            <Code
+              lang="py"
+              code={`# @prompt
+hello = f"Say hello to {name}."
+`}
+              class:list={[
+                "not-prose",
+                "text-sm font-mono scrollbar scrollbar-none py-2 px-3",
+              ]}
+            />
+          </li>
+
+          <li>
+            <p>String literals with the annotation comment in front of them:</p>
+
+            <Code
+              lang="ts"
+              code={"const hi = /* @prompt */ `Say hi to ${userName}. They live in ${location}.`;"}
+              class:list={[
+                "not-prose",
+                "text-sm font-mono scrollbar scrollbar-none py-2 px-3",
+              ]}
+            />
+          </li>
+        </ol>
+
+        <p>
+          Use these patterns in your code to help Mind Rig identify prompts.
+        </p>
+      </div>
+    </article>
+  </main>
+</ContentLayout>

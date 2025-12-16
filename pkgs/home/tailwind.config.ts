@@ -3,7 +3,7 @@ import pluginCapsize from "tailwindcss-capsize";
 
 const config: Config = {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx,astro,mdx}",
     // UI packages
     "../logo/src/**/html.tsx",
     // DS packages
