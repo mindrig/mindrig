@@ -1,9 +1,9 @@
 <p style="max-width: 190px; margin: 0 auto;">
   <a href="https://mindrig.ai">
     <picture >
-      <source srcset="./docs/assets/logotype-dark-380.png" media="(prefers-color-scheme: dark)">
-      <source srcset="./docs/assets/logotype-light-380.png" media="(prefers-color-scheme: light)">
-      <img src="./docs/assets/logotype-light-380.png" alt="Mind Rig logotype">
+      <source srcset="https://github.com/mindrig/mindrig/raw/HEAD/pkgs/assets/public/logotype-dark-380.png" media="(prefers-color-scheme: dark)">
+      <source srcset="https://github.com/mindrig/mindrig/raw/HEAD/pkgs/assets/public/logotype-light-380.png" media="(prefers-color-scheme: light)">
+      <img src="./public/logotype-light-380.png" alt="Mind Rig logotype">
     </picture>
   </a>
 </p>

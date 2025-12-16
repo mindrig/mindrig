@@ -15,6 +15,6 @@ echo "🌀 Packaging vsix..."
 pnpm vsce pack \
   --no-dependencies \
   --baseContentUrl https://github.com/mindrig/mindrig/tree/HEAD/pkgs/vsc-extension \
-  --baseImagesUrl https://github.com/mindrig/mindrig/raw/HEAD/pkgs/vsc-extension
+  --baseImagesUrl https://github.com/mindrig/mindrig/raw/HEAD/pkgs/assets
 
 echo -e "\n💚 Extension package is ready!"

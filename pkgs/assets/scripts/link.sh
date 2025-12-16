@@ -108,4 +108,39 @@ for target_dir in "${!assets[@]}"; do
   #endregion
 done
 
+echo -e "\n🌀️ Linking asset directories\n"
+
+declare -A asset_dirs=(
+  ["pkgs/vsc-extension"]="public:public"
+)
+
+for target_base in "${!asset_dirs[@]}"; do
+  mapping="${asset_dirs[$target_base]}"
+  target_subdir="${mapping%%:*}"
+  source_subdir="${mapping##*:}"
+
+  target_path="$target_base/$target_subdir"
+  source_path="$assets_dir/$source_subdir"
+
+  rel_target_path="$(realpath --relative-to="$repo_dir" "$target_path")"
+  rel_source_path="$(realpath --relative-to="$repo_dir" "$source_path")"
+
+  echo "  🌀️ Linking directory $rel_target_path to $rel_source_path"
+
+  mkdir -p "$target_base"
+
+  rel_expected_path="$(realpath --relative-to="$target_base" "$source_path")"
+
+  if [[ -L "$target_path" ]]; then
+    rel_current_path="$(readlink "$target_path")"
+    if [[ "$rel_current_path" == "$rel_expected_path" ]]; then
+      echo "  🔵 Directory link already correct"
+      continue
+    fi
+  fi
+
+  ln -sf "$rel_expected_path" "$target_path"
+  echo "  🟢 Directory linked"
+done
+
 echo -e "\n💚 Assets linked!"
