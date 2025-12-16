@@ -26,7 +26,7 @@ cd "$repo_dir" || exit 1
 
 logotype_variants_svg="logotype-light.svg logotype-dark.svg"
 logotype_variants_png="logotype-light-380.png logotype-dark-380.png"
-vsc_screenshots="vsc-screenshot-vsc-windows-dark.png"
+vsc_screenshots="screenshot-vsc-windows-dark.png"
 
 declare -A assets=(
   ["docs/assets"]="$logotype_variants_svg $vsc_screenshots"

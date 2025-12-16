@@ -8,11 +8,18 @@ This change log follows the format documented in [Keep a CHANGELOG].
 [semantic versioning]: http://semver.org/
 [keep a changelog]: http://keepachangelog.com/
 
+## v0.3.1 - 2025-12-17
+
+### Fixed
+
+- Fixed screenshot URL in the README.
+
 ## v0.3.0 - 2025-12-17
 
 ### Changed
 
 - New toolbar icon matching the logotype.
+
 - Fixed incorrect link in README, added logotype image.
 
 ## v0.2.0 - 2025-12-16
