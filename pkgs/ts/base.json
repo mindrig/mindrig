@@ -9,7 +9,9 @@
     "${configDir}/tests/**/*.ts",
     "${configDir}/tests/**/*.tsx",
     "${configDir}/scripts/**/*.ts",
-    "${configDir}/scripts/**/*.tsx"
+    "${configDir}/scripts/**/*.tsx",
+    "${configDir}/.astro/types.d.ts",
+    "${configDir}/src/**/*.astro",
   ],
   "compilerOptions": {
     // Resolve
