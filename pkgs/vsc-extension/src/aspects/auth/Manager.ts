@@ -35,13 +35,7 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
       .get("auth-vercel-gateway-key")
       .then(this.#onVercelKey.bind(this));
 
-    this.#messages.listen(this, "auth-client-logout", this.#onLogout);
-
-    this.#messages.listen(
-      this,
-      "auth-client-vercel-gateway-clear",
-      this.#onVercelGatewayClear,
-    );
+    this.#messages.listen(this, "auth-client-clear", this.#onClear);
 
     this.#messages.listen(
       this,
@@ -97,24 +91,13 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
     this.#secrets.set("auth-vercel-gateway-key", message.payload);
   }
 
-  #onVercelGatewayClear(_message?: AuthMessage.ClientVercelGatewayClear) {
-    this.#secrets.clear("auth-vercel-gateway-key");
-  }
-
   async registerGatewayResponse(gateway: Auth.GatewayValue) {
     this.#state = { ...this.#state, gateway };
 
     const error = this.#state.gateway?.error;
     const loggedIn = !error;
 
-    log.debug("Auth state updated", { loggedIn: !error, error });
-
-    await this.#reportLoggedIn(loggedIn);
-
-    this.#messages.send({
-      type: "auth-server-update",
-      payload: this.#state,
-    });
+    await this.#syncState(loggedIn, error);
   }
 
   #reportLoggedIn(loggedIn: boolean) {
@@ -125,8 +108,23 @@ export class AuthManager extends Manager<AuthManager.EventMap> {
     );
   }
 
-  #onLogout() {
-    this.#onVercelGatewayClear();
+  async #onClear() {
+    this.#secrets.clear("auth-vercel-gateway-key");
+
+    this.#state = { gateway: null };
+
+    await this.#syncState(false);
+  }
+
+  async #syncState(loggedIn: boolean, error?: string) {
+    log.debug("Auth state updated", { loggedIn: !error, error });
+
+    await this.#reportLoggedIn(loggedIn);
+
+    this.#messages.send({
+      type: "auth-server-update",
+      payload: this.#state,
+    });
   }
 }
 

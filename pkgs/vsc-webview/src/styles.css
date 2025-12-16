@@ -119,6 +119,13 @@
   /*----- Secondary */
   --color-button-secondary-label-ink: var(--vscode-descriptionForeground);
   --color-button-secondary-label-ink-hover: var(--color-button-label-ink-hover);
+  /*----- Danger */
+  --color-button-danger-label-ink: color-mix(
+    in srgb,
+    var(--vscode-editorError-foreground) 80%,
+    var(--color-ink) 100%
+  );
+  --color-button-danger-label-ink-hover: var(--vscode-editorError-foreground);
 
   /***** Transparent */
   --color-button-transparent-canvas-hover: color-mix(
@@ -150,6 +157,25 @@
   --color-button-transparent-secondary-border: var(--vscode-chat-requestBorder);
   --color-button-transparent-secondary-border-hover: var(
     --vscode-chat-requestBorder
+  );
+  /*----- Danger */
+  --color-button-transparent-danger-ink: var(--color-button-danger-label-ink);
+  --color-button-transparent-danger-ink-hover: var(
+    --color-button-danger-label-ink-hover
+  );
+  --color-button-transparent-danger-canvas: transparent;
+  --color-button-transparent-danger-canvas-hover: color-mix(
+    in srgb,
+    var(--vscode-editorError-foreground) 20%,
+    transparent 100%
+  );
+  --color-button-transparent-danger-border: color-mix(
+    in srgb,
+    var(--color-button-danger-label-ink) 90%,
+    transparent 100%
+  );
+  --color-button-transparent-danger-border-hover: var(
+    --vscode-editorError-foreground
   );
 
   /* Input */
@@ -282,7 +308,7 @@
   }
 
   .flex > * {
-    min-width: 0;
+    /* min-width: 0; */
   }
 
   .w-stretch {

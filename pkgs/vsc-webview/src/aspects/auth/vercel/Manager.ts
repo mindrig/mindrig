@@ -1,7 +1,7 @@
-import { useAppState } from "@/aspects/app/state/Context";
 import { MessagesContext, useMessages } from "@/aspects/message/Context";
 import { useMemoWithProps } from "@/aspects/util/hooks";
-import { AuthGateway } from "@wrkspc/core/auth";
+import { Auth, AuthGateway } from "@wrkspc/core/auth";
+import { never } from "alwaysly";
 import { Form, State } from "enso";
 import { useEffect, useRef } from "react";
 import { log } from "smollog";
@@ -9,12 +9,12 @@ import { AuthAppState, buildAuthAppState } from "../appState";
 
 export namespace AuthVercelManager {
   export interface UseProps {
-    gatewayState: State<AuthGateway.Vercel> | State<null>;
+    authState: State<Auth>;
   }
 
   export interface Props {
     sendMessage: MessagesContext.SendMessage;
-    gatewayState: State<AuthGateway.Vercel> | State<null>;
+    authState: State<Auth>;
     authAppState: State<AuthAppState>;
     form: Form<FormValues>;
   }
@@ -26,11 +26,13 @@ export namespace AuthVercelManager {
 
 export class AuthVercelManager {
   static use(props: AuthVercelManager.UseProps) {
-    const { gatewayState } = props;
-    const { sendMessage, useListen } = useMessages();
+    const { authState } = props;
+    const { sendMessage } = useMessages();
 
-    const { appState } = useAppState();
-    const authAppState = State.use(buildAuthAppState(gatewayState.value), []);
+    const authAppState = State.use(
+      buildAuthAppState(authState.$.gateway.value),
+      [],
+    );
 
     useEffect(() => {
       log.debug("Initialized auth app state", authAppState.value);
@@ -39,22 +41,23 @@ export class AuthVercelManager {
     const form = Form.use<AuthVercelManager.FormValues>({ key: "" }, [], {
       validate(values) {
         if (!values.$.key.value.trim())
-          values.$.key.addError("Please enter Vercel Gateway API Key");
+          values.$.key.addError("Please enter the key.");
       },
     });
 
     const vercelManager = useMemoWithProps(
-      { sendMessage, gatewayState, authAppState, form },
+      { sendMessage, authState, authAppState, form },
       (props) => new AuthVercelManager(props),
       [],
     );
 
     const prevGatewayRef = useRef<AuthGateway.Vercel | undefined | null>(
-      gatewayState.value,
+      authState.$.gateway.value,
     );
-    gatewayState.useWatch(
-      (gateway) => {
-        if (gateway === prevGatewayRef.current) return;
+    authState.useWatch(
+      (auth) => {
+        // if (gateway === prevGatewayRef.current) return;
+        const { gateway } = auth;
         if (prevGatewayRef.current === undefined) {
           prevGatewayRef.current = gateway;
           return;
@@ -69,7 +72,7 @@ export class AuthVercelManager {
   }
 
   #sendMessage: MessagesContext.SendMessage;
-  #gatewayState: State<AuthGateway.Vercel> | State<null>;
+  #authState: State<Auth>;
   #authAppState: State<AuthAppState>;
   #form: Form<AuthVercelManager.FormValues>;
 
@@ -77,7 +80,7 @@ export class AuthVercelManager {
 
   constructor(props: AuthVercelManager.Props) {
     this.#sendMessage = props.sendMessage;
-    this.#gatewayState = props.gatewayState;
+    this.#authState = props.authState;
     this.#authAppState = props.authAppState;
     this.#form = props.form;
   }
@@ -91,12 +94,16 @@ export class AuthVercelManager {
     this.#authAppState.set({ type: "form" });
   }
 
-  logout() {
-    this.#sendMessage({ type: "auth-client-logout" });
+  clearKey() {
+    this.#sendMessage({ type: "auth-client-clear" });
+    this.#authAppState.set({ type: "form" });
   }
 
   clearForm() {
     this.#form.set({ key: "" });
+    // TODO: Add clearErrors method to Form in Enso
+    this.#form.field.clearErrors();
+    this.#form.commit();
   }
 
   get form() {
@@ -128,6 +135,9 @@ export class AuthVercelManager {
 
       case "profile":
         return this.#onProfileGatewayUpdate(gateway, discriminated.state);
+
+      default:
+        never(discriminated);
     }
   }
 
@@ -135,32 +145,37 @@ export class AuthVercelManager {
     gateway: AuthGateway.Vercel | null,
     state: State<AuthAppState.Form>,
   ) {
-    if (gateway?.error) this.#form.$.key.addError(gateway.error);
-    else if (gateway) this.#setProfile(gateway.maskedKey);
+    if (gateway?.error) {
+      this.#form.$.key.clearErrors();
+      this.#form.$.key.addError(gateway.error);
+    } else if (gateway) this.#setProfile(gateway.maskedKey);
+    else this.#setForm();
+
     this.#resolveSave();
   }
 
   #onProfileGatewayUpdate(
     gateway: AuthGateway.Vercel | null,
     state: State<AuthAppState.Profile>,
-  ) {}
+  ) {
+    if (gateway === null) return this.#setForm();
 
-  #setProfile(maskedKey: string) {
-    this.#authAppState.set({
-      type: "profile",
-      maskedKey,
-    });
+    const { error, maskedKey } = gateway;
+    state.set({ ...state.value, error, maskedKey });
   }
 
-  #setError(error: string) {
-    const discriminated = this.#authAppState.discriminate("type");
-    if (discriminated.discriminator === "form") {
-      this.#form.$.key.addError(error);
-      this.#resolveSave();
-    }
+  #setForm() {
+    this.#authAppState.set({ type: "form" });
+  }
+
+  #setProfile(maskedKey: string) {
+    this.#authAppState.set({ type: "profile", maskedKey });
   }
 
   useError() {
-    return this.#gatewayState.useCompute((gateway) => gateway?.error, []);
+    return this.#authState.$.gateway.useCompute(
+      (gateway) => gateway?.error,
+      [],
+    );
   }
 }

@@ -20,7 +20,7 @@ export function AuthVercelProfile(props: AuthVercelProfile.Props) {
     <AuthVercelLayout>
       <Block dir="y" pad background="primary" border>
         <Block dir="y" size="small">
-          <Label>API key</Label>
+          <Label>Vercel AI Gateway key</Label>
 
           <p className={textCn({ mono: true })}>{maskedKey ?? "••••"}</p>
 
@@ -29,11 +29,16 @@ export function AuthVercelProfile(props: AuthVercelProfile.Props) {
 
         <Block align>
           <Button onClick={() => vercelManager.edit()} size="small">
-            Update
+            Replace Key
           </Button>
 
-          <Button onClick={() => vercelManager.logout()} style="label">
-            Clear
+          <Button
+            onClick={() => vercelManager.clearKey()}
+            style="transparent"
+            color="danger"
+            size="small"
+          >
+            Delete Key
           </Button>
         </Block>
       </Block>

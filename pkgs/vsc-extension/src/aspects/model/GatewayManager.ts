@@ -147,7 +147,7 @@ export class ModelsGatewayManager extends Manager {
       } else {
         data = {
           status: "error",
-          message: "Invalid Vercel Gateway API key",
+          message: "The provided Vercel AI Gateway key is invalid.",
         };
       }
     } catch (err) {

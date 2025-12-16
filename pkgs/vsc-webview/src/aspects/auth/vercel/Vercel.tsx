@@ -1,4 +1,4 @@
-import { AuthGateway } from "@wrkspc/core/auth";
+import { Auth } from "@wrkspc/core/auth";
 import { never } from "alwaysly";
 import { State } from "enso";
 import { AuthVercelForm } from "./Form";
@@ -7,7 +7,7 @@ import { AuthVercelProfile } from "./Profile";
 
 export namespace AuthVercel {
   export interface Props {
-    gatewayState: State<AuthGateway.Vercel> | State<null>;
+    authState: State<Auth>;
   }
 
   export interface FormValues {
@@ -16,8 +16,8 @@ export namespace AuthVercel {
 }
 
 export function AuthVercel(props: AuthVercel.Props) {
-  const { gatewayState } = props;
-  const vercelManager = AuthVercelManager.use({ gatewayState });
+  const { authState } = props;
+  const vercelManager = AuthVercelManager.use({ authState });
   const discriminatedAppState = vercelManager.useDiscriminate();
 
   switch (discriminatedAppState.discriminator) {

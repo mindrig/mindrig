@@ -18,7 +18,7 @@ export namespace AuthAppState {
 export function buildAuthAppState(
   gateway: AuthGateway.Vercel | null,
 ): AuthAppState {
-  if (gateway)
+  if (gateway && !gateway.error)
     return {
       type: "profile",
       maskedKey: gateway.maskedKey,
@@ -27,5 +27,6 @@ export function buildAuthAppState(
 
   return {
     type: "form",
+    error: gateway?.error,
   };
 }

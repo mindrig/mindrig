@@ -19,7 +19,7 @@ export function AuthErrors(props: AuthErrors.Props) {
       color="error"
       actions={
         <Button size="xsmall" href={pageHrefs.auth()}>
-          Fix key
+          Fix Key
         </Button>
       }
       compact

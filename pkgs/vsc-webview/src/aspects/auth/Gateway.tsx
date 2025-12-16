@@ -10,6 +10,6 @@ export function AuthGateway() {
   switch (decomposedGateway.value?.type) {
     case "vercel":
     default:
-      return <AuthVercel gatewayState={decomposedGateway.state} />;
+      return <AuthVercel authState={authState} />;
   }
 }

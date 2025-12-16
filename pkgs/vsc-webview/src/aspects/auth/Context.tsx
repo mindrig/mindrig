@@ -8,7 +8,7 @@ export namespace AuthContext {
   export interface Value {
     authState: State<Auth>;
     gateway: AuthGateway.Resolve<AuthGateway.Type>;
-    logOut(): void;
+    clearAuth(): void;
   }
 }
 
@@ -28,13 +28,15 @@ export function AuthProvider(props: React.PropsWithChildren) {
   );
   const { sendMessage } = useMessages();
 
-  const logOut = useCallback(
-    () => sendMessage({ type: "auth-client-logout" }),
+  const clearAuth = useCallback(
+    () => sendMessage({ type: "auth-client-clear" }),
     [sendMessage],
   );
 
   return (
-    <AuthContext.Provider value={{ authState: state.$.auth, gateway, logOut }}>
+    <AuthContext.Provider
+      value={{ authState: state.$.auth, gateway, clearAuth: clearAuth }}
+    >
       {props.children}
     </AuthContext.Provider>
   );

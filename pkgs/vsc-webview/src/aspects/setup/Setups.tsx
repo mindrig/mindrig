@@ -79,9 +79,15 @@ export function Setups(props: Setups.Props) {
             </Button>
           }
         >
-          AI gateway is not configured. All requests will be served by{" "}
-          {DEMO_GATEWAY_MODEL_ID}. Enter your API key to use any models you
-          like.
+          <p>
+            The AI gateway is not configured. All requests will be served by
+            complimentary <code>{DEMO_GATEWAY_MODEL_ID}</code>.
+          </p>
+
+          <p>
+            Set it up now to start testing your prompts against hundreds of
+            models. It takes just a minute!
+          </p>
         </Notice>
       )}
 

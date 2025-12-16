@@ -1,7 +1,7 @@
 import { ClientState } from "@wrkspc/core/client";
 import { logsVerbositySettingToLevel } from "@wrkspc/core/log";
 import { buildPlaygroundState } from "@wrkspc/core/playground";
-import { State } from "enso";
+import { atomChange, State } from "enso";
 import { createContext, useContext, useEffect } from "react";
 import { log } from "smollog";
 import { useMessages } from "../message/Context";
@@ -31,7 +31,12 @@ export function ClientStateProvider(props: React.PropsWithChildren) {
 
   useListen(
     "auth-server-update",
-    (message) => state.$.auth.set(message.payload),
+    (message) => {
+      state.$.auth.set(message.payload);
+      // NOTE: Force reactivity even if the same value is set. It allows to
+      // reset form errors after receiving the same auth state from the server.
+      if (!state.$.auth.lastChanges) state.$.auth.trigger(atomChange.value);
+    },
     [state],
   );
 

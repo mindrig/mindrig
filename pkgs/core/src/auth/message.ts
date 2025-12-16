@@ -15,22 +15,17 @@ export namespace AuthMessage {
   //#region Client
 
   export type Client =
-    | ClientLogout
+    | ClientClear
     | ClientVercelGatewaySet
-    | ClientVercelGatewayClear
     | ClientVercelGatewayRevalidate;
 
-  export interface ClientLogout {
-    type: "auth-client-logout";
+  export interface ClientClear {
+    type: "auth-client-clear";
   }
 
   export interface ClientVercelGatewaySet {
     type: "auth-client-vercel-gateway-set";
     payload: string;
-  }
-
-  export interface ClientVercelGatewayClear {
-    type: "auth-client-vercel-gateway-clear";
   }
 
   export interface ClientVercelGatewayRevalidate {
