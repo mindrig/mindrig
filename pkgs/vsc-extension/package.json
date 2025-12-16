@@ -3,16 +3,22 @@
   "publisher": "mindrig",
   "displayName": "Mind Rig",
   "private": false,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "FSL-1.1-ALv2",
   "description": "The VS Code's AI playground",
   "repository": {
     "type": "git",
     "url": "https://github.com/mindrig/mindrig.git"
   },
-  "engines": { "vscode": "^1.99.0" },
+  "engines": {
+    "vscode": "^1.99.0"
+  },
   "icon": "./assets/logo-256.png",
-  "categories": ["AI", "Testing", "Other"],
+  "categories": [
+    "AI",
+    "Testing",
+    "Other"
+  ],
   "main": "./dist/extension/extension.js",
   "contributes": {
     "icons": {
@@ -29,9 +35,20 @@
         "command": "mindrig.showPlayground",
         "title": "Mind Rig: Show Playground"
       },
-      { "command": "mindrig.runPrompt", "title": "Mind Rig: Run Prompt" },
-      { "command": "mindrig.logIn", "title": "Log In", "icon": "$(unlock)" },
-      { "command": "mindrig.logOut", "title": "Log Out", "icon": "$(lock)" },
+      {
+        "command": "mindrig.runPrompt",
+        "title": "Mind Rig: Run Prompt"
+      },
+      {
+        "command": "mindrig.logIn",
+        "title": "Log In",
+        "icon": "$(unlock)"
+      },
+      {
+        "command": "mindrig.logOut",
+        "title": "Log Out",
+        "icon": "$(lock)"
+      },
       {
         "command": "mindrig.showProfile",
         "title": "Show Profile",
@@ -67,7 +84,13 @@
         "mindrig.dev.logsVerbosity": {
           "type": "string",
           "default": "warn",
-          "enum": ["debug", "info", "warn", "error", "silent"],
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "silent"
+          ],
           "description": "Logging verbosity level"
         }
       }
