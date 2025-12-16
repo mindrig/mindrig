@@ -64,6 +64,9 @@
   /***** Detail */
   --color-ink-detail: var(--vscode-panelTitle-inactiveForeground);
   /* --color-ink-detail-inverse: red; */
+  /***** Link */
+  --color-link: var(--vscode-textLink-foreground);
+  --color-link-hover: var(--vscode-textLink-activeForeground);
 
   /*## Background */
 
