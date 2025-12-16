@@ -47,7 +47,7 @@ suite("Extension", () => {
 
 function webviewFrameLocator(page: playwright.Page): playwright.FrameLocator {
   return page
-    .frameLocator('iframe[src*="mindrig.vscode"]')
+    .frameLocator('iframe[src*="mindrig.mindrig"]')
     .frameLocator("iframe#active-frame");
 }
 
@@ -63,7 +63,7 @@ async function ensureConnectMainPage() {
 
 // TODO: Find a way to type (and verify it) the extension
 function ensureExtension(): vscode.Extension<unknown> {
-  const extension = vscode.extensions.getExtension("mindrig.vscode");
+  const extension = vscode.extensions.getExtension("mindrig.mindrig");
   assert.ok(extension !== undefined, "Extension should be found");
   return extension;
 }
