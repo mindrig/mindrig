@@ -8,6 +8,20 @@ This change log follows the format documented in [Keep a CHANGELOG].
 [semantic versioning]: http://semver.org/
 [keep a changelog]: http://keepachangelog.com/
 
+## v0.2.0 - 2025-12-16
+
+### Fixed
+
+- Fixed clearing Vercel Gateway key flow.
+
+- Fixed small layout issues.
+
+### Added
+
+- Added prompt parsing tip to empty prompt state.
+
+- Added info about Vercel Gateway to the API key form.
+
 ## v0.1.4 - 2025-12-16
 
 ### Fixed
