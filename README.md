@@ -1,9 +1,9 @@
-<p style="max-width: 190px; margin: 0 auto;">
+<p align="center">
   <a href="https://mindrig.ai">
     <picture >
       <source srcset="./pkgs/assets/public/logotype-dark.svg" media="(prefers-color-scheme: dark)">
       <source srcset="./pkgs/assets/public/logotype-light.svg" media="(prefers-color-scheme: light)">
-      <img src="./pkgs/assets/public/logotype-light.svg" alt="Mind Rig logotype">
+      <img src="./pkgs/assets/public/logotype-light.svg" alt="Mind Rig logotype" width="190px">
     </picture>
   </a>
 </p>
