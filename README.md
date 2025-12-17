@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://mindrig.ai">
-    <picture >
+    <picture>
       <source srcset="./pkgs/assets/public/logotype-dark.svg" media="(prefers-color-scheme: dark)">
       <source srcset="./pkgs/assets/public/logotype-light.svg" media="(prefers-color-scheme: light)">
       <img src="./pkgs/assets/public/logotype-light.svg" alt="Mind Rig logotype" width="190px">
