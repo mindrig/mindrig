@@ -1,9 +1,9 @@
 <p style="max-width: 190px; margin: 0 auto;">
   <a href="https://mindrig.ai">
     <picture >
-      <source srcset="./docs/assets/logotype-dark.svg" media="(prefers-color-scheme: dark)">
-      <source srcset="./docs/assets/logotype-light.svg" media="(prefers-color-scheme: light)">
-      <img src="./docs/assets/logotype-light.svg" alt="Mind Rig logotype">
+      <source srcset="./pkgs/assets/public/logotype-dark.svg" media="(prefers-color-scheme: dark)">
+      <source srcset="./pkgs/assets/public/logotype-light.svg" media="(prefers-color-scheme: light)">
+      <img src="./pkgs/assets/public/logotype-light.svg" alt="Mind Rig logotype">
     </picture>
   </a>
 </p>
@@ -17,7 +17,7 @@
   <a href="https://github.com/mindrig/mindrig/actions/workflows/package-extension.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/mindrig/mindrig/package-extension.yml?style=flat-square" /></a>
 </p>
 
-[![Mind Rig screenshot](./docs/assets/screenshot-vsc-windows-dark.png)](https://mindrig.ai)
+[![Mind Rig screenshot](./pkgs/assets/public/screenshot-vsc-windows-dark.png)](https://mindrig.ai)
 
 ## Getting Started
 

@@ -30,7 +30,6 @@ vsc_screenshots="screenshot-vsc-windows-dark.png"
 favicons="apple-touch-icon.png apple-touch-icon.png favicon.ico icon-192.png icon-512.png icon.svg manifest.webmanifest"
 
 declare -A assets=(
-  ["docs/assets"]="$logotype_variants_svg $vsc_screenshots"
   ["pkgs/vsc-extension/assets"]="icon-256.png"
   ["pkgs/vsc-extension/docs/assets"]="$logotype_variants_png $vsc_screenshots"
   ["pkgs/vsc-extension/icons"]="icon-toolbar.svg"
