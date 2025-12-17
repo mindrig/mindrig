@@ -18,6 +18,7 @@ export function AuthVercelLayout(props: PropsWithChildren) {
           onClick={() => navigateTo({ type: "playground" })}
         />
       }
+      grow
     >
       {props.children}
     </LayoutSection>

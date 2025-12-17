@@ -17,7 +17,7 @@ export function PageEmpty(props: PageEmpty.Props) {
   const { icon, label, description, actions, notices, extra } = props;
 
   return (
-    <Block dir="y" gap={false}>
+    <Block dir="y" gap={false} grow>
       {notices}
 
       <Block dir="y" pad={[false, "medium", "medium"]}>

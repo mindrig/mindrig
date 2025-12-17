@@ -48,50 +48,70 @@ export function BlueprintEmpty(props: BlueprintEmpty.Props) {
         </>
       }
       extra={
-        !isUnknown && (
-          <Block
-            dir="y"
-            size="xsmall"
-            align
-            border="top"
-            pad={{ top: "large" }}
-          >
-            <Block size="xsmall" align>
-              <Icon id={iconRegularLightbulb} size="small" color="support" />
-              <h3
+        <Block size="large" dir="y" align border="top" pad={{ top: "large" }}>
+          {!isUnknown && (
+            <Block dir="y" size="xsmall" align>
+              <Block size="xsmall" align>
+                <Icon id={iconRegularLightbulb} size="small" color="support" />
+                <h3
+                  className={textCn({
+                    bold: true,
+                    size: "small",
+                    color: "detail",
+                    align: "center",
+                    balance: true,
+                  })}
+                >
+                  Quick Tip
+                </h3>
+              </Block>
+
+              <p
                 className={textCn({
-                  bold: true,
                   size: "small",
                   color: "detail",
                   align: "center",
                   balance: true,
                 })}
               >
-                Quick Tip
-              </h3>
+                To make Mind Rig detect prompts in your code, assign a string to
+                a variable with <code>prompt</code> in name, or put an
+                annotation comment <code>// @prompt</code> or{" "}
+                <code>/* @prompt */</code> in front of a line or string.{" "}
+                <a
+                  href="https://mindrig.ai/docs/guides/prompts-detection/"
+                  className="text-link hover:text-link-hover"
+                >
+                  Learn more
+                </a>
+              </p>
             </Block>
+          )}
 
-            <p
-              className={textCn({
-                size: "small",
-                color: "detail",
-                align: "center",
-                balance: true,
-              })}
+          <p
+            className={textCn({
+              size: "small",
+              color: "detail",
+              align: "center",
+              balance: true,
+            })}
+          >
+            <a
+              href="https://discord.gg/B2R9nHghq8"
+              className="text-link hover:text-link-hover"
             >
-              To make Mind Rig detect prompts in your code, assign a string to a
-              variable with <code>prompt</code> in name, or put an annotation
-              comment <code>// @prompt</code> or <code>/* @prompt */</code> in
-              front of a line or string.{" "}
-              <a
-                href="https://mindrig.ai/docs/guides/prompts-detection/"
-                className="text-link hover:text-link-hover"
-              >
-                Learn more
-              </a>
-            </p>
-          </Block>
-        )
+              Join Discord
+            </a>{" "}
+            or leave feedback{" "}
+            <a
+              href="https://github.com/mindrig/mindrig"
+              className="text-link hover:text-link-hover"
+            >
+              on GitHub
+            </a>{" "}
+            to help us make Mind Rig better!
+          </p>
+        </Block>
       }
     />
   );
