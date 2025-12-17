@@ -27,12 +27,14 @@ cd "$repo_dir" || exit 1
 logotype_variants_svg="logotype-light.svg logotype-dark.svg"
 logotype_variants_png="logotype-light-380.png logotype-dark-380.png"
 vsc_screenshots="screenshot-vsc-windows-dark.png"
+favicons="apple-touch-icon.png apple-touch-icon.png favicon.ico icon-192.png icon-512.png icon.svg manifest.webmanifest"
 
 declare -A assets=(
   ["docs/assets"]="$logotype_variants_svg $vsc_screenshots"
+  ["pkgs/vsc-extension/assets"]="icon-256.png"
   ["pkgs/vsc-extension/docs/assets"]="$logotype_variants_png $vsc_screenshots"
   ["pkgs/vsc-extension/icons"]="icon-toolbar.svg"
-  ["pkgs/home/public"]="$vsc_screenshots"
+  ["pkgs/home/public"]="$favicons $vsc_screenshots"
 )
 
 for target_dir in "${!assets[@]}"; do

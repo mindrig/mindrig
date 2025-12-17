@@ -3,7 +3,7 @@
   "publisher": "mindrig",
   "displayName": "Mind Rig",
   "private": false,
-  "version": "0.3.1",
+  "version": "0.4.0",
   "license": "FSL-1.1-ALv2",
   "description": "The VS Code's AI playground",
   "repository": {
@@ -13,7 +13,7 @@
   "engines": {
     "vscode": "^1.99.0"
   },
-  "icon": "./assets/logo-256.png",
+  "icon": "./assets/icon-256.png",
   "categories": [
     "AI",
     "Testing",

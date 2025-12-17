@@ -8,6 +8,14 @@ This change log follows the format documented in [Keep a CHANGELOG].
 [semantic versioning]: http://semver.org/
 [keep a changelog]: http://keepachangelog.com/
 
+## v0.4.0 - 2025-12-17
+
+### Changed
+
+- Updated extension icon to the new design.
+
+- Updated Discord invite link.
+
 ## v0.3.1 - 2025-12-17
 
 ### Fixed
