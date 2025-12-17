@@ -8,6 +8,12 @@ This change log follows the format documented in [Keep a CHANGELOG].
 [semantic versioning]: http://semver.org/
 [keep a changelog]: http://keepachangelog.com/
 
+## v0.5.0 - 2025-12-17
+
+### Added
+
+- Added GitHub & Discord links to the extension webview footer and tips sections.
+
 ## v0.4.0 - 2025-12-17
 
 ### Changed

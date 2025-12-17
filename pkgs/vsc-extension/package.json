@@ -3,7 +3,7 @@
   "publisher": "mindrig",
   "displayName": "Mind Rig",
   "private": false,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "license": "FSL-1.1-ALv2",
   "description": "The VS Code's AI playground",
   "repository": {
