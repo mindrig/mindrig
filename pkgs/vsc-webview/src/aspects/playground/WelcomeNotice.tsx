@@ -53,7 +53,7 @@ function Content(props: Content.Props) {
 
       <Block size="small" justify="between" align>
         <Block size="small" align>
-          <Button size="small" href="https://discord.gg/RHgskfbb">
+          <Button size="small" href="https://discord.gg/B2R9nHghq8">
             Join Discord
           </Button>
 
