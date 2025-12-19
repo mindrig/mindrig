@@ -8,6 +8,12 @@ This change log follows the format documented in [Keep a CHANGELOG].
 [semantic versioning]: http://semver.org/
 [keep a changelog]: http://keepachangelog.com/
 
+## v0.6.0 - 2025-12-19
+
+### Added
+
+- Added video demo link to the README and tips sections.
+
 ## v0.5.0 - 2025-12-17
 
 ### Added

@@ -3,6 +3,7 @@ import { Icon, textCn } from "@wrkspc/ds";
 import iconRegularFileBan from "@wrkspc/icons/svg/regular/file-ban.js";
 import iconRegularHandPointer from "@wrkspc/icons/svg/regular/hand-pointer.js";
 import iconRegularLightbulb from "@wrkspc/icons/svg/regular/lightbulb.js";
+import iconSolidPlay from "@wrkspc/icons/svg/solid/play.js";
 import { Block, Button } from "@wrkspc/ui";
 import { State } from "enso";
 import { useMessages } from "../message/Context";
@@ -87,6 +88,16 @@ export function BlueprintEmpty(props: BlueprintEmpty.Props) {
               </p>
             </Block>
           )}
+
+          <Button
+            style="transparent"
+            size="small"
+            color="secondary"
+            icon={iconSolidPlay}
+            href="https://customer-bv8mebpmji0au64l.cloudflarestream.com/ba5393ecce333c057b323c448c029c0c/watch"
+          >
+            Watch video demo
+          </Button>
 
           <p
             className={textCn({

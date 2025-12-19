@@ -18,6 +18,7 @@
     "lint:fix": "oxlint --fix --fix-suggestions"
   },
   "dependencies": {
+    "@cloudflare/stream-react": "^1.9.3",
     "@wrkspc/icons": "workspace:*",
     "@wrkspc/logo": "workspace:*",
     "@wrkspc/theme": "workspace:*",

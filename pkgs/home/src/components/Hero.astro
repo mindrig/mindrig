@@ -1,6 +1,7 @@
 ---
 import { DownloadForm } from "./DownloadForm";
 import { textCn } from "@wrkspc/theme";
+import { Stream } from "@cloudflare/stream-react";
 ---
 
 <div class="bg-gray-50 w-full grow">
@@ -26,10 +27,13 @@ import { textCn } from "@wrkspc/theme";
 
     <DownloadForm />
 
-    <img
-      src="/screenshot-vsc-windows-dark.png"
-      alt="Screenshot of Mind Rig in action"
-      class=""
-    />
+    <div class="w-full aspect-video bg-black">
+      <Stream
+        client:load
+        controls
+        src="ba5393ecce333c057b323c448c029c0c"
+        className="w-full"
+      />
+    </div>
   </div>
 </div>

@@ -17,7 +17,7 @@
   <a href="https://github.com/mindrig/mindrig/actions/workflows/package-extension.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/mindrig/mindrig/package-extension.yml?style=flat-square" /></a>
 </p>
 
-[![Mind Rig screenshot](./pkgs/assets/public/screenshot-vsc-windows-dark.png)](https://mindrig.ai)
+[![Mind Rig video demo](./pkgs/assets/public/video-thumbnail-vsc.png)](https://customer-bv8mebpmji0au64l.cloudflarestream.com/ba5393ecce333c057b323c448c029c0c/watch)
 
 ## Getting Started
 
