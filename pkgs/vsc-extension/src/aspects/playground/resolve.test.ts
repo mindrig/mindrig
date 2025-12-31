@@ -1,4 +1,4 @@
-import { PromptVar } from "@mindrig/types";
+import { PromptVar } from "@volumen/types";
 import { editorFileToMeta } from "@wrkspc/core/editor";
 import {
   buildMapPromptVarId,

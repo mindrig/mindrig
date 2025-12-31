@@ -1,6 +1,6 @@
 import { VscMock, vscMock } from "@/__tests__/vsc";
 import { EditorManager } from "@/aspects/editor/Manager";
-import { Prompt } from "@mindrig/types";
+import { Prompt } from "@volumen/types";
 import { EditorFile, editorFileToMeta } from "@wrkspc/core/editor";
 import { PlaygroundMap, type PlaygroundState } from "@wrkspc/core/playground";
 import {

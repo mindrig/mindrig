@@ -1,11 +1,12 @@
 import { Manager } from "@/aspects/manager/Manager.js";
-import { parsePrompts } from "@mindrig/parser-wasm";
-import { Prompt } from "@mindrig/types";
+import { Prompt } from "@volumen/types";
 import { EditorFile } from "@wrkspc/core/editor";
 import {
   buildPromptParseResultFallback,
   PromptParse,
 } from "@wrkspc/core/prompt";
+import { log } from "smollog";
+import { parsePrompts } from "volumen";
 
 export namespace PromptsManager {
   export interface Cache {
@@ -25,15 +26,27 @@ export class PromptsManager extends Manager {
   parse(file: EditorFile | null): PromptParse.Result {
     if (!file) return buildPromptParseResultFallback();
 
-    if (this.#cache?.path === file.path && this.#cache.content === file.content)
+    if (
+      this.#cache?.path === file.path &&
+      this.#cache.content === file.content
+    ) {
+      log.debug(`Using cached prompts for ${file.path}`, this.#cache);
+
       return {
         prompts: this.#cache.prompts,
         source: { type: "parse" },
       };
+    }
 
+    log.debug(`Parsing prompts in ${file.path}`, file.content);
     const result = parsePrompts(file.content, file.path);
 
     if (result.state === "success") {
+      log.debug(
+        `Parsed ${result.prompts.length} prompts in ${file.path}`,
+        result,
+      );
+
       this.#cache = {
         path: file.path,
         prompts: result.prompts,
@@ -45,6 +58,11 @@ export class PromptsManager extends Manager {
         source: { type: "parse" },
       };
     } else if (this.#cache?.path === file.path) {
+      log.debug(
+        `Using cached prompts for ${file.path} due to parse error: ${result.error}`,
+        result,
+      );
+
       return {
         prompts: this.#cache.prompts,
         source: {
@@ -53,6 +71,11 @@ export class PromptsManager extends Manager {
         },
       };
     } else {
+      log.warn(
+        `Failed to parse prompts in ${file.path}: ${result.error}`,
+        result,
+      );
+
       return {
         prompts: [],
         source: {

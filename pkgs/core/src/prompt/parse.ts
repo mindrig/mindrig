@@ -1,4 +1,4 @@
-import { Prompt } from "@mindrig/types";
+import { Prompt } from "@volumen/types";
 
 export namespace PromptParse {
   export interface Result {

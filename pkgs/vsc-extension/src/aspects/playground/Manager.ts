@@ -1,5 +1,5 @@
 import { Manager } from "@/aspects/manager/Manager.js";
-import { PromptVar } from "@mindrig/types";
+import { PromptVar } from "@volumen/types";
 import { EditorFile } from "@wrkspc/core/editor";
 import {
   buildMapPromptId,

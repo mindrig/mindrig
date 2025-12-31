@@ -18,3 +18,8 @@ stream = openai.responses.stream(
 stream.each do |event|
   puts(event.type)
 end
+
+hello_prompt = "Hello, #{name}"
+
+# @prompt
+system = "You are a helpful assistant."

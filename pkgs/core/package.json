@@ -58,6 +58,7 @@
     "@ai-sdk/openai": "^2.0.68",
     "@ai-sdk/xai": "^2.0.33",
     "@types/vscode": "^1.103.0",
+    "@volumen/types": "^0.4.0",
     "@wrkspc/ts": "workspace:*",
     "ai": "^5.0.93",
     "oxlint": "^1.31.0",

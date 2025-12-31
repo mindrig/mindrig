@@ -1,4 +1,4 @@
-import type { Prompt, PromptVar, Span } from "@mindrig/types";
+import type { Prompt, PromptVar, Span } from "@volumen/types";
 import {
   areFileMetasEqual,
   EditorFile,

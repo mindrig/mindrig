@@ -1,4 +1,3 @@
-import { parsePrompts } from "@mindrig/parser-wasm";
 import {
   buildMapPromptId,
   buildMapPromptVarId,
@@ -7,6 +6,7 @@ import {
   playgroundMapVarsFromPrompt,
 } from "@wrkspc/core/playground";
 import { assert, describe, expect, it } from "vitest";
+import { parsePrompts } from "volumen";
 import {
   playgroundMapPromptDraftFactory,
   playgroundMapPromptFactory,

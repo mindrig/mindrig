@@ -4,4 +4,13 @@ export namespace Language {
   export type IdKnown = (typeof languages)[number];
 }
 
-export const languages = ["ts", "js", "py"] as const;
+export const languages = [
+  "ts",
+  "js",
+  "py",
+  "php",
+  "rb",
+  "go",
+  "java",
+  "cs",
+] as const;

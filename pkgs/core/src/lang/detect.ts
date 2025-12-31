@@ -4,6 +4,11 @@ const idToVscIds: Record<Language.IdKnown, string[]> = {
   ts: ["typescript", "typescriptreact"],
   js: ["javascript", "javascriptreact"],
   py: ["python"],
+  php: ["php"],
+  rb: ["ruby"],
+  go: ["go"],
+  java: ["java"],
+  cs: ["csharp"],
 };
 
 export function languageIdFromVsc(
@@ -16,6 +21,11 @@ export const LANGUAGE_EXTENSIONS: Record<Language.IdKnown, string[]> = {
   ts: ["ts", "tsx"],
   js: ["js", "jsx", "mjs", "mjsx", "cjs", "cjsx"],
   py: ["py", "pyi"],
+  php: ["php"],
+  rb: ["rb", "ruby"],
+  go: ["go"],
+  java: ["java"],
+  cs: ["cs"],
 };
 
 export function languageIdFromExt(

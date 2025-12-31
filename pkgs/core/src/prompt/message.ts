@@ -1,4 +1,4 @@
-import type { Prompt } from "@mindrig/types";
+import type { Prompt } from "@volumen/types";
 import { PromptParse } from ".";
 import { EditorFile } from "../editor";
 

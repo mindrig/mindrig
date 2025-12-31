@@ -60,6 +60,9 @@ importers:
       '@types/vscode':
         specifier: ^1.103.0
         version: 1.103.0
+      '@volumen/types':
+        specifier: ^0.4.0
+        version: 0.4.0
       '@wrkspc/ts':
         specifier: workspace:*
         version: link:../ts
@@ -369,6 +372,9 @@ importers:
       tuttut:
         specifier: ^0.1.2
         version: 0.1.2
+      volumen:
+        specifier: ^0.4.0
+        version: 0.4.0
       ws:
         specifier: ^8.18.3
         version: 8.18.3
@@ -391,6 +397,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.15
         version: 4.0.15(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@25.0.2)(happy-dom@18.0.1)(jiti@2.5.1)(jsdom@25.0.1)(lightningcss@1.30.2)(tsx@4.20.5)(yaml@2.8.1))
+      '@volumen/types':
+        specifier: ^0.4.0
+        version: 0.4.0
       '@vscode/test-cli':
         specifier: ^0.0.11
         version: 0.0.11
@@ -545,6 +554,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.15
         version: 4.0.15(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@25.0.2)(happy-dom@18.0.1)(jiti@2.5.1)(jsdom@25.0.1)(lightningcss@1.30.2)(tsx@4.20.5)(yaml@2.8.1))
+      '@volumen/types':
+        specifier: ^0.4.0
+        version: 0.4.0
       '@wrkspc/ts':
         specifier: workspace:*
         version: link:../ts
@@ -3788,6 +3800,9 @@ packages:
 
   '@volar/typescript@2.4.23':
     resolution: {integrity: sha512-lAB5zJghWxVPqfcStmAP1ZqQacMpe90UrP5RJ3arDyrhy4aCUQqmxPPLB2PWDKugvylmO41ljK7vZ+t6INMTag==}
+
+  '@volumen/types@0.4.0':
+    resolution: {integrity: sha512-XjKk8hiVBJrDXosFz/57kxyBBXgWzT15bgUk13vAmw6nDy1F6UmgjqnGJX/U7plt9AuEVfF/cX8J0BL+SpXmhQ==}
 
   '@vscode/emmet-helper@2.11.0':
     resolution: {integrity: sha512-QLxjQR3imPZPQltfbWRnHU6JecWTF1QSWhx3GAKQpslx7y3Dp6sIIXhKjiUJ/BR9FX8PVthjr9PD6pNwOJfAzw==}
@@ -7769,6 +7784,9 @@ packages:
       '@volar/language-service':
         optional: true
 
+  volumen@0.4.0:
+    resolution: {integrity: sha512-IsvH5gVi8pGpAqmESI8xKLJej3vvdE2PvCBREAoWdA3CNXCZXAmgIVZskvEoxAyr9dyzYt+d4wNVLDCPT9y0Sw==}
+
   vscode-css-languageservice@6.3.8:
     resolution: {integrity: sha512-dBk/9ullEjIMbfSYAohGpDOisOVU1x2MQHOeU12ohGJQI7+r0PCimBwaa/pWpxl/vH4f7ibrBfxIZY3anGmHKQ==}
 
@@ -11412,6 +11430,8 @@ snapshots:
       '@volar/language-core': 2.4.23
       path-browserify: 1.0.1
       vscode-uri: 3.1.0
+
+  '@volumen/types@0.4.0': {}
 
   '@vscode/emmet-helper@2.11.0':
     dependencies:
@@ -16244,6 +16264,10 @@ snapshots:
       yaml-language-server: 1.15.0
     optionalDependencies:
       '@volar/language-service': 2.4.23
+
+  volumen@0.4.0:
+    dependencies:
+      '@volumen/types': 0.4.0
 
   vscode-css-languageservice@6.3.8:
     dependencies:

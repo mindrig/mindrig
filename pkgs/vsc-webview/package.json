@@ -54,6 +54,7 @@
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.2",
     "@vitest/coverage-v8": "^4.0.15",
+    "@volumen/types": "^0.4.0",
     "@wrkspc/ts": "workspace:*",
     "autoprefixer": "^10.4.20",
     "happy-dom": "^18.0.1",
