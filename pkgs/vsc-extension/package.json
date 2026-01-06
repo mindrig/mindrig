@@ -199,6 +199,7 @@
     "@wrkspc/theme": "workspace:*",
     "@wrkspc/ts": "workspace:*",
     "fantasticon": "^3.0.0",
+    "minimatch": "^10.1.1",
     "ovsx": "^0.10.7",
     "oxlint": "^1.31.0",
     "picocolors": "^1.1.1",
