@@ -28,12 +28,12 @@ export function ResultsLayoutPicker(props: ResultsLayoutPicker.Props) {
       onChange={(newLayout) => results.setLayoutType(newLayout)}
       items={[
         {
-          id: "vertical",
-          icon: iconRegularTableRows,
-        },
-        {
           id: "horizontal",
           icon: iconRegularTableColumns,
+        },
+        {
+          id: "vertical",
+          icon: iconRegularTableRows,
         },
         {
           id: "carousel",
