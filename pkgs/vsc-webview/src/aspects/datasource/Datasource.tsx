@@ -36,7 +36,7 @@ export function DatasourceComponent(props: DatasourceComponent.Props) {
           label="Variables source"
           options={[
             { value: "manual", label: "Enter manually" },
-            { value: "dataset", label: "Use dataset" },
+            { value: "dataset", label: "Load CSV dataset" },
           ]}
         />
       </div>
