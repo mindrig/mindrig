@@ -21,22 +21,29 @@ export namespace ModelDeveloper {
     | "alibaba"
     | "amazon"
     | "anthropic"
+    | "arcee-ai"
+    | "bfl"
+    | "bytedance"
     | "cohere"
     | "deepseek"
     | "google"
     | "inception"
+    | "kwaipilot"
     | "meituan"
     | "meta"
     | "minimax"
     | "mistral"
     | "moonshotai"
     | "morph"
+    | "nvidia"
     | "openai"
     | "perplexity"
+    | "prime-intellect"
     | "stealth"
     | "vercel"
     | "voyage"
     | "xai"
+    | "xiaomi"
     | "zai";
 
   //#endregion
@@ -115,6 +122,18 @@ export const modelDevelopersMeta: ModelDeveloper.MetaMap = {
     name: "Anthropic",
     websiteUrl: "https://www.anthropic.com",
   },
+  "arcee-ai": {
+    name: "Arcee AI",
+    websiteUrl: "https://www.arcee.ai",
+  },
+  bfl: {
+    name: "Black Forest Labs",
+    websiteUrl: "https://bfl.ai/",
+  },
+  bytedance: {
+    name: "ByteDance",
+    websiteUrl: "https://seed.bytedance.com/",
+  },
   cohere: {
     name: "Cohere",
     websiteUrl: "https://cohere.ai",
@@ -130,6 +149,10 @@ export const modelDevelopersMeta: ModelDeveloper.MetaMap = {
   inception: {
     name: "Inception",
     websiteUrl: "https://www.inceptionlabs.ai/",
+  },
+  kwaipilot: {
+    name: "Kwaipilot",
+    websiteUrl: "https://kwaipilot.ai/",
   },
   meituan: {
     name: "Meituan",
@@ -155,6 +178,11 @@ export const modelDevelopersMeta: ModelDeveloper.MetaMap = {
     name: "Morph",
     websiteUrl: "https://www.morphllm.com/",
   },
+  nvidia: {
+    name: "NVIDIA",
+    websiteUrl:
+      "https://www.nvidia.com/en-sg/ai-data-science/foundation-models/nemotron/",
+  },
   openai: {
     name: "OpenAI",
     websiteUrl: "https://openai.com",
@@ -162,6 +190,10 @@ export const modelDevelopersMeta: ModelDeveloper.MetaMap = {
   perplexity: {
     name: "Perplexity",
     websiteUrl: "https://www.perplexity.ai/api-platform",
+  },
+  "prime-intellect": {
+    name: "Prime Intellect",
+    websiteUrl: "https://www.primeintellect.ai/",
   },
   stealth: {
     name: "Stealth",
@@ -178,6 +210,10 @@ export const modelDevelopersMeta: ModelDeveloper.MetaMap = {
   xai: {
     name: "xAI",
     websiteUrl: "https://x.ai",
+  },
+  xiaomi: {
+    name: "Xiaomi",
+    websiteUrl: "https://mimo.xiaomi.com/",
   },
   zai: {
     name: "Z.ai",

@@ -13,46 +13,65 @@ export namespace ModelDotdev {
   // NOTE: Get up-to-date ids using command:
   //     curl --silent https://models.dev/api.json | jaq -r '[keys[] | "\"\(.)\""] | join(" | ")'
   export type ProviderId =
+    | "abacus"
     | "aihubmix"
     | "alibaba"
     | "alibaba-cn"
     | "amazon-bedrock"
     | "anthropic"
     | "azure"
+    | "azure-cognitive-services"
+    | "bailing"
     | "baseten"
     | "cerebras"
     | "chutes"
+    | "cloudflare-ai-gateway"
     | "cloudflare-workers-ai"
+    | "cohere"
     | "cortecs"
     | "deepinfra"
     | "deepseek"
     | "fastrouter"
     | "fireworks-ai"
+    | "friendli"
     | "github-copilot"
     | "github-models"
     | "google"
     | "google-vertex"
     | "google-vertex-anthropic"
     | "groq"
+    | "helicone"
     | "huggingface"
+    | "iflowcn"
     | "inception"
     | "inference"
+    | "io-net"
+    | "kimi-for-coding"
     | "llama"
     | "lmstudio"
     | "lucidquery"
+    | "minimax"
+    | "minimax-cn"
     | "mistral"
     | "modelscope"
     | "moonshotai"
     | "moonshotai-cn"
     | "morph"
+    | "nano-gpt"
     | "nebius"
     | "nvidia"
+    | "ollama-cloud"
     | "openai"
     | "opencode"
     | "openrouter"
+    | "ovhcloud"
     | "perplexity"
+    | "poe"
     | "requesty"
+    | "sap-ai-core"
     | "scaleway"
+    | "siliconflow"
+    | "siliconflow-cn"
     | "submodel"
     | "synthetic"
     | "togetherai"
@@ -63,8 +82,10 @@ export namespace ModelDotdev {
     | "vultr"
     | "wandb"
     | "xai"
+    | "xiaomi"
     | "zai"
     | "zai-coding-plan"
+    | "zenmux"
     | "zhipuai"
     | "zhipuai-coding-plan";
 
@@ -312,7 +333,6 @@ export function isUnmatchedVendorId(
 
 export const modelsDotdevUnmatchedVendorIdsMap = {
   bedrock: "amazon-bedrock",
-  cohere: null,
   fireworks: "fireworks-ai",
   novita: null,
   parasail: null,
@@ -322,21 +342,28 @@ export const modelsDotdevUnmatchedVendorIdsMap = {
   amazon: "amazon-bedrock",
   meituan: null,
   meta: null,
-  minimax: null,
+  "arcee-ai": null,
+  bfl: null,
+  bytedance: null,
+  kwaipilot: null,
+  "prime-intellect": null,
 } satisfies ModelDotdev.UnmatchedVendorIdsMap;
 
 // TODO: Find logos for the unaliased ones. Right now they will render
 // Models.dev's generic logo, but we can do better.
 export const modelsDotdevUnaliasedVendorIdsLogoUrlsMap: ModelDotdev.UnaliasedVendorIdsLogoUrlsMap =
   {
-    cohere: "https://models.dev/logos/cohere.svg",
     novita: "https://models.dev/logos/novita.svg",
     parasail: "https://models.dev/logos/parasail.svg",
     stealth: "https://models.dev/logos/stealth.svg",
     voyage: "https://models.dev/logos/voyage.svg",
     meituan: "https://models.dev/logos/meituan.svg",
     meta: "https://models.dev/logos/meta.svg",
-    minimax: "https://models.dev/logos/minimax.svg",
+    "arcee-ai": "https://models.dev/logos/arcee-ai.svg",
+    bfl: "https://models.dev/logos/bfl.svg",
+    bytedance: "https://models.dev/logos/bytedance.svg",
+    kwaipilot: "https://models.dev/logos/kwaipilot.svg",
+    "prime-intellect": "https://models.dev/logos/prime-intellect.svg",
   };
 
 //#endregion

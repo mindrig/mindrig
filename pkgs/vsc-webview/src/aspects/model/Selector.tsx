@@ -44,7 +44,7 @@ export function ModelSelector(props: ModelSelector.Props) {
           modelsPayload?.developers?.map((option) => {
             const logoHref = providerLogoUrl(option.id);
             return {
-              label: option.name,
+              label: option.name || option.id,
               value: option.id,
               // TODO: Figure out how to deal with models.dev hrefs properly.
               // Right now we get CORS errors when trying to load them. It might

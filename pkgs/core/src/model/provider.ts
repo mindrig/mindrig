@@ -13,9 +13,12 @@ export namespace ModelProvider {
   export type Id =
     | "alibaba"
     | "anthropic"
+    | "arcee-ai"
     | "azure"
     | "baseten"
     | "bedrock"
+    | "bfl"
+    | "bytedance"
     | "chutes"
     | "cohere"
     | "deepinfra"
