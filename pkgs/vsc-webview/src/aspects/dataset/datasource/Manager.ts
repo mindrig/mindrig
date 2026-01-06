@@ -119,7 +119,7 @@ export class DatasetDatasourceManager {
             selection = data.selection;
             mapping = data.mapping;
           } else {
-            selection = buildDatasetSelection("row");
+            selection = buildDatasetSelection("all");
             mapping = this.#buildMapping(csv);
           }
 

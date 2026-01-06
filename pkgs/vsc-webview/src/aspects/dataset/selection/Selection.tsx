@@ -27,9 +27,9 @@ export function DatasetSelectionComponent(
           field={typeField}
           label="Rows  to use"
           options={[
-            { value: "row", label: "Single row" },
-            { value: "range", label: "Rows range" },
             { value: "all", label: `Use all ${rows} rows` },
+            { value: "range", label: "Rows range" },
+            { value: "row", label: "Single row" },
           ]}
         />
       </div>
