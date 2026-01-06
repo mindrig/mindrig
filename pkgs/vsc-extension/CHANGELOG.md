@@ -8,6 +8,30 @@ This change log follows the format documented in [Keep a CHANGELOG].
 [semantic versioning]: http://semver.org/
 [keep a changelog]: http://keepachangelog.com/
 
+## v0.7.0 - 2026-01-06
+
+### Fixed
+
+- Fixed result columns layout overflow issue.
+
+- Fixed Python f-strings interpolation issue.
+
+- Fixed missing names for freshly added model developers.
+
+### Added
+
+- Added support for Ruby, PHP, Go, C#, and Java.
+
+- Added prompt detection for more patterns like `"Hello, " + name + "!"`, `"Hello, {}!".format(name)`, `["Hello, ", name, "!"].join("")` and many others.
+
+### Changed
+
+- Updated internal models database data.
+
+- Made All selection the default one when loading CSV datasets.
+
+- Misc micro UI improvements.
+
 ## v0.6.0 - 2025-12-19
 
 ### Added
