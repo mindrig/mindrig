@@ -19,6 +19,14 @@
 
 [![Mind Rig video demo](./pkgs/assets/public/video-thumbnail-vsc.png)](https://customer-bv8mebpmji0au64l.cloudflarestream.com/ba5393ecce333c057b323c448c029c0c/watch)
 
+## Features
+
+- **LLM playground in your code**: Run prompts right from your editor. Inspect API requests, responses, and token usage.
+- **Hundreds of supported models**: Use models from OpenAI, Anthropic, Google, and many more.
+- **Comparison of models**: Run the same prompt on multiple models and compare results side-by-side.
+- **CSV datasets support**: Load CSV files as datasets and use rows in your prompts.
+- **Multi-language support**: [Detect and parse prompts](https://mindrig.ai/docs/guides/prompts-detection/) in Python, JavaScript, TypeScript, Go, Ruby, PHP, C#, and Java.
+
 ## Getting Started
 
 ### Installation
