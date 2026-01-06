@@ -27,7 +27,7 @@ export function Results(props: Results.Props) {
 
   if (resultsState)
     return (
-      <Block dir="y" gap={false} grow>
+      <Block dir="y" gap={false} grow overflow="hidden">
         <Block
           size="small"
           pad={["small", "medium", "small"]}
