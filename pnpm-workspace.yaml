@@ -15,8 +15,5 @@ onlyBuiltDependencies:
   - workerd
 
 overrides:
-  '@mindrig/parser-wasm': workspace:*
-  '@mindrig/types': workspace:*
-  '@wrkspc/vsc-sync': workspace:*
   '@wrkspc/core': workspace:*
   'react-upgrade': workspace:*

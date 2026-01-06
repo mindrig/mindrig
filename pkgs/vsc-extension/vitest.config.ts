@@ -8,6 +8,10 @@ export default defineConfig({
     globals: true,
     setupFiles: [],
 
+    // Restore mocks after each test
+    restoreMocks: true,
+    mockReset: true,
+
     // Display paths in the context of the monorepo
     root: import.meta.dirname + "/../..",
     dir: import.meta.dirname,

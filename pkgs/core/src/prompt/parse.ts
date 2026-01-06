@@ -1,4 +1,4 @@
-import { Prompt } from "@volumen/types";
+import { Prompt, Span } from "@volumen/types";
 
 export namespace PromptParse {
   export interface Result {
@@ -59,4 +59,14 @@ export function buildPromptsParseResult(
     source: { type: "parse" },
     ...overrides,
   };
+}
+
+export function sliceSpan(source: string, span: Span): string {
+  // NOTE: Regular JS slice doesn't work as Rust's `[x..y]`. As JS counts UTF-16
+  // code units, while Rust counts bytes. To make it work correctly with
+  // non-ASCII characters, we need to encode/decode as UTF-8.
+  const decoder = new TextDecoder("utf-8");
+  const bytes = new TextEncoder().encode(source);
+  const slice = bytes.slice(span[0], span[1]);
+  return decoder.decode(slice);
 }

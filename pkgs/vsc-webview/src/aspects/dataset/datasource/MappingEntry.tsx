@@ -1,6 +1,9 @@
 import { Csv } from "@wrkspc/core/csv";
 import { DatasetDatasource } from "@wrkspc/core/dataset";
-import { PlaygroundMap } from "@wrkspc/core/playground";
+import {
+  getPlaygroundMapVarContent,
+  PlaygroundMap,
+} from "@wrkspc/core/playground";
 import { textCn } from "@wrkspc/ds";
 import { SelectController } from "@wrkspc/ui";
 import { Field, State } from "enso";
@@ -20,15 +23,18 @@ export function DatasetDatasourceMappingEntry(
 ) {
   const { varState, mappingField, csvState, headerState } = props;
   const varId = varState.$.id.useValue();
-  const varExp = varState.$.exp.useValue();
+  const varContent = varState.useCompute(
+    (v) => getPlaygroundMapVarContent(v),
+    [],
+  );
 
   const mappingIndexField = mappingField.at(varId);
 
   return (
     <DatasourceMappingEntryRow>
-      <div className="truncate flex items-center" title={varExp}>
+      <div className="truncate flex items-center" title={varContent}>
         <span className={textCn({ role: "label", size: "small", mono: true })}>
-          {varExp}:
+          {varContent}:
         </span>
       </div>
 
@@ -36,7 +42,7 @@ export function DatasetDatasourceMappingEntry(
         <SelectController
           field={mappingIndexField}
           size="xsmall"
-          label={{ a11y: `Select CSV column for variable ${varExp}` }}
+          label={{ a11y: `Select CSV column for variable ${varContent}` }}
           options={[
             // TODO:
             // 1. Allow specifying undefined values if the field allows

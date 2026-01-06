@@ -1,4 +1,4 @@
-import type { Prompt, PromptVar, Span } from "@volumen/types";
+import type { Prompt, PromptVar } from "@volumen/types";
 import {
   areFileMetasEqual,
   EditorFile,
@@ -6,14 +6,14 @@ import {
 } from "@wrkspc/core/editor";
 import {
   buildMapFileId,
-  buildMapPromptId,
   buildMapPromptVarId,
+  getPlaygroundMapVarContent,
   PlaygroundMap,
-  playgroundMapSpanFromPrompt,
-  playgroundMapVarFromPromptVar,
-  playgroundMapVarsFromPrompt,
   PlaygroundState,
+  toPlaygroundMapPrompt,
+  toPlaygroundMapVar,
 } from "@wrkspc/core/playground";
+import { sliceSpan } from "@wrkspc/core/prompt";
 import { Store } from "@wrkspc/core/store";
 import { distance } from "fastest-levenshtein";
 
@@ -61,6 +61,7 @@ export namespace PlaygroundResolve {
   }
 
   export interface MatchPromptsProps {
+    source: string;
     unmatchedMapPrompts: Set<PlaygroundMap.PromptCode>;
     unmatchedParsedPrompts: Set<Prompt>;
   }
@@ -73,10 +74,10 @@ export namespace PlaygroundResolve {
   }
 
   export interface MatchPromptVarsProps {
+    source: string;
     matchedMapPromptVarExps: Record<string, PlaygroundMap.PromptVarId>;
     unmatchedMapPromptVars: Set<PlaygroundMap.PromptVar>;
     unmatchedParsedPromptVars: Set<PromptVar>;
-    promptSpan: Span;
   }
 
   export interface MatchPromptVarsResult {
@@ -138,8 +139,8 @@ export function resolvePlaygroundState(
     cursor &&
     parsedPrompts.findIndex(
       (prompt) =>
-        prompt.span.outer.start <= cursor.offset &&
-        prompt.span.outer.end >= cursor.offset,
+        prompt.span.outer[0] <= cursor.offset &&
+        prompt.span.outer[1] >= cursor.offset,
     );
   // NOTE: We resolve state prompt rather than map prompt, so we can set
   // fileId while type system knows it's not nullish.
@@ -252,6 +253,7 @@ export function resolvePlaygroundMapPair(
 
 export namespace ResolvePlaygroundMap {
   export interface Props {
+    source: string;
     timestamp: number;
     map: PlaygroundMap;
     file: EditorFile;
@@ -286,6 +288,7 @@ export function resolvePlaygroundMap(
 
 export namespace MatchPlaygroundMapFile {
   export interface Props {
+    source: string;
     timestamp: number;
     map: PlaygroundMap;
     file: EditorFile;
@@ -296,7 +299,7 @@ export namespace MatchPlaygroundMapFile {
 export function matchPlaygroundMapFile(
   props: MatchPlaygroundMapFile.Props,
 ): PlaygroundResolve.MatchFileResult {
-  const { timestamp, map, file, parsedPrompts } = props;
+  const { source, timestamp, map, file, parsedPrompts } = props;
   const byPath = map.files[file.path];
 
   if (byPath) {
@@ -307,6 +310,7 @@ export function matchPlaygroundMapFile(
       matchedCount,
       changed: matchChanged,
     } = matchPlaygroundMapPrompts({
+      source,
       timestamp,
       mapPrompts: byPath.prompts,
       parsedPrompts,
@@ -333,6 +337,7 @@ export function matchPlaygroundMapFile(
   }
 
   const byDistance = matchPlaygroundMapFileByDistance({
+    source,
     timestamp,
     file,
     map,
@@ -345,15 +350,13 @@ export function matchPlaygroundMapFile(
     id: buildMapFileId(),
     updatedAt: timestamp,
     meta: editorFileToMeta(file),
-    prompts: parsedPrompts.map<PlaygroundMap.PromptCode>((prompt) => ({
-      v: 1,
-      type: "code",
-      id: buildMapPromptId(),
-      content: prompt.exp,
-      vars: playgroundMapVarsFromPrompt(prompt),
-      span: playgroundMapSpanFromPrompt(prompt),
-      updatedAt: timestamp,
-    })),
+    prompts: parsedPrompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source,
+        prompt,
+        timestamp,
+      }),
+    ),
   };
 
   return {
@@ -371,6 +374,7 @@ export function matchPlaygroundMapFile(
 
 export namespace MatchPlaygroundMapFileByDistance {
   export interface Props {
+    source: string;
     timestamp: number;
     file: EditorFile;
     map: PlaygroundMap;
@@ -390,12 +394,13 @@ export namespace MatchPlaygroundMapFileByDistance {
 export function matchPlaygroundMapFileByDistance(
   props: MatchPlaygroundMapFileByDistance.Props,
 ): PlaygroundResolve.MatchFileResult | null {
-  const { timestamp, file, map, parsedPrompts } = props;
+  const { source, timestamp, file, map, parsedPrompts } = props;
 
   const candidates: MatchPlaygroundMapFileByDistance.Candidate[] = [];
 
   for (const mapFile of Object.values(map.files) as PlaygroundMap.File[]) {
     const result = matchPlaygroundMapPrompts({
+      source,
       timestamp: props.timestamp,
       mapPrompts: mapFile.prompts,
       parsedPrompts,
@@ -473,6 +478,7 @@ export function matchPlaygroundMapFileByDistance(
 
 export namespace MatchPlaygroundMapPrompts {
   export interface Props {
+    source: string;
     timestamp: number;
     mapPrompts: readonly PlaygroundMap.PromptCode[];
     parsedPrompts: readonly Prompt[];
@@ -487,13 +493,16 @@ export namespace MatchPlaygroundMapPrompts {
 export function matchPlaygroundMapPrompts(
   props: MatchPlaygroundMapPrompts.Props,
 ): MatchPlaygroundMapPrompts.Result {
+  const { source, timestamp } = props;
   const byContent = matchPlaygroundMapPromptsByContent({
+    source,
     unmatchedMapPrompts: new Set(props.mapPrompts),
     unmatchedParsedPrompts: new Set(props.parsedPrompts),
   });
 
   const byDistance = matchPlaygroundMapPromptsByDistance({
-    timestamp: props.timestamp,
+    source,
+    timestamp,
     unmatchedMapPrompts: byContent.unmatchedMapPrompts,
     unmatchedParsedPrompts: byContent.unmatchedParsedPrompts,
   });
@@ -517,15 +526,12 @@ export function matchPlaygroundMapPrompts(
       nextMapPrompts.push(structuredClone(mapPrompt));
       matchedCount++;
     } else {
-      nextMapPrompts.push({
-        v: 1,
-        type: "code",
-        id: buildMapPromptId(),
-        content: parsedPrompt.exp,
-        vars: playgroundMapVarsFromPrompt(parsedPrompt),
-        span: playgroundMapSpanFromPrompt(parsedPrompt),
-        updatedAt: props.timestamp,
+      const newMapPrompt = toPlaygroundMapPrompt({
+        source,
+        prompt: parsedPrompt,
+        timestamp,
       });
+      nextMapPrompts.push(newMapPrompt);
     }
   }
 
@@ -563,6 +569,7 @@ export function matchPlaygroundMapPrompts(
 export function matchPlaygroundMapPromptsByContent(
   props: PlaygroundResolve.MatchPromptsProps,
 ): PlaygroundResolve.MatchPromptsResult {
+  const { source } = props;
   const matchedMapPrompts = new Map<Prompt, PlaygroundMap.PromptCode>();
   const unmatchedMapPrompts = new Set(props.unmatchedMapPrompts);
   const unmatchedParsedPrompts = new Set(props.unmatchedParsedPrompts);
@@ -571,20 +578,28 @@ export function matchPlaygroundMapPromptsByContent(
     new Map();
 
   unmatchedParsedPrompts.forEach((parsedPrompt) => {
+    const parsedPromptContent = sliceSpan(
+      props.source,
+      parsedPrompt.span.outer,
+    );
+
     unmatchedMapPrompts.forEach((mapPrompt) => {
-      if (mapPrompt.content !== parsedPrompt.exp) return;
+      if (mapPrompt.content !== parsedPromptContent) return;
 
       const { nextMapPromptVars: vars } = matchPlaygroundMapPromptVars({
+        source,
         mapPromptVars: mapPrompt.vars,
         parsedPromptVars: parsedPrompt.vars,
-        promptSpan: parsedPrompt.span.outer,
       });
 
-      matchedMapPrompts.set(parsedPrompt, {
-        ...mapPrompt,
+      const updatedMapPrompt = toPlaygroundMapPrompt({
+        source,
+        id: mapPrompt.id,
+        timestamp: mapPrompt.updatedAt,
+        prompt: parsedPrompt,
         vars,
-        span: playgroundMapSpanFromPrompt(parsedPrompt),
       });
+      matchedMapPrompts.set(parsedPrompt, updatedMapPrompt);
       matchingDistances.set(
         mapPrompt,
         1 as PlaygroundResolve.MatchingContentDistance,
@@ -622,7 +637,7 @@ export namespace MatchPlaygroundMapPromptsByDistance {
 export function matchPlaygroundMapPromptsByDistance(
   props: MatchPlaygroundMapPromptsByDistance.Props,
 ): PlaygroundResolve.MatchPromptsResult {
-  const { timestamp } = props;
+  const { source, timestamp } = props;
 
   const unmatchedMapPrompts = new Set(props.unmatchedMapPrompts);
   const unmatchedParsedPrompts = new Set(props.unmatchedParsedPrompts);
@@ -630,7 +645,9 @@ export function matchPlaygroundMapPromptsByDistance(
   const candidates: MatchPlaygroundMapPromptsByDistance.Candidate[] = [];
 
   Array.from(unmatchedParsedPrompts).forEach((parsedPrompt, parsedIndex) => {
-    const parsedNormalized = normalizeContent(parsedPrompt.exp);
+    const parsedExp = sliceSpan(source, parsedPrompt.span.outer);
+    const parsedNormalized = normalizeContent(parsedExp);
+
     unmatchedMapPrompts.forEach((mapPrompt) => {
       const mapNormalized = normalizeContent(mapPrompt.content);
       const matchingDistance = calcMatchingContentDistance(
@@ -668,20 +685,18 @@ export function matchPlaygroundMapPromptsByDistance(
       return;
 
     const { nextMapPromptVars: vars } = matchPlaygroundMapPromptVars({
+      source,
       mapPromptVars: mapPrompt.vars,
       parsedPromptVars: parsedPrompt.vars,
-      promptSpan: parsedPrompt.span.inner,
     });
 
-    const nextMapPrompt: PlaygroundMap.PromptCode = {
-      v: 1,
-      type: "code",
+    const nextMapPrompt: PlaygroundMap.PromptCode = toPlaygroundMapPrompt({
+      prompt: parsedPrompt,
+      source,
       id: mapPrompt.id,
-      content: parsedPrompt.exp,
+      timestamp,
       vars,
-      span: playgroundMapSpanFromPrompt(parsedPrompt),
-      updatedAt: timestamp,
-    };
+    });
 
     matchedMapPrompts.set(parsedPrompt, nextMapPrompt);
     matchingDistances.set(nextMapPrompt, matchingDistance);
@@ -731,9 +746,9 @@ export function calcMatchedPromptsScore(
 
 export namespace MatchPlaygroundMapPromptVars {
   export interface Props {
+    source: string;
     mapPromptVars: readonly PlaygroundMap.PromptVar[];
     parsedPromptVars: readonly PromptVar[];
-    promptSpan: Span;
   }
 
   export interface Result {
@@ -744,21 +759,21 @@ export namespace MatchPlaygroundMapPromptVars {
 export function matchPlaygroundMapPromptVars(
   props: MatchPlaygroundMapPromptVars.Props,
 ): MatchPlaygroundMapPromptVars.Result {
-  const { mapPromptVars, parsedPromptVars, promptSpan } = props;
+  const { source, mapPromptVars, parsedPromptVars } = props;
   const nextMapPromptVars: PlaygroundMap.PromptVar[] = [];
 
   const byContent = matchPlaygroundMapPromptVarsByContent({
+    source,
     matchedMapPromptVarExps: {},
     unmatchedMapPromptVars: new Set(mapPromptVars),
     unmatchedParsedPromptVars: new Set(parsedPromptVars),
-    promptSpan,
   });
 
   const byDistance = matchPlaygroundMapPromptVarsByDistance({
+    source,
     matchedMapPromptVarExps: byContent.matchedMapPromptVarExps,
     unmatchedMapPromptVars: byContent.unmatchedMapPromptVars,
     unmatchedParsedPromptVars: byContent.unmatchedParsedPromptVars,
-    promptSpan,
   });
 
   const matchedMapPromptVars = new Map([
@@ -773,10 +788,11 @@ export function matchPlaygroundMapPromptVars(
     if (mapVar) {
       nextMapPromptVars.push(structuredClone(mapVar));
     } else {
-      const mapPromptVarId = (matchedMapPromptVarExps[parsedVar.exp] ||=
+      const parsedVarContent = sliceVarContent(source, parsedVar);
+      const mapPromptVarId = (matchedMapPromptVarExps[parsedVarContent] ||=
         buildMapPromptVarId());
       nextMapPromptVars.push(
-        playgroundMapVarFromPromptVar(parsedVar, promptSpan, mapPromptVarId),
+        toPlaygroundMapVar(source, parsedVar, mapPromptVarId),
       );
     }
   }
@@ -791,24 +807,24 @@ export function matchPlaygroundMapPromptVars(
 export function matchPlaygroundMapPromptVarsByContent(
   props: PlaygroundResolve.MatchPromptVarsProps,
 ): PlaygroundResolve.MatchPromptVarsResult {
-  const { promptSpan } = props;
+  const { source } = props;
   const matchedMapPromptVars = new Map<PromptVar, PlaygroundMap.PromptVar>();
   const matchedMapPromptVarExps = { ...props.matchedMapPromptVarExps };
   const unmatchedMapPromptVars = new Set(props.unmatchedMapPromptVars);
   const unmatchedParsedPromptVars = new Set(props.unmatchedParsedPromptVars);
 
   unmatchedParsedPromptVars.forEach((parsedVar) => {
+    const parsedVarContent = sliceVarContent(source, parsedVar);
+
     // First, map all existing map prompt vars with the same expression.
     for (const mapVar of unmatchedMapPromptVars) {
-      const mapVarId = matchedMapPromptVarExps[parsedVar.exp] || mapVar.id;
-      if (mapVar.exp !== parsedVar.exp) return;
-      const nextMapVar = playgroundMapVarFromPromptVar(
-        parsedVar,
-        props.promptSpan,
-        mapVarId,
-      );
+      const mapVarContent = getPlaygroundMapVarContent(mapVar);
+
+      const mapVarId = matchedMapPromptVarExps[parsedVarContent] || mapVar.id;
+      if (mapVarContent !== parsedVarContent) continue;
+      const nextMapVar = toPlaygroundMapVar(source, parsedVar, mapVarId);
       matchedMapPromptVars.set(parsedVar, nextMapVar);
-      matchedMapPromptVarExps[parsedVar.exp] = nextMapVar.id;
+      matchedMapPromptVarExps[parsedVarContent] = nextMapVar.id;
       unmatchedMapPromptVars.delete(mapVar);
       unmatchedParsedPromptVars.delete(parsedVar);
       // Stop processing after the first match.
@@ -818,12 +834,12 @@ export function matchPlaygroundMapPromptVarsByContent(
     // If not matched with map prompt but the id is assigned to the expression,
     // then create a new mapping reusing the existing id.
     matchParsedFromExpsMap({
+      source,
       parsedVar,
       matchedMapPromptVarExps,
       unmatchedParsedPromptVars,
       unmatchedMapPromptVars,
       matchedMapPromptVars,
-      promptSpan,
     });
   });
 
@@ -850,7 +866,7 @@ export namespace MatchPlaygroundMapPromptVarsByDistance {
 export function matchPlaygroundMapPromptVarsByDistance(
   props: PlaygroundResolve.MatchPromptVarsProps,
 ): PlaygroundResolve.MatchPromptVarsResult {
-  const { promptSpan } = props;
+  const { source } = props;
   const matchedMapPromptVars = new Map<PromptVar, PlaygroundMap.PromptVar>();
   const matchedMapPromptVarExps = { ...props.matchedMapPromptVarExps };
   const unmatchedMapPromptVars = new Set(props.unmatchedMapPromptVars);
@@ -859,9 +875,13 @@ export function matchPlaygroundMapPromptVarsByDistance(
   const candidates: MatchPlaygroundMapPromptVarsByDistance.Candidate[] = [];
 
   unmatchedParsedPromptVars.forEach((parsedVar) => {
-    const parsedNormalized = normalizeContent(parsedVar.exp);
+    const parsedVarContent = sliceVarContent(source, parsedVar);
+    const parsedNormalized = normalizeContent(parsedVarContent);
+
     for (const mapVar of unmatchedMapPromptVars) {
-      const mapNormalized = normalizeContent(mapVar.exp);
+      const mapVarContent = getPlaygroundMapVarContent(mapVar);
+      const mapNormalized = normalizeContent(mapVarContent);
+
       const matchingDistance = calcMatchingContentDistance(
         mapNormalized,
         parsedNormalized,
@@ -886,16 +906,17 @@ export function matchPlaygroundMapPromptVarsByDistance(
     )
       return;
 
-    const mapVarId = matchedMapPromptVarExps[parsedVar.exp] || mapVar.id;
+    const parsedVarContent = sliceVarContent(source, parsedVar);
+    const mapVarId = matchedMapPromptVarExps[parsedVarContent] || mapVar.id;
 
-    const nextMapVar: PlaygroundMap.PromptVar = playgroundMapVarFromPromptVar(
+    const nextMapVar: PlaygroundMap.PromptVar = toPlaygroundMapVar(
+      source,
       parsedVar,
-      promptSpan,
       mapVarId,
     );
 
     matchedMapPromptVars.set(parsedVar, nextMapVar);
-    matchedMapPromptVarExps[parsedVar.exp] = nextMapVar.id;
+    matchedMapPromptVarExps[parsedVarContent] = nextMapVar.id;
     unmatchedMapPromptVars.delete(mapVar);
     unmatchedParsedPromptVars.delete(parsedVar);
 
@@ -903,12 +924,12 @@ export function matchPlaygroundMapPromptVarsByDistance(
       // Find and match remaining unmatched parsed vars that have existing
       // mapped ids.
       matchParsedFromExpsMap({
+        source,
         parsedVar,
         matchedMapPromptVarExps,
         unmatchedParsedPromptVars,
         unmatchedMapPromptVars,
         matchedMapPromptVars,
-        promptSpan,
       });
     });
   });
@@ -1036,6 +1057,7 @@ function buildStatePromptItemDraft(
 
 export namespace MatchParsedFromExpsMap {
   export interface Props extends PlaygroundResolve.MatchPromptVarsProps {
+    source: string;
     parsedVar: PromptVar;
     matchedMapPromptVars: Map<PromptVar, PlaygroundMap.PromptVar>;
   }
@@ -1043,23 +1065,38 @@ export namespace MatchParsedFromExpsMap {
 
 function matchParsedFromExpsMap(props: MatchParsedFromExpsMap.Props) {
   const {
+    source,
     parsedVar,
     matchedMapPromptVarExps,
     unmatchedParsedPromptVars,
     matchedMapPromptVars,
-    promptSpan,
   } = props;
 
-  const mapVarId = matchedMapPromptVarExps[parsedVar.exp];
+  const parsedVarContent = sliceVarContent(source, parsedVar);
+
+  const mapVarId = matchedMapPromptVarExps[parsedVarContent];
   if (unmatchedParsedPromptVars.has(parsedVar) && mapVarId) {
-    const nextMapVar: PlaygroundMap.PromptVar = playgroundMapVarFromPromptVar(
+    const nextMapVar: PlaygroundMap.PromptVarLatest = toPlaygroundMapVar(
+      source,
       parsedVar,
-      promptSpan,
       mapVarId,
     );
     matchedMapPromptVars.set(parsedVar, nextMapVar);
     unmatchedParsedPromptVars.delete(parsedVar);
   }
 }
+
+function sliceVarContent(source: string, parsedVar: PromptVar): string {
+  // if ("v" in parsedVar && parsedVar.v === 1) return parsedVar.exp;
+  return sliceSpan(source, parsedVar.span.outer);
+}
+
+// function sliceMapPromptExp(
+//   source: string,
+//   mapPrompt: PlaygroundMap.PromptCode,
+// ): string {
+//   if ("v" in mapPrompt && mapPrompt.v === 1) return mapPrompt.content;
+//   return sliceSpan(source, mapPrompt.span.outer);
+// }
 
 //#endregion

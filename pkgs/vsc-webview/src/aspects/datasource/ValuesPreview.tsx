@@ -1,5 +1,5 @@
 import { Datasource } from "@wrkspc/core/datasource";
-import { PlaygroundMap } from "@wrkspc/core/playground";
+import { getPlaygroundMapVarExp, PlaygroundMap } from "@wrkspc/core/playground";
 import { always } from "alwaysly";
 
 export namespace DatasourceValuesPreview {
@@ -18,7 +18,7 @@ export function DatasourceValuesPreview(props: DatasourceValuesPreview.Props) {
         always(var_);
         return (
           <div key={varId} className="flex gap-2">
-            <div className="font-bold">{var_.exp}:</div>
+            <div className="font-bold">{getPlaygroundMapVarExp(var_)}:</div>
             <div>{value}</div>
           </div>
         );

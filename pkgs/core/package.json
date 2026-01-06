@@ -48,9 +48,9 @@
   },
   "dependencies": {
     "@ai-sdk/gateway": "^2.0.9",
-    "@mindrig/types": "workspace:^",
     "alwaysly": "^0.4.0",
-    "nanoid": "^5.1.6"
+    "nanoid": "^5.1.6",
+    "tuttut": "^0.1.2"
   },
   "devDependencies": {
     "@ai-sdk/anthropic": "^2.0.45",

@@ -21,7 +21,6 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@mindrig/types": "workspace:*",
     "@uiw/react-json-view": "2.0.0-alpha.37",
     "@wrkspc/core": "workspace:*",
     "@wrkspc/ds": "workspace:*",

@@ -4,12 +4,12 @@
     // Resolve
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      // We need it as VS Code extension can't resolve pnpm paths, so we lock
-      // `@mindrig/parser-wasm` to a specific version and override
-      // it to `workspace:*` in `pnpm-workspace.yaml`. So we need to tell
-      // TypeScript where to find the local package as well.
-      "@mindrig/parser-wasm": ["../parser/pkg"]
+      "@/*": ["./src/*"]
+      // VS Code extension can't resolve pnpm paths, so we when needed, lock
+      // a package to a specific version and override it to `workspace:*`
+      // in `pnpm-workspace.yaml`. Then tell TypeScript where to find
+      // the local package as well, e.g.:
+      //   "@mindrig/parser-wasm": ["../parser/pkg"]
     },
     // Modules
     "resolveJsonModule": true,

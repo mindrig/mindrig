@@ -1,8 +1,44 @@
 import { Datasource } from "@wrkspc/core/datasource";
 import { PlaygroundMap } from "@wrkspc/core/playground";
+import { always } from "alwaysly";
 
 export function promptInterpolate(
   prompt: PlaygroundMap.Prompt,
+  values: Datasource.Values,
+): string {
+  switch (prompt.v) {
+    case 2:
+      return promptInterpolateV2(prompt, values);
+    case 1:
+    case undefined:
+      return promptInterpolateV1(prompt, values);
+  }
+}
+
+export function promptInterpolateV2(
+  prompt: PlaygroundMap.PromptV2,
+  values: Datasource.Values,
+): string {
+  return prompt.tokens.reduce((acc, token) => {
+    switch (token.type) {
+      case "str":
+        return acc + token.content;
+
+      case "var": {
+        const var_ = prompt.vars[token.index];
+        always(var_);
+        const value = values[var_.id] || var_.content.outer;
+        return acc + value;
+      }
+
+      case "joint":
+        return acc + prompt.joint.content;
+    }
+  }, "");
+}
+
+export function promptInterpolateV1(
+  prompt: PlaygroundMap.PromptV1,
   values: Datasource.Values,
 ): string {
   const newVars = [...prompt.vars];

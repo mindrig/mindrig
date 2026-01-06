@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["pkgs/parser", "pkgs/types/pkgs/rs"]
+members = []
 
 [profile.dev.package]
 insta.opt-level = 3

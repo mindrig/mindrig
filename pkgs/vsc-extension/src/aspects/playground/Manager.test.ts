@@ -14,9 +14,12 @@ import { StoreManager } from "../store/Manager";
 import { PlaygroundManager } from "./Manager";
 import {
   editorCursorFactory,
-  parsedPromptFactory,
   playgroundSetupFactory,
-  PlaygroundStateSetupFactory,
+  TEST_FILE_B_SOURCE,
+  TEST_FILE_E_PARSED_RESULT,
+  TEST_FILE_E_SOURCE,
+  TEST_FILE_G_PARSED_RESULT,
+  TEST_FILE_G_SOURCE,
 } from "./__tests__/factories";
 
 describe(PlaygroundManager, () => {
@@ -46,25 +49,18 @@ describe(PlaygroundManager, () => {
         prompt: {
           type: "code",
           fileId: mapFileB.id,
-          prompt: {
-            v: 1,
-            type: "code",
+          prompt: expect.objectContaining({
             id: mapPromptsB[0].id,
-            content: mapPromptsB[0].content,
-            vars: mapPromptsB[0].vars,
-            span: mapPromptsB[0].span,
-            updatedAt: expect.any(Number),
-          },
+            content: "`gamma: ${three}, ${four}`",
+          }),
           reason: "pinned",
         },
         prompts: [
-          {
-            v: 1,
-            type: "code",
+          expect.objectContaining({
             fileId: mapFileB.id,
             promptId: mapPromptsB[0].id,
-            preview: parsedPromptsB[0].exp,
-          },
+            preview: "`gamma: ${three}, ${four}`",
+          }),
         ],
         pin: {
           fileId: mapFileB.id,
@@ -86,7 +82,7 @@ describe(PlaygroundManager, () => {
         files: expect.objectContaining({
           [editorFileA.path]: expect.objectContaining({
             prompts: expect.arrayContaining([
-              expect.objectContaining({ content: "alpha" }),
+              expect.objectContaining({ content: "`alpha: ${one}`" }),
             ]),
           }),
         }),
@@ -96,16 +92,17 @@ describe(PlaygroundManager, () => {
         prompts,
         map: {
           [mapFileA.meta.path]: [
-            parsedPromptFactory({
-              exp: "alpha wolf",
-              span: parsedPromptsA[0].span,
-            }),
+            TEST_FILE_E_PARSED_RESULT.prompts[1],
             parsedPromptsA[1],
           ],
         },
       });
 
       assert(vsc.window.activeTextEditor);
+      vi.spyOn(
+        vsc.window.activeTextEditor.document,
+        "getText",
+      ).mockImplementation(() => TEST_FILE_E_SOURCE);
       await vsc.emit(
         vsc.workspace,
         "onDidChangeTextDocument",
@@ -122,7 +119,9 @@ describe(PlaygroundManager, () => {
         files: expect.objectContaining({
           [editorFileA.path]: expect.objectContaining({
             prompts: expect.arrayContaining([
-              expect.objectContaining({ content: "alpha wolf" }),
+              expect.objectContaining({
+                content: "`alphish: ${one}`",
+              }),
             ]),
           }),
         }),
@@ -150,9 +149,9 @@ describe(PlaygroundManager, () => {
         },
       });
 
-      const state = await manager.state;
+      const stateA = await manager.state;
 
-      expect(state).toEqual({
+      expect(stateA).toEqual({
         file: editorFileToMeta(editorFileA),
         prompt: expect.objectContaining({
           fileId: expect.any(String),
@@ -162,20 +161,16 @@ describe(PlaygroundManager, () => {
           }),
         }),
         prompts: [
-          {
-            v: 1,
-            type: "code",
+          expect.objectContaining({
             fileId: expect.any(String),
             promptId: expect.any(String),
-            preview: parsedPromptsA[0].exp,
-          },
-          {
-            v: 1,
-            type: "code",
+            preview: "`alpha: ${one}`",
+          }),
+          expect.objectContaining({
             fileId: expect.any(String),
             promptId: expect.any(String),
-            preview: parsedPromptsA[1].exp,
-          },
+            preview: "`beta: ${two}, ${one}`",
+          }),
         ],
         pin: null,
         parseError: null,
@@ -187,8 +182,8 @@ describe(PlaygroundManager, () => {
         files: {
           [editorFileA.path]: expect.objectContaining({
             prompts: [
-              expect.objectContaining({ content: "alpha" }),
-              expect.objectContaining({ content: "beta" }),
+              expect.objectContaining({ content: "`alpha: ${one}`" }),
+              expect.objectContaining({ content: "`beta: ${two}, ${one}`" }),
             ],
           }),
         },
@@ -202,6 +197,9 @@ describe(PlaygroundManager, () => {
       });
 
       vsc.window.activeTextEditor = editorB;
+      vi.spyOn(editorB.document, "getText").mockImplementation(
+        () => TEST_FILE_B_SOURCE,
+      );
       await vsc.emit(vsc.window, "onDidChangeActiveTextEditor", editorB);
 
       const activeStateB = expect.objectContaining({
@@ -209,13 +207,15 @@ describe(PlaygroundManager, () => {
           fileId: expect.any(String),
           prompt: expect.objectContaining({
             id: expect.any(String),
-            content: mapPromptsB[0].content,
+            content: "`gamma: ${three}, ${four}`",
           }),
         }),
         pin: null,
       });
 
-      expect(await manager.state).toEqual(activeStateB);
+      const stateB = await manager.state;
+
+      expect(stateB).toEqual(activeStateB);
 
       const updatedMap =
         vsc.context.workspaceState.get<PlaygroundMap>("playground.map");
@@ -226,12 +226,12 @@ describe(PlaygroundManager, () => {
             id: initialMap?.files[editorFileA.path]?.id,
             prompts: [
               expect.objectContaining({
-                id: initialMap?.files[editorFileA.path]?.prompts[0]?.id,
-                content: "alpha",
+                id: stateA.prompts[0]?.promptId,
+                content: "`alpha: ${one}`",
               }),
               expect.objectContaining({
-                id: initialMap?.files[editorFileA.path]?.prompts[1]?.id,
-                content: "beta",
+                id: stateA.prompts[1]?.promptId,
+                content: "`beta: ${two}, ${one}`",
               }),
             ],
           }),
@@ -239,8 +239,8 @@ describe(PlaygroundManager, () => {
             id: expect.any(String),
             prompts: expect.arrayContaining([
               expect.objectContaining({
-                id: expect.any(String),
-                content: "gamma",
+                id: stateB.prompt?.prompt.id,
+                content: "`gamma: ${three}, ${four}`",
               }),
             ]),
           }),
@@ -385,7 +385,7 @@ describe(PlaygroundManager, () => {
           fileId: mapFileA.id,
           prompt: expect.objectContaining({
             id: mapPromptsA[1].id,
-            content: mapPromptsA[1].content,
+            content: "`beta: ${two}, ${one}`",
           }),
         }),
         pin: {
@@ -419,7 +419,7 @@ describe(PlaygroundManager, () => {
             },
           }),
 
-          cursorA: editorCursorFactory({ offset: 10 }),
+          cursorA: editorCursorFactory({ offset: 90 }),
         });
 
       expect(await manager.state).toMatchObject({
@@ -448,13 +448,13 @@ describe(PlaygroundManager, () => {
           fileId: mapFileA.id,
           prompt: expect.objectContaining({
             id: mapPromptsA[1].id,
-            content: mapPromptsA[1].content,
+            content: "`beta: ${two}, ${one}`",
           }),
         }),
         pin: null,
       });
 
-      expect(await manager.state).toMatchObject(pinChangedState);
+      expect(await manager.state).toEqual(pinChangedState);
 
       expect(messages.send).toHaveBeenCalledWith({
         type: "playground-server-update",
@@ -467,7 +467,7 @@ describe(PlaygroundManager, () => {
     it("delegates prompt change to editor", async () => {
       const { vsc, editor, mapFileA, mapPromptsA, editorFileA } =
         await setupFactory({
-          managerProps: ({ map, mapFileB, mapPromptsB }) => ({
+          managerProps: ({ map }) => ({
             vsc: {
               context: vscMock.ExtensionContext({
                 workspaceState: vscMock.Memento({
@@ -489,9 +489,11 @@ describe(PlaygroundManager, () => {
         },
       });
 
+      const [start, end] = mapPromptsA[0].span.outer;
+
       expect(editor.openFile).toBeCalledWith({
         path: editorFileA.path,
-        selection: mapPromptsA[0].span.outer,
+        selection: { start, end },
       });
     });
   });
@@ -516,6 +518,9 @@ describe(PlaygroundManager, () => {
       });
 
       vsc.window.activeTextEditor = editorB;
+      vi.spyOn(editorB.document, "getText").mockImplementation(
+        () => TEST_FILE_B_SOURCE,
+      );
       await vsc.emit(vsc.window, "onDidChangeActiveTextEditor", editorB);
 
       const activeStateB = expect.objectContaining({
@@ -543,7 +548,7 @@ describe(PlaygroundManager, () => {
       const changedEditor = vscMock.TextEditor({
         document: vscMock.TextDocument({
           uri: vscMock.Uri({ fsPath: editorFileA.path }),
-          offsetAt: () => 10,
+          offsetAt: () => 90,
         }),
       });
 
@@ -590,19 +595,15 @@ describe(PlaygroundManager, () => {
       stubPromptsParse({
         prompts,
         map: {
-          [mapFileA.meta.path]: [
-            parsedPromptFactory({
-              exp: "alpha wolf",
-              span: parsedPromptsA[0].span,
-            }),
-            parsedPromptsA[1],
-          ],
+          [mapFileA.meta.path]: TEST_FILE_G_PARSED_RESULT.prompts,
         },
       });
 
-      await postpone(1);
-
       assert(vsc.window.activeTextEditor);
+      vi.spyOn(
+        vsc.window.activeTextEditor.document,
+        "getText",
+      ).mockImplementation(() => TEST_FILE_G_SOURCE);
       await vsc.emit(
         vsc.workspace,
         "onDidSaveTextDocument",
@@ -614,18 +615,18 @@ describe(PlaygroundManager, () => {
           fileId: mapFileA.id,
           prompt: expect.objectContaining({
             id: mapPromptsA[0].id,
-            content: "alpha wolf",
+            content: "`ALPHA: ${one}`",
           }),
         }),
 
         prompts: [
           expect.objectContaining({
             promptId: mapPromptsA[0].id,
-            preview: "alpha wolf",
+            preview: "`ALPHA: ${one}`",
           }),
           expect.objectContaining({
             promptId: mapPromptsA[1].id,
-            preview: "beta",
+            preview: "`BETA: ${two}, ${one}`",
           }),
         ],
 
@@ -653,21 +654,18 @@ describe(PlaygroundManager, () => {
         parsedPromptsA,
       } = await setupFactory();
 
-      assert(vsc.window.activeTextEditor);
-
       stubPromptsParse({
         prompts,
         map: {
-          [mapFileA.meta.path]: [
-            parsedPromptFactory({
-              exp: "alpha wolf",
-              span: parsedPromptsA[0].span,
-            }),
-            parsedPromptsA[1],
-          ],
+          [mapFileA.meta.path]: TEST_FILE_G_PARSED_RESULT.prompts,
         },
       });
 
+      assert(vsc.window.activeTextEditor);
+      vi.spyOn(
+        vsc.window.activeTextEditor.document,
+        "getText",
+      ).mockImplementation(() => TEST_FILE_G_SOURCE);
       await vsc.emit(
         vsc.workspace,
         "onDidChangeTextDocument",
@@ -681,18 +679,16 @@ describe(PlaygroundManager, () => {
           fileId: mapFileA.id,
           prompt: expect.objectContaining({
             id: mapPromptsA[0].id,
-            content: "alpha wolf",
+            content: "`ALPHA: ${one}`",
           }),
         }),
 
         prompts: [
           expect.objectContaining({
-            promptId: mapPromptsA[0].id,
-            preview: "alpha wolf",
+            preview: "`ALPHA: ${one}`",
           }),
           expect.objectContaining({
-            promptId: mapPromptsA[1].id,
-            preview: "beta",
+            preview: "`BETA: ${two}, ${one}`",
           }),
         ],
 
@@ -709,89 +705,9 @@ describe(PlaygroundManager, () => {
   });
 });
 
-namespace SetupFactory {
-  export interface Props
-    extends PlaygroundManagerSetupFactory.Props,
-      PlaygroundStateSetupFactory.Props {
-    managerProps?: PrepareManagerPropsFn;
-  }
+//#region Factories ============================================================
 
-  export type PrepareManagerPropsFn = (
-    playgroundSetup: PlaygroundStateSetupFactory.Result,
-  ) => PlaygroundManagerSetupFactory.Props;
-}
-
-async function setupFactory(props?: SetupFactory.Props) {
-  const playgroundSetup = playgroundSetupFactory({
-    cursorA: editorCursorFactory({ offset: 2 }),
-    cursorB: editorCursorFactory({ offset: 10 }),
-    ...props,
-  });
-
-  const {
-    map,
-    cursorA,
-    editorFileA,
-    parsedPromptsA,
-    editorFileB,
-    parsedPromptsB,
-  } = playgroundSetup;
-
-  const managerProps = props?.managerProps?.(playgroundSetup) || props;
-
-  const playgroundManagerSetup = await playgroundManagerSetupFactory({
-    ...managerProps,
-
-    vsc: {
-      ...managerProps?.vsc,
-
-      window: vscMock.Window({
-        activeTextEditor: vscMock.TextEditor({
-          document: vscMock.TextDocument({
-            uri: vscMock.Uri({ fsPath: editorFileA.path }),
-            offsetAt: cursorA && (() => cursorA.offset),
-          }),
-        }),
-
-        ...managerProps?.vsc?.window,
-      }),
-
-      context: vscMock.ExtensionContext({
-        workspaceState: vscMock.Memento({
-          "playground.map": map,
-          "playground.pin": null,
-        }),
-
-        ...managerProps?.vsc?.context,
-      }),
-    },
-
-    editor: {
-      readFile: {
-        [editorFileA.path]: editorFileA,
-        [editorFileB.path]: editorFileB,
-      },
-      ...managerProps?.editor,
-    },
-
-    prompts: {
-      parse: {
-        [editorFileA.path]: parsedPromptsA,
-        [editorFileB.path]: parsedPromptsB,
-      },
-      ...managerProps?.prompts,
-    },
-  });
-
-  vi.spyOn(playgroundManagerSetup.messages, "send");
-
-  return {
-    ...playgroundSetup,
-    ...playgroundManagerSetup,
-  };
-}
-
-namespace PlaygroundManagerSetupFactory {
+namespace playgroundManagerSetupFactory {
   export interface Props {
     vsc?: VscMock.ApiProps;
     editor?: EditorProps;
@@ -800,16 +716,16 @@ namespace PlaygroundManagerSetupFactory {
 
   export interface EditorProps {
     activeFile?: EditorFile | null;
-    readFile?: SubEditorReadFile.Map;
+    readFile?: stubEditorReadFile.Map;
   }
 
   export interface PromptsProps {
-    parse?: StubPromptsParse.Map;
+    parse?: stubPromptsParse.Map;
   }
 }
 
 async function playgroundManagerSetupFactory(
-  props?: PlaygroundManagerSetupFactory.Props,
+  props?: playgroundManagerSetupFactory.Props,
 ) {
   const vsc = vscMock.setup(props?.vsc);
 
@@ -819,7 +735,8 @@ async function playgroundManagerSetupFactory(
 
   const editor = new EditorManager(null);
 
-  if (props?.editor?.readFile) subEditorReadFile(editor, props.editor.readFile);
+  if (props?.editor?.readFile)
+    stubEditorReadFile(editor, props.editor.readFile);
 
   if (props?.editor?.activeFile !== undefined)
     vi.spyOn(editor, "activeFile", "get").mockReturnValue(
@@ -849,7 +766,7 @@ async function playgroundManagerSetupFactory(
   return { vsc, messages, editor, prompts, store, manager };
 }
 
-namespace StubPromptsParse {
+namespace stubPromptsParse {
   export interface Props {
     prompts: PromptsManager;
     map: Map;
@@ -860,7 +777,7 @@ namespace StubPromptsParse {
   };
 }
 
-function stubPromptsParse(props: StubPromptsParse.Props) {
+function stubPromptsParse(props: stubPromptsParse.Props) {
   const { prompts, map } = props;
   vi.spyOn(prompts, "parse").mockImplementation((file) => {
     const prompts = file && map[file.path];
@@ -869,16 +786,114 @@ function stubPromptsParse(props: StubPromptsParse.Props) {
   });
 }
 
-namespace SubEditorReadFile {
+namespace stubEditorReadFile {
   export type Map = Record<EditorFile.Path, EditorFile | null>;
 }
 
-function subEditorReadFile(editor: EditorManager, map: SubEditorReadFile.Map) {
+function stubEditorReadFile(
+  editor: EditorManager,
+  map: stubEditorReadFile.Map,
+) {
   vi.spyOn(editor, "readFile").mockImplementation(async (path) => {
     return map[path] ?? null;
   });
 }
 
+namespace setupFactory {
+  export interface Props
+    extends playgroundManagerSetupFactory.Props,
+      playgroundSetupFactory.Props {
+    managerProps?: PrepareManagerPropsFn;
+  }
+
+  export type PrepareManagerPropsFn = (
+    playgroundSetup: playgroundSetupFactory.Result,
+  ) => playgroundManagerSetupFactory.Props;
+}
+
+async function setupFactory(props?: setupFactory.Props) {
+  const playgroundSetup = playgroundSetupFactory(props);
+
+  const {
+    map,
+    cursorA,
+    editorFileA,
+    parsedPromptsA,
+    editorFileB,
+    parsedPromptsB,
+  } = playgroundSetup;
+
+  const managerProps = props?.managerProps?.(playgroundSetup) || props;
+
+  const editorProps = {
+    readFile: {
+      [editorFileA.path]: editorFileA,
+      [editorFileB.path]: editorFileB,
+    },
+    ...managerProps?.editor,
+  };
+
+  const playgroundManagerSetup = await playgroundManagerSetupFactory({
+    ...managerProps,
+
+    vsc: {
+      ...managerProps?.vsc,
+
+      window: vscMock.Window({
+        activeTextEditor: vscMock.TextEditor({
+          document: vscMock.TextDocument({
+            uri: vscMock.Uri({ fsPath: editorFileA.path }),
+            offsetAt: cursorA && (() => cursorA.offset),
+            getText: () => editorFileA.content,
+          }),
+        }),
+
+        ...managerProps?.vsc?.window,
+      }),
+
+      workspace: vscMock.Workspace({
+        openTextDocument: async (uri) => {
+          const editorFile =
+            uri && editorProps.readFile?.[uri.toString() as EditorFile.Path];
+          if (!editorFile) return vscMock.TextDocument();
+          return vscMock.TextDocument({
+            uri: vscMock.Uri({ fsPath: editorFile.path }),
+            getText: () => editorFile.content,
+          });
+        },
+      }),
+
+      context: vscMock.ExtensionContext({
+        workspaceState: vscMock.Memento({
+          "playground.map": map,
+          "playground.pin": null,
+        }),
+
+        ...managerProps?.vsc?.context,
+      }),
+    },
+
+    editor: editorProps,
+
+    prompts: {
+      parse: {
+        [editorFileA.path]: parsedPromptsA,
+        [editorFileB.path]: parsedPromptsB,
+      },
+      ...managerProps?.prompts,
+    },
+  });
+
+  vi.spyOn(playgroundManagerSetup.messages, "send");
+
+  return {
+    ...playgroundSetup,
+    ...playgroundManagerSetup,
+  };
+}
+
 async function postpone(delay = 0) {
   return new Promise((resolve) => setTimeout(resolve, delay));
 }
+
+//#endregion

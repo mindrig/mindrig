@@ -44,5 +44,5 @@ func main() {
     helloPrompt := fmt.Sprintf("Hello, %s", name)
     fmt.Println("\n" + helloPrompt)
     // @prompt
-    system := "You are a helpful assistant. asd"
+    system := "You are a helpful assistant."
 }

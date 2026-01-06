@@ -1,170 +1,104 @@
-import { Prompt, PromptVar } from "@mindrig/types";
+import { Prompt } from "@volumen/types";
 import { describe, expect, it } from "vitest";
-import {
-  playgroundMapVarFromPromptVar,
-  playgroundMapVarsFromPrompt,
-} from "./map";
+import { playgroundMapVarsFromPrompt, toPlaygroundMapVar } from "./map";
 
 describe(playgroundMapVarsFromPrompt, () => {
   it("converts Prompt vars to PlaygroundMap.PromptVars", () => {
-    const promptVars: PromptVar[] = [
-      {
-        exp: "${name}",
-        span: {
-          outer: { start: 0, end: 0 },
-          inner: { start: 0, end: 0 },
-        },
-      },
-      {
-        exp: "${age}",
-        span: {
-          outer: { start: 0, end: 0 },
-          inner: { start: 0, end: 0 },
-        },
-      },
-    ];
-
-    const prompt: Prompt = {
-      exp: "`Hello ${name}, you are ${age} years old.`",
-      vars: promptVars,
-      file: "template.ts",
-      span: {
-        outer: { start: 0, end: 0 },
-        inner: { start: 0, end: 0 },
-      },
-    };
-
-    const result = playgroundMapVarsFromPrompt(prompt);
+    const result = playgroundMapVarsFromPrompt(sourceA, promptABeta);
 
     expect(result).toEqual([
       {
-        v: 1,
+        v: 2,
         id: expect.any(String),
-        exp: "${name}",
-        span: {
-          v: 1,
-          outer: { v: 1, start: 0, end: 0 },
-          inner: { v: 1, start: 0, end: 0 },
+        content: {
+          v: 2,
+          outer: "${two}",
+          inner: "two",
         },
+        span: { v: 2, ...promptABeta.vars[0].span },
       },
       {
-        v: 1,
+        v: 2,
         id: expect.any(String),
-        exp: "${age}",
-        span: {
-          v: 1,
-          outer: { v: 1, start: 0, end: 0 },
-          inner: { v: 1, start: 0, end: 0 },
+        content: {
+          v: 2,
+          outer: "${one}",
+          inner: "one",
         },
-      },
-    ]);
-  });
-
-  it("transposes var spans to inner prompt span", () => {
-    const promptVars: PromptVar[] = [
-      {
-        exp: "${name}",
-        span: {
-          outer: { start: 27, end: 34 },
-          inner: { start: 29, end: 33 },
-        },
-      },
-      {
-        exp: "${age}",
-        span: {
-          outer: { start: 44, end: 50 },
-          inner: { start: 46, end: 49 },
-        },
-      },
-    ];
-
-    const prompt: Prompt = {
-      exp: "`Hello ${name}, you are ${age} years old.`",
-      vars: promptVars,
-      file: "template.ts",
-      span: {
-        outer: { start: 20, end: 62 },
-        inner: { start: 21, end: 61 },
-      },
-    };
-
-    const result = playgroundMapVarsFromPrompt(prompt);
-    expect(result).toEqual([
-      {
-        v: 1,
-        id: expect.any(String),
-        exp: "${name}",
-        span: {
-          v: 1,
-          outer: { v: 1, start: 7, end: 14 },
-          inner: { v: 1, start: 9, end: 13 },
-        },
-      },
-      {
-        v: 1,
-        id: expect.any(String),
-        exp: "${age}",
-        span: {
-          v: 1,
-          outer: { v: 1, start: 24, end: 30 },
-          inner: { v: 1, start: 26, end: 29 },
-        },
+        span: { v: 2, ...promptABeta.vars[1].span },
       },
     ]);
   });
 });
 
-describe(playgroundMapVarFromPromptVar, () => {
+describe(toPlaygroundMapVar, () => {
   it("converts PromptVar to PlaygroundMap.PromptVar", () => {
-    const promptVar: PromptVar = {
-      exp: "${name}",
-      span: {
-        outer: { start: 0, end: 0 },
-        inner: { start: 0, end: 0 },
-      },
-    };
-
-    const result = playgroundMapVarFromPromptVar(promptVar, {
-      start: 0,
-      end: 0,
-    });
+    const promptVar = promptABeta.vars[1];
+    const result = toPlaygroundMapVar(sourceA, promptVar);
 
     expect(result).toEqual({
-      v: 1,
+      v: 2,
       id: expect.any(String),
-      exp: "${name}",
-      span: {
-        v: 1,
-        outer: { v: 1, start: 0, end: 0 },
-        inner: { v: 1, start: 0, end: 0 },
-      },
-    });
-  });
-
-  it("transposes span to content correctly", () => {
-    const promptVar: PromptVar = {
-      exp: "${name}",
-      span: {
-        outer: { start: 10, end: 20 },
-        inner: { start: 11, end: 19 },
-      },
-    };
-
-    const result = playgroundMapVarFromPromptVar(promptVar, {
-      start: 5,
-      end: 25,
-    });
-
-    expect(result).toEqual({
-      v: 1,
-      id: expect.any(String),
-      exp: "${name}",
-
-      span: {
-        v: 1,
-        outer: { v: 1, start: 5, end: 15 },
-        inner: { v: 1, start: 6, end: 14 },
+      span: { v: 2, ...promptVar.span },
+      content: {
+        v: 2,
+        outer: "${one}",
+        inner: "one",
       },
     });
   });
 });
+
+const sourceA = `const one = 1;
+const two = 2;
+const alphaPrompt = \`alpha: \${one}\`;
+const betaPrompt = \`beta: \${two}, \${one}\`;
+`;
+
+const promptABeta = {
+  file: "testA.ts",
+  enclosure: [67, 109],
+  span: {
+    outer: [86, 108],
+    inner: [87, 107],
+  },
+  content: [
+    {
+      type: "str",
+      span: [87, 93],
+    },
+    {
+      type: "var",
+      span: [93, 99],
+      index: 0,
+    },
+    {
+      type: "str",
+      span: [99, 101],
+    },
+    {
+      type: "var",
+      span: [101, 107],
+      index: 1,
+    },
+  ],
+  joint: {
+    outer: [0, 0],
+    inner: [0, 0],
+  },
+  vars: [
+    {
+      span: {
+        outer: [93, 99],
+        inner: [95, 98],
+      },
+    },
+    {
+      span: {
+        outer: [101, 107],
+        inner: [103, 106],
+      },
+    },
+  ] as const,
+  annotations: [],
+} satisfies Prompt;

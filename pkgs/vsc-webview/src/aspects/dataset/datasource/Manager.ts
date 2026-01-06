@@ -9,7 +9,11 @@ import {
   DatasetDatasource,
   DatasetSelection,
 } from "@wrkspc/core/dataset";
-import { PlaygroundMap, PlaygroundState } from "@wrkspc/core/playground";
+import {
+  getPlaygroundMapVarExp,
+  PlaygroundMap,
+  PlaygroundState,
+} from "@wrkspc/core/playground";
 import { Field, State } from "enso";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -150,14 +154,8 @@ export class DatasetDatasourceManager {
 
     const varsMap: Record<string, PlaygroundMap.PromptVarId> = {};
     vars.forEach((var_) => {
-      const expInner = var_.exp
-        .slice(
-          var_.span.inner.start - var_.span.outer.start,
-          var_.exp.length - (var_.span.outer.end - var_.span.inner.end),
-        )
-        .trim()
-        .toLowerCase();
-      varsMap[expInner] = var_.id;
+      const exp = getPlaygroundMapVarExp(var_);
+      varsMap[exp] = var_.id;
     });
 
     csv.header.forEach((columnName, index) => {

@@ -1,10 +1,10 @@
 import { PromptVar } from "@volumen/types";
-import { editorFileToMeta } from "@wrkspc/core/editor";
+import { EditorFile, editorFileToMeta } from "@wrkspc/core/editor";
 import {
   buildMapPromptVarId,
   playgroundMapSpanFromPrompt,
-  playgroundMapVarFromPromptVar,
   playgroundMapVarsFromPrompt,
+  toPlaygroundMapPrompt,
   type PlaygroundMap,
   type PlaygroundState,
 } from "@wrkspc/core/playground";
@@ -14,14 +14,22 @@ import {
   editorFileFactory,
   editorFileMetaFactory,
   editorFilePathFactory,
-  parsedPromptFactory,
-  parsedPromptSpanShapeFactory,
-  parsedPromptVarFactory,
   playgroundMapFactory,
   playgroundMapFileFactory,
-  playgroundMapPromptDraftFactory,
-  playgroundMapPromptFactory,
-  playgroundSetupFactory,
+  playgroundMapPromptCodeV2ToV1,
+  playgroundMapPromptDraftFactoryV1,
+  playgroundMapPromptVarV2ToV1,
+  playgroundSetupFactoryV1,
+  TEST_FILE_A_PARSED_RESULT,
+  TEST_FILE_A_SOURCE,
+  TEST_FILE_C_PARSED_RESULT,
+  TEST_FILE_C_SOURCE,
+  TEST_FILE_D_PARSED_RESULT,
+  TEST_FILE_D_SOURCE,
+  TEST_FILE_E_PARSED_RESULT,
+  TEST_FILE_E_SOURCE,
+  TEST_FILE_F_PARSED_RESULT,
+  TEST_FILE_F_SOURCE,
 } from "./__tests__/factories";
 import {
   calcMatchedPromptsScore,
@@ -45,7 +53,7 @@ describe(resolvePlaygroundState, () => {
   describe("file", () => {
     it("resolves current file state", () => {
       const { playgroundStateProps, editorFileA, mapFileA, mapPromptsA } =
-        playgroundSetupFactory();
+        playgroundSetupFactoryV1();
 
       const state = resolvePlaygroundState(playgroundStateProps);
       expect(state).toMatchObject({
@@ -70,7 +78,7 @@ describe(resolvePlaygroundState, () => {
     });
 
     it("resolves empty state when current file is not defined", () => {
-      const { playgroundStateProps, mapFileA } = playgroundSetupFactory();
+      const { playgroundStateProps, mapFileA } = playgroundSetupFactoryV1();
       const state = resolvePlaygroundState({
         ...playgroundStateProps,
         currentFile: null,
@@ -85,7 +93,7 @@ describe(resolvePlaygroundState, () => {
 
     it("includes parser error in state", () => {
       const { playgroundStateProps, editorFileA, mapFileA, mapPromptsA } =
-        playgroundSetupFactory();
+        playgroundSetupFactoryV1();
 
       const parseError = "Ooops, syntax error!";
 
@@ -117,7 +125,7 @@ describe(resolvePlaygroundState, () => {
     });
 
     it("ignores parse error if current file is not defined", () => {
-      const { playgroundStateProps, mapFileA } = playgroundSetupFactory();
+      const { playgroundStateProps } = playgroundSetupFactoryV1();
       const state = resolvePlaygroundState({
         ...playgroundStateProps,
         currentFile: null,
@@ -134,10 +142,10 @@ describe(resolvePlaygroundState, () => {
     });
 
     it("includes draft prompts in state", () => {
-      const { playgroundStateProps, editorFileA, mapFileA, mapPromptsA } =
-        playgroundSetupFactory();
+      const { playgroundStateProps, mapFileA, mapPromptsA } =
+        playgroundSetupFactoryV1();
 
-      const draftPrompt = playgroundMapPromptDraftFactory();
+      const draftPrompt = playgroundMapPromptDraftFactoryV1();
 
       const state = resolvePlaygroundState({
         ...playgroundStateProps,
@@ -175,7 +183,7 @@ describe(resolvePlaygroundState, () => {
         mapPromptsB,
         parsedPromptsB,
         playgroundStateProps,
-      } = playgroundSetupFactory({
+      } = playgroundSetupFactoryV1({
         cursorA: editorCursorFactory({ offset: 8 }),
         cursorB: editorCursorFactory({ offset: 8 }),
       });
@@ -212,7 +220,7 @@ describe(resolvePlaygroundState, () => {
     });
 
     it("resolves empty pin state when cursor is not defined", () => {
-      const { playgroundStateProps } = playgroundSetupFactory({
+      const { playgroundStateProps } = playgroundSetupFactoryV1({
         cursorA: undefined,
       });
       expect(resolvePlaygroundState(playgroundStateProps)).toMatchObject({
@@ -228,7 +236,7 @@ describe(resolvePlaygroundState, () => {
         mapPromptsB,
         parsedPromptsB,
         playgroundStateProps,
-      } = playgroundSetupFactory({
+      } = playgroundSetupFactoryV1({
         cursorA: editorCursorFactory({ offset: 8 }),
         cursorB: editorCursorFactory({ offset: 8 }),
       });
@@ -282,9 +290,9 @@ describe(resolvePlaygroundState, () => {
         editorFileB,
         parsedPromptsB,
         playgroundStateProps,
-      } = playgroundSetupFactory();
+      } = playgroundSetupFactoryV1();
 
-      const draftPrompt = playgroundMapPromptDraftFactory();
+      const draftPrompt = playgroundMapPromptDraftFactoryV1();
       const drafts = {
         [draftPrompt.id]: draftPrompt,
       };
@@ -338,7 +346,7 @@ describe(resolvePlaygroundState, () => {
   describe("pinned", () => {
     it("resolves pinned prompt state ", () => {
       const { mapFileB, mapPromptsB, editorFileB, playgroundStateProps } =
-        playgroundSetupFactory();
+        playgroundSetupFactoryV1();
 
       const pin: PlaygroundState.Ref = {
         v: 1,
@@ -381,7 +389,7 @@ describe(resolvePlaygroundState, () => {
         mapPromptsB,
         editorFileA,
         playgroundStateProps,
-      } = playgroundSetupFactory();
+      } = playgroundSetupFactoryV1();
 
       const pin: PlaygroundState.Ref = {
         v: 1,
@@ -423,7 +431,7 @@ describe(resolvePlaygroundState, () => {
         mapFileB,
         editorFileA,
         playgroundStateProps,
-      } = playgroundSetupFactory();
+      } = playgroundSetupFactoryV1();
 
       const pin: PlaygroundState.Ref = {
         v: 1,
@@ -466,7 +474,7 @@ describe(resolvePlaygroundState, () => {
         mapPromptsB,
         parsedPromptsB,
         playgroundStateProps,
-      } = playgroundSetupFactory({
+      } = playgroundSetupFactoryV1({
         cursorA: editorCursorFactory({ offset: 8 }),
         cursorB: editorCursorFactory({ offset: 8 }),
       });
@@ -509,7 +517,7 @@ describe(resolvePlaygroundState, () => {
 
     it("includes parse error in state", () => {
       const { mapFileB, mapPromptsB, editorFileB, playgroundStateProps } =
-        playgroundSetupFactory();
+        playgroundSetupFactoryV1();
 
       const pin: PlaygroundState.Ref = {
         v: 1,
@@ -551,7 +559,7 @@ describe(resolvePlaygroundState, () => {
 
     it("includes draft prompts in state", () => {
       const { mapFileB, mapPromptsB, playgroundStateProps } =
-        playgroundSetupFactory();
+        playgroundSetupFactoryV1();
 
       const pin: PlaygroundState.Ref = {
         v: 1,
@@ -560,7 +568,7 @@ describe(resolvePlaygroundState, () => {
         promptId: mapPromptsB[0].id,
       };
 
-      const draftPrompt = playgroundMapPromptDraftFactory();
+      const draftPrompt = playgroundMapPromptDraftFactoryV1();
 
       const state = resolvePlaygroundState({
         ...playgroundStateProps,
@@ -589,9 +597,9 @@ describe(resolvePlaygroundState, () => {
   describe("draft", () => {
     it("resolves pinned draft prompt state ", () => {
       const { editorFileA, mapFileA, mapPromptsA, playgroundStateProps } =
-        playgroundSetupFactory();
+        playgroundSetupFactoryV1();
 
-      const draftPrompt = playgroundMapPromptDraftFactory();
+      const draftPrompt = playgroundMapPromptDraftFactoryV1();
 
       const pin: PlaygroundState.Ref = {
         v: 1,
@@ -647,13 +655,49 @@ describe(resolvePlaygroundState, () => {
 
 describe(resolvePlaygroundMapFile, () => {
   it("resolves map file by id", () => {
-    const { map, mapFileA } = playgroundSetupFactory();
-    const result = resolvePlaygroundMapFile(map, mapFileA.id);
-    expect(result).toBe(mapFileA);
+    const mapPrompts = TEST_FILE_F_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_F_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile.meta.path]: mapFile,
+      },
+    });
+
+    const result = resolvePlaygroundMapFile(map, mapFile.id);
+    expect(result).toBe(mapFile);
   });
 
   it("returns null when map file id does not exist", () => {
-    const { map } = playgroundSetupFactory();
+    const mapPrompts = TEST_FILE_F_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_F_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile.meta.path]: mapFile,
+      },
+    });
+
     const result = resolvePlaygroundMapFile(
       map,
       "non-existent-id" as PlaygroundMap.FileId,
@@ -664,23 +708,71 @@ describe(resolvePlaygroundMapFile, () => {
 
 describe(resolvePlaygroundMapPair, () => {
   it("resolves map pair by ref", () => {
-    const { map, mapFileA, mapPromptsA } = playgroundSetupFactory();
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
+
+    const mapPrompts1 = parsedPrompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_F_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile1 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts1,
+    });
+
+    const mapPrompts2 = TEST_FILE_E_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_E_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile2 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/two.ts"),
+      }),
+      prompts: mapPrompts2,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile1.meta.path]: mapFile1,
+        [mapFile2.meta.path]: mapFile2,
+      },
+    });
+
     const ref: PlaygroundState.Ref = {
       v: 1,
       type: "code",
-      fileId: mapFileA.id,
-      promptId: mapPromptsA[0].id,
+      fileId: mapFile1.id,
+      promptId: mapPrompts1[0]!.id,
     };
     const result = resolvePlaygroundMapPair(map, ref);
-    expect(result).toEqual([mapFileA, mapPromptsA[0]]);
+    expect(result).toEqual([mapFile1, mapPrompts1[0]]);
   });
 
   it("returns null when map prompt id does not exist", () => {
-    const { map, mapFileA } = playgroundSetupFactory();
+    const mapPrompts = TEST_FILE_F_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_F_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts,
+    });
+
+    const map = playgroundMapFactory({ files: {} });
+
     const ref: PlaygroundState.Ref = {
       v: 1,
       type: "code",
-      fileId: mapFileA.id,
+      fileId: mapFile.id,
       promptId: "non-existent-id" as PlaygroundMap.PromptId,
     };
     const result = resolvePlaygroundMapPair(map, ref);
@@ -694,126 +786,230 @@ describe(resolvePlaygroundMapPair, () => {
 
 describe(resolvePlaygroundMap, () => {
   it("returns the same map if nothing has changed", () => {
-    const { map, editorFileA, parsedPromptsA } = playgroundSetupFactory();
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
+
+    const mapPrompts1 = parsedPrompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_F_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile1 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts1,
+    });
+
+    const mapPrompts2 = TEST_FILE_E_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_E_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile2 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/two.ts"),
+      }),
+      prompts: mapPrompts2,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile1.meta.path]: mapFile1,
+        [mapFile2.meta.path]: mapFile2,
+      },
+    });
 
     const timestamp = 1234567890;
 
+    const file = editorFileFactory({
+      path: "/wrkspc/one.ts" as EditorFile.Path,
+    });
+
     const result = resolvePlaygroundMap({
+      source: TEST_FILE_F_SOURCE,
       timestamp,
       map,
-      file: editorFileA,
-      parsedPrompts: parsedPromptsA,
+      file,
+      parsedPrompts,
     });
 
     expect(result).toBe(map);
   });
 
   it("adds a new file if nothing matched", () => {
-    const { map, editorFileA, mapFileA, editorFileB, mapFileB, mapPromptsA } =
-      playgroundSetupFactory();
+    const parsedPrompts = TEST_FILE_D_PARSED_RESULT.prompts;
+
+    const mapPrompts = TEST_FILE_A_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_A_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile.meta.path]: mapFile,
+      },
+    });
 
     const timestamp = 1234567890;
-    const parsedPrompts = [parsedPromptFactory({ exp: "new prompt" })];
-    const file = editorFileFactory();
+
+    const file = editorFileFactory({
+      path: "/wrkspc/three.ts" as EditorFile.Path,
+    });
 
     const result = resolvePlaygroundMap({
+      source: TEST_FILE_D_SOURCE,
       timestamp,
       map,
       file,
       parsedPrompts,
     });
 
-    expect(result).not.toBe(map);
-    expect(result.files).not.toBe(map.files);
-    expect(result.updatedAt).toBe(timestamp);
-
-    expect(Object.keys(map.files).length).toBe(2);
-    expect(Object.keys(result.files).length).toBe(3);
-
-    expect(result.files[editorFileA.path]).toBe(mapFileA);
-    expect(result.files[editorFileB.path]).toBe(mapFileB);
-
-    expect(result.files[file.path]).toEqual({
-      v: 1,
-      id: expect.any(String),
-      meta: editorFileToMeta(file),
-      prompts: [
-        expect.objectContaining({
+    expect(result).toMatchObject({
+      files: {
+        [mapFile.meta.path]: mapFile,
+        [file.path]: expect.objectContaining({
           id: expect.any(String),
-          content: "new prompt",
           updatedAt: timestamp,
+          meta: editorFileToMeta(file),
+          prompts: [
+            expect.objectContaining({ id: expect.any(String) }),
+            expect.objectContaining({ id: expect.any(String) }),
+            expect.objectContaining({ id: expect.any(String) }),
+            expect.objectContaining({ id: expect.any(String) }),
+            expect.objectContaining({ id: expect.any(String) }),
+            expect.objectContaining({ id: expect.any(String) }),
+            expect.objectContaining({ id: expect.any(String) }),
+            expect.objectContaining({ id: expect.any(String) }),
+            expect.objectContaining({ id: expect.any(String) }),
+          ],
         }),
-      ],
-      updatedAt: timestamp,
+      },
     });
   });
 
   it("updates existing file when prompts have changed", () => {
-    const { map, editorFileA, mapFileA, mapPromptsA, editorFileB, mapFileB } =
-      playgroundSetupFactory();
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
+
+    const mapPrompts1 = TEST_FILE_A_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_A_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile1 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts1,
+    });
+
+    const mapPrompts2 = TEST_FILE_E_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_E_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile2 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/two.ts"),
+      }),
+      prompts: mapPrompts2,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile1.meta.path]: mapFile1,
+        [mapFile2.meta.path]: mapFile2,
+      },
+    });
 
     const timestamp = 1234567890;
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha alpha" }),
-      parsedPromptFactory({ exp: "beta" }),
-    ];
+
+    const file = editorFileFactory({
+      path: "/wrkspc/one.ts" as EditorFile.Path,
+    });
 
     const result = resolvePlaygroundMap({
+      source: TEST_FILE_F_SOURCE,
       timestamp,
       map,
-      file: editorFileA,
+      file,
       parsedPrompts,
     });
 
-    expect(result).not.toBe(map);
-    expect(result.files).not.toBe(map.files);
-    expect(result.updatedAt).toBe(timestamp);
-
-    expect(Object.keys(map.files).length).toBe(2);
-    expect(Object.keys(result.files).length).toBe(2);
-
-    expect(result.files[editorFileA.path]).not.toBe(mapFileA);
-    expect(result.files[editorFileB.path]).toBe(mapFileB);
+    expect(result).toMatchObject({
+      files: {
+        [file.path]: expect.objectContaining({
+          id: mapFile1.id,
+          updatedAt: timestamp,
+          meta: editorFileToMeta(file),
+          prompts: [
+            expect.objectContaining({ id: mapPrompts1[0]!.id }),
+            expect.objectContaining({ id: mapPrompts1[1]!.id }),
+            expect.objectContaining({ id: expect.any(String) }),
+          ],
+        }),
+        [mapFile2.meta.path]: mapFile2,
+      },
+    });
   });
 });
 
 describe(matchPlaygroundMapFile, () => {
-  it("returns file when path matches the map entry", () => {
-    const { map, editorFileA, parsedPromptsA, mapFileA } =
-      playgroundSetupFactory();
+  it("returns file when it not changed", () => {
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
+
+    const mapPrompts1 = parsedPrompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_F_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile1 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts1,
+    });
+
+    const mapPrompts2 = TEST_FILE_E_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_E_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile2 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/two.ts"),
+      }),
+      prompts: mapPrompts2,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile1.meta.path]: mapFile1,
+        [mapFile2.meta.path]: mapFile2,
+      },
+    });
 
     const timestamp = 1234567890;
 
-    const match = matchPlaygroundMapFile({
-      timestamp,
-      map,
-      file: editorFileA,
-      parsedPrompts: parsedPromptsA,
+    const file = editorFileFactory({
+      path: "/wrkspc/one.ts" as EditorFile.Path,
     });
 
-    expect(match).toEqual({
-      mapFile: mapFileA,
-      matchedPromptsScore: 1,
-      matchingDistance: 1,
-      matchedCount: 2,
-      changed: false,
-    });
-  });
-
-  it("falls back to distance matching when path differs", () => {
-    const { map, parsedPromptsA, mapFileA, mapPromptsA } =
-      playgroundSetupFactory();
-
-    const file = editorFileFactory();
-
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha", vars: [...parsedPromptsA[0].vars] }),
-      parsedPromptFactory({ exp: "beta b", vars: [...parsedPromptsA[1].vars] }),
-    ] as const;
-
-    const timestamp = 1234567890;
-
     const match = matchPlaygroundMapFile({
+      source: TEST_FILE_F_SOURCE,
       timestamp,
       map,
       file,
@@ -821,52 +1017,200 @@ describe(matchPlaygroundMapFile, () => {
     });
 
     expect(match).toEqual({
-      mapFile: {
-        v: 1,
-        id: mapFileA.id,
+      mapFile: mapFile1,
+      matchedPromptsScore: 1,
+      matchingDistance: 1,
+      matchedCount: 3,
+      changed: false,
+    });
+  });
+
+  it("returns updated file when path matches the map entry", () => {
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
+
+    const mapPrompts1 = TEST_FILE_A_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_A_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile1 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts1,
+    });
+
+    const mapPrompts2 = TEST_FILE_E_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_E_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile2 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/two.ts"),
+      }),
+      prompts: mapPrompts2,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile1.meta.path]: mapFile1,
+        [mapFile2.meta.path]: mapFile2,
+      },
+    });
+
+    const timestamp = 1234567890;
+
+    const file = editorFileFactory({
+      path: "/wrkspc/one.ts" as EditorFile.Path,
+    });
+
+    const match = matchPlaygroundMapFile({
+      source: TEST_FILE_F_SOURCE,
+      timestamp,
+      map,
+      file,
+      parsedPrompts,
+    });
+
+    expect(match).toEqual({
+      mapFile: expect.objectContaining({
+        id: mapFile1.id,
         updatedAt: timestamp,
         meta: editorFileToMeta(file),
         prompts: [
-          {
-            v: 1,
-            type: "code",
-            id: mapPromptsA[0].id,
-            content: parsedPrompts[0].exp,
-            vars: [expect.objectContaining({ id: mapPromptsA[0].vars[0]!.id })],
-            span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
-            updatedAt: mapPromptsA[0].updatedAt,
-          },
-          {
-            v: 1,
-            type: "code",
-            id: mapPromptsA[1].id,
-            content: parsedPrompts[1].exp,
-            vars: [
-              expect.objectContaining({ id: mapPromptsA[1].vars[0]!.id }),
-              expect.objectContaining({ id: mapPromptsA[1].vars[1]!.id }),
-            ],
-            span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
-            updatedAt: timestamp,
-          },
+          expect.objectContaining({ id: mapPrompts1[0]!.id }),
+          expect.objectContaining({ id: mapPrompts1[1]!.id }),
+          expect.objectContaining({ id: expect.any(String) }),
         ],
-      },
+      }),
       matchedPromptsScore: 1,
-      matchingDistance: expect.closeTo(0.67),
+      matchingDistance: 1,
+      matchedCount: 2,
+      changed: true,
+    });
+  });
+
+  it("falls back to distance matching when path differs", () => {
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
+
+    const mapPrompts1 = TEST_FILE_A_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_A_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile1 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts1,
+    });
+
+    const mapPrompts2 = TEST_FILE_E_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_E_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile2 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/two.ts"),
+      }),
+      prompts: mapPrompts2,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile1.meta.path]: mapFile1,
+        [mapFile2.meta.path]: mapFile2,
+      },
+    });
+
+    const timestamp = 1234567890;
+
+    const file = editorFileFactory({
+      path: "/wrkspc/zero.ts" as EditorFile.Path,
+    });
+
+    const match = matchPlaygroundMapFile({
+      source: TEST_FILE_F_SOURCE,
+      timestamp,
+      map,
+      file,
+      parsedPrompts,
+    });
+
+    expect(match).toEqual({
+      mapFile: expect.objectContaining({
+        id: mapFile1.id,
+        updatedAt: timestamp,
+        meta: editorFileToMeta(file),
+        prompts: [
+          expect.objectContaining({
+            id: mapPrompts1[0]!.id,
+          }),
+          expect.objectContaining({
+            id: mapPrompts1[1]!.id,
+          }),
+          expect.objectContaining({
+            id: expect.any(String),
+          }),
+        ],
+      }),
+      matchedPromptsScore: 1,
+      matchingDistance: 1,
       matchedCount: 2,
       changed: true,
     });
   });
 
   it("falls back to distance matching when content differs", () => {
-    const { map, mapFileA, mapFileB, mapPromptsB } = playgroundSetupFactory();
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
 
-    const file = editorFileFactory({ path: mapFileA.meta.path });
+    const mapPrompts1 = TEST_FILE_A_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_A_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile1 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts1,
+    });
 
-    const parsedPrompts = [parsedPromptFactory({ exp: "gamma" })] as const;
+    const mapPrompts2 = TEST_FILE_E_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_E_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile2 = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/two.ts"),
+      }),
+      prompts: mapPrompts2,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile1.meta.path]: mapFile1,
+        [mapFile2.meta.path]: mapFile2,
+      },
+    });
 
     const timestamp = 1234567890;
 
+    const file = editorFileFactory({
+      path: "/wrkspc/two.ts" as EditorFile.Path,
+    });
+
     const match = matchPlaygroundMapFile({
+      source: TEST_FILE_F_SOURCE,
       timestamp,
       map,
       file,
@@ -874,39 +1218,59 @@ describe(matchPlaygroundMapFile, () => {
     });
 
     expect(match).toEqual({
-      mapFile: {
-        v: 1,
-        id: mapFileB.id,
+      mapFile: expect.objectContaining({
+        id: mapFile2.id,
         updatedAt: timestamp,
         meta: editorFileToMeta(file),
         prompts: [
-          {
-            ...mapPromptsB[0],
-            vars: [],
-            span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
-          },
+          expect.objectContaining({
+            id: mapPrompts2[1]!.id,
+          }),
+          expect.objectContaining({
+            id: expect.any(String),
+          }),
+          expect.objectContaining({
+            id: mapPrompts2[0]!.id,
+          }),
         ],
-      },
+      }),
       matchedPromptsScore: 1,
-      matchingDistance: 1,
-      matchedCount: 1,
+      matchingDistance: expect.closeTo(0.588),
+      matchedCount: 2,
       changed: true,
     });
   });
 
   it("returns new map file if no match found", () => {
-    const { map } = playgroundSetupFactory();
+    const parsedPrompts = TEST_FILE_D_PARSED_RESULT.prompts;
 
-    const file = editorFileFactory();
+    const mapPrompts = TEST_FILE_A_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_A_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts,
+    });
 
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "Hello, world!" }),
-      parsedPromptFactory({ exp: "How are you doing?" }),
-    ] as const;
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile.meta.path]: mapFile,
+      },
+    });
 
     const timestamp = 1234567890;
 
+    const file = editorFileFactory({
+      path: "/wrkspc/three.ts" as EditorFile.Path,
+    });
+
     const match = matchPlaygroundMapFile({
+      source: TEST_FILE_F_SOURCE,
       timestamp,
       map,
       file,
@@ -914,22 +1278,22 @@ describe(matchPlaygroundMapFile, () => {
     });
 
     expect(match).toEqual({
-      mapFile: {
-        v: 1,
+      mapFile: expect.objectContaining({
         id: expect.any(String),
-        meta: editorFileToMeta(file),
         updatedAt: timestamp,
+        meta: editorFileToMeta(file),
         prompts: [
-          expect.objectContaining({
-            content: parsedPrompts[0].exp,
-            updatedAt: timestamp,
-          }),
-          expect.objectContaining({
-            content: parsedPrompts[1].exp,
-            updatedAt: timestamp,
-          }),
+          expect.objectContaining({ id: expect.any(String) }),
+          expect.objectContaining({ id: expect.any(String) }),
+          expect.objectContaining({ id: expect.any(String) }),
+          expect.objectContaining({ id: expect.any(String) }),
+          expect.objectContaining({ id: expect.any(String) }),
+          expect.objectContaining({ id: expect.any(String) }),
+          expect.objectContaining({ id: expect.any(String) }),
+          expect.objectContaining({ id: expect.any(String) }),
+          expect.objectContaining({ id: expect.any(String) }),
         ],
-      },
+      }),
       matchedPromptsScore: 0,
       matchingDistance: 0,
       matchedCount: 0,
@@ -938,32 +1302,53 @@ describe(matchPlaygroundMapFile, () => {
   });
 
   it("clones file matched by path", () => {
-    const { map, editorFileA, parsedPromptsA, mapFileA } =
-      playgroundSetupFactory();
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
 
-    const match = matchPlaygroundMapFile({
-      timestamp: Date.now(),
-      map,
-      file: editorFileA,
-      parsedPrompts: parsedPromptsA,
+    const mapPrompts = TEST_FILE_A_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_A_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts,
     });
 
-    expect(match).not.toBe(mapFileA);
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile.meta.path]: mapFile,
+      },
+    });
+
+    const file = editorFileFactory({
+      path: "/wrkspc/three.ts" as EditorFile.Path,
+    });
+
+    const match = matchPlaygroundMapFile({
+      source: TEST_FILE_F_SOURCE,
+      timestamp: Date.now(),
+      map,
+      file,
+      parsedPrompts,
+    });
+
+    expect(match).not.toBe(mapFile);
   });
 });
 
 describe(matchPlaygroundMapFileByDistance, () => {
   it("returns best scoring file above threshold with updated prompts", () => {
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha" }),
-      parsedPromptFactory({ exp: "beta" }),
-      parsedPromptFactory({ exp: "gamma" }),
-    ] as const;
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
 
-    const mapPrompts1 = [
-      playgroundMapPromptFactory({ content: "gamma" }),
-      playgroundMapPromptFactory({ content: "alpha abc" }),
-    ] as const;
+    const mapPrompts1 = TEST_FILE_A_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_A_SOURCE,
+        prompt,
+      }),
+    );
     const mapFile1 = playgroundMapFileFactory({
       meta: editorFileMetaFactory({
         path: editorFilePathFactory("/wrkspc/one.ts"),
@@ -971,9 +1356,12 @@ describe(matchPlaygroundMapFileByDistance, () => {
       prompts: mapPrompts1,
     });
 
-    const mapPrompts2 = [
-      playgroundMapPromptFactory({ content: "beta def" }),
-    ] as const;
+    const mapPrompts2 = TEST_FILE_E_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_E_SOURCE,
+        prompt,
+      }),
+    );
     const mapFile2 = playgroundMapFileFactory({
       meta: editorFileMetaFactory({
         path: editorFilePathFactory("/wrkspc/two.ts"),
@@ -981,23 +1369,10 @@ describe(matchPlaygroundMapFileByDistance, () => {
       prompts: mapPrompts2,
     });
 
-    const mapPrompts3 = [
-      playgroundMapPromptFactory({ content: "beta a" }),
-      playgroundMapPromptFactory({ content: "gamma" }),
-      playgroundMapPromptFactory({ content: "alpha abc" }),
-    ] as const;
-    const mapFile3 = playgroundMapFileFactory({
-      meta: editorFileMetaFactory({
-        path: editorFilePathFactory("/wrkspc/three.ts"),
-      }),
-      prompts: mapPrompts3,
-    });
-
     const map = playgroundMapFactory({
       files: {
         [mapFile1.meta.path]: mapFile1,
         [mapFile2.meta.path]: mapFile2,
-        [mapFile3.meta.path]: mapFile3,
       },
     });
 
@@ -1005,6 +1380,7 @@ describe(matchPlaygroundMapFileByDistance, () => {
     const file = editorFileFactory();
 
     const match = matchPlaygroundMapFileByDistance({
+      source: TEST_FILE_F_SOURCE,
       timestamp,
       file,
       map,
@@ -1014,158 +1390,57 @@ describe(matchPlaygroundMapFileByDistance, () => {
     expect(match).toEqual({
       mapFile: {
         v: 1,
-        id: mapFile3.id,
+        id: mapFile1.id,
         updatedAt: timestamp,
         meta: editorFileToMeta(file),
         prompts: [
-          {
-            v: 1,
-            type: "code",
-            id: mapPrompts3[2].id,
-            content: parsedPrompts[0].exp,
-            vars: [],
-            span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
-            updatedAt: timestamp,
-          },
-          {
-            v: 1,
-            type: "code",
-            id: mapPrompts3[0].id,
-            content: parsedPrompts[1].exp,
-            vars: [],
-            span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
-            updatedAt: timestamp,
-          },
-          {
-            ...mapPrompts3[1],
-            vars: [],
-            span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
-          },
+          expect.objectContaining({
+            id: mapPrompts1[0]!.id,
+          }),
+          expect.objectContaining({
+            id: mapPrompts1[1]!.id,
+          }),
+          expect.objectContaining({
+            id: expect.any(String),
+          }),
         ],
-      },
-      matchedPromptsScore: 1,
-      matchingDistance: expect.closeTo(0.59),
-      matchedCount: 3,
-      changed: true,
-    });
-  });
-
-  it("updates file path", () => {
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha" }),
-      parsedPromptFactory({ exp: "beta" }),
-      parsedPromptFactory({ exp: "gamma" }),
-    ] as const;
-
-    const mapPrompts1 = [
-      playgroundMapPromptFactory({ content: "hello" }),
-      playgroundMapPromptFactory({ content: "gg" }),
-    ] as const;
-    const mapFile1 = playgroundMapFileFactory({
-      meta: editorFileMetaFactory({
-        path: editorFilePathFactory("/wrkspc/one.ts"),
-      }),
-      prompts: mapPrompts1,
-    });
-
-    const mapPrompts2 = [
-      playgroundMapPromptFactory({ content: "alpha" }),
-      playgroundMapPromptFactory({ content: "beta" }),
-      playgroundMapPromptFactory({ content: "gamma" }),
-    ] as const;
-    const mapFile2 = playgroundMapFileFactory({
-      meta: editorFileMetaFactory({
-        path: editorFilePathFactory("/wrkspc/two.ts"),
-      }),
-      prompts: mapPrompts2,
-    });
-
-    const map = playgroundMapFactory({
-      files: {
-        [mapFile1.meta.path]: mapFile1,
-        [mapFile2.meta.path]: mapFile2,
-      },
-    });
-
-    const timestamp = 1234567890;
-
-    const file = editorFileFactory();
-
-    const match = matchPlaygroundMapFileByDistance({
-      timestamp,
-      file,
-      map,
-      parsedPrompts,
-    });
-
-    expect(match).toEqual({
-      mapFile: {
-        ...mapFile2,
-        prompts: [
-          {
-            ...mapPrompts2[0],
-            vars: [],
-            span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
-          },
-          {
-            ...mapPrompts2[1],
-            vars: [],
-            span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
-          },
-          {
-            ...mapPrompts2[2],
-            vars: [],
-            span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
-          },
-        ],
-        meta: editorFileToMeta(file),
-        updatedAt: timestamp,
       },
       matchedPromptsScore: 1,
       matchingDistance: 1,
-      matchedCount: 3,
+      matchedCount: 2,
       changed: true,
     });
   });
 
   it("returns null if no matching prompts are found", () => {
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha" }),
-      parsedPromptFactory({ exp: "beta" }),
-      parsedPromptFactory({ exp: "gamma" }),
-    ] as const;
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
 
-    const mapPrompts1 = [
-      playgroundMapPromptFactory({ content: "hello" }),
-      playgroundMapPromptFactory({ content: "gg" }),
-    ] as const;
-    const mapFile1 = playgroundMapFileFactory({
+    const mapPrompts = TEST_FILE_D_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_D_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile = playgroundMapFileFactory({
       meta: editorFileMetaFactory({
         path: editorFilePathFactory("/wrkspc/one.ts"),
       }),
-      prompts: mapPrompts1,
-    });
-
-    const mapPrompts2 = [
-      playgroundMapPromptFactory({ content: "yo" }),
-    ] as const;
-    const mapFile2 = playgroundMapFileFactory({
-      meta: editorFileMetaFactory({
-        path: editorFilePathFactory("/wrkspc/two.ts"),
-      }),
-      prompts: mapPrompts2,
+      prompts: mapPrompts,
     });
 
     const map = playgroundMapFactory({
       files: {
-        [mapFile1.meta.path]: mapFile1,
-        [mapFile2.meta.path]: mapFile2,
+        [mapFile.meta.path]: mapFile,
       },
     });
 
+    const timestamp = 1234567890;
+    const file = editorFileFactory();
+
     const match = matchPlaygroundMapFileByDistance({
-      timestamp: Date.now(),
-      file: editorFileFactory(),
+      source: TEST_FILE_F_SOURCE,
+      timestamp,
+      file,
       map,
       parsedPrompts,
     });
@@ -1174,16 +1449,14 @@ describe(matchPlaygroundMapFileByDistance, () => {
   });
 
   it("preserves updatedAt if nothing has changed", () => {
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha" }),
-      parsedPromptFactory({ exp: "beta" }),
-      parsedPromptFactory({ exp: "gamma" }),
-    ] as const;
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
 
-    const mapPrompts1 = [
-      playgroundMapPromptFactory({ content: "hello" }),
-      playgroundMapPromptFactory({ content: "gg" }),
-    ] as const;
+    const mapPrompts1 = parsedPrompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_F_SOURCE,
+        prompt,
+      }),
+    );
     const mapFile1 = playgroundMapFileFactory({
       meta: editorFileMetaFactory({
         path: editorFilePathFactory("/wrkspc/one.ts"),
@@ -1191,11 +1464,12 @@ describe(matchPlaygroundMapFileByDistance, () => {
       prompts: mapPrompts1,
     });
 
-    const mapPrompts2 = [
-      playgroundMapPromptFactory({ content: "alpha" }),
-      playgroundMapPromptFactory({ content: "beta" }),
-      playgroundMapPromptFactory({ content: "gamma" }),
-    ] as const;
+    const mapPrompts2 = TEST_FILE_E_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_E_SOURCE,
+        prompt,
+      }),
+    );
     const mapFile2 = playgroundMapFileFactory({
       meta: editorFileMetaFactory({
         path: editorFilePathFactory("/wrkspc/two.ts"),
@@ -1211,48 +1485,74 @@ describe(matchPlaygroundMapFileByDistance, () => {
     });
 
     const timestamp = 1234567890;
+    const file = editorFileFactory({
+      path: mapFile1.meta.path,
+    });
 
     const match = matchPlaygroundMapFileByDistance({
+      source: TEST_FILE_F_SOURCE,
       timestamp,
-      file: { ...mapFile2.meta, content: "" },
+      file,
       map,
       parsedPrompts,
     });
 
-    expect(match?.mapFile).toEqual({
-      ...mapFile2,
-      prompts: [
-        {
-          ...mapPrompts2[0],
-          vars: [],
-          span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
-        },
-        {
-          ...mapPrompts2[1],
-          vars: [],
-          span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
-        },
-        {
-          ...mapPrompts2[2],
-          vars: [],
-          span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
-        },
-      ],
+    expect(match).toMatchObject({
+      mapFile: expect.objectContaining({
+        id: mapFile1.id,
+        updatedAt: mapFile1.updatedAt,
+        prompts: [
+          expect.objectContaining({
+            id: mapPrompts1[0]!.id,
+          }),
+          expect.objectContaining({
+            id: mapPrompts1[1]!.id,
+          }),
+          expect.objectContaining({
+            id: mapPrompts1[2]!.id,
+          }),
+        ],
+      }),
+      changed: false,
     });
   });
 
   it("clones matched file", () => {
-    const { parsedPrompts, map, editorFileA, mapFileA } =
-      playgroundSetupFactory();
+    const parsedPrompts = TEST_FILE_F_PARSED_RESULT.prompts;
+
+    const mapPrompts = parsedPrompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_F_SOURCE,
+        prompt,
+      }),
+    );
+    const mapFile = playgroundMapFileFactory({
+      meta: editorFileMetaFactory({
+        path: editorFilePathFactory("/wrkspc/one.ts"),
+      }),
+      prompts: mapPrompts,
+    });
+
+    const map = playgroundMapFactory({
+      files: {
+        [mapFile.meta.path]: mapFile,
+      },
+    });
+
+    const file = editorFileFactory({
+      path: mapFile.meta.path,
+    });
+
     const match = matchPlaygroundMapFileByDistance({
-      file: editorFileA,
+      source: TEST_FILE_F_SOURCE,
+      file,
       timestamp: Date.now(),
       map,
       parsedPrompts,
     });
-    expect(match?.mapFile).not.toBe(mapFileA);
-    expect(match?.mapFile.meta).not.toBe(mapFileA.meta);
-    expect(match?.mapFile.prompts).not.toBe(mapFileA.prompts);
+    expect(match?.mapFile).not.toBe(mapFile);
+    expect(match?.mapFile.meta).not.toBe(mapFile.meta);
+    expect(match?.mapFile.prompts).not.toBe(mapFile.prompts);
   });
 });
 
@@ -1262,138 +1562,191 @@ describe(matchPlaygroundMapFileByDistance, () => {
 
 describe(matchPlaygroundMapPrompts, () => {
   it("preserves matched prompt ids and inserts new prompts in parsed order", () => {
-    const { mapPrompts } = playgroundSetupFactory();
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "gamma" }),
-      parsedPromptFactory({ exp: "alp beta" }),
-      parsedPromptFactory({ exp: "alpha abc" }),
-      parsedPromptFactory({ exp: "alpha ab" }),
-      parsedPromptFactory({ exp: "alpha a" }),
-    ] as const;
+    const lambdaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[7];
+    const betaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[5];
 
-    const timestamp = 1234567890;
-
-    const result = matchPlaygroundMapPrompts({
-      timestamp,
-      mapPrompts,
-      parsedPrompts,
+    const mapPromptDeltaLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[9],
     });
+    const mapPromptDeltaLegacy =
+      playgroundMapPromptCodeV2ToV1(mapPromptDeltaLatest);
 
-    expect(result).toEqual({
-      nextMapPrompts: [
-        {
-          ...mapPrompts[2],
-          span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
-          vars: [],
-        },
-        {
-          v: 1,
-          type: "code",
-          id: mapPrompts[1].id,
-          content: parsedPrompts[1].exp,
-          vars: [],
-          span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
-          updatedAt: timestamp,
-        },
-        {
-          v: 1,
-          type: "code",
-          id: expect.any(String),
-          content: parsedPrompts[2].exp,
-          vars: [],
-          span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
-          updatedAt: timestamp,
-        },
-        {
-          v: 1,
-          type: "code",
-          id: expect.any(String),
-          content: parsedPrompts[3].exp,
-          vars: [],
-          span: playgroundMapSpanFromPrompt(parsedPrompts[3]),
-          updatedAt: timestamp,
-        },
-        {
-          v: 1,
-          type: "code",
-          id: mapPrompts[0].id,
-          content: parsedPrompts[4].exp,
-          vars: [],
-          span: playgroundMapSpanFromPrompt(parsedPrompts[4]),
-          updatedAt: timestamp,
-        },
-      ],
-      matchedPromptsScore: expect.closeTo(1),
-      matchingDistance: expect.closeTo(0.6),
-      matchedCount: 3,
-      changed: true,
+    const mapPromptBetaLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[0],
     });
+    const mapPromptBetaLegacy =
+      playgroundMapPromptCodeV2ToV1(mapPromptBetaLatest);
+
+    const mapPromptsVersions: [
+      PlaygroundMap.PromptCode,
+      PlaygroundMap.PromptCode,
+    ][] = [
+      [mapPromptDeltaLegacy, mapPromptBetaLegacy],
+      [mapPromptDeltaLatest, mapPromptBetaLatest],
+    ];
+
+    for (const [deltaMapPrompt, betaMapPrompt] of mapPromptsVersions) {
+      const result = matchPlaygroundMapPrompts({
+        source: TEST_FILE_C_SOURCE,
+        timestamp: Date.now(),
+        mapPrompts: [betaMapPrompt, deltaMapPrompt],
+        parsedPrompts: [lambdaParsedPrompt, betaParsedPrompt],
+      });
+
+      expect(result).toMatchObject({
+        nextMapPrompts: [
+          expect.objectContaining({ id: betaMapPrompt.id }),
+          expect.objectContaining({ id: deltaMapPrompt.id }),
+        ],
+        changed: true,
+        matchedPromptsScore: 1,
+        matchingDistance: expect.closeTo(0.433),
+        matchedCount: 2,
+      });
+    }
   });
 
   it("returns changed: false if all prompts matched by content", () => {
-    const { mapPromptsA, parsedPromptsA } = playgroundSetupFactory();
+    const nuPrompt = TEST_FILE_C_PARSED_RESULT.prompts[9];
 
-    const result = matchPlaygroundMapPrompts({
-      timestamp: Date.now(),
-      mapPrompts: mapPromptsA,
-      parsedPrompts: parsedPromptsA,
+    const deltaMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[0],
     });
+    const deltaMapPromptLegacy =
+      playgroundMapPromptCodeV2ToV1(deltaMapPromptLatest);
 
-    expect(result.changed).toBe(false);
+    const mapPromptsVersions: PlaygroundMap.PromptCode[] = [
+      deltaMapPromptLegacy,
+      deltaMapPromptLatest,
+    ];
+
+    for (const mapPrompt of mapPromptsVersions) {
+      const result = matchPlaygroundMapPrompts({
+        source: TEST_FILE_C_SOURCE,
+        timestamp: Date.now(),
+        mapPrompts: [mapPrompt],
+        parsedPrompts: [nuPrompt],
+      });
+
+      expect(result.changed).toBe(false);
+    }
   });
 
   it("returns changed: true if order has changed", () => {
-    const { mapPromptsA, parsedPromptsA } = playgroundSetupFactory();
+    const deltaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[0];
+    const epsilonParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[1];
 
-    const result = matchPlaygroundMapPrompts({
-      timestamp: Date.now(),
-      mapPrompts: mapPromptsA,
-      parsedPrompts: [parsedPromptsA[1], parsedPromptsA[0]],
+    const mapPromptDeltaLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[9],
     });
+    const mapPromptDeltaLegacy =
+      playgroundMapPromptCodeV2ToV1(mapPromptDeltaLatest);
 
-    expect(result.changed).toBe(true);
+    const mapPromptEpsilonLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[10],
+    });
+    const mapPromptEpsilonLegacy = playgroundMapPromptCodeV2ToV1(
+      mapPromptEpsilonLatest,
+    );
+
+    const mapPromptsVersions: PlaygroundMap.PromptCode[][] = [
+      [mapPromptDeltaLegacy, mapPromptEpsilonLegacy],
+      [mapPromptDeltaLatest, mapPromptEpsilonLatest],
+    ];
+
+    for (const mapPrompts of mapPromptsVersions) {
+      const result = matchPlaygroundMapPrompts({
+        source: TEST_FILE_C_SOURCE,
+        timestamp: Date.now(),
+        mapPrompts: mapPrompts,
+        parsedPrompts: [epsilonParsedPrompt, deltaParsedPrompt],
+      });
+
+      expect(result.changed).toBe(true);
+    }
   });
 
   it("returns changed: true if content has changed", () => {
-    const { mapPromptsA, parsedPromptsA } = playgroundSetupFactory();
+    const etaPrompt = TEST_FILE_C_PARSED_RESULT.prompts[3];
 
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha abc" }),
-      parsedPromptFactory({ exp: "beta" }),
+    const deltaMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[0],
+    });
+    const deltaMapPromptLegacy =
+      playgroundMapPromptCodeV2ToV1(deltaMapPromptLatest);
+
+    const mapPromptsVersions: PlaygroundMap.PromptCode[] = [
+      deltaMapPromptLegacy,
+      deltaMapPromptLatest,
     ];
 
-    const result = matchPlaygroundMapPrompts({
-      timestamp: Date.now(),
-      mapPrompts: mapPromptsA,
-      parsedPrompts,
-    });
+    for (const mapPrompt of mapPromptsVersions) {
+      const result = matchPlaygroundMapPrompts({
+        source: TEST_FILE_C_SOURCE,
+        timestamp: Date.now(),
+        mapPrompts: [mapPrompt],
+        parsedPrompts: [etaPrompt],
+      });
 
-    expect(result.changed).toBe(true);
+      expect(result.changed).toBe(true);
+    }
   });
 
   it("returns changed: true if new prompts are added", () => {
-    const { mapPromptsA, parsedPromptsA } = playgroundSetupFactory();
+    const deltaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[0];
+    const epsilonParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[1];
+    const zetaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[2];
 
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha" }),
-      parsedPromptFactory({ exp: "beta" }),
-      parsedPromptFactory({ exp: "delta" }),
+    const mapPromptDeltaLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[9],
+    });
+    const mapPromptDeltaLegacy =
+      playgroundMapPromptCodeV2ToV1(mapPromptDeltaLatest);
+
+    const mapPromptEpsilonLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[10],
+    });
+    const mapPromptEpsilonLegacy = playgroundMapPromptCodeV2ToV1(
+      mapPromptEpsilonLatest,
+    );
+
+    const mapPromptsVersions: PlaygroundMap.PromptCode[][] = [
+      [mapPromptDeltaLegacy, mapPromptEpsilonLegacy],
+      [mapPromptDeltaLatest, mapPromptEpsilonLatest],
     ];
 
-    const result = matchPlaygroundMapPrompts({
-      timestamp: Date.now(),
-      mapPrompts: mapPromptsA,
-      parsedPrompts,
-    });
+    for (const mapPrompts of mapPromptsVersions) {
+      const result = matchPlaygroundMapPrompts({
+        source: TEST_FILE_C_SOURCE,
+        timestamp: Date.now(),
+        mapPrompts: mapPrompts,
+        parsedPrompts: [
+          deltaParsedPrompt,
+          epsilonParsedPrompt,
+          zetaParsedPrompt,
+        ],
+      });
 
-    expect(result.changed).toBe(true);
+      expect(result.changed).toBe(true);
+    }
   });
 
   it("does not mutate original map prompts", () => {
-    const { mapPrompts } = playgroundSetupFactory();
+    const mapPrompts = TEST_FILE_A_PARSED_RESULT.prompts.map((prompt) =>
+      toPlaygroundMapPrompt({ source: TEST_FILE_A_SOURCE, prompt }),
+    );
     const parsedPrompts = [] as const;
 
     const result = matchPlaygroundMapPrompts({
+      source: "",
       timestamp: Date.now(),
       mapPrompts,
       parsedPrompts,
@@ -1403,107 +1756,142 @@ describe(matchPlaygroundMapPrompts, () => {
   });
 
   it("clones existing map prompts", () => {
-    const { mapPromptsA, parsedPromptsA } = playgroundSetupFactory();
+    const parsedPrompts = TEST_FILE_A_PARSED_RESULT.prompts;
+    const mapPrompts = parsedPrompts.map((prompt) =>
+      toPlaygroundMapPrompt({
+        source: TEST_FILE_A_SOURCE,
+        prompt,
+      }),
+    );
 
     const result = matchPlaygroundMapPrompts({
+      source: TEST_FILE_A_SOURCE,
       timestamp: Date.now(),
-      mapPrompts: mapPromptsA,
-      parsedPrompts: parsedPromptsA,
+      mapPrompts,
+      parsedPrompts,
     });
 
-    expect(result.nextMapPrompts[0]).not.toBe(mapPromptsA[0]);
-    expect(result.nextMapPrompts[1]).not.toBe(mapPromptsA[1]);
+    expect(result.nextMapPrompts[0]).not.toBe(mapPrompts[0]);
+    expect(result.nextMapPrompts[1]).not.toBe(mapPrompts[1]);
   });
 });
 
 describe(matchPlaygroundMapPromptsByContent, () => {
   it("matches prompts with identical content", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "beta" }),
-      parsedPromptFactory({ exp: "delta" }),
-    ] as const;
+    const deltaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[0];
+    const gammaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[1];
 
-    const result = matchPlaygroundMapPromptsByContent({
-      unmatchedParsedPrompts: new Set(parsedPrompts),
-      unmatchedMapPrompts: new Set(mapPromptsA),
+    const nuMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[9],
     });
+    const nuMapPromptLegacy = playgroundMapPromptCodeV2ToV1(nuMapPromptLatest);
 
-    const matchedMapPrompts = new Map();
-    matchedMapPrompts.set(parsedPrompts[0], {
-      ...mapPromptsA[1],
-      vars: playgroundMapVarsFromPrompt(parsedPrompts[0]),
-      span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
+    const xiMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[10],
     });
+    const xiMapPromptLegacy = playgroundMapPromptCodeV2ToV1(xiMapPromptLatest);
 
-    expect(result).toEqual({
-      matchedMapPrompts,
-      unmatchedParsedPrompts: new Set([parsedPrompts[1]]),
-      unmatchedMapPrompts: new Set([mapPromptsA[0]]),
-      matchingDistances: expect.any(Object),
-    });
+    const originalMapPromptVersions: [
+      PlaygroundMap.PromptCode,
+      PlaygroundMap.PromptCode,
+    ][] = [
+      [nuMapPromptLegacy, xiMapPromptLegacy],
+      [nuMapPromptLatest, xiMapPromptLatest],
+    ];
 
-    expect([...result.matchingDistances.values()]).toEqual([1]);
+    for (const mapPrompts of originalMapPromptVersions) {
+      const result = matchPlaygroundMapPromptsByContent({
+        source: TEST_FILE_C_SOURCE,
+        unmatchedMapPrompts: new Set(mapPrompts),
+        unmatchedParsedPrompts: new Set([deltaParsedPrompt, gammaParsedPrompt]),
+      });
+
+      const matchedMapPrompts = new Map();
+      matchedMapPrompts.set(
+        deltaParsedPrompt,
+        expect.objectContaining({
+          id: mapPrompts[0].id,
+          span: playgroundMapSpanFromPrompt(deltaParsedPrompt),
+        }),
+      );
+      matchedMapPrompts.set(
+        gammaParsedPrompt,
+        expect.objectContaining({
+          id: mapPrompts[1].id,
+          span: playgroundMapSpanFromPrompt(gammaParsedPrompt),
+        }),
+      );
+
+      const matchingDistances = new Map();
+      matchingDistances.set(mapPrompts[0], 1);
+      matchingDistances.set(mapPrompts[1], 1);
+
+      expect(result).toEqual({
+        matchedMapPrompts,
+        unmatchedParsedPrompts: new Set(),
+        unmatchedMapPrompts: new Set(),
+        matchingDistances,
+      });
+    }
   });
 
   it("matches prompt vars for matched prompts", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPrompts = [
-      parsedPromptFactory({
-        exp: "beta",
-        vars: [
-          parsedPromptVarFactory({
-            exp: "${two}",
-            span: parsedPromptSpanShapeFactory({
-              outer: { start: 60, end: 70 },
-            }),
-          }),
-          parsedPromptVarFactory({
-            exp: "${one}",
-            span: parsedPromptSpanShapeFactory({
-              outer: { start: 70, end: 80 },
-            }),
-          }),
-        ],
-        span: parsedPromptSpanShapeFactory({ inner: { start: 50, end: 100 } }),
-      }),
-      parsedPromptFactory({ exp: "delta" }),
-    ] as const;
+    const deltaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[0];
+    const gammaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[1];
 
-    const result = matchPlaygroundMapPromptsByContent({
-      unmatchedMapPrompts: new Set(mapPromptsA),
-      unmatchedParsedPrompts: new Set(parsedPrompts),
+    const nuMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[9],
     });
+    const nuMapPromptLegacy = playgroundMapPromptCodeV2ToV1(nuMapPromptLatest);
 
-    const matchedMapPrompts = new Map();
-    matchedMapPrompts.set(parsedPrompts[0], {
-      v: 1,
-      type: "code",
-      id: mapPromptsA[1].id,
-      content: parsedPrompts[0].exp,
-      vars: [
-        {
-          v: 1,
-          id: mapPromptsA[1].vars[0]!.id,
-          exp: "${two}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 10, end: 20 }),
-          }),
-        },
-        {
-          v: 1,
-          id: mapPromptsA[1].vars[1]!.id,
-          exp: "${one}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 20, end: 30 }),
-          }),
-        },
-      ],
-      span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
-      updatedAt: expect.any(Number),
+    const xiMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[10],
     });
+    const xiMapPromptLegacy = playgroundMapPromptCodeV2ToV1(xiMapPromptLatest);
 
-    expect(result.matchedMapPrompts).toEqual(matchedMapPrompts);
+    const originalMapPromptVersions: [
+      PlaygroundMap.PromptCode,
+      PlaygroundMap.PromptCode,
+    ][] = [
+      [nuMapPromptLegacy, xiMapPromptLegacy],
+      [nuMapPromptLatest, xiMapPromptLatest],
+    ];
+
+    for (const mapPrompts of originalMapPromptVersions) {
+      const result = matchPlaygroundMapPromptsByContent({
+        source: TEST_FILE_C_SOURCE,
+        unmatchedMapPrompts: new Set(mapPrompts),
+        unmatchedParsedPrompts: new Set([deltaParsedPrompt, gammaParsedPrompt]),
+      });
+
+      const matchedMapPrompts = new Map();
+      matchedMapPrompts.set(
+        deltaParsedPrompt,
+        expect.objectContaining({
+          vars: [
+            expect.objectContaining({ id: mapPrompts[0].vars[0]!.id }),
+            expect.objectContaining({ id: mapPrompts[0].vars[1]!.id }),
+            expect.objectContaining({ id: mapPrompts[0].vars[2]!.id }),
+          ],
+        }),
+      );
+      matchedMapPrompts.set(
+        gammaParsedPrompt,
+        expect.objectContaining({
+          vars: [
+            expect.objectContaining({ id: mapPrompts[1].vars[0]!.id }),
+            expect.objectContaining({ id: mapPrompts[1].vars[1]!.id }),
+            expect.objectContaining({ id: mapPrompts[1].vars[2]!.id }),
+          ],
+        }),
+      );
+
+      expect(result.matchedMapPrompts).toEqual(matchedMapPrompts);
+    }
   });
 
   it("clones argument sets", () => {
@@ -1511,6 +1899,7 @@ describe(matchPlaygroundMapPromptsByContent, () => {
     const unmatchedMapPrompts = new Set<any>();
 
     const result = matchPlaygroundMapPromptsByContent({
+      source: "",
       unmatchedParsedPrompts,
       unmatchedMapPrompts,
     });
@@ -1522,329 +1911,165 @@ describe(matchPlaygroundMapPromptsByContent, () => {
 
 describe(matchPlaygroundMapPromptsByDistance, () => {
   it("matches prompts within Levenshtein threshold", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha beta" }),
-      parsedPromptFactory({ exp: "alpha qwerty" }),
-      parsedPromptFactory({ exp: "alpha a" }),
-      parsedPromptFactory({ exp: "alpha ab" }),
-    ] as const;
+    const matchingParsedPrompts = TEST_FILE_D_PARSED_RESULT.prompts.slice(3, 6);
 
-    const result = matchPlaygroundMapPromptsByDistance({
-      timestamp: Date.now(),
-      unmatchedMapPrompts: new Set(mapPromptsA),
-      unmatchedParsedPrompts: new Set(parsedPrompts),
-    });
+    const originalMapPromptsLatest = TEST_FILE_D_PARSED_RESULT.prompts
+      .slice(0, 3)
+      .map((prompt) =>
+        toPlaygroundMapPrompt({ source: TEST_FILE_D_SOURCE, prompt }),
+      );
 
-    const matchedMapPrompts = new Map();
-    matchedMapPrompts.set(parsedPrompts[0], {
-      v: 1,
-      type: "code",
-      id: mapPromptsA[1].id,
-      content: parsedPrompts[0].exp,
-      vars: playgroundMapVarsFromPrompt(parsedPrompts[0]),
-      span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
-      updatedAt: expect.any(Number),
-    });
-    matchedMapPrompts.set(parsedPrompts[2], {
-      v: 1,
-      type: "code",
-      id: mapPromptsA[0].id,
-      content: parsedPrompts[2].exp,
-      vars: playgroundMapVarsFromPrompt(parsedPrompts[2]),
-      span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
-      updatedAt: expect.any(Number),
-    });
+    const originalMapPromptsLegacy = originalMapPromptsLatest.map(
+      playgroundMapPromptCodeV2ToV1,
+    );
 
-    expect(result).toEqual({
-      matchedMapPrompts,
-      unmatchedParsedPrompts: new Set([parsedPrompts[1], parsedPrompts[3]]),
-      unmatchedMapPrompts: new Set([]),
-      matchingDistances: expect.any(Object),
-    });
+    const originalMapPromptVersions: [
+      PlaygroundMap.PromptCode[],
+      PlaygroundMap.PromptCode[],
+    ] = [originalMapPromptsLegacy, originalMapPromptsLatest];
 
-    expect([...result.matchingDistances.values()]).toEqual([
-      expect.closeTo(0.29),
-      expect.closeTo(0.6),
-    ]);
+    for (const mapPrompts of originalMapPromptVersions) {
+      const result = matchPlaygroundMapPromptsByDistance({
+        source: TEST_FILE_D_SOURCE,
+        timestamp: Date.now(),
+        unmatchedMapPrompts: new Set(mapPrompts),
+        unmatchedParsedPrompts: new Set(matchingParsedPrompts),
+      });
+
+      const matchedMapPrompts = new Map();
+      matchedMapPrompts.set(
+        matchingParsedPrompts[0],
+        expect.objectContaining({ id: mapPrompts[0]!.id }),
+      );
+      matchedMapPrompts.set(
+        matchingParsedPrompts[1],
+        expect.objectContaining({ id: mapPrompts[1]!.id }),
+      );
+      matchedMapPrompts.set(
+        matchingParsedPrompts[2],
+        expect.objectContaining({ id: mapPrompts[2]!.id }),
+      );
+
+      expect(result).toEqual({
+        matchedMapPrompts,
+        unmatchedParsedPrompts: new Set([]),
+        unmatchedMapPrompts: new Set([]),
+        matchingDistances: expect.any(Object),
+      });
+
+      expect([...result.matchingDistances.values()]).toEqual([
+        expect.closeTo(0.26),
+        expect.closeTo(0.425),
+        expect.closeTo(0.545),
+      ]);
+    }
   });
 
   it("returns nothing when matches does not pass threshold", () => {
-    const { mapPromptsA } = playgroundSetupFactory({
-      expAlpha: "Plan a 3-day trip to Tokyo for food lovers.",
-      expBeta:
-        "Give me 5 creative app ideas that use AI for personal productivity.",
-      expGamma: `Rewrite this paragraph in a more professional tone:
+    const distinctParsedPrompts = TEST_FILE_D_PARSED_RESULT.prompts.slice(6, 9);
 
-{{text}}`,
-    });
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "creative" }),
-      parsedPromptFactory({ exp: "this paragraph" }),
-      parsedPromptFactory({ exp: "food lovers" }),
+    const originalMapPromptsLatest = TEST_FILE_D_PARSED_RESULT.prompts
+      .slice(0, 3)
+      .map((prompt) =>
+        toPlaygroundMapPrompt({ source: TEST_FILE_D_SOURCE, prompt }),
+      );
+
+    const originalMapPromptsLegacy = originalMapPromptsLatest.map(
+      playgroundMapPromptCodeV2ToV1,
+    );
+
+    const originalMapPromptVersions: PlaygroundMap.PromptCode[][] = [
+      originalMapPromptsLegacy,
+      originalMapPromptsLatest,
     ];
 
-    const result = matchPlaygroundMapPromptsByDistance({
-      timestamp: Date.now(),
-      unmatchedMapPrompts: new Set(mapPromptsA),
-      unmatchedParsedPrompts: new Set(parsedPrompts),
-    });
+    for (const mapPrompts of originalMapPromptVersions) {
+      const result = matchPlaygroundMapPromptsByDistance({
+        source: TEST_FILE_D_SOURCE,
+        timestamp: Date.now(),
+        unmatchedMapPrompts: new Set(mapPrompts),
+        unmatchedParsedPrompts: new Set(distinctParsedPrompts),
+      });
 
-    expect(result.matchedMapPrompts.size).toEqual(0);
-  });
-
-  it("matches prompts with significant changes that pass the threshold", () => {
-    const { mapPrompts } = playgroundSetupFactory({
-      expAlpha: "Plan a 3-day trip to Tokyo for food lovers.",
-      expBeta:
-        "Give me 5 creative app ideas that use AI for personal productivity.",
-      expGamma: `I want you to act as a creative product strategist specializing in AI-powered tools that improve personal productivity.
-
-Please brainstorm 5 original and feasible app ideas that use artificial intelligence to help individuals manage their time, focus better, or optimize daily workflows. Avoid generic ideas like “AI task manager” or “AI note-taker” — instead, think creatively about emerging behaviors, novel UX patterns, and unique value propositions.
-
-For each app idea, include the following:
-
-Name: A catchy and memorable product name.
-
-Core Concept: A concise description (2-3 sentences) of what the app does and the problem it solves.
-
-AI Capabilities: Explain how AI specifically powers the experience — for example, through context understanding, behavioral prediction, personalization, automation, or multimodal inputs (voice, vision, etc.).
-
-Target Users: Describe who would benefit most from the app — e.g., freelancers, students, parents, executives.
-
-Example Use Case: A short, concrete scenario showing how someone would use the app in their daily routine.
-
-Potential Business Model: (Optional) Suggest how this could be monetized — subscription, B2B licensing, in-app purchases, etc.
-
-Your output should read like a mini product concept brief — concise but full of insight and creativity.
-
-The tone should be professional yet imaginative, similar to how a design strategist or startup founder would pitch early-stage product ideas to investors or collaborators.
-
-Aim for freshness and originality — imagine what productivity tools could look like in 2-3 years, not what already exists today.
-`,
-    });
-    const parsedPrompts = [
-      parsedPromptFactory({
-        exp: "Plan a {{length}} trip to {{destination}} for {{audience}}.",
-      }),
-      parsedPromptFactory({
-        exp: "I want you to generate me 5 creative app ideas that use AI for {{audience}}.",
-      }),
-      parsedPromptFactory({
-        exp: `I want you to act as a creative product strategist who specializes in AI-powered tools that enhance personal productivity.
-
-Please brainstorm 5 original and practical app ideas that use artificial intelligence to help individuals manage their time, focus better, or optimize their daily routines. Avoid generic ideas like “AI task manager” or “AI note-taker.” Instead, focus on novel interactions, emerging behaviors, and fresh value propositions.
-
-For each app, include:
-
-Name: A catchy, memorable product name.
-
-Core Concept: A concise 2-3 sentence summary describing what the app does and what problem it solves.
-
-AI Capabilities: Explain how AI powers the experience — e.g., through context awareness, prediction, personalization, automation, or multimodal input (voice, image, etc.).
-
-Target Users: Describe who would benefit most — freelancers, students, parents, or executives.
-
-Example Use Case: Give a short, concrete example of how someone might use the app in daily life.
-
-Potential Business Model: (Optional) Suggest a way it could be monetized — subscription, freemium, B2B licensing, etc.
-
-Your output should read like a mini product concept brief — short but full of insight and creativity.
-
-Keep the tone professional yet imaginative, like a design strategist or startup founder pitching early-stage concepts.
-
-Emphasize freshness and originality — ideas that could realistically exist 2-3 years from now, not ones already on the market.`,
-      }),
-    ] as const;
-
-    const result = matchPlaygroundMapPromptsByDistance({
-      timestamp: Date.now(),
-      unmatchedMapPrompts: new Set(mapPrompts),
-      unmatchedParsedPrompts: new Set(parsedPrompts),
-    });
-
-    const matchedMapPrompts = new Map();
-    matchedMapPrompts.set(parsedPrompts[0], {
-      v: 1,
-      type: "code",
-      id: mapPrompts[0].id,
-      content: parsedPrompts[0].exp,
-      vars: playgroundMapVarsFromPrompt(parsedPrompts[0]),
-      span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
-      updatedAt: expect.any(Number),
-    });
-    matchedMapPrompts.set(parsedPrompts[1], {
-      v: 1,
-      type: "code",
-      id: mapPrompts[1].id,
-      content: parsedPrompts[1].exp,
-      vars: playgroundMapVarsFromPrompt(parsedPrompts[1]),
-      span: playgroundMapSpanFromPrompt(parsedPrompts[1]),
-      updatedAt: expect.any(Number),
-    });
-    matchedMapPrompts.set(parsedPrompts[2], {
-      v: 1,
-      type: "code",
-      id: mapPrompts[2].id,
-      content: parsedPrompts[2].exp,
-      vars: playgroundMapVarsFromPrompt(parsedPrompts[2]),
-      span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
-      updatedAt: expect.any(Number),
-    });
-
-    expect(result).toEqual({
-      matchedMapPrompts,
-      unmatchedParsedPrompts: new Set([]),
-      unmatchedMapPrompts: new Set([]),
-      matchingDistances: expect.any(Object),
-    });
-
-    expect([...result.matchingDistances.values()]).toEqual([
-      expect.closeTo(0.26),
-      expect.closeTo(0.53),
-      expect.closeTo(0.58),
-    ]);
+      expect(result.matchedMapPrompts.size).toEqual(0);
+    }
   });
 
   it("matches prompt vars for matched prompts", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPrompts = [
-      parsedPromptFactory({
-        exp: "alpha beta",
-        vars: [
-          parsedPromptVarFactory({
-            exp: "${two2}",
-            span: parsedPromptSpanShapeFactory({
-              outer: { start: 60, end: 70 },
-            }),
-          }),
-          parsedPromptVarFactory({
-            exp: "${one}",
-            span: parsedPromptSpanShapeFactory({
-              outer: { start: 70, end: 80 },
-            }),
-          }),
-        ],
-        span: parsedPromptSpanShapeFactory({ inner: { start: 50, end: 100 } }),
-      }),
-      parsedPromptFactory({ exp: "alpha qwerty" }),
-      parsedPromptFactory({
-        exp: "alpha a",
-        vars: [
-          parsedPromptVarFactory({
-            exp: "${three}",
-            span: parsedPromptSpanShapeFactory({
-              outer: { start: 60, end: 70 },
-            }),
-          }),
-          parsedPromptVarFactory({
-            exp: "${one}",
-            span: parsedPromptSpanShapeFactory({
-              outer: { start: 70, end: 80 },
-            }),
-          }),
-          parsedPromptVarFactory({
-            exp: "${one}",
-            span: parsedPromptSpanShapeFactory({
-              outer: { start: 80, end: 90 },
-            }),
-          }),
-        ],
-        span: parsedPromptSpanShapeFactory({ inner: { start: 50, end: 100 } }),
-      }),
-      parsedPromptFactory({ exp: "alpha ab" }),
-    ] as const;
+    const etaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[3];
 
-    const result = matchPlaygroundMapPromptsByDistance({
-      timestamp: Date.now(),
-      unmatchedMapPrompts: new Set(mapPromptsA),
-      unmatchedParsedPrompts: new Set(parsedPrompts),
+    const deltaMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[0],
     });
 
-    const matchedMapPrompts = new Map();
-    matchedMapPrompts.set(parsedPrompts[0], {
-      v: 1,
-      type: "code",
-      id: mapPromptsA[1].id,
-      content: parsedPrompts[0].exp,
-      vars: [
-        {
-          v: 1,
-          id: mapPromptsA[1].vars[0]!.id,
-          exp: "${two2}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 10, end: 20 }),
-          }),
-        },
-        {
-          v: 1,
-          id: mapPromptsA[1].vars[1]!.id,
-          exp: "${one}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 20, end: 30 }),
-          }),
-        },
-      ],
-      span: playgroundMapSpanFromPrompt(parsedPrompts[0]),
-      updatedAt: expect.any(Number),
-    });
-    matchedMapPrompts.set(parsedPrompts[2], {
-      v: 1,
-      type: "code",
-      id: mapPromptsA[0].id,
-      content: parsedPrompts[2].exp,
-      vars: [
-        {
-          v: 1,
-          id: expect.any(String),
-          exp: "${three}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 10, end: 20 }),
-          }),
-        },
-        {
-          v: 1,
-          id: mapPromptsA[0].vars[0]!.id,
-          exp: "${one}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 20, end: 30 }),
-          }),
-        },
-        {
-          v: 1,
-          id: mapPromptsA[0].vars[0]!.id,
-          exp: "${one}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 30, end: 40 }),
-          }),
-        },
-      ],
-      span: playgroundMapSpanFromPrompt(parsedPrompts[2]),
-      updatedAt: expect.any(Number),
-    });
+    const deltaMapPromptLegacy =
+      playgroundMapPromptCodeV2ToV1(deltaMapPromptLatest);
 
-    expect(result.matchedMapPrompts).toEqual(matchedMapPrompts);
+    const originalMapPromptVersions: PlaygroundMap.PromptCode[] = [
+      deltaMapPromptLatest,
+      deltaMapPromptLegacy,
+    ];
+
+    for (const mapPrompt of originalMapPromptVersions) {
+      const result = matchPlaygroundMapPromptsByDistance({
+        source: TEST_FILE_C_SOURCE,
+        timestamp: Date.now(),
+        unmatchedMapPrompts: new Set([mapPrompt]),
+        unmatchedParsedPrompts: new Set([etaParsedPrompt]),
+      });
+
+      const matchedMapPrompts = new Map();
+      matchedMapPrompts.set(
+        etaParsedPrompt,
+        expect.objectContaining({
+          span: playgroundMapSpanFromPrompt(etaParsedPrompt),
+          vars: [
+            expect.objectContaining({ id: mapPrompt.vars[0]!.id }),
+            expect.objectContaining({ id: mapPrompt.vars[1]!.id }),
+            expect.objectContaining({ id: mapPrompt.vars[2]!.id }),
+          ],
+        }),
+      );
+
+      expect(result.matchedMapPrompts).toEqual(matchedMapPrompts);
+    }
   });
 
   it("assigns current timestamp to updated prompts", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha a" }),
-      parsedPromptFactory({ exp: "beta b" }),
-    ] as const;
+    const etaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[3];
+
+    const deltaMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[0],
+    });
+
+    const deltaMapPromptLegacy =
+      playgroundMapPromptCodeV2ToV1(deltaMapPromptLatest);
+
+    const originalMapPromptVersions: PlaygroundMap.PromptCode[] = [
+      deltaMapPromptLatest,
+      deltaMapPromptLegacy,
+    ];
 
     const timestamp = 1234567890;
 
-    const result = matchPlaygroundMapPromptsByDistance({
-      timestamp,
-      unmatchedParsedPrompts: new Set(parsedPrompts),
-      unmatchedMapPrompts: new Set(mapPromptsA),
-    });
+    for (const mapPrompt of originalMapPromptVersions) {
+      const result = matchPlaygroundMapPromptsByDistance({
+        source: TEST_FILE_C_SOURCE,
+        timestamp,
+        unmatchedMapPrompts: new Set([mapPrompt]),
+        unmatchedParsedPrompts: new Set([etaParsedPrompt]),
+      });
 
-    expect(Array.from(result.matchedMapPrompts.values())).toEqual([
-      expect.objectContaining({ updatedAt: timestamp }),
-      expect.objectContaining({ updatedAt: timestamp }),
-    ]);
+      const matchedMapPrompts = new Map();
+      matchedMapPrompts.set(
+        etaParsedPrompt,
+        expect.objectContaining({ updatedAt: timestamp }),
+      );
+
+      expect(result.matchedMapPrompts).toEqual(matchedMapPrompts);
+    }
   });
 
   it("clones argument sets", () => {
@@ -1852,6 +2077,7 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
     const unmatchedParsedPrompts = new Set([]);
 
     const result = matchPlaygroundMapPromptsByDistance({
+      source: "",
       timestamp: Date.now(),
       unmatchedMapPrompts,
       unmatchedParsedPrompts,
@@ -1864,39 +2090,81 @@ Emphasize freshness and originality — ideas that could realistically exist 2-3
 
 describe(calcMatchedPromptsScore, () => {
   it("returns ratio of matched prompts", () => {
-    const { mapPrompts } = playgroundSetupFactory();
-    const parsedPrompts = [
-      parsedPromptFactory({ exp: "alpha beta" }),
-      parsedPromptFactory({ exp: "alpha qwerty" }),
-      parsedPromptFactory({ exp: "alpha a" }),
-      parsedPromptFactory({ exp: "alpha ab" }),
-    ] as const;
+    const thetaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[4];
 
-    const matchedMapPrompts = new Map();
-    matchedMapPrompts.set(parsedPrompts[0], mapPrompts[1]);
-    matchedMapPrompts.set(parsedPrompts[2], mapPrompts[0]);
-
-    const score = calcMatchedPromptsScore({
-      matchedMapPrompts,
-      unmatchedMapPrompts: new Set([mapPrompts[2]]),
+    const deltaMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[0],
+    });
+    const alphaMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_A_SOURCE,
+      prompt: TEST_FILE_A_PARSED_RESULT.prompts[0],
     });
 
-    expect(score).toBeCloseTo(0.666);
+    const deltaMapPromptLegacy =
+      playgroundMapPromptCodeV2ToV1(deltaMapPromptLatest);
+    const alphaMapPromptLegacy =
+      playgroundMapPromptCodeV2ToV1(alphaMapPromptLatest);
+
+    const mapPromptVersions: [
+      PlaygroundMap.PromptCode,
+      PlaygroundMap.PromptCode,
+    ][] = [
+      [deltaMapPromptLegacy, alphaMapPromptLegacy],
+      [deltaMapPromptLatest, alphaMapPromptLatest],
+    ];
+
+    for (const [deltaMapPrompt, alphaMapPrompt] of mapPromptVersions) {
+      const matchedMapPrompts = new Map();
+      matchedMapPrompts.set(thetaParsedPrompt, deltaMapPrompt);
+
+      const score = calcMatchedPromptsScore({
+        matchedMapPrompts,
+        unmatchedMapPrompts: new Set([alphaMapPrompt]),
+      });
+
+      expect(score).toBeCloseTo(0.5);
+    }
   });
 
   it("returns 1 when all prompts matched", () => {
-    const { mapPromptsA, parsedPromptsA } = playgroundSetupFactory();
+    const thetaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[4];
+    const kappaPromptParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[5];
 
-    const matchedMapPrompts = new Map();
-    matchedMapPrompts.set(parsedPromptsA[0], mapPromptsA[0]);
-    matchedMapPrompts.set(parsedPromptsA[1], mapPromptsA[1]);
-
-    const score = calcMatchedPromptsScore({
-      matchedMapPrompts,
-      unmatchedMapPrompts: new Set([]),
+    const deltaMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[0],
+    });
+    const etaMapPromptLatest = toPlaygroundMapPrompt({
+      source: TEST_FILE_C_SOURCE,
+      prompt: TEST_FILE_C_PARSED_RESULT.prompts[3],
     });
 
-    expect(score).toBe(1);
+    const deltaMapPromptLegacy =
+      playgroundMapPromptCodeV2ToV1(deltaMapPromptLatest);
+    const alphaMapPromptLegacy =
+      playgroundMapPromptCodeV2ToV1(etaMapPromptLatest);
+
+    const mapPromptVersions: [
+      PlaygroundMap.PromptCode,
+      PlaygroundMap.PromptCode,
+    ][] = [
+      [deltaMapPromptLegacy, alphaMapPromptLegacy],
+      [deltaMapPromptLatest, etaMapPromptLatest],
+    ];
+
+    for (const [deltaMapPrompt, etaMapPrompt] of mapPromptVersions) {
+      const matchedMapPrompts = new Map();
+      matchedMapPrompts.set(thetaParsedPrompt, deltaMapPrompt);
+      matchedMapPrompts.set(kappaPromptParsedPrompt, etaMapPrompt);
+
+      const score = calcMatchedPromptsScore({
+        matchedMapPrompts,
+        unmatchedMapPrompts: new Set([]),
+      });
+
+      expect(score).toBe(1);
+    }
   });
 
   it("returns 0 when none prompts matched", () => {
@@ -1915,109 +2183,105 @@ describe(calcMatchedPromptsScore, () => {
 
 describe(matchPlaygroundMapPromptVars, () => {
   it("preserves matched prompt var ids and inserts new prompt vars in parsed order", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPromptVars = [
-      parsedPromptVarFactory({
-        exp: "${three}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 50, end: 60 } }),
-      }),
-      parsedPromptVarFactory({
-        exp: "${two}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 60, end: 70 } }),
-      }),
-      parsedPromptVarFactory({
-        exp: "${one1}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 70, end: 80 } }),
-      }),
-    ] as const;
+    const lambdaParsedPromptVars = TEST_FILE_C_PARSED_RESULT.prompts[7].vars;
+    const lambdaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[7],
+    );
 
-    const result = matchPlaygroundMapPromptVars({
-      mapPromptVars: mapPromptsA[1].vars,
-      parsedPromptVars,
-      promptSpan: { start: 50, end: 100 },
-    });
+    const deltaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[0],
+    );
 
-    expect(result).toEqual({
-      nextMapPromptVars: [
-        {
-          v: 1,
-          id: expect.any(String),
-          exp: "${three}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 0, end: 10 }),
-          }),
-        },
-        {
-          v: 1,
-          id: mapPromptsA[1].vars[0]!.id,
-          exp: "${two}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 10, end: 20 }),
-          }),
-        },
-        {
-          v: 1,
-          id: mapPromptsA[1].vars[1]!.id,
-          exp: "${one1}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 20, end: 30 }),
-          }),
-        },
-      ],
-    });
+    const deltaMapPromptVarsLegacy = deltaMapPromptVarsLatest.map(
+      playgroundMapPromptVarV2ToV1,
+    );
+
+    const mapPromptVarsVersions: PlaygroundMap.PromptVar[][] = [
+      deltaMapPromptVarsLegacy,
+      deltaMapPromptVarsLatest,
+    ];
+
+    for (const mapPromptVars of mapPromptVarsVersions) {
+      const result = matchPlaygroundMapPromptVars({
+        source: TEST_FILE_C_SOURCE,
+        mapPromptVars,
+        parsedPromptVars: lambdaParsedPromptVars,
+      });
+
+      expect(result).toEqual({
+        nextMapPromptVars: [
+          {
+            ...lambdaMapPromptVarsLatest[0],
+            id: expect.any(String),
+          },
+          {
+            ...lambdaMapPromptVarsLatest[1],
+            id: mapPromptVars[0]!.id,
+          },
+          {
+            ...lambdaMapPromptVarsLatest[2],
+            id: mapPromptVars[1]!.id,
+          },
+          {
+            ...lambdaMapPromptVarsLatest[3],
+            id: mapPromptVars[2]!.id,
+          },
+        ],
+      });
+    }
   });
 
   it("assigns same ids to multiple added vars with same expressions", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPromptVars = [
-      parsedPromptVarFactory({
-        exp: "${three}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 50, end: 60 } }),
-      }),
-      parsedPromptVarFactory({
-        exp: "${two}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 60, end: 70 } }),
-      }),
-      parsedPromptVarFactory({
-        exp: "${three}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 70, end: 80 } }),
-      }),
-    ] as const;
+    const muParsedPromptVars = TEST_FILE_C_PARSED_RESULT.prompts[8].vars;
+    const muMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[8],
+    );
 
-    const result = matchPlaygroundMapPromptVars({
-      mapPromptVars: mapPromptsA[1].vars,
-      parsedPromptVars,
-      promptSpan: { start: 50, end: 100 },
-    });
+    const deltaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[0],
+    );
 
-    expect(result).toEqual({
-      nextMapPromptVars: [
-        {
-          v: 1,
-          id: expect.any(String),
-          exp: "${three}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 0, end: 10 }),
-          }),
-        },
-        {
-          v: 1,
-          id: mapPromptsA[1].vars[0]!.id,
-          exp: "${two}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 10, end: 20 }),
-          }),
-        },
-        {
-          v: 1,
-          id: result.nextMapPromptVars[0]!.id,
-          exp: "${three}",
-          span: expect.objectContaining({
-            outer: expect.objectContaining({ start: 20, end: 30 }),
-          }),
-        },
-      ],
-    });
+    const deltaMapPromptVarsLegacy = deltaMapPromptVarsLatest.map(
+      playgroundMapPromptVarV2ToV1,
+    );
+
+    const mapPromptVarsVersions: PlaygroundMap.PromptVar[][] = [
+      deltaMapPromptVarsLegacy,
+      deltaMapPromptVarsLatest,
+    ];
+
+    for (const mapPromptVars of mapPromptVarsVersions) {
+      const result = matchPlaygroundMapPromptVars({
+        source: TEST_FILE_C_SOURCE,
+        mapPromptVars,
+        parsedPromptVars: muParsedPromptVars,
+      });
+
+      expect(result).toEqual({
+        nextMapPromptVars: [
+          {
+            ...muMapPromptVarsLatest[0],
+            id: mapPromptVars[0]!.id,
+          },
+          {
+            ...muMapPromptVarsLatest[1],
+            id: mapPromptVars[1]!.id,
+          },
+          {
+            ...muMapPromptVarsLatest[2],
+            id: mapPromptVars[2]!.id,
+          },
+          {
+            ...muMapPromptVarsLatest[3],
+            id: mapPromptVars[0]!.id,
+          },
+        ],
+      });
+    }
   });
 
   it("clones argument arrays", () => {
@@ -2025,9 +2289,9 @@ describe(matchPlaygroundMapPromptVars, () => {
     const parsedPromptVars: PromptVar[] = [];
 
     const result = matchPlaygroundMapPromptVars({
+      source: "",
       mapPromptVars,
       parsedPromptVars,
-      promptSpan: { start: 50, end: 100 },
     });
 
     expect(result.nextMapPromptVars).not.toBe(mapPromptVars);
@@ -2036,152 +2300,172 @@ describe(matchPlaygroundMapPromptVars, () => {
 
 describe(matchPlaygroundMapPromptVarsByContent, () => {
   it("matches vars with identical expressions", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPromptVars = [
-      parsedPromptVarFactory({ exp: "${two}" }),
-      parsedPromptVarFactory({ exp: "${1}" }),
-    ] as const;
+    const deltaParsedPromptVars = TEST_FILE_C_PARSED_RESULT.prompts[0].vars;
+    const deltaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[0],
+    );
 
-    const result = matchPlaygroundMapPromptVarsByContent({
-      matchedMapPromptVarExps: {},
-      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
-      unmatchedParsedPromptVars: new Set(parsedPromptVars),
-      promptSpan: { start: 50, end: 100 },
-    });
+    const epsilonMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[1],
+    );
 
-    expect(result).toEqual({
-      matchedMapPromptVars: new Map([
-        [
-          parsedPromptVars[0],
-          {
-            ...mapPromptsA[1].vars[0],
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 10, end: 30 }),
-            }),
-          },
-        ],
-      ]),
-      matchedMapPromptVarExps: { "${two}": mapPromptsA[1].vars[0]!.id },
-      unmatchedParsedPromptVars: new Set([parsedPromptVars[1]]),
-      unmatchedMapPromptVars: new Set([mapPromptsA[1].vars[1]]),
-    });
+    const epsilonMapPromptVarsLegacy = epsilonMapPromptVarsLatest.map(
+      playgroundMapPromptVarV2ToV1,
+    );
+
+    const mapPromptVarsVersions: PlaygroundMap.PromptVar[][] = [
+      epsilonMapPromptVarsLegacy,
+      epsilonMapPromptVarsLatest,
+    ];
+
+    for (const mapPromptVars of mapPromptVarsVersions) {
+      const result = matchPlaygroundMapPromptVarsByContent({
+        source: TEST_FILE_C_SOURCE,
+        matchedMapPromptVarExps: {},
+        unmatchedMapPromptVars: new Set(mapPromptVars),
+        unmatchedParsedPromptVars: new Set(deltaParsedPromptVars),
+      });
+
+      const matchedMapPromptVars = new Map();
+      matchedMapPromptVars.set(deltaParsedPromptVars[0], {
+        ...epsilonMapPromptVarsLatest[1],
+        span: deltaMapPromptVarsLatest[0]!.span,
+      });
+      matchedMapPromptVars.set(deltaParsedPromptVars[2], {
+        ...epsilonMapPromptVarsLatest[0],
+        span: deltaMapPromptVarsLatest[2]!.span,
+      });
+
+      expect(result).toEqual({
+        matchedMapPromptVars,
+        matchedMapPromptVarExps: {
+          "${five}": mapPromptVars[1]!.id,
+          "${seven}": mapPromptVars[0]!.id,
+        },
+        unmatchedParsedPromptVars: new Set([deltaParsedPromptVars[1]]),
+        unmatchedMapPromptVars: new Set([mapPromptVars[2]]),
+      });
+    }
   });
 
   it("assigns same ids to multiple vars with same expressions", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPromptVars = [
-      parsedPromptVarFactory({
-        exp: "${two}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 65, end: 70 } }),
-      }),
-      parsedPromptVarFactory({
-        exp: "${one}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 70, end: 75 } }),
-      }),
-      parsedPromptVarFactory({
-        exp: "${two}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 75, end: 80 } }),
-      }),
-    ] as const;
-    const promptSpan = { start: 50, end: 80 };
-    const varOneId = buildMapPromptVarId();
+    const zetaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[2];
+    const zetaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      zetaParsedPrompt,
+    );
 
-    const result = matchPlaygroundMapPromptVarsByContent({
-      matchedMapPromptVarExps: { "${one}": varOneId },
-      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
-      unmatchedParsedPromptVars: new Set(parsedPromptVars),
-      promptSpan,
-    });
+    const zetaMapPromptVarsLegacy = zetaMapPromptVarsLatest.map(
+      playgroundMapPromptVarV2ToV1,
+    );
 
-    expect(result).toEqual({
-      matchedMapPromptVars: new Map([
-        [
-          parsedPromptVars[0],
-          {
-            ...mapPromptsA[1].vars[0],
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 15, end: 20 }),
-            }),
-          },
-        ],
-        [
-          parsedPromptVars[1],
-          {
-            ...mapPromptsA[1].vars[1],
-            id: varOneId,
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 20, end: 25 }),
-            }),
-          },
-        ],
-        [
-          parsedPromptVars[2],
-          {
-            ...playgroundMapVarFromPromptVar(parsedPromptVars[2], promptSpan),
-            id: mapPromptsA[1].vars[0]!.id,
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 25, end: 30 }),
-            }),
-          },
-        ],
-      ]),
-      matchedMapPromptVarExps: {
-        "${two}": mapPromptsA[1].vars[0]!.id,
-        "${one}": varOneId,
-      },
-      unmatchedParsedPromptVars: new Set(),
-      unmatchedMapPromptVars: new Set(),
-    });
+    const mapPromptVarsVersions: PlaygroundMap.PromptVar[][] = [
+      zetaMapPromptVarsLegacy,
+      zetaMapPromptVarsLatest,
+    ];
+
+    const varFiveId = buildMapPromptVarId();
+
+    for (const mapPromptVars of mapPromptVarsVersions) {
+      const result = matchPlaygroundMapPromptVarsByContent({
+        source: TEST_FILE_C_SOURCE,
+        matchedMapPromptVarExps: { "${five}": varFiveId },
+        unmatchedMapPromptVars: new Set(mapPromptVars),
+        unmatchedParsedPromptVars: new Set(zetaParsedPrompt.vars),
+      });
+
+      const matchedMapPromptVars = new Map<
+        PromptVar,
+        PlaygroundMap.PromptVar
+      >();
+      matchedMapPromptVars.set(
+        zetaParsedPrompt.vars[0],
+        expect.objectContaining({
+          id: varFiveId,
+          span: zetaMapPromptVarsLatest[0]!.span,
+        }),
+      );
+      matchedMapPromptVars.set(
+        zetaParsedPrompt.vars[1],
+        expect.objectContaining({
+          id: varFiveId,
+          span: zetaMapPromptVarsLatest[1]!.span,
+        }),
+      );
+      matchedMapPromptVars.set(
+        zetaParsedPrompt.vars[2],
+        expect.objectContaining({
+          id: varFiveId,
+          span: zetaMapPromptVarsLatest[2]!.span,
+        }),
+      );
+
+      expect(result).toEqual({
+        matchedMapPromptVars,
+        matchedMapPromptVarExps: {
+          "${five}": varFiveId,
+        },
+        unmatchedParsedPromptVars: new Set(),
+        unmatchedMapPromptVars: new Set(),
+      });
+    }
   });
 
   it("assigns latest spans", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPromptVars = [
-      parsedPromptVarFactory({
-        exp: "${two}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 66, end: 71 } }),
-      }),
-      parsedPromptVarFactory({
-        exp: "${one}",
-        span: parsedPromptSpanShapeFactory({ outer: { start: 71, end: 76 } }),
-      }),
-    ] as const;
+    const deltaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[0];
+    const etaParsedPrompt = TEST_FILE_C_PARSED_RESULT.prompts[3];
+    const etaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      etaParsedPrompt,
+    );
 
-    const result = matchPlaygroundMapPromptVarsByContent({
-      matchedMapPromptVarExps: {},
-      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
-      unmatchedParsedPromptVars: new Set(parsedPromptVars),
-      promptSpan: { start: 50, end: 100 },
-    });
+    const etaMapPromptVarsLegacy = etaMapPromptVarsLatest.map(
+      playgroundMapPromptVarV2ToV1,
+    );
 
-    expect(result).toEqual({
-      matchedMapPromptVars: new Map([
-        [
-          parsedPromptVars[0],
-          {
-            ...mapPromptsA[1].vars[0],
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 16, end: 21 }),
-            }),
-          },
-        ],
-        [
-          parsedPromptVars[1],
-          {
-            ...mapPromptsA[1].vars[1],
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 21, end: 26 }),
-            }),
-          },
-        ],
-      ]),
-      matchedMapPromptVarExps: {
-        "${two}": mapPromptsA[1].vars[0]!.id,
-        "${one}": mapPromptsA[1].vars[1]!.id,
-      },
-      unmatchedParsedPromptVars: new Set([]),
-      unmatchedMapPromptVars: new Set([]),
-    });
+    const mapPromptVarsVersions: PlaygroundMap.PromptVar[][] = [
+      etaMapPromptVarsLegacy,
+      etaMapPromptVarsLatest,
+    ];
+
+    for (const mapPromptVars of mapPromptVarsVersions) {
+      const result = matchPlaygroundMapPromptVarsByContent({
+        source: TEST_FILE_C_SOURCE,
+        matchedMapPromptVarExps: {},
+        unmatchedMapPromptVars: new Set(mapPromptVars),
+        unmatchedParsedPromptVars: new Set(deltaParsedPrompt.vars),
+      });
+
+      const matchedMapPromptVars = new Map<
+        PromptVar,
+        PlaygroundMap.PromptVar
+      >();
+      matchedMapPromptVars.set(
+        deltaParsedPrompt.vars[0],
+        expect.objectContaining({
+          id: etaMapPromptVarsLatest[0]!.id,
+          span: { v: 2, ...deltaParsedPrompt.vars[0].span },
+        }),
+      );
+      matchedMapPromptVars.set(
+        deltaParsedPrompt.vars[1],
+        expect.objectContaining({
+          id: etaMapPromptVarsLatest[1]!.id,
+          span: { v: 2, ...deltaParsedPrompt.vars[1].span },
+        }),
+      );
+      matchedMapPromptVars.set(
+        deltaParsedPrompt.vars[2],
+        expect.objectContaining({
+          id: etaMapPromptVarsLatest[2]!.id,
+          span: { v: 2, ...deltaParsedPrompt.vars[2].span },
+        }),
+      );
+
+      expect(result.matchedMapPromptVars).toEqual(matchedMapPromptVars);
+    }
   });
 
   it("clones argument sets", () => {
@@ -2190,10 +2474,10 @@ describe(matchPlaygroundMapPromptVarsByContent, () => {
     const unmatchedParsedPromptVars = new Set<any>();
 
     const result = matchPlaygroundMapPromptVarsByContent({
+      source: "",
       matchedMapPromptVarExps,
       unmatchedMapPromptVars,
       unmatchedParsedPromptVars,
-      promptSpan: { start: 50, end: 80 },
     });
 
     expect(result.matchedMapPromptVars).not.toBe(unmatchedMapPromptVars);
@@ -2206,148 +2490,151 @@ describe(matchPlaygroundMapPromptVarsByContent, () => {
 
 describe(matchPlaygroundMapPromptVarsByDistance, () => {
   it("matches prompts within Levenshtein threshold", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPromptVars = [
-      parsedPromptVarFactory({ exp: "${twos}" }),
-      parsedPromptVarFactory({ exp: "${1}" }),
-    ] as const;
+    const thetaParsedPromptVars = TEST_FILE_C_PARSED_RESULT.prompts[4].vars;
+    const thetaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[4],
+    );
 
-    const result = matchPlaygroundMapPromptVarsByDistance({
-      matchedMapPromptVarExps: {},
-      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
-      unmatchedParsedPromptVars: new Set(parsedPromptVars),
-      promptSpan: { start: 50, end: 100 },
-    });
+    const deltaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[0],
+    );
 
-    expect(result).toEqual({
-      matchedMapPromptVars: new Map([
-        [
-          parsedPromptVars[0],
-          {
-            ...mapPromptsA[1].vars[0],
-            exp: parsedPromptVars[0].exp,
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 10, end: 30 }),
-            }),
-          },
-        ],
-      ]),
-      matchedMapPromptVarExps: { "${twos}": mapPromptsA[1].vars[0]!.id },
-      unmatchedParsedPromptVars: new Set([parsedPromptVars[1]]),
-      unmatchedMapPromptVars: new Set([mapPromptsA[1].vars[1]]),
-    });
+    const deltaMapPromptVarsLegacy = deltaMapPromptVarsLatest.map(
+      playgroundMapPromptVarV2ToV1,
+    );
+
+    const mapPromptVarsVersions: PlaygroundMap.PromptVar[][] = [
+      deltaMapPromptVarsLegacy,
+      deltaMapPromptVarsLatest,
+    ];
+
+    for (const deltaMapPromptVars of mapPromptVarsVersions) {
+      const result = matchPlaygroundMapPromptVarsByDistance({
+        source: TEST_FILE_C_SOURCE,
+        matchedMapPromptVarExps: {},
+        unmatchedMapPromptVars: new Set(deltaMapPromptVars),
+        unmatchedParsedPromptVars: new Set(thetaParsedPromptVars),
+      });
+
+      const matchedMapPromptVars = new Map();
+      matchedMapPromptVars.set(thetaParsedPromptVars[0], {
+        ...thetaMapPromptVarsLatest[0],
+        id: deltaMapPromptVarsLatest[2]?.id,
+        span: thetaMapPromptVarsLatest[0]!.span,
+      });
+      matchedMapPromptVars.set(thetaParsedPromptVars[1], {
+        ...thetaMapPromptVarsLatest[1],
+        id: deltaMapPromptVarsLatest[0]?.id,
+        span: thetaMapPromptVarsLatest[1]!.span,
+      });
+
+      expect(result).toEqual({
+        matchedMapPromptVars,
+        matchedMapPromptVarExps: {
+          "${sevn}": deltaMapPromptVars[2]!.id,
+          "${fivish}": deltaMapPromptVars[0]!.id,
+        },
+        unmatchedParsedPromptVars: new Set([thetaParsedPromptVars[2]]),
+        unmatchedMapPromptVars: new Set([deltaMapPromptVars[1]]),
+      });
+    }
   });
 
   it("returns nothing when matches does not pass threshold", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPromptVars = [
-      parsedPromptVarFactory({ exp: "${twotwotwo}" }),
-      parsedPromptVarFactory({ exp: "${oneoneone}" }),
-    ] as const;
+    const iotaParsedPromptVars = TEST_FILE_C_PARSED_RESULT.prompts[5].vars;
 
-    const result = matchPlaygroundMapPromptVarsByDistance({
-      matchedMapPromptVarExps: {},
-      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
-      unmatchedParsedPromptVars: new Set(parsedPromptVars),
-      promptSpan: { start: 50, end: 100 },
-    });
+    const deltaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[0],
+    );
 
-    expect(result).toEqual({
-      matchedMapPromptVars: new Map(),
-      matchedMapPromptVarExps: {},
-      unmatchedParsedPromptVars: new Set(parsedPromptVars),
-      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
-    });
-  });
+    const deltaMapPromptVarsLegacy = deltaMapPromptVarsLatest.map(
+      playgroundMapPromptVarV2ToV1,
+    );
 
-  it("matches prompts with significant changes that pass the threshold", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPromptVars = [
-      parsedPromptVarFactory({ exp: "${twoish}" }),
-      parsedPromptVarFactory({ exp: "${oneish}" }),
-    ] as const;
+    const mapPromptVarsVersions: PlaygroundMap.PromptVar[][] = [
+      deltaMapPromptVarsLegacy,
+      deltaMapPromptVarsLatest,
+    ];
 
-    const result = matchPlaygroundMapPromptVarsByDistance({
-      matchedMapPromptVarExps: {},
-      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
-      unmatchedParsedPromptVars: new Set(parsedPromptVars),
-      promptSpan: { start: 50, end: 100 },
-    });
+    for (const deltaMapPromptVars of mapPromptVarsVersions) {
+      const result = matchPlaygroundMapPromptVarsByDistance({
+        source: TEST_FILE_C_SOURCE,
+        matchedMapPromptVarExps: {},
+        unmatchedMapPromptVars: new Set(deltaMapPromptVars),
+        unmatchedParsedPromptVars: new Set(iotaParsedPromptVars),
+      });
 
-    expect(result).toEqual({
-      matchedMapPromptVars: new Map([
-        [
-          parsedPromptVars[0],
-          {
-            ...mapPromptsA[1].vars[0],
-            exp: parsedPromptVars[0].exp,
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 10, end: 30 }),
-            }),
-          },
-        ],
-        [
-          parsedPromptVars[1],
-          {
-            ...mapPromptsA[1].vars[1],
-            exp: parsedPromptVars[1].exp,
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 10, end: 30 }),
-            }),
-          },
-        ],
-      ]),
-      matchedMapPromptVarExps: {
-        "${twoish}": mapPromptsA[1].vars[0]!.id,
-        "${oneish}": mapPromptsA[1].vars[1]!.id,
-      },
-      unmatchedParsedPromptVars: new Set([]),
-      unmatchedMapPromptVars: new Set([]),
-    });
+      expect(result).toEqual({
+        matchedMapPromptVars: new Map(),
+        matchedMapPromptVarExps: {},
+        unmatchedParsedPromptVars: new Set(iotaParsedPromptVars),
+        unmatchedMapPromptVars: new Set(deltaMapPromptVars),
+      });
+    }
   });
 
   it("assigns same ids to multiple vars with same expressions", () => {
-    const { mapPromptsA } = playgroundSetupFactory();
-    const parsedPromptVars = [
-      parsedPromptVarFactory({ exp: "${twos}" }),
-      parsedPromptVarFactory({ exp: "${1}" }),
-      parsedPromptVarFactory({ exp: "${twos}" }),
-    ] as const;
+    const kappaParsedPromptVars = TEST_FILE_C_PARSED_RESULT.prompts[6].vars;
+    const kappaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[6],
+    );
 
-    const result = matchPlaygroundMapPromptVarsByDistance({
-      matchedMapPromptVarExps: {},
-      unmatchedMapPromptVars: new Set(mapPromptsA[1].vars),
-      unmatchedParsedPromptVars: new Set(parsedPromptVars),
-      promptSpan: { start: 50, end: 100 },
-    });
+    const deltaMapPromptVarsLatest = playgroundMapVarsFromPrompt(
+      TEST_FILE_C_SOURCE,
+      TEST_FILE_C_PARSED_RESULT.prompts[0],
+    );
 
-    expect(result).toEqual({
-      matchedMapPromptVars: new Map([
-        [
-          parsedPromptVars[0],
-          {
-            ...mapPromptsA[1].vars[0],
-            exp: parsedPromptVars[0].exp,
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 10, end: 30 }),
-            }),
-          },
-        ],
-        [
-          parsedPromptVars[2],
-          {
-            v: 1,
-            exp: parsedPromptVars[2].exp,
-            span: expect.objectContaining({
-              outer: expect.objectContaining({ start: 10, end: 30 }),
-            }),
-          },
-        ],
-      ]),
-      matchedMapPromptVarExps: { "${twos}": mapPromptsA[1].vars[0]!.id },
-      unmatchedParsedPromptVars: new Set([parsedPromptVars[1]]),
-      unmatchedMapPromptVars: new Set([mapPromptsA[1].vars[1]]),
-    });
+    const deltaMapPromptVarsLegacy = deltaMapPromptVarsLatest.map(
+      playgroundMapPromptVarV2ToV1,
+    );
+
+    const mapPromptVarsVersions: PlaygroundMap.PromptVar[][] = [
+      deltaMapPromptVarsLegacy,
+      deltaMapPromptVarsLatest,
+    ];
+
+    for (const deltaMapPromptVars of mapPromptVarsVersions) {
+      const result = matchPlaygroundMapPromptVarsByDistance({
+        source: TEST_FILE_C_SOURCE,
+        matchedMapPromptVarExps: {},
+        unmatchedMapPromptVars: new Set(deltaMapPromptVars),
+        unmatchedParsedPromptVars: new Set(kappaParsedPromptVars),
+      });
+
+      const matchedMapPromptVars = new Map();
+      const partialMatchedVar = {
+        ...kappaMapPromptVarsLatest[0],
+        id: deltaMapPromptVars[0]?.id,
+      };
+      matchedMapPromptVars.set(kappaParsedPromptVars[0], {
+        ...partialMatchedVar,
+        span: kappaMapPromptVarsLatest[0]!.span,
+      });
+      matchedMapPromptVars.set(kappaParsedPromptVars[1], {
+        ...partialMatchedVar,
+        span: kappaMapPromptVarsLatest[1]!.span,
+      });
+      matchedMapPromptVars.set(kappaParsedPromptVars[2], {
+        ...partialMatchedVar,
+        span: kappaMapPromptVarsLatest[2]!.span,
+      });
+
+      expect(result).toEqual({
+        matchedMapPromptVars,
+        matchedMapPromptVarExps: {
+          "${fivish}": deltaMapPromptVars[0]!.id,
+        },
+        unmatchedParsedPromptVars: new Set([]),
+        unmatchedMapPromptVars: new Set([
+          deltaMapPromptVars[1],
+          deltaMapPromptVars[2],
+        ]),
+      });
+    }
   });
 
   it("clones argument sets", () => {
@@ -2356,10 +2643,10 @@ describe(matchPlaygroundMapPromptVarsByDistance, () => {
     const unmatchedParsedPromptVars = new Set<any>();
 
     const result = matchPlaygroundMapPromptVarsByDistance({
+      source: "",
       matchedMapPromptVarExps,
       unmatchedMapPromptVars,
       unmatchedParsedPromptVars,
-      promptSpan: { start: 50, end: 80 },
     });
 
     expect(result.matchedMapPromptVars).not.toBe(unmatchedMapPromptVars);

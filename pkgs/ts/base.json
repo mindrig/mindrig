@@ -11,7 +11,7 @@
     "${configDir}/scripts/**/*.ts",
     "${configDir}/scripts/**/*.tsx",
     "${configDir}/.astro/types.d.ts",
-    "${configDir}/src/**/*.astro",
+    "${configDir}/src/**/*.astro"
   ],
   "compilerOptions": {
     // Resolve
@@ -27,6 +27,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "isolatedModules": true,
+    "moduleDetection": "force", // Stop treating files without imports/exports as single global scripts
     "allowImportingTsExtensions": false,
     // Env
     "lib": ["ESNext"],
@@ -41,6 +42,6 @@
     "forceConsistentCasingInFileNames": true,
     // Project references
     "composite": true,
-    "incremental": true,
+    "incremental": true
   }
 }

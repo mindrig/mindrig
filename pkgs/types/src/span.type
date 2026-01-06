@@ -1,9 +1,0 @@
-Span = {
-  start: u32,
-  end: u32,
-}
-
-SpanShape = {
-  outer: Span
-  inner: Span
-}

@@ -42,6 +42,10 @@ export namespace VscMock {
     activeTextEditor?: vscode.TextEditor | undefined;
   }
 
+  export interface WorkspaceProps {
+    openTextDocument?: Vsc.Workspace["openTextDocument"];
+  }
+
   export interface WebviewProps {}
 
   export interface TextEditorProps {
@@ -148,7 +152,7 @@ export const vscMock = {
     return {
       window: props?.window ?? vscMock.Window(),
 
-      workspace: props?.workspace ?? vscMock.Workspace(),
+      workspace: props?.workspace ?? vscMock.Workspace(props?.workspace),
 
       Uri: props?.Uri ?? (vscMock.UriClass() as unknown),
 
@@ -204,7 +208,7 @@ export const vscMock = {
     } as Vsc.Window;
   },
 
-  Workspace(): Vsc.Workspace {
+  Workspace(props?: VscMock.WorkspaceProps | undefined): Vsc.Workspace {
     return {
       onDidChangeTextDocument(handler) {
         vscMock[currentMockSymbol]?.on(
@@ -220,11 +224,13 @@ export const vscMock = {
         return vscMock.Disposable();
       },
 
-      openTextDocument: ((uri) => {
-        return Promise.resolve(
-          vscMock.TextDocument({ uri: uri as vscode.Uri }),
-        );
-      }) as Vsc.Workspace["openTextDocument"],
+      openTextDocument:
+        props?.openTextDocument ??
+        (((uri) => {
+          return Promise.resolve(
+            vscMock.TextDocument({ uri: uri as vscode.Uri }),
+          );
+        }) as Vsc.Workspace["openTextDocument"]),
     } as Vsc.Workspace;
   },
 

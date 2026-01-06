@@ -1,0 +1,22 @@
+const five = 5;
+const fivish = "5";
+const phiveesh = "5";
+const six = 6;
+const sixy = "6";
+const seven = 7;
+const sevn = "7";
+const svnth = "7";
+const eight = 8;
+const okto = "8";
+const deltaPrompt = `delta: ${five}, ${six}, ${seven}`; // 0
+const epsilonPrompt = `epsilon: ${seven}, ${five}, ${eight}`; // 1 - matches delta 0 and 2 vars by content
+const zetaPrompt = `zeta: ${five}, ${five}, ${five}`; // 2 - repeats delta 0 var content exactly
+const etaPrompt = `eta: ${five}, ${six}, ${seven}`; // 3 - matches delta vars exactly
+const thetaPrompt = `theta: ${sevn}, ${fivish}, ${okto}`; // 4 - matches delta 0 and 2 vars by distance
+const iotaPrompt = `iota: ${svnth}, ${phiveesh}, ${okto}`; // 5 - doesn't pass distance threshold to match delta vars
+const kappaPrompt = `kappa: ${fivish}, ${fivish}, ${fivish}`; // 6 - repeats delta 0 var content by distance
+const lambdaPrompt = `lambda: ${eight}, ${five}, ${six}, ${sevn}`; // 7 - matches delta 1 and 2 by content and 3 by distance and prepends new 0 var
+const muPrompt = `mu: ${five}, ${six}, ${seven}, ${five}`; // 8 - matches delta vars and appends one 0 repeat
+const nuPrompt = `delta: ${five}, ${six}, ${seven}`; // 9 - matches delta prompt
+const xiPrompt = `epsilon: ${seven}, ${five}, ${eight}`; // 10 - matches epsilon prompt
+// ...omicron, pi, rho, sigma, tau, upsilon, phi, chi, psi, omega

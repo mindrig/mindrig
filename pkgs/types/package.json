@@ -1,9 +1,0 @@
-{
-  "name": "@wrkspc/types-src",
-  "private": true,
-  "license": "FSL-1.1-ALv2",
-  "scripts": {
-    "build": "gt build"
-  },
-  "version": "0.1.0"
-}

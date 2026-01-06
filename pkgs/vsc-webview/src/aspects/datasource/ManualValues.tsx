@@ -9,7 +9,7 @@ import { DatasourceMappingEntryRow } from "./MappingEntryRow";
 
 export namespace DatasourceManualValues {
   export interface Props {
-    varsState: State.Immutable<readonly PlaygroundMap.PromptVarV1[], "bound">;
+    varsState: State.Immutable<readonly PlaygroundMap.PromptVar[], "bound">;
     valuesField: Field<Datasource.Values>;
   }
 }

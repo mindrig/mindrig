@@ -177,6 +177,7 @@ export class PlaygroundManager extends Manager {
 
     if (currentFile) {
       this.#map = resolvePlaygroundMap({
+        source: currentFile.content,
         timestamp,
         map: this.#map,
         file: currentFile,
@@ -341,21 +342,17 @@ export class PlaygroundManager extends Manager {
     promptTokens.forEach((varToken) => {
       if (varToken.type !== "var") return;
       parsedVars.push({
-        exp: varToken.value,
         span: {
-          outer: { start: varToken.span[0], end: varToken.span[1] },
-          inner: {
-            start: varToken.span[0] + 2,
-            end: varToken.span[1] - 2,
-          },
+          outer: [varToken.span[0], varToken.span[1]],
+          inner: [varToken.span[0] + 2, varToken.span[1] - 2],
         },
       });
     });
 
     const varsMatch = matchPlaygroundMapPromptVars({
+      source: draft.content,
       mapPromptVars: draft.vars,
       parsedPromptVars: parsedVars,
-      promptSpan: { start: 0, end: content.length },
     });
 
     Object.assign(draft, {
