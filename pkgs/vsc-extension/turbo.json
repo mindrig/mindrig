@@ -8,7 +8,7 @@
     "package": {},
 
     "build": {
-      "dependsOn": ["mindrig_parser#build", "@wrkspc/vsc-webview#build"],
+      "dependsOn": ["@wrkspc/vsc-webview#build"],
       "outputs": ["./dist/extension/**"]
     },
 
@@ -17,7 +17,6 @@
     },
 
     "test/unit": {
-      "dependsOn": ["mindrig_parser#build"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "./tsconfig.json",
@@ -26,9 +25,7 @@
       ]
     },
 
-    "test/unit:watch": {
-      "dependsOn": ["mindrig_parser#build"]
-    },
+    "test/unit:watch": {},
 
     "test/e2e": {
       "dependsOn": ["build", "test/e2e/build"],
@@ -46,16 +43,12 @@
     },
 
     "types": {
-      "dependsOn": ["mindrig_parser#build"],
       "inputs": ["$TURBO_DEFAULT$", "./tsconfig.json", "./src/**/*.ts"]
     },
 
-    "types:watch": {
-      "dependsOn": ["mindrig_parser#build"]
-    },
+    "types:watch": {},
 
     "lint": {
-      "dependsOn": ["mindrig_parser#build"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "./tsconfig.json",
@@ -67,7 +60,6 @@
     },
 
     "lint:fix": {
-      "dependsOn": ["mindrig_parser#build"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "./tsconfig.json",

@@ -43,7 +43,9 @@ export default defineConfig(({ mode }) => ({
       ],
     }),
     mode === "production" &&
-      viteStaticCopy({ targets: [{ src: "../parser/pkg/*.wasm", dest: "." }] }),
+      viteStaticCopy({
+        targets: [{ src: "node_modules/volumen/*.wasm", dest: "." }],
+      }),
     autoReloadEnabled && autoReloadPlugin(),
   ],
 }));
