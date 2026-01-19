@@ -2,32 +2,48 @@
 import { DownloadForm } from "./DownloadForm";
 import { textCn } from "@wrkspc/theme";
 import { Stream } from "@cloudflare/stream-react";
+
+interface Props {
+  hero?: string;
+  byline?: string;
+}
+
+const {
+  hero,
+  byline
+} = Astro.props;
+
 ---
 
-<div class="bg-gray-50 w-full grow">
+<div class="bg-cream w-full grow">
   <div
-    class="mx-auto px-7 py-32 max-w-6xl w-full flex flex-col gap-8 items-center"
+  class="mx-auto px-7 pt-32 max-w-7xl w-full flex flex-col gap-8 sm:items-start items-center "
   >
-    <div class="space-y-4 max-w-2xl text-center">
-      <h1 class={textCn({ role: "header", size: "xlarge" })}>
-        Your Dev Console<br />for AI Engineering
+    <div class="space-y-4 w-full sm:text-left text-center max-w-2xl">
+
+        <small class='text-xs text-gray-400  bg-cream brightness-95 rounded-2xl px-3 ring-1 ring-inset ring-gray-900/5 '>
+        OPEN SOURCE</small>
+        <div class="space-y-4"/>
+      <h1
+      class={textCn({ role: "header", size: "xlarge",  })}
+      set:html={hero}>
       </h1>
 
       <h2
-        class={textCn({
+        class={`${textCn({
           role: "subheader",
           size: "xlarge",
-          color: "support",
-          className: "hidden md:block ",
-        })}
+          color: "detail",
+
+        })}`}
       >
-        Develop high-quality prompts without leaving your code editor.
+        {byline}
       </h2>
     </div>
-
+    <div class="space-y-4"/>
     <DownloadForm />
-
-    <div class="w-full aspect-video bg-black">
+<div class="space-y-4"></div>
+    <div class="w-full aspect-video bg-black rounded-lg overflow-hidden">
       <Stream
         client:load
         controls

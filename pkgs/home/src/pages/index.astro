@@ -1,20 +1,26 @@
 ---
 import Layout from "../layouts/Landing.astro";
-import { Features } from "../components/Features";
-import { FAQ } from "../components/FAQ";
-import { Integrate } from "../components/Integrate";
-import CTA from "../components/CTA.astro";
-import { Demo } from "../components/Demo";
+// import { Features } from "../components/Features";
+// import { FAQ } from "../components/FAQ";
+// import { Integrate } from "../components/Integrate";
+// import CTA from "../components/CTA.astro";
+// import { Demo } from "../components/Demo";
 import Hero from "../components/Hero.astro";
+import LogoCloud from "../components/LogoCloud";
+import Bento from "../components/BentoGrid";
 
 export const prerender = true;
 ---
 
 <Layout title="Mind Rig">
-  <Hero />
+    <Hero hero= "Ship AI features that work."
+ byline= 'Debug and improve prompts in your code editor - with real data, side-by-side comparisons, and zero setup.' />
+ <Bento/>
+  <LogoCloud/>
 
-  <!-- <Demo />
 
+<!--
+<Demo />
   <Features />
 
   <CTA
