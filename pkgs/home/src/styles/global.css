@@ -6,6 +6,21 @@
 @plugin "tailwind-scrollbar";
 @import "@wrkspc/theme/default";
 
+@theme {
+  /*## Button */
+
+  /*### Style */
+
+  /***** Solid */
+  /*----- CTA */
+  --color-button-solid-cta-canvas: #1767d9;
+  --color-button-solid-cta-canvas-hover: color-mix(
+    in srgb,
+    var(--color-button-solid-cta-canvas) 80%,
+    #000000 20%
+  );
+}
+
 :placeholder-shown {
   font-style: italic;
 }
