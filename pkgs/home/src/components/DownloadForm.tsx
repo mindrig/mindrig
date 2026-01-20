@@ -2,45 +2,37 @@ import { textCn } from "@wrkspc/theme";
 import { Block, Button } from "@wrkspc/ui";
 
 export interface DownloadFormProps {
-  inverse?: boolean;
+	inverse?: boolean;
 }
 
 export function DownloadForm(props: DownloadFormProps) {
-  return (
-    <Block dir="y" align>
-      <h2
-        className={textCn({
-          role: "label",
-          color: "support",
-          size: "large",
-        })}
-      >
-        Install Extension For:
-      </h2>
+	return (
+		<Block
+			justify
+			align
+			className="flex flex-col sm:flex-row sm:justify-center"
+		>
+			<Button
+				color="cta"
+				size="large"
+				href="https://marketplace.visualstudio.com/items?itemName=mindrig.mindrig"
+			>
+				Install for VS Code
+			</Button>
 
-      <Block justify align>
-        <Button
-          color="cta"
-          size="large"
-          href="https://marketplace.visualstudio.com/items?itemName=mindrig.mindrig"
-        >
-          Visual Studio Code
-        </Button>
+			<span
+				className={`${textCn({ role: "label", size: "small", color: "detail" })} hidden sm:block`}
+			>
+				Or
+			</span>
 
-        <span
-          className={textCn({ role: "label", size: "small", color: "detail" })}
-        >
-          Or
-        </span>
-
-        <Button
-          color="cta"
-          size="large"
-          href="https://open-vsx.org/extension/mindrig/mindrig"
-        >
-          Cursor, Antigravity, etc.
-        </Button>
-      </Block>
-    </Block>
-  );
+			<Button
+				color="cta"
+				size="large"
+				href="https://open-vsx.org/extension/mindrig/mindrig"
+			>
+				Install for Cursor & Others.
+			</Button>
+		</Block>
+	);
 }
