@@ -7,6 +7,7 @@ import { defineConfig, PluginOption } from "vite";
 // prevents the host to access the dev server.
 const host = "127.0.0.1";
 const port = 3191;
+const hmrPort = 3192;
 const origin = `http://${host}:${port}`;
 
 export default defineConfig(({ mode }) => {
@@ -15,7 +16,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port,
       host,
-      hmr: { port, host },
+      hmr: { port: hmrPort, host },
       cors: {
         origin: [
           // Browser

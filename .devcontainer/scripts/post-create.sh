@@ -19,6 +19,9 @@ eval "$(mise env -s bash)"
 # Make sure pnpm is installed
 yes | pnpm install
 
+# Update apt packages
+sudo apt update
+
 # Install xvfb and dbus to run VS Code
 sudo apt install -y xvfb dbus-x11
 
@@ -31,3 +34,11 @@ sudo apt install -y code
 
 # Install Playwright dependencies
 pnpm -F vscode exec playwright-core install-deps chromium
+
+# Install Tauri dependencies
+sudo apt install -y \
+  pkg-config \
+  libwebkit2gtk-4.1-dev \
+  libxdo-dev \
+  libayatana-appindicator3-dev \
+  librsvg2-dev

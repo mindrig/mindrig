@@ -647,6 +647,121 @@
 
     //#endregion
 
+    //#region desktop
+
+    // TODO: Add tasks?!
+
+    //#endregion
+
+    //#region desktop-backend
+
+    // TODO: Add tasks?!
+
+    //#endregion
+
+    //#region desktop-frontend
+
+    {
+      "label": "desktop-frontend#dev",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["run", "dev"],
+      "options": {
+        "cwd": "${workspaceFolder}/pkgs/desktop-frontend"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "group": "watchers"
+      },
+      "problemMatcher": {
+        "owner": "vite",
+        "fileLocation": ["absolute"],
+        "pattern": [
+          {
+            "regexp": "^\\s*\\d{1,2}:\\d{2}:\\d{2}.*\\[vite\\].*Internal server error:\\s+(.+?):\\s+(.+)\\s+\\((\\d+):(\\d+)\\)",
+            "file": 1,
+            "message": 2,
+            "line": 3,
+            "column": 4
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*ready in.*",
+          "endsPattern": ".*ready in.*"
+        }
+      }
+    },
+
+    {
+      "label": "desktop-frontend#preview",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["run", "preview"],
+      "options": {
+        "cwd": "${workspaceFolder}/pkgs/desktop-frontend"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "owner": "vite",
+        "fileLocation": ["absolute"],
+        "pattern": [
+          {
+            "regexp": "^\\s*\\d{1,2}:\\d{2}:\\d{2}.*\\[vite\\].*Internal server error:\\s+(.+?):\\s+(.+)\\s+\\((\\d+):(\\d+)\\)",
+            "file": 1,
+            "message": 2,
+            "line": 3,
+            "column": 4
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*ready in.*",
+          "endsPattern": ".*ready in.*"
+        }
+      }
+    },
+
+    {
+      "label": "desktop-frontend#build",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["run", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}/pkgs/desktop-frontend"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "owner": "vite",
+        "fileLocation": ["absolute"],
+        "pattern": [
+          {
+            "regexp": "^\\s*\\d{1,2}:\\d{2}:\\d{2}.*\\[vite\\].*Internal server error:\\s+(.+?):\\s+(.+)\\s+\\((\\d+):(\\d+)\\)",
+            "file": 1,
+            "message": 2,
+            "line": 3,
+            "column": 4
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*ready in.*",
+          "endsPattern": ".*ready in.*"
+        }
+      }
+    },
+
+    //#endregion
+
     //#region storybook
 
     // storybook#dev

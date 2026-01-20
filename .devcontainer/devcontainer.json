@@ -65,7 +65,8 @@
         // "vitest.explorer",
         "zoma.vscode-auto-open-workspace",
         "MermaidChart.vscode-mermaid-chart",
-        "astro-build.astro-vscode"
+        "astro-build.astro-vscode",
+        "tauri-apps.tauri-vscode"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",

@@ -109,6 +109,7 @@
     //#region home
 
     // home#dev
+
     {
       "name": "home#dev",
       "type": "msedge",
@@ -116,6 +117,38 @@
       "url": "http://localhost:3111",
       "webRoot": "${workspaceFolder}",
       "preLaunchTask": "home#dev"
+    },
+
+    //#endregion
+
+    //#region desktop
+
+    {
+      "name": "desktop#dev",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": [
+          "build",
+          "--manifest-path=./pkgs/desktop-backend/Cargo.toml",
+          "--no-default-features"
+        ]
+      },
+      "preLaunchTask": "desktop-frontend#dev"
+    },
+
+    {
+      "name": "desktop#build",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": [
+          "build",
+          "--release",
+          "--manifest-path=./pkgs/desktop-backend/Cargo.toml"
+        ]
+      },
+      "preLaunchTask": "desktop-frontend#build"
     },
 
     //#endregion

@@ -1,0 +1,11 @@
+{
+  "name": "@wrkspc/desktop-backend",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "tauri dev"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}
