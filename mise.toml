@@ -40,6 +40,7 @@ _.source = "./scripts/env-vars.sh"
 # _.python.venv = { path = ".venv", create = true }
 
 [settings]
+lockfile = true
 # Enable extra features
 experimental = true
 # Consume Node.js version from .nvmrc, .tool-versions, etc.
