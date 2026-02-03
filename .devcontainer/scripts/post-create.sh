@@ -32,3 +32,7 @@ sudo apt install -y code
 
 # Install Playwright dependencies
 pnpm -F vscode exec playwright-core install-deps chromium
+
+# Install misc dependencies
+sudo apt install -y \
+  zstd # Archiving stuff, i.e., icons pkgs

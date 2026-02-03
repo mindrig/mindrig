@@ -27,7 +27,6 @@ if [ -d .git ]; then
   git submodule foreach --recursive "mise trust"
 fi
 
-
 # Install stack
 mise install
 
