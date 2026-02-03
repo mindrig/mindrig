@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script is when the container is updated.
+# This script is run when the container is updated.
 
 set -e
 
@@ -11,7 +11,7 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 # Update it
-mise self-update -y
+mise self-update -y || echo "🟡 mise failed to update, try manually updating it"
 # Activate it
 eval "$(mise activate bash --shims)"
 eval "$(mise env -s bash)"
