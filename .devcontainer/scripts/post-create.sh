@@ -11,7 +11,7 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 # Update it
-mise self-update -y
+mise self-update -y || echo "🟡 mise failed to update, try manually updating it"
 # Activate it
 eval "$(mise activate bash --shims)"
 eval "$(mise env -s bash)"
@@ -20,6 +20,7 @@ eval "$(mise env -s bash)"
 yes | pnpm install
 
 # Install xvfb and dbus to run VS Code
+sudo apt update
 sudo apt install -y xvfb dbus-x11
 
 # Install VS Code for extension testing
@@ -31,3 +32,7 @@ sudo apt install -y code
 
 # Install Playwright dependencies
 pnpm -F vscode exec playwright-core install-deps chromium
+
+# Install misc dependencies
+sudo apt install -y \
+  zstd # Archiving stuff, i.e., icons pkgs
