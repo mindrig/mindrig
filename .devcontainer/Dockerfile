@@ -1,5 +1,8 @@
 FROM kossnocorp/dev-node:latest
 
+# Install latest mise
+RUN curl https://mise.run | sh
+
 # Ensure directories to mount into.
 RUN \
   mkdir -p "$HOME/.config/fnox" && \
