@@ -8,6 +8,12 @@ This change log follows the format documented in [Keep a CHANGELOG].
 [semantic versioning]: http://semver.org/
 [keep a changelog]: http://keepachangelog.com/
 
+## v0.8.0 - 2026-02-13
+
+### Changed
+
+- Use `openai/gpt-5-nano` as the demo model for new users instead of `mistralai/ministral-3-3b`.
+
 ## v0.7.0 - 2026-01-06
 
 ### Fixed
