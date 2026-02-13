@@ -19,7 +19,8 @@
   "dependencies": {
     "@ai-sdk/gateway": "^2.0.9",
     "ai": "^5.0.93",
-    "hono": "^4.9.7"
+    "hono": "^4.9.7",
+    "openai": "^6.21.0"
   },
   "devDependencies": {
     "@wrkspc/core": "workspace:^",
