@@ -6,7 +6,7 @@
     "dev": "./scripts/dev.sh",
     "dev:offline": "MINDRIG_DEV_RECORD=true ./scripts/dev.sh",
     "dev:record": "MINDRIG_DEV_RECORD_RECORD=true ./scripts/dev.sh",
-    "deploy": "wrangler deploy --minify",
+    "ship": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings env.d.ts",
     "test": "vitest run",
     "test:watch": "vitest",
