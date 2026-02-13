@@ -1,6 +1,6 @@
 [tools]
 ## Stack
-node = { version = "lts" }
+node = "lts"
 pnpm = "latest"
 rust = "stable"
 "cargo:genotype_cli" = "latest"

@@ -44,6 +44,15 @@ backend = "github:jdx/fnox"
 "platforms.macos-x64" = { checksum = "sha256:e15167601cc41e6b7ed1af216cb2a3537db2e40cf61ad65150f517065f24d580", url = "https://github.com/jdx/fnox/releases/download/v1.7.0/fnox-x86_64-apple-darwin.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/321587571"}
 "platforms.windows-x64" = { checksum = "sha256:fe3a964d67f4f531afc44e8f0cf72886739c6a79d2113db50a3482ca1d09f0e2", url = "https://github.com/jdx/fnox/releases/download/v1.7.0/fnox-x86_64-pc-windows-msvc.zip", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/321587570"}
 
+[[tools.fnox]]
+version = "1.12.1"
+backend = "github:jdx/fnox"
+"platforms.linux-arm64" = { checksum = "sha256:158195c758d05684ae6e3a7c553edf4f163ac13c4466556742810220ee3866c8", url = "https://github.com/jdx/fnox/releases/download/v1.12.1/fnox-aarch64-unknown-linux-gnu.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/353421839"}
+"platforms.linux-x64" = { checksum = "sha256:0a28ae0b36584c077dfb4fe0f924246bd3787e58504732f3c7a5dbf3785e738c", url = "https://github.com/jdx/fnox/releases/download/v1.12.1/fnox-x86_64-unknown-linux-gnu.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/353421846"}
+"platforms.macos-arm64" = { checksum = "sha256:8dc93b9e53b81f61be5e013d6163ed40062217f69221e7cca28a45cac94797c6", url = "https://github.com/jdx/fnox/releases/download/v1.12.1/fnox-aarch64-apple-darwin.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/353421842"}
+"platforms.macos-x64" = { checksum = "sha256:8a4409be660a8a7d62baf43b7d34ab43c53c1cf47ad296bd90b5d35cc968d9a1", url = "https://github.com/jdx/fnox/releases/download/v1.12.1/fnox-x86_64-apple-darwin.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/353421841"}
+"platforms.windows-x64" = { checksum = "sha256:2e9cf3f4852d635f757f4216a132b32c568ebfe6af44eb3af3d326f730c721d5", url = "https://github.com/jdx/fnox/releases/download/v1.12.1/fnox-x86_64-pc-windows-msvc.zip", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/353421843"}
+
 [[tools.go]]
 version = "1.25.1"
 backend = "core:go"
@@ -58,8 +67,13 @@ version = "master"
 backend = "go:github.com/tomwright/dasel/v3/cmd/dasel"
 
 [[tools.node]]
-version = "24.10.0"
+version = "24.13.1"
 backend = "core:node"
+"platforms.linux-arm64" = { checksum = "sha256:4873459d7c9b28feaa1f0fade9bb9c81cb702670991ff80a51d805325c5e3456", url = "https://nodejs.org/dist/v24.13.1/node-v24.13.1-linux-arm64.tar.gz"}
+"platforms.linux-x64" = { checksum = "sha256:7ad28fb172a9ab0593f86c1a39e5c268d0d8fc3d6cb0167f455b5655a7a6e2fd", url = "https://nodejs.org/dist/v24.13.1/node-v24.13.1-linux-x64.tar.gz"}
+"platforms.macos-arm64" = { checksum = "sha256:8c039d59f2fec6195e4281ad5b0d02b9a940897b4df7b849c6fb48be6787bba6", url = "https://nodejs.org/dist/v24.13.1/node-v24.13.1-darwin-arm64.tar.gz"}
+"platforms.macos-x64" = { checksum = "sha256:527f0578d9812e7dfa225121bda0b1546a6a0e4b5f556295fc8299c272de5fbf", url = "https://nodejs.org/dist/v24.13.1/node-v24.13.1-darwin-x64.tar.gz"}
+"platforms.windows-x64" = { checksum = "sha256:fba577c4bb87df04d54dd87bbdaa5a2272f1f99a2acbf9152e1a91b8b5f0b279", url = "https://nodejs.org/dist/v24.13.1/node-v24.13.1-win-x64.zip"}
 
 [[tools."npm:@anthropic-ai/claude-code"]]
 version = "1.0.110"
@@ -94,6 +108,15 @@ backend = "aqua:pnpm/pnpm"
 "platforms.macos-arm64" = { checksum = "sha256:aebc1cf4550d8ee3010a6cb42aeefc094ff2d1904fc0f59e9c906351a6b0f620", url = "https://github.com/pnpm/pnpm/releases/download/v10.23.0/pnpm-macos-arm64"}
 "platforms.macos-x64" = { checksum = "sha256:9f34db0296ab4e92514cfe6648c3037cf3b9bbbb906873831b7f8372cb4a610c", url = "https://github.com/pnpm/pnpm/releases/download/v10.23.0/pnpm-macos-x64"}
 "platforms.windows-x64" = { checksum = "sha256:f21a094f628ab710be8555c61aea67697ed0a563dbd78d7a91d902e4cd4db6a6", url = "https://github.com/pnpm/pnpm/releases/download/v10.23.0/pnpm-win-x64.exe"}
+
+[[tools.pnpm]]
+version = "10.29.3"
+backend = "aqua:pnpm/pnpm"
+"platforms.linux-arm64" = { checksum = "sha256:ae70208882b2c5229e143de2454fc4f778b2d2ae959a2e48ec76a6c26e8b3127", url = "https://github.com/pnpm/pnpm/releases/download/v10.29.3/pnpm-linux-arm64"}
+"platforms.linux-x64" = { checksum = "sha256:2fc98db127c611be0c110af11b5b72759f7d736893dddc81df73b7b59b30f15a", url = "https://github.com/pnpm/pnpm/releases/download/v10.29.3/pnpm-linux-x64"}
+"platforms.macos-arm64" = { checksum = "sha256:a248c56b0ab20443e18d0c8ee3207c6c564ee342bd3fc8694b3569a060cecece", url = "https://github.com/pnpm/pnpm/releases/download/v10.29.3/pnpm-macos-arm64"}
+"platforms.macos-x64" = { checksum = "sha256:569877025e8894d88b1756fdbc0675330dfcd9c01ece4ab26685baafffa8e303", url = "https://github.com/pnpm/pnpm/releases/download/v10.29.3/pnpm-macos-x64"}
+"platforms.windows-x64" = { checksum = "sha256:51a217ad98e138a346da4a43c81bbc64a8ba6df7e2afa7bf5456a163f9105635", url = "https://github.com/pnpm/pnpm/releases/download/v10.29.3/pnpm-win-x64.exe"}
 
 [[tools.rust]]
 version = "stable"
