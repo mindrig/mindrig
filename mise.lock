@@ -36,15 +36,6 @@ version = "2.3.2"
 backend = "cargo:watchexec-cli"
 
 [[tools.fnox]]
-version = "1.7.0"
-backend = "github:jdx/fnox"
-"platforms.linux-arm64" = { checksum = "sha256:d38305aa3f0b187b169a767eb56af905f55b792b2df6cbf0377efb30d4879731", url = "https://github.com/jdx/fnox/releases/download/v1.7.0/fnox-aarch64-unknown-linux-gnu.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/321587574"}
-"platforms.linux-x64" = { checksum = "sha256:d593b853806212a75db74048d4cb27ac70f6811e591c1e29f496fb8af38475f3", url = "https://github.com/jdx/fnox/releases/download/v1.7.0/fnox-x86_64-unknown-linux-gnu.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/321587581"}
-"platforms.macos-arm64" = { checksum = "sha256:65f954960de7a5cabee7bfe84be328a0baf83ab3d5362b9192be6b4791d4d2f2", url = "https://github.com/jdx/fnox/releases/download/v1.7.0/fnox-aarch64-apple-darwin.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/321587572"}
-"platforms.macos-x64" = { checksum = "sha256:e15167601cc41e6b7ed1af216cb2a3537db2e40cf61ad65150f517065f24d580", url = "https://github.com/jdx/fnox/releases/download/v1.7.0/fnox-x86_64-apple-darwin.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/321587571"}
-"platforms.windows-x64" = { checksum = "sha256:fe3a964d67f4f531afc44e8f0cf72886739c6a79d2113db50a3482ca1d09f0e2", url = "https://github.com/jdx/fnox/releases/download/v1.7.0/fnox-x86_64-pc-windows-msvc.zip", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/321587570"}
-
-[[tools.fnox]]
 version = "1.12.1"
 backend = "github:jdx/fnox"
 "platforms.linux-arm64" = { checksum = "sha256:158195c758d05684ae6e3a7c553edf4f163ac13c4466556742810220ee3866c8", url = "https://github.com/jdx/fnox/releases/download/v1.12.1/fnox-aarch64-unknown-linux-gnu.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/353421839"}
@@ -92,22 +83,13 @@ version = "0.22.2"
 backend = "npm:tfx-cli"
 
 [[tools."npm:turbo"]]
-version = "2.6.0"
+version = "2.8.7"
 backend = "npm:turbo"
 
 [[tools.opencode]]
 version = "1.0.208"
 backend = "aqua:sst/opencode"
 "platforms.linux-x64" = { checksum = "sha256:af11310034108a252a3ff8e479b5bc50ce00dce075117f31e0acc85af509ccc7", url = "https://github.com/anomalyco/opencode/releases/download/v1.0.208/opencode-linux-x64.tar.gz"}
-
-[[tools.pnpm]]
-version = "10.23.0"
-backend = "aqua:pnpm/pnpm"
-"platforms.linux-arm64" = { checksum = "sha256:b9de8dcc72dc6f23d69b64ee63dd1c4c75f35f5eaaa8e9cbeaec5849d66b70b0", url = "https://github.com/pnpm/pnpm/releases/download/v10.23.0/pnpm-linux-arm64"}
-"platforms.linux-x64" = { checksum = "sha256:6e5f25fad67ba1b4fe1050c8992ced33ce8689245a834ddec149940a20c2be5c", url = "https://github.com/pnpm/pnpm/releases/download/v10.23.0/pnpm-linux-x64"}
-"platforms.macos-arm64" = { checksum = "sha256:aebc1cf4550d8ee3010a6cb42aeefc094ff2d1904fc0f59e9c906351a6b0f620", url = "https://github.com/pnpm/pnpm/releases/download/v10.23.0/pnpm-macos-arm64"}
-"platforms.macos-x64" = { checksum = "sha256:9f34db0296ab4e92514cfe6648c3037cf3b9bbbb906873831b7f8372cb4a610c", url = "https://github.com/pnpm/pnpm/releases/download/v10.23.0/pnpm-macos-x64"}
-"platforms.windows-x64" = { checksum = "sha256:f21a094f628ab710be8555c61aea67697ed0a563dbd78d7a91d902e4cd4db6a6", url = "https://github.com/pnpm/pnpm/releases/download/v10.23.0/pnpm-win-x64.exe"}
 
 [[tools.pnpm]]
 version = "10.29.3"
