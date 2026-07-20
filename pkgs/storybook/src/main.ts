@@ -21,7 +21,7 @@ const config: StorybookConfig = {
       define: {
         // Normalise NODE_ENV for packages that rely on it being set.
         "process.env.NODE_ENV": JSON.stringify(
-          configType === "PRODUCTION" ? "production" : "development"
+          configType === "PRODUCTION" ? "production" : "development",
         ),
       },
     });

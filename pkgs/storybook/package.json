@@ -1,9 +1,9 @@
 {
   "name": "@wrkspc/storybook",
-  "private": true,
   "version": "0.0.0",
-  "license": "FSL-1.1-ALv2",
+  "private": true,
   "description": "Workspace Storybook host aggregating UI stories",
+  "license": "FSL-1.1-ALv2",
   "type": "module",
   "scripts": {
     "dev": "storybook dev --config-dir ./src/ --port 3190",

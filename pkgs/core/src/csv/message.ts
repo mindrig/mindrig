@@ -44,8 +44,7 @@ export namespace CsvMessage {
     payload: ClientDataRequestPayload;
   }
 
-  export interface ClientDataRequestPayload
-    extends ClientRequestWithDataPayload {
+  export interface ClientDataRequestPayload extends ClientRequestWithDataPayload {
     path: EditorFile.Path;
   }
 

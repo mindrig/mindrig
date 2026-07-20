@@ -27,8 +27,7 @@ export namespace Setup {
   export type Ref = RefDeveloper | RefModel;
 
   export interface RefDeveloper
-    extends Versioned<1>,
-      Model.RefPartialDeveloper {}
+    extends Versioned<1>, Model.RefPartialDeveloper {}
 
   export interface RefModel extends Versioned<1>, Model.RefPartialModel {}
 }

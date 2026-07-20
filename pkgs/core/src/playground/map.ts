@@ -131,18 +131,15 @@ export namespace PlaygroundMap {
     | PromptContentTokenJointV2;
 
   export interface PromptContentTokenStrV2
-    extends Versioned<2>,
-      PromptContentTokenStr {
+    extends Versioned<2>, PromptContentTokenStr {
     content: string;
   }
 
   export interface PromptContentTokenVarV2
-    extends Versioned<2>,
-      PromptContentTokenVar {}
+    extends Versioned<2>, PromptContentTokenVar {}
 
   export interface PromptContentTokenJointV2
-    extends Versioned<2>,
-      PromptContentTokenJoint {}
+    extends Versioned<2>, PromptContentTokenJoint {}
 
   export interface PromptCodeV2 extends Versioned<2>, PromptBaseV2 {
     type: "code";

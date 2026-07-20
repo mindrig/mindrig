@@ -1,18 +1,18 @@
 {
   "name": "@wrkspc/root",
-  "private": true,
   "version": "0.1.0",
-  "license": "FSL-1.1-ALv2",
-  "author": "",
+  "private": true,
   "description": "",
   "keywords": [],
-  "main": "index.js",
+  "license": "FSL-1.1-ALv2",
+  "author": "",
   "workspaces": [
     "pkgs/*",
     "pkgs/parser/pkg",
     "pkgs/types/pkgs/ts",
     "subs/*/pkgs/*"
   ],
+  "main": "index.js",
   "scripts": {
     "install/npm": "pnpm install",
     "setup": "turbo run setup",

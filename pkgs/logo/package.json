@@ -4,10 +4,10 @@
   "private": true,
   "license": "FSL-1.1-ALv2",
   "type": "module",
-  "scripts": {},
   "exports": {
     ".": "./src/index.ts"
   },
+  "scripts": {},
   "dependencies": {
     "@wrkspc/icons": "workspace:*",
     "@wrkspc/theme": "workspace:*",

@@ -2,8 +2,10 @@ import { CallSettings } from "ai";
 import { Model, ModelSettings, sanitizeModelSettings } from "../model";
 import { AiSdkProvider, aiSdkProviderOptions } from "./provider";
 
-export interface AiSdkSettings
-  extends Pick<CallSettings, AiSdkSettings.Overlap> {
+export interface AiSdkSettings extends Pick<
+  CallSettings,
+  AiSdkSettings.Overlap
+> {
   providerOptions?: AiSdkProvider.OptionsProp;
 }
 

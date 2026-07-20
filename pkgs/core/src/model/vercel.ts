@@ -81,8 +81,10 @@ export namespace ModelVercel {
 
   //#region Vercel api
 
-  export interface ApiModel
-    extends Omit<GatewayLanguageModelEntry, "id" | "specification"> {
+  export interface ApiModel extends Omit<
+    GatewayLanguageModelEntry,
+    "id" | "specification"
+  > {
     /** Model id. */
     id: ModelId;
     specification: ApiModelSpecification;
@@ -93,8 +95,10 @@ export namespace ModelVercel {
     credits: Credits;
   }
 
-  export interface ApiModelSpecification
-    extends Omit<GatewayLanguageModelSpecification, "provider" | "modelId"> {
+  export interface ApiModelSpecification extends Omit<
+    GatewayLanguageModelSpecification,
+    "provider" | "modelId"
+  > {
     provider: ProviderId;
     modelId: ModelId;
   }

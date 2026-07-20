@@ -1,9 +1,9 @@
 {
   "name": "@wrkspc/core",
-  "private": true,
   "version": "0.1.0",
-  "license": "FSL-1.1-ALv2",
+  "private": true,
   "description": "Shared functionality between Mind Rig client and server",
+  "license": "FSL-1.1-ALv2",
   "type": "module",
   "exports": {
     "./aiSdk": "./src/aiSdk/index.ts",

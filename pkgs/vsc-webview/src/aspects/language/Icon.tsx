@@ -5,8 +5,7 @@ import { cnss } from "cnss";
 
 export namespace LanguageIcon {
   export interface Props
-    extends cnss.Props<typeof iconBaseCn>,
-      cnss.Props<typeof iconInlineCn> {
+    extends cnss.Props<typeof iconBaseCn>, cnss.Props<typeof iconInlineCn> {
     id: Language.Id;
   }
 }

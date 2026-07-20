@@ -801,8 +801,7 @@ function stubEditorReadFile(
 
 namespace setupFactory {
   export interface Props
-    extends playgroundManagerSetupFactory.Props,
-      playgroundSetupFactory.Props {
+    extends playgroundManagerSetupFactory.Props, playgroundSetupFactory.Props {
     managerProps?: PrepareManagerPropsFn;
   }
 

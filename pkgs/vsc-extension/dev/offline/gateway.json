@@ -2500,9 +2500,7 @@
             "resolvedProvider": "openai",
             "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
             "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-            "fallbacksAvailable": [
-              "azure"
-            ],
+            "fallbacksAvailable": ["azure"],
             "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
             "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
             "canonicalSlug": "openai/gpt-5-mini",
@@ -2617,9 +2615,7 @@
                 "resolvedProvider": "openai",
                 "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
                 "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-                "fallbacksAvailable": [
-                  "azure"
-                ],
+                "fallbacksAvailable": ["azure"],
                 "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
                 "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
                 "canonicalSlug": "openai/gpt-5-mini",
@@ -2721,10 +2717,7 @@
             "resolvedProvider": "anthropic",
             "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
             "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-            "fallbacksAvailable": [
-              "vertexAnthropic",
-              "bedrock"
-            ],
+            "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
             "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
             "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
             "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -2835,10 +2828,7 @@
                 "resolvedProvider": "anthropic",
                 "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
                 "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-                "fallbacksAvailable": [
-                  "vertexAnthropic",
-                  "bedrock"
-                ],
+                "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
                 "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
                 "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
                 "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -3015,9 +3005,7 @@
                 "resolvedProvider": "openai",
                 "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
                 "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-                "fallbacksAvailable": [
-                  "azure"
-                ],
+                "fallbacksAvailable": ["azure"],
                 "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
                 "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
                 "canonicalSlug": "openai/gpt-5-mini",
@@ -3187,10 +3175,7 @@
                 "resolvedProvider": "anthropic",
                 "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
                 "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-                "fallbacksAvailable": [
-                  "vertexAnthropic",
-                  "bedrock"
-                ],
+                "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
                 "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
                 "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
                 "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -3348,9 +3333,7 @@
             "resolvedProvider": "openai",
             "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
             "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-            "fallbacksAvailable": [
-              "azure"
-            ],
+            "fallbacksAvailable": ["azure"],
             "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
             "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
             "canonicalSlug": "openai/gpt-5-mini",
@@ -3471,9 +3454,7 @@
                 "resolvedProvider": "openai",
                 "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
                 "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-                "fallbacksAvailable": [
-                  "azure"
-                ],
+                "fallbacksAvailable": ["azure"],
                 "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
                 "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
                 "canonicalSlug": "openai/gpt-5-mini",
@@ -3581,10 +3562,7 @@
             "resolvedProvider": "anthropic",
             "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
             "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-            "fallbacksAvailable": [
-              "vertexAnthropic",
-              "bedrock"
-            ],
+            "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
             "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
             "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
             "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -3701,10 +3679,7 @@
                 "resolvedProvider": "anthropic",
                 "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
                 "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-                "fallbacksAvailable": [
-                  "vertexAnthropic",
-                  "bedrock"
-                ],
+                "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
                 "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
                 "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
                 "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -3997,9 +3972,7 @@
                 "resolvedProvider": "openai",
                 "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
                 "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-                "fallbacksAvailable": [
-                  "azure"
-                ],
+                "fallbacksAvailable": ["azure"],
                 "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
                 "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
                 "canonicalSlug": "openai/gpt-5-mini",
@@ -4296,10 +4269,7 @@
                 "resolvedProvider": "anthropic",
                 "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
                 "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-                "fallbacksAvailable": [
-                  "vertexAnthropic",
-                  "bedrock"
-                ],
+                "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
                 "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
                 "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
                 "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -4457,9 +4427,7 @@
             "resolvedProvider": "openai",
             "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
             "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-            "fallbacksAvailable": [
-              "azure"
-            ],
+            "fallbacksAvailable": ["azure"],
             "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
             "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
             "canonicalSlug": "openai/gpt-5-mini",
@@ -4574,9 +4542,7 @@
                 "resolvedProvider": "openai",
                 "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
                 "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-                "fallbacksAvailable": [
-                  "azure"
-                ],
+                "fallbacksAvailable": ["azure"],
                 "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
                 "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
                 "canonicalSlug": "openai/gpt-5-mini",
@@ -4681,9 +4647,7 @@
             "resolvedProvider": "openai",
             "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
             "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-            "fallbacksAvailable": [
-              "azure"
-            ],
+            "fallbacksAvailable": ["azure"],
             "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
             "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
             "canonicalSlug": "openai/gpt-5-mini",
@@ -4798,9 +4762,7 @@
                 "resolvedProvider": "openai",
                 "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
                 "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-                "fallbacksAvailable": [
-                  "azure"
-                ],
+                "fallbacksAvailable": ["azure"],
                 "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
                 "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
                 "canonicalSlug": "openai/gpt-5-mini",
@@ -4902,10 +4864,7 @@
             "resolvedProvider": "anthropic",
             "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
             "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-            "fallbacksAvailable": [
-              "vertexAnthropic",
-              "bedrock"
-            ],
+            "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
             "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
             "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
             "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -5016,10 +4975,7 @@
                 "resolvedProvider": "anthropic",
                 "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
                 "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-                "fallbacksAvailable": [
-                  "vertexAnthropic",
-                  "bedrock"
-                ],
+                "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
                 "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
                 "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
                 "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -5123,9 +5079,7 @@
             "resolvedProvider": "openai",
             "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
             "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-            "fallbacksAvailable": [
-              "azure"
-            ],
+            "fallbacksAvailable": ["azure"],
             "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
             "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
             "canonicalSlug": "openai/gpt-5-mini",
@@ -5240,9 +5194,7 @@
                 "resolvedProvider": "openai",
                 "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
                 "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-                "fallbacksAvailable": [
-                  "azure"
-                ],
+                "fallbacksAvailable": ["azure"],
                 "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
                 "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
                 "canonicalSlug": "openai/gpt-5-mini",
@@ -5344,10 +5296,7 @@
             "resolvedProvider": "anthropic",
             "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
             "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-            "fallbacksAvailable": [
-              "vertexAnthropic",
-              "bedrock"
-            ],
+            "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
             "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
             "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
             "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -5458,10 +5407,7 @@
                 "resolvedProvider": "anthropic",
                 "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
                 "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-                "fallbacksAvailable": [
-                  "vertexAnthropic",
-                  "bedrock"
-                ],
+                "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
                 "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
                 "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
                 "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -5562,10 +5508,7 @@
             "resolvedProvider": "anthropic",
             "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
             "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-            "fallbacksAvailable": [
-              "vertexAnthropic",
-              "bedrock"
-            ],
+            "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
             "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
             "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
             "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -5676,10 +5619,7 @@
                 "resolvedProvider": "anthropic",
                 "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
                 "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-                "fallbacksAvailable": [
-                  "vertexAnthropic",
-                  "bedrock"
-                ],
+                "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
                 "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
                 "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
                 "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -6916,9 +6856,7 @@
                 "resolvedProvider": "openai",
                 "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
                 "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-                "fallbacksAvailable": [
-                  "azure"
-                ],
+                "fallbacksAvailable": ["azure"],
                 "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
                 "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
                 "canonicalSlug": "openai/gpt-5-mini",
@@ -7763,10 +7701,7 @@
                 "resolvedProvider": "anthropic",
                 "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
                 "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-                "fallbacksAvailable": [
-                  "vertexAnthropic",
-                  "bedrock"
-                ],
+                "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
                 "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
                 "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
                 "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -9281,9 +9216,7 @@
                 "resolvedProvider": "openai",
                 "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
                 "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-                "fallbacksAvailable": [
-                  "azure"
-                ],
+                "fallbacksAvailable": ["azure"],
                 "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
                 "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
                 "canonicalSlug": "openai/gpt-5-mini",
@@ -10463,9 +10396,7 @@
                 "resolvedProvider": "openai",
                 "resolvedProviderApiModelId": "gpt-5-mini-2025-08-07",
                 "internalResolvedModelId": "openai:gpt-5-mini-2025-08-07",
-                "fallbacksAvailable": [
-                  "azure"
-                ],
+                "fallbacksAvailable": ["azure"],
                 "internalReasoning": "Selected openai as preferred provider for gpt-5-mini. 1 fallback(s) available: azure",
                 "planningReasoning": "System credentials planned for: openai, azure. Total execution order: openai(system) → azure(system)",
                 "canonicalSlug": "openai/gpt-5-mini",
@@ -11220,10 +11151,7 @@
                 "resolvedProvider": "anthropic",
                 "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
                 "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-                "fallbacksAvailable": [
-                  "vertexAnthropic",
-                  "bedrock"
-                ],
+                "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
                 "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
                 "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
                 "canonicalSlug": "anthropic/claude-sonnet-4.5",
@@ -12133,10 +12061,7 @@
                 "resolvedProvider": "anthropic",
                 "resolvedProviderApiModelId": "claude-sonnet-4-5-20250929",
                 "internalResolvedModelId": "anthropic:claude-sonnet-4-5-20250929",
-                "fallbacksAvailable": [
-                  "vertexAnthropic",
-                  "bedrock"
-                ],
+                "fallbacksAvailable": ["vertexAnthropic", "bedrock"],
                 "internalReasoning": "Selected anthropic as preferred provider for claude-sonnet-4.5. 2 fallback(s) available: vertexAnthropic, bedrock",
                 "planningReasoning": "System credentials planned for: anthropic, vertexAnthropic, bedrock. Total execution order: anthropic(system) → vertexAnthropic(system) → bedrock(system)",
                 "canonicalSlug": "anthropic/claude-sonnet-4.5",

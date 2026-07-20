@@ -1,9 +1,9 @@
 {
   "name": "@wrkspc/vsc-webview",
-  "private": true,
   "version": "0.1.0",
-  "license": "FSL-1.1-ALv2",
+  "private": true,
   "description": "Mind Rig webview React application",
+  "license": "FSL-1.1-ALv2",
   "type": "module",
   "scripts": {
     "dev": "vite",

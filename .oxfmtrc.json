@@ -1,8 +1,4 @@
 {
-  "ignorePatterns": [
-    "pnpm-*.yaml",
-    ".vscode-test",
-    "pkgs/gateway/env.d.ts"
-  ],
+  "ignorePatterns": ["pnpm-*.yaml", ".vscode-test", "pkgs/gateway/env.d.ts"],
   "printWidth": 80
 }
