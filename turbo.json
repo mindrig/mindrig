@@ -38,6 +38,10 @@
 
     "types:watch": {},
 
+    "//#format": {},
+
+    "//#format:check": {},
+
     "//#root/types": {
       "inputs": [
         "$TURBO_DEFAULT$",

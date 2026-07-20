@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "oxfmt": "^0.59.0",
-    "turbo": "^2.8.7",
+    "turbo": "^2.10.5",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15"
   },

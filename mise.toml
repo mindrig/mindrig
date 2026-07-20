@@ -22,13 +22,13 @@ go = "latest"
 # TODO: Will include with latest Mothership image, so can remove after updating
 "cargo:jaq" = "latest"
 "cargo:toml2json" = "latest" # Convert Toml to JSON
-"npm:turbo" = "latest"
 "go:github.com/tomwright/dasel/v3/cmd/dasel" = "master" # JSON/YAML/TOML processor
 age = "latest" # Encryption tool
 fnox = "latest" # Secrets
 
 # VS Code Marketplace
 "npm:tfx-cli" = "latest" # Azure DevOps CLI
+turbo = "latest"
 
 [env]
 _.source = "./scripts/env-vars.sh"

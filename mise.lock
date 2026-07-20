@@ -179,6 +179,10 @@ provenance = "github-attestations"
 version = "stable"
 backend = "core:rust"
 
+[[tools.turbo]]
+version = "2.10.5"
+backend = "npm:turbo"
+
 [[tools.uv]]
 version = "0.8.15"
 backend = "aqua:astral-sh/uv"
