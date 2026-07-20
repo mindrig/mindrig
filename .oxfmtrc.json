@@ -1,0 +1,4 @@
+{
+  "ignorePatterns": ["pnpm-*.yaml"],
+  "printWidth": 80
+}
