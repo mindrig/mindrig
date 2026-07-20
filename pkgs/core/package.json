@@ -43,8 +43,7 @@
     "types": "script_path=\"$(pnpm root -w)/../scripts/pkg-types.sh\"; if [ -f \"$script_path\" ]; then \"$script_path\"; else tsc --build; fi",
     "types:watch": "script_path=\"$(pnpm root -w)/../scripts/pkg-types.sh\"; if [ -f \"$script_path\" ]; then \"$script_path\" watch; else tsc --build --watch; fi",
     "lint": "oxlint",
-    "lint:fix": "oxlint --fix --fix-suggestions",
-    "format": "prettier --write ."
+    "lint:fix": "oxlint --fix --fix-suggestions"
   },
   "dependencies": {
     "@ai-sdk/gateway": "^2.0.9",
@@ -62,7 +61,6 @@
     "@wrkspc/ts": "workspace:*",
     "ai": "^5.0.93",
     "oxlint": "^1.31.0",
-    "prettier": "^3.6.2",
     "smollog": "^0.2.0",
     "tdollar": "^0.6.0",
     "typescript": "^5.9.3",

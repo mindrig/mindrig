@@ -139,10 +139,6 @@ url = "https://nodejs.org/dist/v24.18.0/node-v24.18.0-darwin-x64.tar.gz"
 checksum = "sha256:0ae68406b42d7725661da979b1403ec9926da205c6770827f33aac9d8f26e821"
 url = "https://nodejs.org/dist/v24.18.0/node-v24.18.0-win-x64.zip"
 
-[[tools."npm:prettier"]]
-version = "3.6.2"
-backend = "npm:prettier"
-
 [[tools."npm:tfx-cli"]]
 version = "0.22.2"
 backend = "npm:tfx-cli"

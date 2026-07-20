@@ -42,7 +42,6 @@
     "@vitejs/plugin-react": "^5.1.2",
     "@wrkspc/ts": "workspace:*",
     "oxlint": "^1.31.0",
-    "prettier": "^3.6.2",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.12",
     "tailwindcss-capsize": "^4.0.1",

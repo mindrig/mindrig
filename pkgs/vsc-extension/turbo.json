@@ -69,10 +69,6 @@
         "./scripts/**/*.ts"
       ],
       "outputs": ["./src/**/*.ts", "./src/**/*.tsx"]
-    },
-
-    "format": {
-      "inputs": ["$TURBO_DEFAULT$", "./**/*"]
     }
   },
   "extends": ["//"]

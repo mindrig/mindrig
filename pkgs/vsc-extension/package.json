@@ -166,7 +166,6 @@
     "types:watch": "script_path=\"$(pnpm root -w)/../scripts/pkg-types.sh\"; if [ -f \"$script_path\" ]; then \"$script_path\" watch; else tsc --build --watch; fi",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions",
-    "format": "prettier --write .",
     "gen/icons": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON ./scripts/gen/iconsFont.ts && fantasticon",
     "gen/webview/html": "tsx ./scripts/gen/webviewHtml.ts"
   },
@@ -204,7 +203,6 @@
     "oxlint": "^1.31.0",
     "picocolors": "^1.1.1",
     "playwright-core": "^1.55.0",
-    "prettier": "^3.6.2",
     "rollup-plugin-node-externals": "^8.1.2",
     "smolcanon": "^0.2.0",
     "smolxxh": "^0.1.0",

@@ -12,8 +12,7 @@
     "types": "script_path=\"$(pnpm root -w)/../scripts/pkg-types.sh\"; if [ -f \"$script_path\" ]; then \"$script_path\"; else tsc --build; fi",
     "types:watch": "script_path=\"$(pnpm root -w)/../scripts/pkg-types.sh\"; if [ -f \"$script_path\" ]; then \"$script_path\" watch; else tsc --build --watch; fi",
     "lint": "oxlint",
-    "lint:fix": "oxlint --fix --fix-suggestions",
-    "format": "prettier --write ."
+    "lint:fix": "oxlint --fix --fix-suggestions"
   },
   "dependencies": {},
   "peerDependencies": {

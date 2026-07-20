@@ -14,13 +14,11 @@
     "types": "script_path=\"$(pnpm root -w)/../scripts/pkg-types.sh\"; if [ -f \"$script_path\" ]; then \"$script_path\"; else tsc --build; fi",
     "types:watch": "script_path=\"$(pnpm root -w)/../scripts/pkg-types.sh\"; if [ -f \"$script_path\" ]; then \"$script_path\" watch; else tsc --build --watch; fi",
     "lint": "oxlint",
-    "lint:fix": "oxlint --fix --fix-suggestions",
-    "format": "prettier --write ."
+    "lint:fix": "oxlint --fix --fix-suggestions"
   },
   "devDependencies": {
     "@wrkspc/ts": "workspace:*",
     "oxlint": "^1.13.0",
-    "prettier": "^3.6.2",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },

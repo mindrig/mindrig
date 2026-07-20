@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
-import { format } from "prettier";
+import { format } from "oxfmt";
 
 //#region Settings
 
@@ -105,8 +105,12 @@ async function readJson<Type>(jsonPath: string): Promise<Type> {
 }
 
 async function writeJson(jsonPath: string, data: unknown): Promise<void> {
-  const json = await format(JSON.stringify(data), { parser: "json" });
-  await writeFile(jsonPath, json, "utf8");
+  const result = await format(jsonPath, JSON.stringify(data), {
+    printWidth: 80,
+  });
+  if (result.errors.length)
+    throw new Error(result.errors.map((error) => error.message).join("\n"));
+  await writeFile(jsonPath, result.code, "utf8");
 }
 
 function buildIconContribution(

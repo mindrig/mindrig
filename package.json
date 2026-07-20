@@ -30,11 +30,11 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "format": "turbo run format"
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check ."
   },
   "devDependencies": {
     "oxfmt": "^0.59.0",
-    "prettier": "^3.6.2",
     "turbo": "^2.8.7",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15"
