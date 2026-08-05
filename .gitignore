@@ -28,3 +28,5 @@ vitest-report.xml
 dist/
 # Temp
 tmp/
+# Git Worktrees
+mindrig.wt.code-workspace
